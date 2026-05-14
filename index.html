@@ -538,9 +538,88 @@
     gap: 8px;
     flex-wrap: wrap;
   }
+
+  .leaderboard-list, .teacher-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .leaderboard-row, .teacher-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 10px;
+  }
+  .leaderboard-row.is-me, .teacher-row.is-me {
+    background: #e8f4fd;
+    border-color: #3498db;
+  }
+  .leaderboard-rank {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: #7f8c8d;
+    min-width: 50px;
+    text-align: center;
+  }
+  .leaderboard-rank.gold { color: #f1c40f; }
+  .leaderboard-rank.silver { color: #95a5a6; }
+  .leaderboard-rank.bronze { color: #cd7f32; }
+  .leaderboard-name, .teacher-name {
+    flex: 1;
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  .leaderboard-stats {
+    text-align: left;
+    color: #7f8c8d;
+    font-size: 0.95em;
+  }
+  .leaderboard-stats b {
+    color: #d97706;
+    font-size: 1.2em;
+  }
+  .teacher-activity {
+    color: #2980b9;
+    font-size: 0.95em;
+    text-align: left;
+  }
+  .teacher-activity .muted {
+    color: #95a5a6;
+    font-style: italic;
+  }
+  .teacher-last-seen {
+    color: #95a5a6;
+    font-size: 0.8em;
+  }
 </style>
 </head>
 <body>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAgxCpPbxPFF2awfjygkabhS60UV13sSUc",
+  authDomain: "math-practice-class.firebaseapp.com",
+  databaseURL: "https://math-practice-class-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "math-practice-class",
+  storageBucket: "math-practice-class.firebasestorage.app",
+  messagingSenderId: "1015683299854",
+  appId: "1:1015683299854:web:d05118ea913592b37b9a5f"
+};
+let firebaseDb = null;
+try {
+  firebase.initializeApp(firebaseConfig);
+  firebaseDb = firebase.database();
+} catch (e) {
+  console.warn('Firebase init failed:', e);
+}
+function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
+</script>
 <div id="welcome-overlay" class="welcome-overlay hidden">
   <div class="welcome-card">
     <h2>ברוכים הבאים! 👋</h2>
@@ -600,7 +679,29 @@
         <div class="stat-label">מטבעות 🪙</div>
       </div>
     </div>
+    <div style="text-align:center; margin: 15px 0;">
+      <button class="btn btn-success" onclick="showLeaderboard()">🏆 לוח תוצאות</button>
+      <button class="btn btn-warning" onclick="showTeacher()">👩‍🏫 מסך מורה</button>
+    </div>
     <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
+  </div>
+
+  <div id="leaderboard-view" class="hidden">
+    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+    <h2 style="text-align:center;">🏆 לוח תוצאות הכיתה</h2>
+    <p style="text-align:center; color:#7f8c8d;">המטבעות של כל הכיתה. שתבא אצל החברים שלך!</p>
+    <div id="leaderboard-list" class="leaderboard-list">
+      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+    </div>
+  </div>
+
+  <div id="teacher-view" class="hidden">
+    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+    <h2 style="text-align:center;">👩‍🏫 מסך מורה</h2>
+    <p style="text-align:center; color:#7f8c8d;">מה כל תלמיד עושה כרגע (מתעדכן בזמן אמת)</p>
+    <div id="teacher-list" class="teacher-list">
+      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+    </div>
   </div>
 
   <div id="topic-view" class="hidden">
@@ -643,8 +744,34 @@ function saveStats() {
   if (currentStudent) {
     profiles[currentStudent] = stats;
     localStorage.setItem('mathProfiles', JSON.stringify(profiles));
+    syncStudentToFirebase();
   }
   updateStatsDisplay();
+}
+
+function syncStudentToFirebase() {
+  if (!firebaseDb || !currentStudent) return;
+  try {
+    firebaseDb.ref('students/' + fbKey(currentStudent)).update({
+      name: currentStudent,
+      coins: stats.coins || 0,
+      streak: stats.streak || 0,
+      correct: stats.correct || 0,
+      attempts: stats.attempts || 0,
+      levelProgress: stats.levelProgress || {},
+      lastSeen: firebase.database.ServerValue.TIMESTAMP
+    });
+  } catch (e) { console.warn('sync failed', e); }
+}
+
+function updateCurrentActivity(label) {
+  if (!firebaseDb || !currentStudent) return;
+  try {
+    firebaseDb.ref('students/' + fbKey(currentStudent) + '/currentActivity').set({
+      label: label || null,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+  } catch (e) { console.warn('activity update failed', e); }
 }
 function updateStatsDisplay() {
   document.getElementById('total-correct').textContent = stats.correct;
@@ -717,6 +844,7 @@ function pickStudent(name) {
   saveStats();
   updateStudentDisplay();
   document.getElementById('welcome-overlay').classList.add('hidden');
+  updateCurrentActivity('בתפריט הראשי');
 }
 function switchStudent() {
   showWelcomeModal();
@@ -728,6 +856,8 @@ function initStudent() {
     Object.keys(defaultStats()).forEach(k => { if (!(k in stats)) stats[k] = defaultStats()[k]; });
     updateStudentDisplay();
     updateStatsDisplay();
+    syncStudentToFirebase();
+    updateCurrentActivity('בתפריט הראשי');
   } else {
     showWelcomeModal();
   }
@@ -778,7 +908,132 @@ function openTopic(topicNum) {
 function backToMenu() {
   document.getElementById('main-menu').classList.remove('hidden');
   document.getElementById('topic-view').classList.add('hidden');
+  document.getElementById('leaderboard-view').classList.add('hidden');
+  document.getElementById('teacher-view').classList.add('hidden');
   currentTopic = null;
+  stopLiveListener();
+  updateCurrentActivity('בתפריט הראשי');
+}
+
+let liveRef = null;
+function stopLiveListener() {
+  if (liveRef) { try { liveRef.off(); } catch(_) {} liveRef = null; }
+}
+
+function timeAgo(ms) {
+  if (!ms) return '';
+  const diff = Date.now() - ms;
+  if (diff < 0) return 'כעת';
+  if (diff < 60000) return 'לפני פחות מדקה';
+  if (diff < 3600000) return `לפני ${Math.floor(diff/60000)} ד'`;
+  if (diff < 86400000) return `לפני ${Math.floor(diff/3600000)} ש'`;
+  return `לפני ${Math.floor(diff/86400000)} ימים`;
+}
+
+function showLeaderboard() {
+  if (!firebaseDb) {
+    alert('לוח התוצאות דורש חיבור לאינטרנט.');
+    return;
+  }
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('leaderboard-view').classList.remove('hidden');
+  syncStudentToFirebase();
+  stopLiveListener();
+  liveRef = firebaseDb.ref('students');
+  liveRef.on('value', renderLeaderboard, err => {
+    console.warn(err);
+    document.getElementById('leaderboard-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינת הלוח. בדוק את כללי האבטחה ב-Firebase.</p>';
+  });
+}
+
+function renderLeaderboard(snap) {
+  const list = [];
+  snap.forEach(child => {
+    const v = child.val() || {};
+    list.push({
+      name: v.name || child.key,
+      coins: v.coins || 0,
+      correct: v.correct || 0,
+      streak: v.streak || 0
+    });
+  });
+  list.sort((a, b) => b.coins - a.coins);
+  const container = document.getElementById('leaderboard-list');
+  if (!list.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין תלמידים בלוח. תתחיל לתרגל!</p>';
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  container.innerHTML = list.map((s, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const rank = i < 3 ? medals[i] : `#${i + 1}`;
+    const isMe = s.name === currentStudent;
+    return `
+      <div class="leaderboard-row ${isMe ? 'is-me' : ''}">
+        <div class="leaderboard-rank ${rankClass}">${rank}</div>
+        <div class="leaderboard-name">${escapeHtml(s.name)}${isMe ? ' (אתה)' : ''}</div>
+        <div class="leaderboard-stats"><b>${s.coins} 🪙</b><br>${s.correct} נכונות · 🔥 ${s.streak}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showTeacher() {
+  if (!firebaseDb) {
+    alert('מסך המורה דורש חיבור לאינטרנט.');
+    return;
+  }
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('teacher-view').classList.remove('hidden');
+  stopLiveListener();
+  liveRef = firebaseDb.ref('students');
+  liveRef.on('value', renderTeacher, err => {
+    console.warn(err);
+    document.getElementById('teacher-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה.</p>';
+  });
+}
+
+function renderTeacher(snap) {
+  const list = [];
+  snap.forEach(child => {
+    const v = child.val() || {};
+    list.push({
+      name: v.name || child.key,
+      activity: v.currentActivity && v.currentActivity.label,
+      activityTime: v.currentActivity && v.currentActivity.timestamp,
+      lastSeen: v.lastSeen,
+      coins: v.coins || 0,
+      correct: v.correct || 0,
+      attempts: v.attempts || 0
+    });
+  });
+  list.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+  const container = document.getElementById('teacher-list');
+  if (!list.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין תלמידים.</p>';
+    return;
+  }
+  container.innerHTML = list.map(s => {
+    const isMe = s.name === currentStudent;
+    const activityLabel = s.activity
+      ? escapeHtml(s.activity)
+      : '<span class="muted">לא ידוע</span>';
+    const success = s.attempts ? Math.round(100 * s.correct / s.attempts) : 0;
+    return `
+      <div class="teacher-row ${isMe ? 'is-me' : ''}">
+        <div class="teacher-name">${escapeHtml(s.name)}${isMe ? ' (אתה)' : ''}<br>
+          <span class="teacher-last-seen">${timeAgo(s.lastSeen)}</span></div>
+        <div class="teacher-activity">${activityLabel}<br>
+          <span class="teacher-last-seen">${s.correct}/${s.attempts} (${success}%) · ${s.coins} 🪙</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
 
 function renderLevelSelector() {
@@ -1973,6 +2228,9 @@ function newProblem() {
   helpUsedForProblem = false;
   TOPICS[currentTopic].render();
   initNotebook();
+  const topicTitle = TOPICS[currentTopic].title;
+  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
+  updateCurrentActivity(`${topicTitle} · רמה ${currentLevel} (${levelNames[currentLevel]})`);
 }
 
 // ============================================================
