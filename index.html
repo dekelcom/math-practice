@@ -306,15 +306,16 @@
     padding: 10px 15px;
     border-radius: 8px;
     margin: 10px 0;
-    direction: ltr;
-    unicode-bidi: bidi-override;
     text-align: center;
     font-family: "Cambria Math", serif;
     font-size: 1.15em;
   }
+  .formula-box .math {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: inline-block;
+  }
   .formula-box .label {
-    direction: rtl;
-    unicode-bidi: normal;
     font-family: inherit;
     color: #2c3e50;
     font-weight: 600;
@@ -624,7 +625,7 @@ function renderTopic1() {
     <div class="equation">${fmtQuadratic(eq.a, eq.b, eq.c)}</div>
     <div class="formula-box">
       <span class="label">נוסחת השורשים:</span>
-      x = (-b ± √(b² - 4ac)) / (2a)
+      <span class="math">x = (-b ± √(b² - 4ac)) / (2a)</span>
     </div>
     <div class="answer-section">
       <label>מספר שורשים (0, 1, או 2):</label>
@@ -811,7 +812,7 @@ function renderTopic2() {
     <div class="equation">${fmtFunction(fn.a, fn.b, fn.c)}</div>
     <div class="formula-box">
       <span class="label">קודקוד:</span>
-      x = -b/(2a),  y = f(x)
+      <span class="math">x = -b/(2a),  y = f(x)</span>
     </div>
     <div class="answer-section">
       <label>סוג הפרבולה:</label>
