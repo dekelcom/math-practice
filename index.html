@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תרגול למבחן מתמטיקה - כיתה ט'</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Heebo", Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    color: #2c3e50;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  }
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 0;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 15px;
+  }
+  .topics-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .topic-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
+    font-size: 1.05em;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .topic-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+  .topic-card.topic-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+  .topic-card.topic-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+  .topic-card.topic-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+  .level-selector {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .level-btn {
+    padding: 10px 20px;
+    border: 2px solid #3498db;
+    background: white;
+    color: #3498db;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .level-btn:hover { background: #ecf0f1; }
+  .level-btn.active {
+    background: #3498db;
+    color: white;
+  }
+  .level-btn.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #95a5a6;
+    color: #95a5a6;
+  }
+
+  .problem-area {
+    background: #f8f9fa;
+    border: 2px solid #e1e4e8;
+    border-radius: 12px;
+    padding: 25px;
+    margin: 20px 0;
+    min-height: 200px;
+  }
+  .problem-text {
+    font-size: 1.2em;
+    line-height: 1.6;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+  }
+  .equation {
+    font-family: "Cambria Math", Cambria, "Times New Roman", serif;
+    font-size: 1.4em;
+    background: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 8px 0;
+    border-right: 4px solid #3498db;
+    direction: ltr;
+    unicode-bidi: bidi-override;
+  }
+  .answer-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+  .answer-section label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 600;
+    color: #34495e;
+  }
+  input[type="text"], input[type="number"] {
+    padding: 10px;
+    font-size: 1.1em;
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    width: 150px;
+    direction: ltr;
+    text-align: left;
+    font-family: inherit;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+  select {
+    padding: 10px;
+    font-size: 1.05em;
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    font-family: inherit;
+    background: white;
+  }
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    font-family: inherit;
+    margin: 8px 4px;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: #3498db;
+    color: white;
+  }
+  .btn-primary:hover { background: #2980b9; }
+  .btn-success {
+    background: #27ae60;
+    color: white;
+  }
+  .btn-success:hover { background: #229954; }
+  .btn-warning {
+    background: #f39c12;
+    color: white;
+  }
+  .btn-warning:hover { background: #e67e22; }
+  .btn-secondary {
+    background: #95a5a6;
+    color: white;
+  }
+  .btn-secondary:hover { background: #7f8c8d; }
+
+  .feedback {
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+    animation: slideIn 0.3s ease-out;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .feedback.correct {
+    background: #d4edda;
+    color: #155724;
+    border-right: 4px solid #28a745;
+  }
+  .feedback.incorrect {
+    background: #f8d7da;
+    color: #721c24;
+    border-right: 4px solid #dc3545;
+  }
+  .solution {
+    background: #fff3cd;
+    border-right: 4px solid #ffc107;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    line-height: 1.8;
+  }
+  .solution h4 {
+    margin-top: 0;
+    color: #856404;
+  }
+  .solution-step {
+    margin: 8px 0;
+    padding-right: 15px;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  .stat-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+  }
+  .progress-bar {
+    height: 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #3498db);
+    transition: width 0.3s;
+  }
+
+  .back-btn {
+    background: #95a5a6;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+  }
+  .back-btn:hover { background: #7f8c8d; }
+
+  .hidden { display: none !important; }
+
+  canvas {
+    background: white;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    max-width: 100%;
+    display: block;
+    margin: 10px auto;
+  }
+
+  .multi-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 8px 0;
+  }
+  .multi-input span { font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .badge-easy { background: #d4edda; color: #155724; }
+  .badge-medium { background: #fff3cd; color: #856404; }
+  .badge-hard { background: #f8d7da; color: #721c24; }
+
+  .star { color: #f1c40f; font-size: 1.3em; }
+  .formula-box {
+    background: #e8f4f8;
+    border: 1px dashed #3498db;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    direction: ltr;
+    unicode-bidi: bidi-override;
+    text-align: center;
+    font-family: "Cambria Math", serif;
+    font-size: 1.15em;
+  }
+  .formula-box .label {
+    direction: rtl;
+    unicode-bidi: normal;
+    font-family: inherit;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-left: 8px;
+    font-size: 0.95em;
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 15px; }
+    h1 { font-size: 1.3em; }
+    .equation { font-size: 1.1em; }
+    .problem-text { font-size: 1.05em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
+
+  <div id="main-menu">
+    <p style="text-align:center; font-size:1.1em; color:#7f8c8d;">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
+    <div class="topics-menu">
+      <button class="topic-card topic-1" onclick="openTopic(1)">
+        📐 פתרון משוואה ריבועית<br>
+        <small style="opacity:0.9">נוסחת השורשים</small>
+      </button>
+      <button class="topic-card topic-2" onclick="openTopic(2)">
+        📈 חקירת פונקציה ריבועית<br>
+        <small style="opacity:0.9">סוג + קודקוד</small>
+      </button>
+      <button class="topic-card topic-3" onclick="openTopic(3)">
+        📏 גיאומטריה - טרפז<br>
+        <small style="opacity:0.9">+ משולב עם פיתגורס</small>
+      </button>
+      <button class="topic-card topic-4" onclick="openTopic(4)">
+        📊 קריאת גרפים<br>
+        <small style="opacity:0.9">פונקציות וערכים</small>
+      </button>
+    </div>
+
+    <div class="stats" id="overall-stats">
+      <div class="stat-item">
+        <div class="stat-value" id="total-correct">0</div>
+        <div class="stat-label">תשובות נכונות</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="total-attempts">0</div>
+        <div class="stat-label">סה"כ ניסיונות</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="current-streak">0</div>
+        <div class="stat-label">רצף נכון 🔥</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
+  </div>
+
+  <div id="topic-view" class="hidden">
+    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+    <h2 id="topic-title"></h2>
+    <div class="level-selector" id="level-selector"></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="level-progress" style="width:0%"></div>
+    </div>
+    <p style="text-align:center; color:#7f8c8d; font-size:0.9em;" id="level-info"></p>
+    <div class="problem-area" id="problem-area"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// סטטיסטיקה גלובלית
+// ============================================================
+let stats = JSON.parse(localStorage.getItem('mathStats') || '{"correct":0,"attempts":0,"streak":0,"levelProgress":{}}');
+
+function saveStats() {
+  localStorage.setItem('mathStats', JSON.stringify(stats));
+  updateStatsDisplay();
+}
+function updateStatsDisplay() {
+  document.getElementById('total-correct').textContent = stats.correct;
+  document.getElementById('total-attempts').textContent = stats.attempts;
+  document.getElementById('current-streak').textContent = stats.streak;
+}
+function resetStats() {
+  if (confirm('לאפס את כל הסטטיסטיקה והנעילות של רמות?')) {
+    stats = {correct:0, attempts:0, streak:0, levelProgress:{}};
+    saveStats();
+    location.reload();
+  }
+}
+updateStatsDisplay();
+
+// ============================================================
+// מצב נוכחי
+// ============================================================
+let currentTopic = null;
+let currentLevel = 1;
+let levelCorrectInRow = 0;
+const CORRECT_TO_UNLOCK = 3; // כמה צריך להצליח כדי לפתוח רמה
+
+function openTopic(topicNum) {
+  currentTopic = topicNum;
+  currentLevel = 1;
+  levelCorrectInRow = 0;
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('topic-view').classList.remove('hidden');
+  document.getElementById('topic-title').textContent = TOPICS[topicNum].title;
+  renderLevelSelector();
+  newProblem();
+}
+
+function backToMenu() {
+  document.getElementById('main-menu').classList.remove('hidden');
+  document.getElementById('topic-view').classList.add('hidden');
+  currentTopic = null;
+}
+
+function renderLevelSelector() {
+  const sel = document.getElementById('level-selector');
+  sel.innerHTML = '';
+  const levels = [
+    {n:1, name:'רמה 1 - קל', cls:'badge-easy'},
+    {n:2, name:'רמה 2 - בינוני', cls:'badge-medium'},
+    {n:3, name:'רמה 3 - מתקדם', cls:'badge-hard'}
+  ];
+  const progKey = `t${currentTopic}`;
+  const unlocked = stats.levelProgress[progKey] || 1;
+  levels.forEach(lv => {
+    const btn = document.createElement('button');
+    btn.className = 'level-btn' + (currentLevel === lv.n ? ' active' : '') + (lv.n > unlocked ? ' locked' : '');
+    btn.innerHTML = lv.name + (lv.n > unlocked ? ' 🔒' : '');
+    if (lv.n <= unlocked) {
+      btn.onclick = () => { currentLevel = lv.n; levelCorrectInRow = 0; renderLevelSelector(); newProblem(); };
+    }
+    sel.appendChild(btn);
+  });
+  updateLevelProgress();
+}
+
+function updateLevelProgress() {
+  const pct = Math.min(100, (levelCorrectInRow / CORRECT_TO_UNLOCK) * 100);
+  document.getElementById('level-progress').style.width = pct + '%';
+  const progKey = `t${currentTopic}`;
+  const unlocked = stats.levelProgress[progKey] || 1;
+  if (currentLevel < 3 && currentLevel === unlocked) {
+    document.getElementById('level-info').textContent =
+      `פתור ${CORRECT_TO_UNLOCK} תרגילים נכון ברצף כדי לפתוח את הרמה הבאה (${levelCorrectInRow}/${CORRECT_TO_UNLOCK})`;
+  } else {
+    document.getElementById('level-info').textContent = '';
+  }
+}
+
+function recordAnswer(correct) {
+  stats.attempts++;
+  if (correct) {
+    stats.correct++;
+    stats.streak++;
+    levelCorrectInRow++;
+    const progKey = `t${currentTopic}`;
+    const unlocked = stats.levelProgress[progKey] || 1;
+    if (levelCorrectInRow >= CORRECT_TO_UNLOCK && currentLevel === unlocked && currentLevel < 3) {
+      stats.levelProgress[progKey] = currentLevel + 1;
+      setTimeout(() => {
+        alert(`🎉 כל הכבוד! פתחת את רמה ${currentLevel + 1}!`);
+        renderLevelSelector();
+      }, 500);
+    }
+  } else {
+    stats.streak = 0;
+    levelCorrectInRow = 0;
+  }
+  saveStats();
+  updateLevelProgress();
+}
+
+// ============================================================
+// כלים מתמטיים
+// ============================================================
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randNonZero(min, max) { let v = 0; while (v === 0) v = randInt(min, max); return v; }
+function pickFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { [a,b] = [b, a%b]; } return a || 1; }
+
+// השוואה של תשובות מספריות עם סובלנות
+function nearlyEqual(a, b, eps = 0.01) {
+  return Math.abs(a - b) < eps;
+}
+
+// ניסיון פיענוח קלט (יכול להיות מספר, שבר, או שורש)
+function parseAnswer(str) {
+  if (!str) return NaN;
+  str = str.trim().replace(/\s/g,'');
+  if (str === '' || str.toLowerCase() === 'אין' || str.toLowerCase() === 'no') return null;
+  // שבר פשוט
+  if (str.includes('/')) {
+    const parts = str.split('/');
+    if (parts.length === 2) {
+      const n = parseFloat(parts[0]);
+      const d = parseFloat(parts[1]);
+      if (!isNaN(n) && !isNaN(d) && d !== 0) return n/d;
+    }
+  }
+  return parseFloat(str);
+}
+
+// פורמוט שבר
+function formatFraction(num, den) {
+  if (den < 0) { num = -num; den = -den; }
+  const g = gcd(Math.abs(num), Math.abs(den));
+  num /= g; den /= g;
+  if (den === 1) return String(num);
+  return `${num}/${den}`;
+}
+
+// פורמוט מקדם עם סימן
+function fmtCoef(c, varStr, first = false) {
+  if (c === 0) return '';
+  let sign = c < 0 ? ' − ' : (first ? '' : ' + ');
+  let abs = Math.abs(c);
+  if (varStr && abs === 1) return sign + varStr;
+  return sign + abs + (varStr || '');
+}
+
+function fmtQuadratic(a, b, c) {
+  let s = '';
+  s += fmtCoef(a, 'x²', true);
+  s += fmtCoef(b, 'x');
+  s += fmtCoef(c, '');
+  return s + ' = 0';
+}
+
+function fmtFunction(a, b, c, name='f(x)') {
+  let s = name + ' = ';
+  s += fmtCoef(a, 'x²', true);
+  s += fmtCoef(b, 'x');
+  s += fmtCoef(c, '');
+  return s;
+}
+
+// ============================================================
+// נושא 1: פתרון משוואה ריבועית
+// ============================================================
+function genQuadraticEquation(level) {
+  if (level === 1) {
+    // שורשים שלמים פשוטים, a=1
+    let r1, r2;
+    do { r1 = randInt(-5, 5); r2 = randInt(-5, 5); } while (r1 === 0 && r2 === 0);
+    const a = 1, b = -(r1 + r2), c = r1 * r2;
+    return {a, b, c, roots: [r1, r2].sort((x,y) => x-y)};
+  } else if (level === 2) {
+    // שורש אחד שלם או שני שורשים שלמים, a יכול להיות שונה מ-1
+    const useA = pickFrom([1, 2]);
+    let r1, r2;
+    do { r1 = randInt(-6, 6); r2 = randInt(-6, 6); } while (r1 === 0 && r2 === 0 && useA === 1);
+    const a = useA;
+    const b = -useA * (r1 + r2);
+    const c = useA * r1 * r2;
+    return {a, b, c, roots: [r1, r2].sort((x,y) => x-y)};
+  } else {
+    // רמה 3: יכול להיות בלי שורשים, או עם שורשים אי-רציונליים
+    const variant = pickFrom(['noRoots', 'irrational', 'integer']);
+    if (variant === 'noRoots') {
+      // a > 0, מינימום חיובי
+      const a = pickFrom([1, 1, 2]);
+      const b = randNonZero(-4, 4);
+      const minVal = randInt(1, 5);
+      // f(x) = a(x + b/2a)^2 + minVal -> c = b^2/(4a) + minVal
+      const c = Math.round((b*b)/(4*a)) + minVal;
+      return {a, b, c, roots: []};
+    } else if (variant === 'irrational') {
+      // נבחר a, b, c כך שדיסקרימיננטה חיובית אך לא ריבוע שלם
+      let a, b, c, disc, sqrtDisc;
+      let tries = 0;
+      do {
+        a = pickFrom([1, 1, 2]);
+        b = randNonZero(-6, 6);
+        c = randInt(-5, 5);
+        disc = b*b - 4*a*c;
+        sqrtDisc = Math.sqrt(disc);
+        tries++;
+      } while ((disc <= 0 || Number.isInteger(sqrtDisc)) && tries < 50);
+      const r1 = (-b - sqrtDisc) / (2*a);
+      const r2 = (-b + sqrtDisc) / (2*a);
+      return {a, b, c, roots: [r1, r2].sort((x,y) => x-y), irrational: true, disc};
+    } else {
+      // שורשים שלמים עם a=1 או 2
+      const a = pickFrom([1, 2]);
+      let r1, r2;
+      do { r1 = randInt(-7, 7); r2 = randInt(-7, 7); } while (r1 === 0 && r2 === 0);
+      const b = -a * (r1 + r2);
+      const c = a * r1 * r2;
+      return {a, b, c, roots: [r1, r2].sort((x,y) => x-y)};
+    }
+  }
+}
+
+function renderTopic1() {
+  const eq = genQuadraticEquation(currentLevel);
+  const area = document.getElementById('problem-area');
+  const levelBadges = ['', 'badge-easy', 'badge-medium', 'badge-hard'];
+  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
+
+  area.innerHTML = `
+    <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
+    <div class="problem-text">פתור את המשוואה הריבועית בעזרת נוסחת השורשים:</div>
+    <div class="equation">${fmtQuadratic(eq.a, eq.b, eq.c)}</div>
+    <div class="formula-box">
+      <span class="label">נוסחת השורשים:</span>
+      x = (-b ± √(b² - 4ac)) / (2a)
+    </div>
+    <div class="answer-section">
+      <label>מספר שורשים (0, 1, או 2):</label>
+      <input type="number" id="num-roots" min="0" max="2">
+      <div id="roots-input" style="margin-top:10px;"></div>
+      <button class="btn btn-primary" onclick="checkTopic1()">בדוק תשובה</button>
+      <button class="btn btn-warning" onclick="showHintTopic1()">רמז</button>
+      <button class="btn btn-secondary" onclick="showSolutionTopic1()">פתרון מלא</button>
+      <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
+      <div id="feedback"></div>
+    </div>
+  `;
+
+  document.getElementById('num-roots').addEventListener('input', (e) => {
+    const n = parseInt(e.target.value);
+    const rootsDiv = document.getElementById('roots-input');
+    if (n === 1) {
+      rootsDiv.innerHTML = `<label>שורש:</label> <input type="text" id="root-1" placeholder="לדוגמה: 3 או 2.5 או 1/2">`;
+    } else if (n === 2) {
+      rootsDiv.innerHTML = `
+        <label>שורש קטן:</label> <input type="text" id="root-1" placeholder="לדוגמה: -2"><br>
+        <label>שורש גדול:</label> <input type="text" id="root-2" placeholder="לדוגמה: 3">
+        <p style="font-size:0.85em; color:#7f8c8d;">בשורשים אי-רציונליים: רשום ערך עשרוני מעוגל לשתי ספרות (לדוגמה: 1.45)</p>
+      `;
+    } else {
+      rootsDiv.innerHTML = '';
+    }
+  });
+
+  // שמירה לפתרון
+  currentProblem = eq;
+}
+
+let currentProblem = null;
+
+function checkTopic1() {
+  const eq = currentProblem;
+  const numRoots = parseInt(document.getElementById('num-roots').value);
+  const expectedNum = eq.roots.length === 0 ? 0 : (eq.roots[0] === eq.roots[1] ? 1 : 2);
+  // טיפול במקרה של שורש כפול
+  const realExpected = eq.roots.length;
+  const fb = document.getElementById('feedback');
+
+  if (isNaN(numRoots)) {
+    fb.className = 'feedback incorrect';
+    fb.textContent = 'אנא רשום כמה שורשים יש למשוואה.';
+    return;
+  }
+
+  if (eq.roots.length === 0) {
+    if (numRoots === 0) {
+      fb.className = 'feedback correct';
+      fb.innerHTML = '✓ מצוין! אין למשוואה שורשים ממשיים (הדיסקרימיננטה שלילית).';
+      recordAnswer(true);
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerHTML = '✗ אין למשוואה זו שורשים. בדוק את הדיסקרימיננטה b² - 4ac - היא שלילית!';
+      recordAnswer(false);
+    }
+    return;
+  }
+
+  if (numRoots !== eq.roots.length && !(numRoots === 1 && eq.roots[0] === eq.roots[1])) {
+    fb.className = 'feedback incorrect';
+    fb.innerHTML = `✗ מספר השורשים שגוי. נסה לחשב שוב את הדיסקרימיננטה.`;
+    recordAnswer(false);
+    return;
+  }
+
+  // קריאת תשובות
+  if (numRoots === 1) {
+    const v = parseAnswer(document.getElementById('root-1').value);
+    if (nearlyEqual(v, eq.roots[0])) {
+      fb.className = 'feedback correct';
+      fb.innerHTML = '✓ נכון! שורש כפול.';
+      recordAnswer(true);
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerHTML = '✗ הערך לא נכון. נסה שוב או הסתכל בפתרון.';
+      recordAnswer(false);
+    }
+  } else {
+    const v1 = parseAnswer(document.getElementById('root-1').value);
+    const v2 = parseAnswer(document.getElementById('root-2').value);
+    if (nearlyEqual(v1, eq.roots[0]) && nearlyEqual(v2, eq.roots[1])) {
+      fb.className = 'feedback correct';
+      fb.innerHTML = '✓ מצוין! שני השורשים נכונים.';
+      recordAnswer(true);
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerHTML = '✗ לפחות אחד מהשורשים שגוי. בדוק שוב את החישוב או ראה את הפתרון.';
+      recordAnswer(false);
+    }
+  }
+}
+
+function showHintTopic1() {
+  const eq = currentProblem;
+  const fb = document.getElementById('feedback');
+  fb.className = 'solution';
+  fb.innerHTML = `
+    <h4>💡 רמז:</h4>
+    <div class="solution-step">1. זהה את המקדמים: a = ${eq.a}, b = ${eq.b}, c = ${eq.c}</div>
+    <div class="solution-step">2. חשב את הדיסקרימיננטה: Δ = b² − 4ac = ${eq.b}² − 4·${eq.a}·${eq.c} = ${eq.b*eq.b} − ${4*eq.a*eq.c} = ${eq.b*eq.b - 4*eq.a*eq.c}</div>
+    <div class="solution-step">3. אם Δ > 0 → שני שורשים. אם Δ = 0 → שורש כפול. אם Δ < 0 → אין שורשים.</div>
+  `;
+}
+
+function showSolutionTopic1() {
+  const eq = currentProblem;
+  const disc = eq.b*eq.b - 4*eq.a*eq.c;
+  const fb = document.getElementById('feedback');
+  let html = `<h4>📝 פתרון מלא:</h4>`;
+  html += `<div class="solution-step"><b>שלב 1:</b> זיהוי המקדמים: a = ${eq.a}, b = ${eq.b}, c = ${eq.c}</div>`;
+  html += `<div class="solution-step"><b>שלב 2:</b> חישוב הדיסקרימיננטה Δ:<br>
+    Δ = b² − 4ac = (${eq.b})² − 4·(${eq.a})·(${eq.c}) = ${eq.b*eq.b} − ${4*eq.a*eq.c} = <b>${disc}</b></div>`;
+
+  if (disc < 0) {
+    html += `<div class="solution-step"><b>שלב 3:</b> מכיוון ש-Δ < 0, <b>אין למשוואה שורשים ממשיים</b>.</div>`;
+  } else if (disc === 0) {
+    const x = -eq.b / (2*eq.a);
+    html += `<div class="solution-step"><b>שלב 3:</b> מכיוון ש-Δ = 0, יש שורש כפול:<br>
+      x = -b / (2a) = -(${eq.b}) / (2·${eq.a}) = <b>${x}</b></div>`;
+  } else {
+    const sqrtDisc = Math.sqrt(disc);
+    const isInt = Number.isInteger(sqrtDisc);
+    const x1 = (-eq.b - sqrtDisc) / (2*eq.a);
+    const x2 = (-eq.b + sqrtDisc) / (2*eq.a);
+    html += `<div class="solution-step"><b>שלב 3:</b> מכיוון ש-Δ > 0, יש שני שורשים:<br>
+      √Δ = √${disc} ${isInt ? '= ' + sqrtDisc : '≈ ' + sqrtDisc.toFixed(3)}</div>`;
+    html += `<div class="solution-step"><b>שלב 4:</b> הצבה בנוסחה:<br>
+      x₁ = (-(${eq.b}) - ${isInt ? sqrtDisc : '√'+disc}) / (2·${eq.a}) = <b>${isInt ? x1 : x1.toFixed(2)}</b><br>
+      x₂ = (-(${eq.b}) + ${isInt ? sqrtDisc : '√'+disc}) / (2·${eq.a}) = <b>${isInt ? x2 : x2.toFixed(2)}</b></div>`;
+  }
+  fb.className = 'solution';
+  fb.innerHTML = html;
+}
+
+// ============================================================
+// נושא 2: חקירת פונקציה ריבועית
+// ============================================================
+function genQuadFunction(level) {
+  if (level === 1) {
+    // a, b, c קטנים, קודקוד בערכים שלמים או חצי שלמים
+    const a = pickFrom([1, -1, 1, -1, 2, -2]);
+    let r1 = randInt(-4, 4), r2 = randInt(-4, 4);
+    const b = -a * (r1 + r2);
+    const c = a * r1 * r2;
+    return {a, b, c, level};
+  } else if (level === 2) {
+    const a = pickFrom([1, -1, 2, -2]);
+    const b = randInt(-8, 8);
+    const c = randInt(-6, 6);
+    return {a, b, c, level};
+  } else {
+    // רמה 3: שאלות מורכבות, ייתכן בלי שורשים
+    const a = pickFrom([1, -1, 2, -2, 1, -1]);
+    const b = randInt(-8, 8);
+    const c = randInt(-10, 10);
+    return {a, b, c, level};
+  }
+}
+
+function renderTopic2() {
+  const fn = genQuadFunction(currentLevel);
+  currentProblem = fn;
+  const area = document.getElementById('problem-area');
+  const levelBadges = ['', 'badge-easy', 'badge-medium', 'badge-hard'];
+  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
+
+  const xv = -fn.b / (2 * fn.a);
+  const yv = fn.a * xv * xv + fn.b * xv + fn.c;
+
+  let extraQ = '';
+  if (currentLevel === 3) {
+    extraQ = `<label>מהו ערך הקיצון של הפונקציה?</label>
+      <input type="text" id="extremum-value" placeholder="ערך y של הקודקוד">
+      <p style="font-size:0.85em; color:#7f8c8d;">זהו ערך ה-y של הקודקוד</p>`;
+  }
+
+  area.innerHTML = `
+    <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
+    <div class="problem-text">חקור את הפונקציה הריבועית הבאה:</div>
+    <div class="equation">${fmtFunction(fn.a, fn.b, fn.c)}</div>
+    <div class="formula-box">
+      <span class="label">קודקוד:</span>
+      x = -b/(2a),  y = f(x)
+    </div>
+    <div class="answer-section">
+      <label>סוג הפרבולה:</label>
+      <select id="parabola-type">
+        <option value="">-- בחר --</option>
+        <option value="up">פתוחה כלפי מעלה (מינימום)</option>
+        <option value="down">פתוחה כלפי מטה (מקסימום)</option>
+      </select><br>
+      <label>שיעור x של הקודקוד:</label>
+      <input type="text" id="vertex-x" placeholder="לדוגמה: 2 או -1.5"><br>
+      <label>שיעור y של הקודקוד:</label>
+      <input type="text" id="vertex-y" placeholder="לדוגמה: -3">
+      ${extraQ}
+      <br><button class="btn btn-primary" onclick="checkTopic2()">בדוק תשובה</button>
+      <button class="btn btn-warning" onclick="showHintTopic2()">רמז</button>
+      <button class="btn btn-secondary" onclick="showSolutionTopic2()">פתרון מלא</button>
+      <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
+      <div id="feedback"></div>
+    </div>
+  `;
+}
+
+function checkTopic2() {
+  const fn = currentProblem;
+  const xv = -fn.b / (2 * fn.a);
+  const yv = fn.a * xv * xv + fn.b * xv + fn.c;
+  const type = fn.a > 0 ? 'up' : 'down';
+  const userType = document.getElementById('parabola-type').value;
+  const userX = parseAnswer(document.getElementById('vertex-x').value);
+  const userY = parseAnswer(document.getElementById('vertex-y').value);
+  const fb = document.getElementById('feedback');
+
+  const typeOk = userType === type;
+  const xOk = nearlyEqual(userX, xv, 0.05);
+  const yOk = nearlyEqual(userY, yv, 0.05);
+
+  let issues = [];
+  if (!typeOk) issues.push('סוג הפרבולה');
+  if (!xOk) issues.push('שיעור x של הקודקוד');
+  if (!yOk) issues.push('שיעור y של הקודקוד');
+
+  if (issues.length === 0) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = '✓ מעולה! כל התשובות נכונות.';
+    recordAnswer(true);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.innerHTML = `✗ שגיאות ב: ${issues.join(', ')}. נסה שוב או ראה פתרון.`;
+    recordAnswer(false);
+  }
+}
+
+function showHintTopic2() {
+  const fn = currentProblem;
+  document.getElementById('feedback').className = 'solution';
+  document.getElementById('feedback').innerHTML = `
+    <h4>💡 רמז:</h4>
+    <div class="solution-step">1. הסתכל על מקדם a = ${fn.a}. אם a > 0 הפרבולה פתוחה למעלה (מינימום), אם a < 0 פתוחה למטה (מקסימום).</div>
+    <div class="solution-step">2. שיעור x של הקודקוד: x = -b/(2a) = -(${fn.b})/(2·${fn.a})</div>
+    <div class="solution-step">3. שיעור y של הקודקוד: הצב את x שמצאת בפונקציה f(x).</div>
+  `;
+}
+
+function showSolutionTopic2() {
+  const fn = currentProblem;
+  const xv = -fn.b / (2 * fn.a);
+  const yv = fn.a * xv * xv + fn.b * xv + fn.c;
+  const type = fn.a > 0 ? 'פתוחה כלפי מעלה (מינימום)' : 'פתוחה כלפי מטה (מקסימום)';
+  let html = `<h4>📝 פתרון מלא:</h4>`;
+  html += `<div class="solution-step"><b>שלב 1 - סוג הפרבולה:</b> מקדם a = ${fn.a} ${fn.a > 0 ? '> 0' : '< 0'}, לכן הפרבולה <b>${type}</b>.</div>`;
+  html += `<div class="solution-step"><b>שלב 2 - שיעור x של הקודקוד:</b><br>
+    x = -b/(2a) = -(${fn.b})/(2·${fn.a}) = ${fmtNumber(xv)}</div>`;
+  html += `<div class="solution-step"><b>שלב 3 - שיעור y של הקודקוד (הצבה):</b><br>
+    y = ${fn.a}·(${fmtNumber(xv)})² ${fn.b >= 0 ? '+' : ''} ${fn.b}·(${fmtNumber(xv)}) ${fn.c >= 0 ? '+' : ''} ${fn.c} = <b>${fmtNumber(yv)}</b></div>`;
+  html += `<div class="solution-step"><b>קודקוד הפרבולה:</b> (${fmtNumber(xv)}, ${fmtNumber(yv)})</div>`;
+  document.getElementById('feedback').className = 'solution';
+  document.getElementById('feedback').innerHTML = html;
+}
+
+function fmtNumber(n) {
+  if (Number.isInteger(n)) return String(n);
+  return n.toFixed(2).replace(/\.?0+$/, '');
+}
+
+// ============================================================
+// נושא 3: גיאומטריה - טרפז
+// ============================================================
+function genTrapezoidProblem(level) {
+  if (level === 1) {
+    // טרפז עם זוויות - חישוב זווית חסרה והיקף
+    const variant = pickFrom(['angles', 'perimeter', 'area_basic']);
+    if (variant === 'angles') {
+      const a1 = randInt(50, 130);
+      // בטרפז ABCD עם AB||CD, A+D=180 ו-B+C=180
+      const a2 = 180 - a1;
+      const a3 = randInt(60, 120);
+      const a4 = 180 - a3;
+      // נסתיר אחת
+      const hide = randInt(0, 3);
+      const angles = [a1, a3, a4, a2]; // A, B, C, D כך ש A+D=180, B+C=180
+      return {type: 'trapezoid-angles', angles, hide, answer: angles[hide]};
+    } else if (variant === 'perimeter') {
+      const a = randInt(4, 10), b = randInt(11, 18), c = randInt(3, 8), d = randInt(3, 8);
+      return {type: 'trapezoid-perimeter', sides: {AB: b, CD: a, BC: c, AD: d}, answer: a+b+c+d};
+    } else {
+      const a = randInt(4, 10), b = randInt(11, 18), h = randInt(3, 8);
+      return {type: 'trapezoid-area-basic', a, b, h, answer: (a+b)*h/2};
+    }
+  } else if (level === 2) {
+    // טרפז שווה שוקיים - הקשרים בין הזוויות, חישובים משולבים
+    const variant = pickFrom(['isoceles_angles', 'area_with_angle', 'right_trapezoid']);
+    if (variant === 'isoceles_angles') {
+      const baseAngle = randInt(50, 80);
+      return {type: 'isoceles-angles', baseAngle, answer: 180 - baseAngle};
+    } else if (variant === 'area_with_angle') {
+      const a = randInt(5, 10), b = randInt(12, 20), h = randInt(4, 9);
+      return {type: 'trapezoid-area', a, b, h, answer: (a+b)*h/2};
+    } else {
+      // טרפז ישר-זווית - שטח והיקף
+      const a = randInt(4, 8), b = randInt(10, 16), h = randInt(3, 7);
+      // השוק הנטויה: צריך פיתגורס - dx = b-a, leg = sqrt(dx^2 + h^2)
+      const dx = b - a;
+      const leg = Math.sqrt(dx*dx + h*h);
+      const perim = a + b + h + leg;
+      return {type: 'right-trapezoid', a, b, h, dx, leg, perim, area: (a+b)*h/2};
+    }
+  } else {
+    // רמה 3: משולב עם פיתגורס
+    const variant = pickFrom(['isoceles_pythag', 'find_height', 'full_combined']);
+    if (variant === 'isoceles_pythag') {
+      // טרפז שווה שוקיים. נתון: בסיסים a, b ושוק. למצוא גובה.
+      const a = randInt(4, 8); // בסיס קטן
+      const overhang = randInt(2, 5); // ההצצה מכל צד
+      const b = a + 2*overhang; // בסיס גדול
+      const h = randInt(3, 8);
+      const leg = Math.sqrt(overhang*overhang + h*h);
+      return {type: 'isoceles-find-h', a, b, leg: parseFloat(leg.toFixed(2)), overhang, h, area: (a+b)*h/2};
+    } else if (variant === 'find_height') {
+      // טרפז ישר זווית - נתון השוק הנטויה והבסיסים. מצא גובה.
+      const a = randInt(5, 9);
+      const dx = randInt(3, 7);
+      const b = a + dx;
+      const h = randInt(4, 9);
+      const slantLeg = Math.sqrt(dx*dx + h*h);
+      return {type: 'right-find-h', a, b, dx, slantLeg: parseFloat(slantLeg.toFixed(2)), h, area: (a+b)*h/2};
+    } else {
+      // טרפז שווה שוקיים - חישוב מלא שטח+היקף+אלכסון
+      const a = randInt(6, 10);
+      const overhang = randInt(2, 4);
+      const b = a + 2*overhang;
+      const h = randInt(4, 8);
+      const leg = Math.sqrt(overhang*overhang + h*h);
+      const area = (a+b)*h/2;
+      const perim = a + b + 2*leg;
+      return {type: 'full-isoceles', a, b, h, overhang, leg: parseFloat(leg.toFixed(2)), area, perim: parseFloat(perim.toFixed(2))};
+    }
+  }
+}
+
+function drawTrapezoid(canvasId, opts) {
+  // opts: {a, b, h, type: 'regular'|'isoceles'|'right', labels}
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const padding = 60;
+  const maxW = W - 2*padding;
+  const maxH = H - 2*padding;
+  const scale = Math.min(maxW / opts.b, maxH / opts.h) * 0.9;
+  const sa = opts.a * scale;
+  const sb = opts.b * scale;
+  const sh = opts.h * scale;
+
+  // מרכז אופקי
+  const cx = W / 2;
+  const baseY = H - padding;
+  const topY = baseY - sh;
+
+  let ax, dx, bx, cx2;
+  if (opts.type === 'right') {
+    // ישר-זווית בשמאל
+    ax = cx - sb/2;
+    bx = ax + sb;
+    dx = ax;
+    cx2 = ax + sa;
+  } else {
+    // שווה שוקיים (default)
+    ax = cx - sb/2;
+    bx = cx + sb/2;
+    dx = cx - sa/2;
+    cx2 = cx + sa/2;
+  }
+
+  // ציור
+  ctx.strokeStyle = '#2980b9';
+  ctx.lineWidth = 2;
+  ctx.fillStyle = 'rgba(52, 152, 219, 0.1)';
+  ctx.beginPath();
+  ctx.moveTo(ax, baseY);
+  ctx.lineTo(bx, baseY);
+  ctx.lineTo(cx2, topY);
+  ctx.lineTo(dx, topY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // תוויות
+  ctx.fillStyle = '#2c3e50';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  // קודקודים (חזרה לכיוון מתמטי - לפי כיוון השעון: A שמאל-תחתון, B ימין-תחתון, C ימין-עליון, D שמאל-עליון)
+  ctx.fillText('A', ax - 12, baseY + 5);
+  ctx.fillText('B', bx + 12, baseY + 5);
+  ctx.fillText('C', cx2 + 12, topY - 5);
+  ctx.fillText('D', dx - 12, topY - 5);
+
+  // צלעות
+  ctx.font = '13px Arial';
+  ctx.fillStyle = '#c0392b';
+  if (opts.labels) {
+    if (opts.labels.AB) ctx.fillText(opts.labels.AB, (ax+bx)/2, baseY + 22);
+    if (opts.labels.CD) ctx.fillText(opts.labels.CD, (cx2+dx)/2, topY - 8);
+    if (opts.labels.BC) {
+      ctx.save();
+      ctx.translate((bx + cx2)/2 + 18, (baseY + topY)/2);
+      ctx.fillText(opts.labels.BC, 0, 0);
+      ctx.restore();
+    }
+    if (opts.labels.AD) {
+      ctx.save();
+      ctx.translate((ax + dx)/2 - 18, (baseY + topY)/2);
+      ctx.fillText(opts.labels.AD, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  // סימן זווית ישרה (לטרפז ישר-זווית)
+  if (opts.type === 'right') {
+    ctx.strokeStyle = '#27ae60';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(ax, baseY - 12, 12, 12);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.rect(dx, topY, 12, 12);
+    ctx.stroke();
+  }
+
+  // גובה (אם מצויין)
+  if (opts.showHeight) {
+    ctx.strokeStyle = '#27ae60';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    const hX = opts.type === 'right' ? dx : (dx);
+    ctx.beginPath();
+    ctx.moveTo(hX, baseY);
+    ctx.lineTo(hX, topY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#27ae60';
+    ctx.fillText('h = ' + opts.h, hX - 25, (baseY+topY)/2);
+  }
+}
+
+function renderTopic3() {
+  const p = genTrapezoidProblem(currentLevel);
+  currentProblem = p;
+  const area = document.getElementById('problem-area');
+  const levelBadges = ['', 'badge-easy', 'badge-medium', 'badge-hard'];
+  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
+
+  let problemText = '';
+  let canvasHtml = '<canvas id="trap-canvas" width="500" height="300"></canvas>';
+  let inputHtml = '';
+
+  if (p.type === 'trapezoid-angles') {
+    const letters = ['A','B','C','D'];
+    let given = [];
+    for (let i = 0; i < 4; i++) {
+      if (i !== p.hide) given.push(`זווית ${letters[i]} = ${p.angles[i]}°`);
+    }
+    problemText = `בטרפז ABCD שבו AB מקבילה ל-CD נתון:<br>${given.join(', ')}.<br><br>חשב את זווית ${letters[p.hide]}.`;
+    inputHtml = `<label>זווית ${letters[p.hide]} (במעלות):</label><input type="text" id="ans-angle" placeholder="לדוגמה: 75">`;
+  } else if (p.type === 'trapezoid-perimeter') {
+    problemText = `בטרפז ABCD נתון:<br>AB = ${p.sides.AB} ס"מ (בסיס גדול)<br>CD = ${p.sides.CD} ס"מ (בסיס קטן)<br>BC = ${p.sides.BC} ס"מ, AD = ${p.sides.AD} ס"מ.<br><br>חשב את היקף הטרפז.`;
+    inputHtml = `<label>היקף (ס"מ):</label><input type="text" id="ans-perim" placeholder="לדוגמה: 32">`;
+  } else if (p.type === 'trapezoid-area-basic') {
+    problemText = `בטרפז ABCD נתון:<br>בסיס גדול AB = ${p.b} ס"מ, בסיס קטן CD = ${p.a} ס"מ.<br>הגובה הוא ${p.h} ס"מ.<br><br>חשב את שטח הטרפז.`;
+    inputHtml = `<label>שטח (סמ"ר):</label><input type="text" id="ans-area" placeholder="לדוגמה: 30">`;
+  } else if (p.type === 'isoceles-angles') {
+    problemText = `בטרפז שווה שוקיים ABCD שבו AB||CD, זווית A = ${p.baseAngle}°.<br><br>חשב את זווית D.`;
+    inputHtml = `<label>זווית D (במעלות):</label><input type="text" id="ans-angle" placeholder="לדוגמה: 110">`;
+  } else if (p.type === 'trapezoid-area') {
+    problemText = `נתון טרפז עם:<br>בסיס גדול = ${p.b} ס"מ, בסיס קטן = ${p.a} ס"מ, גובה = ${p.h} ס"מ.<br><br>חשב את שטחו.`;
+    inputHtml = `<label>שטח (סמ"ר):</label><input type="text" id="ans-area" placeholder="ערך">`;
+  } else if (p.type === 'right-trapezoid') {
+    problemText = `בטרפז ישר-זווית ABCD (זווית A וזווית D ישרות):<br>בסיס גדול AB = ${p.b} ס"מ, בסיס קטן CD = ${p.a} ס"מ.<br>הגובה (השוק הניצב AD) = ${p.h} ס"מ.<br><br>חשב:<br>1) שטח הטרפז.<br>2) אורך השוק הנטויה BC (השתמש בפיתגורס).<br>3) היקף הטרפז.`;
+    inputHtml = `
+      <label>שטח (סמ"ר):</label><input type="text" id="ans-area"><br>
+      <label>שוק נטויה BC (ס"מ, מעוגל לשתי ספרות):</label><input type="text" id="ans-leg" placeholder="לדוגמה: 5.83"><br>
+      <label>היקף (ס"מ, מעוגל לשתי ספרות):</label><input type="text" id="ans-perim">
+    `;
+  } else if (p.type === 'isoceles-find-h') {
+    problemText = `בטרפז שווה שוקיים ABCD נתון:<br>בסיס קטן CD = ${p.a} ס"מ, בסיס גדול AB = ${p.b} ס"מ.<br>השוק BC = ${p.leg} ס"מ.<br><br>חשב את גובה הטרפז (בעזרת פיתגורס) ואת שטחו.<br><i>רמז: הורד גובה מ-D אל AB, ההצצה מכל צד היא (${p.b}-${p.a})/2 = ${p.overhang}.</i>`;
+    inputHtml = `
+      <label>גובה (ס"מ):</label><input type="text" id="ans-h"><br>
+      <label>שטח (סמ"ר):</label><input type="text" id="ans-area">
+    `;
+  } else if (p.type === 'right-find-h') {
+    problemText = `בטרפז ישר-זווית ABCD (זווית A וזווית D ישרות):<br>בסיס קטן CD = ${p.a} ס"מ, בסיס גדול AB = ${p.b} ס"מ.<br>השוק הנטויה BC = ${p.slantLeg} ס"מ.<br><br>חשב את הגובה (השוק AD) ואת שטח הטרפז.<br><i>רמז: ההפרש בין הבסיסים הוא ${p.b}-${p.a} = ${p.dx}.</i>`;
+    inputHtml = `
+      <label>גובה AD (ס"מ):</label><input type="text" id="ans-h"><br>
+      <label>שטח (סמ"ר):</label><input type="text" id="ans-area">
+    `;
+  } else if (p.type === 'full-isoceles') {
+    problemText = `בטרפז שווה שוקיים ABCD:<br>בסיס קטן CD = ${p.a} ס"מ, בסיס גדול AB = ${p.b} ס"מ, גובה = ${p.h} ס"מ.<br><br>חשב:<br>1) אורך השוק (בעזרת פיתגורס).<br>2) שטח הטרפז.<br>3) היקף הטרפז.`;
+    inputHtml = `
+      <label>שוק (ס"מ, מעוגל לשתי ספרות):</label><input type="text" id="ans-leg"><br>
+      <label>שטח (סמ"ר):</label><input type="text" id="ans-area"><br>
+      <label>היקף (ס"מ, מעוגל לשתי ספרות):</label><input type="text" id="ans-perim">
+    `;
+  }
+
+  area.innerHTML = `
+    <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
+    <div class="problem-text">${problemText}</div>
+    ${canvasHtml}
+    <div class="answer-section">
+      ${inputHtml}
+      <br><button class="btn btn-primary" onclick="checkTopic3()">בדוק תשובה</button>
+      <button class="btn btn-warning" onclick="showHintTopic3()">רמז</button>
+      <button class="btn btn-secondary" onclick="showSolutionTopic3()">פתרון מלא</button>
+      <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
+      <div id="feedback"></div>
+    </div>
+  `;
+
+  // ציור הטרפז
+  setTimeout(() => {
+    if (p.type === 'trapezoid-angles') {
+      drawTrapezoid('trap-canvas', {a: 6, b: 12, h: 5, type: 'isoceles'});
+    } else if (p.type === 'trapezoid-perimeter') {
+      drawTrapezoid('trap-canvas', {a: p.sides.CD, b: p.sides.AB, h: 5, type: 'regular', labels: {AB: p.sides.AB, CD: p.sides.CD, BC: p.sides.BC, AD: p.sides.AD}});
+    } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area') {
+      drawTrapezoid('trap-canvas', {a: p.a, b: p.b, h: p.h, type: 'isoceles', showHeight: true});
+    } else if (p.type === 'isoceles-angles') {
+      drawTrapezoid('trap-canvas', {a: 6, b: 12, h: 5, type: 'isoceles'});
+    } else if (p.type === 'right-trapezoid' || p.type === 'right-find-h') {
+      drawTrapezoid('trap-canvas', {a: p.a, b: p.b, h: p.h, type: 'right', showHeight: true, labels: {AB: p.b, CD: p.a}});
+    } else if (p.type === 'isoceles-find-h' || p.type === 'full-isoceles') {
+      drawTrapezoid('trap-canvas', {a: p.a, b: p.b, h: p.h || 5, type: 'isoceles', showHeight: !!p.h, labels: {AB: p.b, CD: p.a}});
+    }
+  }, 50);
+}
+
+function checkTopic3() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  let allOk = true;
+  let issues = [];
+
+  function check(inputId, expected, label, tol = 0.1) {
+    const el = document.getElementById(inputId);
+    if (!el) return true;
+    const v = parseAnswer(el.value);
+    if (!nearlyEqual(v, expected, tol)) {
+      issues.push(label);
+      return false;
+    }
+    return true;
+  }
+
+  if (p.type === 'trapezoid-angles' || p.type === 'isoceles-angles') {
+    allOk = check('ans-angle', p.answer, 'זווית');
+  } else if (p.type === 'trapezoid-perimeter') {
+    allOk = check('ans-perim', p.answer, 'היקף');
+  } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area') {
+    allOk = check('ans-area', p.answer, 'שטח');
+  } else if (p.type === 'right-trapezoid') {
+    const a = check('ans-area', p.area, 'שטח');
+    const l = check('ans-leg', p.leg, 'שוק נטויה', 0.1);
+    const pe = check('ans-perim', p.perim, 'היקף', 0.1);
+    allOk = a && l && pe;
+  } else if (p.type === 'isoceles-find-h' || p.type === 'right-find-h') {
+    const h = check('ans-h', p.h, 'גובה', 0.1);
+    const a = check('ans-area', p.area, 'שטח');
+    allOk = h && a;
+  } else if (p.type === 'full-isoceles') {
+    const l = check('ans-leg', p.leg, 'שוק', 0.1);
+    const a = check('ans-area', p.area, 'שטח');
+    const pe = check('ans-perim', p.perim, 'היקף', 0.1);
+    allOk = l && a && pe;
+  }
+
+  if (allOk) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = '✓ כל הכבוד! התשובה נכונה.';
+    recordAnswer(true);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.innerHTML = `✗ שגיאות ב: ${issues.join(', ')}. נסה שוב או ראה פתרון.`;
+    recordAnswer(false);
+  }
+}
+
+function showHintTopic3() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  fb.className = 'solution';
+  let h = '<h4>💡 רמז:</h4>';
+  if (p.type === 'trapezoid-angles' || p.type === 'isoceles-angles') {
+    h += '<div class="solution-step">בטרפז: סכום זוויות צמודות לאותה שוק = 180°. כלומר A + D = 180° וגם B + C = 180°.</div>';
+  } else if (p.type === 'trapezoid-perimeter') {
+    h += '<div class="solution-step">היקף = סכום אורכי כל ארבע הצלעות.</div>';
+  } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area' || p.type === 'right-trapezoid') {
+    h += '<div class="solution-step">שטח טרפז = (בסיס גדול + בסיס קטן) × גובה ÷ 2</div>';
+    if (p.type === 'right-trapezoid') {
+      h += '<div class="solution-step">לשוק הנטויה: השתמש בפיתגורס. הפרש הבסיסים הוא הניצב האופקי, והגובה הוא הניצב האנכי.</div>';
+    }
+  } else if (p.type === 'isoceles-find-h') {
+    h += `<div class="solution-step">הורד גובה מ-D וגם מ-C על הבסיס הגדול AB. נוצרים שני משולשים ישרי-זווית זהים. הניצב האופקי הוא ${p.overhang}, היתר הוא השוק (${p.leg}).</div>`;
+    h += '<div class="solution-step">לפי פיתגורס: גובה² + הצצה² = שוק²</div>';
+  } else if (p.type === 'right-find-h') {
+    h += `<div class="solution-step">במשולש שיוצרת השוק הנטויה: הניצב האופקי הוא ${p.dx}, היתר הוא ${p.slantLeg}.</div>`;
+    h += '<div class="solution-step">לפי פיתגורס: גובה² + הפרש² = שוק נטויה²</div>';
+  } else if (p.type === 'full-isoceles') {
+    h += `<div class="solution-step">הצצה מכל צד = (${p.b}-${p.a})/2 = ${p.overhang}.</div>`;
+    h += '<div class="solution-step">שוק = √(גובה² + הצצה²)</div>';
+  }
+  fb.innerHTML = h;
+}
+
+function showSolutionTopic3() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  fb.className = 'solution';
+  let h = '<h4>📝 פתרון מלא:</h4>';
+
+  if (p.type === 'trapezoid-angles') {
+    const letters = ['A','B','C','D'];
+    h += `<div class="solution-step">בטרפז עם AB||CD: A + D = 180° וגם B + C = 180°.</div>`;
+    if (p.hide === 0) h += `<div class="solution-step">A = 180° - D = 180° - ${p.angles[3]}° = <b>${p.answer}°</b></div>`;
+    else if (p.hide === 1) h += `<div class="solution-step">B = 180° - C = 180° - ${p.angles[2]}° = <b>${p.answer}°</b></div>`;
+    else if (p.hide === 2) h += `<div class="solution-step">C = 180° - B = 180° - ${p.angles[1]}° = <b>${p.answer}°</b></div>`;
+    else h += `<div class="solution-step">D = 180° - A = 180° - ${p.angles[0]}° = <b>${p.answer}°</b></div>`;
+  } else if (p.type === 'trapezoid-perimeter') {
+    h += `<div class="solution-step">היקף = AB + BC + CD + DA = ${p.sides.AB} + ${p.sides.BC} + ${p.sides.CD} + ${p.sides.AD} = <b>${p.answer} ס"מ</b></div>`;
+  } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area') {
+    h += `<div class="solution-step">שטח = (בסיס גדול + בסיס קטן) × גובה ÷ 2</div>`;
+    h += `<div class="solution-step">שטח = (${p.b} + ${p.a}) × ${p.h} ÷ 2 = ${p.a+p.b} × ${p.h} ÷ 2 = <b>${p.answer} סמ"ר</b></div>`;
+  } else if (p.type === 'isoceles-angles') {
+    h += `<div class="solution-step">בטרפז שווה שוקיים זוויות הבסיס שוות: A = B = ${p.baseAngle}°.</div>`;
+    h += `<div class="solution-step">A + D = 180° → D = 180° - ${p.baseAngle}° = <b>${p.answer}°</b></div>`;
+  } else if (p.type === 'right-trapezoid') {
+    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
+    h += `<div class="solution-step"><b>שוק נטויה BC (פיתגורס):</b><br>
+      הפרש הבסיסים = ${p.b} - ${p.a} = ${p.dx}<br>
+      BC² = ${p.dx}² + ${p.h}² = ${p.dx*p.dx} + ${p.h*p.h} = ${p.dx*p.dx + p.h*p.h}<br>
+      BC = √${p.dx*p.dx + p.h*p.h} ≈ <b>${p.leg.toFixed(2)} ס"מ</b></div>`;
+    h += `<div class="solution-step"><b>היקף:</b> ${p.a} + ${p.b} + ${p.h} + ${p.leg.toFixed(2)} ≈ <b>${p.perim.toFixed(2)} ס"מ</b></div>`;
+  } else if (p.type === 'isoceles-find-h') {
+    h += `<div class="solution-step">הורדת הגבהים יוצרת משולש ישר-זווית עם:<br>ניצב אופקי = ${p.overhang}, יתר = ${p.leg}.</div>`;
+    h += `<div class="solution-step"><b>פיתגורס:</b> גובה² + ${p.overhang}² = ${p.leg}²<br>
+      גובה² = ${p.leg}² - ${p.overhang}² = ${(p.leg*p.leg).toFixed(2)} - ${p.overhang*p.overhang} = ${(p.leg*p.leg - p.overhang*p.overhang).toFixed(2)}<br>
+      גובה = <b>${p.h} ס"מ</b></div>`;
+    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
+  } else if (p.type === 'right-find-h') {
+    h += `<div class="solution-step">הפרש הבסיסים = ${p.b} - ${p.a} = ${p.dx}</div>`;
+    h += `<div class="solution-step"><b>פיתגורס:</b> גובה² + ${p.dx}² = ${p.slantLeg}²<br>
+      גובה² = ${(p.slantLeg*p.slantLeg).toFixed(2)} - ${p.dx*p.dx} = ${(p.slantLeg*p.slantLeg - p.dx*p.dx).toFixed(2)}<br>
+      גובה = <b>${p.h} ס"מ</b></div>`;
+    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
+  } else if (p.type === 'full-isoceles') {
+    h += `<div class="solution-step">הצצה מכל צד = (${p.b} - ${p.a}) / 2 = ${p.overhang}</div>`;
+    h += `<div class="solution-step"><b>שוק (פיתגורס):</b> שוק² = ${p.h}² + ${p.overhang}² = ${p.h*p.h} + ${p.overhang*p.overhang} = ${p.h*p.h + p.overhang*p.overhang}<br>
+      שוק = √${p.h*p.h + p.overhang*p.overhang} ≈ <b>${p.leg.toFixed(2)} ס"מ</b></div>`;
+    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
+    h += `<div class="solution-step"><b>היקף:</b> ${p.a} + ${p.b} + 2 × ${p.leg.toFixed(2)} ≈ <b>${p.perim.toFixed(2)} ס"מ</b></div>`;
+  }
+  fb.innerHTML = h;
+}
+
+// ============================================================
+// נושא 4: קריאת גרפים
+// ============================================================
+function genGraphProblem(level) {
+  if (level === 1) {
+    // פונקציה ליניארית פשוטה, שאלת ערך
+    const m = randNonZero(-2, 2);
+    const b = randInt(-3, 3);
+    const xQ = randInt(-3, 3);
+    return {kind: 'linear-value', m, b, xQ, answer: m*xQ + b};
+  } else if (level === 2) {
+    // פרבולה - מציאת תכונות
+    const aSign = pickFrom([1, -1]);
+    const r1 = randInt(-3, 1), r2 = randInt(2, 4);
+    const a = aSign;
+    const b = -a*(r1+r2);
+    const c = a*r1*r2;
+    const vx = (r1+r2)/2;
+    const vy = a*vx*vx + b*vx + c;
+    return {kind: 'parabola-features', a, b, c, r1, r2, vx, vy};
+  } else {
+    // פונקציה מורכבת - תחומי עליה/ירידה, חיוביות, נקודות חיתוך
+    const aSign = pickFrom([1, -1]);
+    const r1 = randInt(-4, 0), r2 = randInt(1, 4);
+    while (r1 === r2) {}
+    const a = aSign;
+    const b = -a*(r1+r2);
+    const c = a*r1*r2;
+    const vx = (r1+r2)/2;
+    const vy = a*vx*vx + b*vx + c;
+    return {kind: 'parabola-advanced', a, b, c, r1, r2, vx, vy};
+  }
+}
+
+function drawGraph(canvasId, problem) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // טווח
+  let xMin = -6, xMax = 6, yMin = -6, yMax = 6;
+  if (problem.kind === 'parabola-features' || problem.kind === 'parabola-advanced') {
+    const allX = [problem.r1, problem.r2, problem.vx];
+    xMin = Math.min(-1, ...allX) - 2;
+    xMax = Math.max(1, ...allX) + 2;
+    const ys = [];
+    for (let x = xMin; x <= xMax; x += 0.5) ys.push(problem.a*x*x + problem.b*x + problem.c);
+    yMin = Math.min(-1, ...ys) - 1;
+    yMax = Math.max(1, ...ys) + 1;
+  }
+
+  const padding = 30;
+  const sx = (x) => padding + (x - xMin) / (xMax - xMin) * (W - 2*padding);
+  const sy = (y) => H - padding - (y - yMin) / (yMax - yMin) * (H - 2*padding);
+
+  // רשת
+  ctx.strokeStyle = '#ecf0f1';
+  ctx.lineWidth = 1;
+  for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+    ctx.beginPath();
+    ctx.moveTo(sx(x), padding);
+    ctx.lineTo(sx(x), H - padding);
+    ctx.stroke();
+  }
+  for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+    ctx.beginPath();
+    ctx.moveTo(padding, sy(y));
+    ctx.lineTo(W - padding, sy(y));
+    ctx.stroke();
+  }
+
+  // צירים
+  ctx.strokeStyle = '#2c3e50';
+  ctx.lineWidth = 2;
+  if (yMin <= 0 && yMax >= 0) {
+    ctx.beginPath();
+    ctx.moveTo(padding, sy(0));
+    ctx.lineTo(W - padding, sy(0));
+    ctx.stroke();
+  }
+  if (xMin <= 0 && xMax >= 0) {
+    ctx.beginPath();
+    ctx.moveTo(sx(0), padding);
+    ctx.lineTo(sx(0), H - padding);
+    ctx.stroke();
+  }
+
+  // תוויות צירים
+  ctx.fillStyle = '#2c3e50';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+    if (x === 0) continue;
+    ctx.fillText(x, sx(x), sy(0) + 14);
+  }
+  ctx.textAlign = 'right';
+  for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+    if (y === 0) continue;
+    ctx.fillText(y, sx(0) - 5, sy(y) + 4);
+  }
+  ctx.fillText('0', sx(0) - 5, sy(0) + 14);
+
+  // ציור הפונקציה
+  ctx.strokeStyle = '#e74c3c';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let first = true;
+  if (problem.kind === 'linear-value') {
+    for (let x = xMin; x <= xMax; x += 0.1) {
+      const y = problem.m * x + problem.b;
+      if (first) { ctx.moveTo(sx(x), sy(y)); first = false; }
+      else ctx.lineTo(sx(x), sy(y));
+    }
+  } else {
+    for (let x = xMin; x <= xMax; x += 0.05) {
+      const y = problem.a * x * x + problem.b * x + problem.c;
+      if (y < yMin - 2 || y > yMax + 2) { first = true; continue; }
+      if (first) { ctx.moveTo(sx(x), sy(y)); first = false; }
+      else ctx.lineTo(sx(x), sy(y));
+    }
+  }
+  ctx.stroke();
+
+  // סימון נקודות חשובות
+  if (problem.kind === 'parabola-features' || problem.kind === 'parabola-advanced') {
+    // קודקוד
+    ctx.fillStyle = '#27ae60';
+    ctx.beginPath();
+    ctx.arc(sx(problem.vx), sy(problem.vy), 5, 0, 2*Math.PI);
+    ctx.fill();
+    // שורשים
+    ctx.fillStyle = '#3498db';
+    [problem.r1, problem.r2].forEach(r => {
+      ctx.beginPath();
+      ctx.arc(sx(r), sy(0), 5, 0, 2*Math.PI);
+      ctx.fill();
+    });
+  }
+}
+
+function renderTopic4() {
+  const p = genGraphProblem(currentLevel);
+  currentProblem = p;
+  const area = document.getElementById('problem-area');
+  const levelBadges = ['', 'badge-easy', 'badge-medium', 'badge-hard'];
+  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
+
+  let problemText = '';
+  let inputHtml = '';
+
+  if (p.kind === 'linear-value') {
+    problemText = `הסתכל בגרף של הפונקציה הליניארית. הפונקציה היא f(x) = ${fmtCoef(p.m,'x',true)}${fmtCoef(p.b,'')}.<br><br>שאלות:<br>1) מהי נקודת החיתוך עם ציר ה-y?<br>2) מהי שיפוע הפונקציה?<br>3) חשב את f(${p.xQ}).`;
+    inputHtml = `
+      <label>נקודת חיתוך עם ציר y (ערך):</label><input type="text" id="ans-yint"><br>
+      <label>שיפוע:</label><input type="text" id="ans-slope"><br>
+      <label>f(${p.xQ}) =</label><input type="text" id="ans-fx">
+    `;
+  } else if (p.kind === 'parabola-features') {
+    problemText = `הסתכל בגרף של הפונקציה הריבועית f(x) = ${fmtFunction(p.a,p.b,p.c).replace('f(x) = ','')}.<br><br>מצא מהגרף:<br>1) שני שורשים (נקודות חיתוך עם ציר x)<br>2) קודקוד הפרבולה<br>3) האם הפונקציה חיובית או שלילית בקודקוד?`;
+    inputHtml = `
+      <label>שורש קטן:</label><input type="text" id="ans-r1"><br>
+      <label>שורש גדול:</label><input type="text" id="ans-r2"><br>
+      <label>קודקוד x:</label><input type="text" id="ans-vx">
+      <label>קודקוד y:</label><input type="text" id="ans-vy"><br>
+      <label>סוג קיצון:</label>
+      <select id="ans-extremum">
+        <option value="">-- בחר --</option>
+        <option value="max">מקסימום</option>
+        <option value="min">מינימום</option>
+      </select>
+    `;
+  } else {
+    problemText = `הסתכל בגרף של הפונקציה הריבועית f(x) = ${fmtFunction(p.a,p.b,p.c).replace('f(x) = ','')}.<br><br>על פי הגרף ענה:<br>1) באילו ערכי x הפונקציה <b>חיובית</b> (מעל ציר x)?<br>2) באיזה תחום הפונקציה <b>עולה</b>?`;
+    // חיובי: לפי a
+    let posDesc;
+    if (p.a > 0) posDesc = `x < ${p.r1} או x > ${p.r2}`;
+    else posDesc = `${p.r1} < x < ${p.r2}`;
+    // עולה: לפי a
+    let incDesc;
+    if (p.a > 0) incDesc = `x > ${p.vx}`;
+    else incDesc = `x < ${p.vx}`;
+    p.posDesc = posDesc;
+    p.incDesc = incDesc;
+    inputHtml = `
+      <label>תחום חיוביות:</label>
+      <select id="ans-pos">
+        <option value="">-- בחר --</option>
+        <option value="between">בין השורשים: ${p.r1} < x < ${p.r2}</option>
+        <option value="outside">מחוץ לשורשים: x < ${p.r1} או x > ${p.r2}</option>
+      </select><br>
+      <label>תחום עליה:</label>
+      <select id="ans-inc">
+        <option value="">-- בחר --</option>
+        <option value="left">x < ${p.vx}</option>
+        <option value="right">x > ${p.vx}</option>
+      </select>
+    `;
+  }
+
+  area.innerHTML = `
+    <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
+    <div class="problem-text">${problemText}</div>
+    <canvas id="graph-canvas" width="500" height="400"></canvas>
+    <div class="answer-section">
+      ${inputHtml}
+      <br><button class="btn btn-primary" onclick="checkTopic4()">בדוק תשובה</button>
+      <button class="btn btn-warning" onclick="showHintTopic4()">רמז</button>
+      <button class="btn btn-secondary" onclick="showSolutionTopic4()">פתרון מלא</button>
+      <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
+      <div id="feedback"></div>
+    </div>
+  `;
+
+  setTimeout(() => drawGraph('graph-canvas', p), 50);
+}
+
+function checkTopic4() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  let issues = [];
+
+  function check(id, expected, label, tol = 0.05) {
+    const el = document.getElementById(id);
+    if (!el) return true;
+    const v = parseAnswer(el.value);
+    if (!nearlyEqual(v, expected, tol)) {
+      issues.push(label);
+      return false;
+    }
+    return true;
+  }
+
+  if (p.kind === 'linear-value') {
+    check('ans-yint', p.b, 'חיתוך עם ציר y');
+    check('ans-slope', p.m, 'שיפוע');
+    check('ans-fx', p.m * p.xQ + p.b, `f(${p.xQ})`);
+  } else if (p.kind === 'parabola-features') {
+    check('ans-r1', p.r1, 'שורש קטן');
+    check('ans-r2', p.r2, 'שורש גדול');
+    check('ans-vx', p.vx, 'קודקוד x');
+    check('ans-vy', p.vy, 'קודקוד y');
+    const exp = p.a > 0 ? 'min' : 'max';
+    if (document.getElementById('ans-extremum').value !== exp) issues.push('סוג קיצון');
+  } else if (p.kind === 'parabola-advanced') {
+    const expPos = p.a > 0 ? 'outside' : 'between';
+    const expInc = p.a > 0 ? 'right' : 'left';
+    if (document.getElementById('ans-pos').value !== expPos) issues.push('תחום חיוביות');
+    if (document.getElementById('ans-inc').value !== expInc) issues.push('תחום עליה');
+  }
+
+  if (issues.length === 0) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = '✓ מצוין! קראת את הגרף נכון.';
+    recordAnswer(true);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.innerHTML = `✗ שגיאות ב: ${issues.join(', ')}. נסה שוב או ראה פתרון.`;
+    recordAnswer(false);
+  }
+}
+
+function showHintTopic4() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  fb.className = 'solution';
+  let h = '<h4>💡 רמז:</h4>';
+  if (p.kind === 'linear-value') {
+    h += '<div class="solution-step">חיתוך עם ציר y: ערך y בנקודה שבה x=0 (איפה הקו חוצה את הציר האנכי).</div>';
+    h += '<div class="solution-step">שיפוע: כמה y עולה כאשר x עולה ב-1.</div>';
+    h += '<div class="solution-step">f(x) במספר נתון: הצב את הערך בנוסחה או קרא ישירות מהגרף.</div>';
+  } else if (p.kind === 'parabola-features') {
+    h += '<div class="solution-step">שורשים = נקודות החיתוך של הפרבולה עם ציר x (הנקודות הכחולות).</div>';
+    h += '<div class="solution-step">קודקוד = הנקודה הירוקה (הנקודה הנמוכה/הגבוהה ביותר).</div>';
+    h += '<div class="solution-step">אם הפרבולה פתוחה כלפי מעלה → קודקוד הוא מינימום. כלפי מטה → מקסימום.</div>';
+  } else {
+    h += '<div class="solution-step">פונקציה חיובית = החלק של הפרבולה שמעל ציר x.</div>';
+    h += '<div class="solution-step">פונקציה עולה = הולכת ימינה ולמעלה (לאחר הקודקוד אם הפרבולה מינימום, לפניו אם מקסימום).</div>';
+  }
+  fb.innerHTML = h;
+}
+
+function showSolutionTopic4() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  fb.className = 'solution';
+  let h = '<h4>📝 פתרון מלא:</h4>';
+  if (p.kind === 'linear-value') {
+    h += `<div class="solution-step">חיתוך עם ציר y: כאשר x=0, f(0) = <b>${p.b}</b></div>`;
+    h += `<div class="solution-step">שיפוע: מקדם x, כלומר m = <b>${p.m}</b></div>`;
+    h += `<div class="solution-step">f(${p.xQ}) = ${p.m}·${p.xQ} + ${p.b} = ${p.m*p.xQ} + ${p.b} = <b>${p.m*p.xQ + p.b}</b></div>`;
+  } else if (p.kind === 'parabola-features') {
+    h += `<div class="solution-step">שורשים: <b>x = ${p.r1}</b> ו-<b>x = ${p.r2}</b></div>`;
+    h += `<div class="solution-step">קודקוד: x = -b/(2a) = ${fmtNumber(p.vx)}, y = <b>(${fmtNumber(p.vx)}, ${fmtNumber(p.vy)})</b></div>`;
+    h += `<div class="solution-step">a = ${p.a} ${p.a > 0 ? '> 0 → פרבולה פתוחה למעלה → קודקוד הוא <b>מינימום</b>' : '< 0 → פרבולה פתוחה למטה → קודקוד הוא <b>מקסימום</b>'}</div>`;
+  } else {
+    h += `<div class="solution-step">השורשים הם x = ${p.r1} ו-x = ${p.r2}.</div>`;
+    h += `<div class="solution-step">a = ${p.a}, לכן הפרבולה ${p.a > 0 ? 'פתוחה למעלה' : 'פתוחה למטה'}.</div>`;
+    h += `<div class="solution-step"><b>תחום חיוביות:</b> ${p.posDesc}</div>`;
+    h += `<div class="solution-step"><b>תחום עליה:</b> ${p.incDesc} (אחרי/לפני הקודקוד ב-x=${fmtNumber(p.vx)})</div>`;
+  }
+  fb.innerHTML = h;
+}
+
+// ============================================================
+// נושאים - מנהל
+// ============================================================
+const TOPICS = {
+  1: {title: '📐 פתרון משוואה ריבועית', render: renderTopic1},
+  2: {title: '📈 חקירת פונקציה ריבועית', render: renderTopic2},
+  3: {title: '📏 גיאומטריה - טרפז', render: renderTopic3},
+  4: {title: '📊 קריאת גרפים', render: renderTopic4}
+};
+
+function newProblem() {
+  TOPICS[currentTopic].render();
+}
+</script>
+</body>
+</html>
