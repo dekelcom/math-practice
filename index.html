@@ -323,11 +323,127 @@
     font-size: 0.95em;
   }
 
+  .topic-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .coin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #5a3a00;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 1em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  #coins-stat .stat-value { color: #d97706; }
+  .coin-pop {
+    position: absolute;
+    transform: translate(-50%, 0);
+    font-weight: 700;
+    color: #d97706;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    pointer-events: none;
+    z-index: 1000;
+    animation: coin-float 1.4s ease-out forwards;
+    white-space: nowrap;
+  }
+  @keyframes coin-float {
+    0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
+    20%  { opacity: 1; transform: translate(-50%, -10px) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+  }
+  @keyframes coin-bump {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .coin-bump { animation: coin-bump 0.45s ease-out; }
+
+  .notebook {
+    margin: 12px 0;
+    border: 1px solid #d1d5da;
+    border-radius: 10px;
+    background: #fafbfc;
+    overflow: hidden;
+  }
+  .notebook > summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .notebook > summary::-webkit-details-marker { display: none; }
+  .notebook > summary::before {
+    content: '▶';
+    display: inline-block;
+    font-size: 0.75em;
+    transition: transform 0.2s;
+  }
+  .notebook[open] > summary::before { transform: rotate(90deg); }
+  .notebook-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+    border-top: 1px solid #e1e4e8;
+    background: white;
+  }
+  .notebook-tools button {
+    padding: 8px 12px;
+    border: 1px solid #d1d5da;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95em;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .notebook-tools button.active {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+  }
+  .notebook-tools .dot {
+    display: inline-block;
+    background: currentColor;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+  .notebook-canvas {
+    display: block;
+    width: 100%;
+    height: 400px;
+    background: white;
+    border: none;
+    border-top: 1px solid #e1e4e8;
+    border-radius: 0;
+    margin: 0;
+    touch-action: none;
+    cursor: crosshair;
+  }
+
   @media (max-width: 600px) {
     .container { padding: 15px; }
     h1 { font-size: 1.3em; }
     .equation { font-size: 1.1em; }
     .problem-text { font-size: 1.05em; }
+    .notebook-canvas { height: 320px; }
   }
 </style>
 </head>
@@ -369,12 +485,19 @@
         <div class="stat-value" id="current-streak">0</div>
         <div class="stat-label">רצף נכון 🔥</div>
       </div>
+      <div class="stat-item" id="coins-stat">
+        <div class="stat-value coin-count">0</div>
+        <div class="stat-label">מטבעות 🪙</div>
+      </div>
     </div>
     <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
   </div>
 
   <div id="topic-view" class="hidden">
-    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+    <div class="topic-view-header">
+      <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+      <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
+    </div>
     <h2 id="topic-title"></h2>
     <div class="level-selector" id="level-selector"></div>
     <div class="progress-bar">
@@ -389,7 +512,15 @@
 // ============================================================
 // סטטיסטיקה גלובלית
 // ============================================================
-let stats = JSON.parse(localStorage.getItem('mathStats') || '{"correct":0,"attempts":0,"streak":0,"levelProgress":{}}');
+let stats = JSON.parse(localStorage.getItem('mathStats') || '{"correct":0,"attempts":0,"streak":0,"levelProgress":{},"coins":0}');
+if (typeof stats.coins !== 'number') stats.coins = 0;
+
+const COIN_BASE = [0, 5, 10, 20];
+function coinMultiplier(streak) {
+  if (streak >= 5) return 2;
+  if (streak >= 3) return 1.5;
+  return 1;
+}
 
 function saveStats() {
   localStorage.setItem('mathStats', JSON.stringify(stats));
@@ -399,14 +530,36 @@ function updateStatsDisplay() {
   document.getElementById('total-correct').textContent = stats.correct;
   document.getElementById('total-attempts').textContent = stats.attempts;
   document.getElementById('current-streak').textContent = stats.streak;
+  const coinEls = document.querySelectorAll('.coin-count');
+  coinEls.forEach(el => el.textContent = stats.coins);
 }
 function resetStats() {
-  if (confirm('לאפס את כל הסטטיסטיקה והנעילות של רמות?')) {
-    stats = {correct:0, attempts:0, streak:0, levelProgress:{}};
+  if (confirm('לאפס את כל הסטטיסטיקה, המטבעות והנעילות של רמות?')) {
+    stats = {correct:0, attempts:0, streak:0, levelProgress:{}, coins:0};
     saveStats();
     location.reload();
   }
 }
+
+function showCoinPopup(amount, mult) {
+  const fb = document.getElementById('feedback');
+  const anchor = fb && fb.offsetParent ? fb : document.querySelector('.coin-badge') || document.body;
+  const rect = anchor.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.className = 'coin-pop';
+  pop.textContent = mult > 1 ? `+${amount} 🪙 ×${mult}` : `+${amount} 🪙`;
+  pop.style.left = (rect.left + window.scrollX + rect.width / 2) + 'px';
+  pop.style.top = (rect.top + window.scrollY) + 'px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1400);
+  const badges = document.querySelectorAll('.coin-badge, #coins-stat');
+  badges.forEach(b => {
+    b.classList.remove('coin-bump');
+    void b.offsetWidth;
+    b.classList.add('coin-bump');
+  });
+}
+
 updateStatsDisplay();
 
 // ============================================================
@@ -475,6 +628,10 @@ function recordAnswer(correct) {
     stats.correct++;
     stats.streak++;
     levelCorrectInRow++;
+    const mult = coinMultiplier(stats.streak);
+    const reward = Math.round(COIN_BASE[currentLevel] * mult);
+    stats.coins += reward;
+    showCoinPopup(reward, mult);
     const progKey = `t${currentTopic}`;
     const unlocked = stats.levelProgress[progKey] || 1;
     if (levelCorrectInRow >= CORRECT_TO_UNLOCK && currentLevel === unlocked && currentLevel < 3) {
@@ -627,6 +784,7 @@ function renderTopic1() {
       <span class="label">נוסחת השורשים:</span>
       <span class="math">x = (-b ± √(b² - 4ac)) / (2a)</span>
     </div>
+    ${notebookHTML()}
     <div class="answer-section">
       <label>מספר שורשים (0, 1, או 2):</label>
       <input type="number" id="num-roots" min="0" max="2">
@@ -814,6 +972,7 @@ function renderTopic2() {
       <span class="label">קודקוד:</span>
       <span class="math">x = -b/(2a),  y = f(x)</span>
     </div>
+    ${notebookHTML()}
     <div class="answer-section">
       <label>סוג הפרבולה:</label>
       <select id="parabola-type">
@@ -1142,6 +1301,7 @@ function renderTopic3() {
     <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
     <div class="problem-text">${problemText}</div>
     ${canvasHtml}
+    ${notebookHTML()}
     <div class="answer-section">
       ${inputHtml}
       <br><button class="btn btn-primary" onclick="checkTopic3()">בדוק תשובה</button>
@@ -1502,6 +1662,7 @@ function renderTopic4() {
     <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
     <div class="problem-text">${problemText}</div>
     <canvas id="graph-canvas" width="500" height="400"></canvas>
+    ${notebookHTML()}
     <div class="answer-section">
       ${inputHtml}
       <br><button class="btn btn-primary" onclick="checkTopic4()">בדוק תשובה</button>
@@ -1614,6 +1775,146 @@ const TOPICS = {
 
 function newProblem() {
   TOPICS[currentTopic].render();
+  initNotebook();
+}
+
+// ============================================================
+// מחברת ציור (Pointer Events - תומך באצבע, סטיילוס ועכבר)
+// ============================================================
+function notebookHTML() {
+  return `
+    <details class="notebook">
+      <summary>📝 מחברת ציור</summary>
+      <div class="notebook-tools">
+        <button type="button" data-tool="pen" data-size="2"><span class="dot" style="width:4px;height:4px;color:#222"></span> דק</button>
+        <button type="button" data-tool="pen" data-size="4" class="active"><span class="dot" style="width:8px;height:8px;color:#222"></span> בינוני</button>
+        <button type="button" data-tool="pen" data-size="8"><span class="dot" style="width:14px;height:14px;color:#222"></span> עבה</button>
+        <button type="button" data-tool="pen" data-size="3" data-color="#e74c3c"><span class="dot" style="width:8px;height:8px;color:#e74c3c"></span> אדום</button>
+        <button type="button" data-tool="pen" data-size="3" data-color="#2980b9"><span class="dot" style="width:8px;height:8px;color:#2980b9"></span> כחול</button>
+        <button type="button" data-tool="eraser">🧽 מחק</button>
+        <button type="button" data-action="undo">↶ ביטול</button>
+        <button type="button" data-action="clear">🗑 נקה</button>
+      </div>
+      <canvas class="notebook-canvas"></canvas>
+    </details>
+  `;
+}
+
+function initNotebook() {
+  const details = document.querySelector('.notebook');
+  if (!details) return;
+  const canvas = details.querySelector('.notebook-canvas');
+  const tools = details.querySelector('.notebook-tools');
+  let ctx = null;
+  let drawing = false;
+  let tool = 'pen';
+  let size = 4;
+  let color = '#222';
+  const history = [];
+
+  function resizeCanvas() {
+    if (!details.open) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.round(rect.width);
+    const h = Math.round(rect.height);
+    if (canvas.width === w * dpr && canvas.height === h * dpr) return;
+    const snapshot = ctx ? canvas.toDataURL() : null;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (snapshot) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, w, h);
+      img.src = snapshot;
+    }
+  }
+
+  details.addEventListener('toggle', () => { if (details.open) resizeCanvas(); });
+  window.addEventListener('resize', resizeCanvas);
+
+  function pushHistory() {
+    try {
+      history.push(canvas.toDataURL());
+      if (history.length > 20) history.shift();
+    } catch (_) {}
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!ctx) return;
+    e.preventDefault();
+    canvas.setPointerCapture(e.pointerId);
+    pushHistory();
+    drawing = true;
+    const p = getPos(e);
+    ctx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = tool === 'eraser' ? size * 4 : size;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x + 0.01, p.y + 0.01);
+    ctx.stroke();
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drawing || !ctx) return;
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  });
+  const endStroke = (e) => {
+    if (!drawing) return;
+    drawing = false;
+    if (ctx) ctx.beginPath();
+  };
+  canvas.addEventListener('pointerup', endStroke);
+  canvas.addEventListener('pointercancel', endStroke);
+  canvas.addEventListener('pointerleave', endStroke);
+
+  tools.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    if (action === 'clear') {
+      if (!ctx) return;
+      pushHistory();
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+      return;
+    }
+    if (action === 'undo') {
+      if (!ctx || !history.length) return;
+      const dataUrl = history.pop();
+      const img = new Image();
+      img.onload = () => {
+        const rect = canvas.getBoundingClientRect();
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        ctx.drawImage(img, 0, 0, rect.width, rect.height);
+      };
+      img.src = dataUrl;
+      return;
+    }
+    if (btn.dataset.tool) {
+      tool = btn.dataset.tool;
+      if (btn.dataset.size) size = parseInt(btn.dataset.size);
+      if (btn.dataset.color) color = btn.dataset.color;
+      else if (tool === 'pen' && !btn.dataset.color) color = '#222';
+      tools.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  });
 }
 </script>
 </body>
