@@ -445,13 +445,123 @@
     .problem-text { font-size: 1.05em; }
     .notebook-canvas { height: 320px; }
   }
+
+  .welcome-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+  }
+  .welcome-overlay.hidden { display: none; }
+  .welcome-card {
+    background: white;
+    padding: 28px 24px;
+    border-radius: 16px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  }
+  .welcome-card h2 {
+    margin: 0 0 8px;
+    color: #2c3e50;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .welcome-card p { margin: 8px 0; color: #5a6573; }
+  .welcome-card input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-family: inherit;
+    text-align: center;
+    margin: 12px 0;
+    box-sizing: border-box;
+  }
+  .welcome-card .btn { margin-top: 4px; }
+  .profile-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 10px 0 0;
+  }
+  .profile-list button {
+    padding: 8px 14px;
+    border: 1px solid #3498db;
+    background: #ecf6fc;
+    color: #2980b9;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95em;
+  }
+  .profile-list button:hover { background: #d6ebf7; }
+
+  .student-greeting {
+    text-align: center;
+    margin: 4px 0 14px;
+    color: #2c3e50;
+    font-size: 1.05em;
+  }
+  .student-greeting b { color: #2980b9; }
+  .btn-link {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9em;
+    text-decoration: underline;
+    padding: 0 4px;
+  }
+  .student-name-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ecf0f1;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.95em;
+    color: #2c3e50;
+    margin-left: 6px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
 </style>
 </head>
 <body>
+<div id="welcome-overlay" class="welcome-overlay hidden">
+  <div class="welcome-card">
+    <h2>ברוכים הבאים! 👋</h2>
+    <p>איך קוראים לך?</p>
+    <input type="text" id="welcome-name" maxlength="20" placeholder="שם פרטי"
+           onkeydown="if(event.key==='Enter') submitWelcomeName()">
+    <button class="btn btn-primary" onclick="submitWelcomeName()">המשך ←</button>
+    <div id="profile-list-wrap" class="hidden">
+      <p style="margin-top:18px;">או בחר תלמיד קיים:</p>
+      <div id="profile-list" class="profile-list"></div>
+    </div>
+  </div>
+</div>
+
 <div class="container">
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
   <div id="main-menu">
+    <p class="student-greeting">שלום, <b class="student-name-text"></b>! 👋
+      <button class="btn-link" onclick="switchStudent()">החלף תלמיד</button>
+    </p>
     <p style="text-align:center; font-size:1.1em; color:#7f8c8d;">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
     <div class="topics-menu">
       <button class="topic-card topic-1" onclick="openTopic(1)">
@@ -496,7 +606,10 @@
   <div id="topic-view" class="hidden">
     <div class="topic-view-header">
       <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
-      <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
+      <div class="header-right">
+        <span class="student-name-badge">👤 <span class="student-name-text"></span></span>
+        <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
+      </div>
     </div>
     <h2 id="topic-title"></h2>
     <div class="level-selector" id="level-selector"></div>
@@ -510,10 +623,14 @@
 
 <script>
 // ============================================================
-// סטטיסטיקה גלובלית
+// פרופילי תלמידים + סטטיסטיקה
 // ============================================================
-let stats = JSON.parse(localStorage.getItem('mathStats') || '{"correct":0,"attempts":0,"streak":0,"levelProgress":{},"coins":0}');
-if (typeof stats.coins !== 'number') stats.coins = 0;
+function defaultStats() {
+  return { correct: 0, attempts: 0, streak: 0, levelProgress: {}, coins: 0 };
+}
+let profiles = JSON.parse(localStorage.getItem('mathProfiles') || '{}');
+let currentStudent = localStorage.getItem('currentStudent') || '';
+let stats = defaultStats();
 
 const COIN_BASE = [0, 5, 10, 20];
 function coinMultiplier(streak) {
@@ -523,7 +640,10 @@ function coinMultiplier(streak) {
 }
 
 function saveStats() {
-  localStorage.setItem('mathStats', JSON.stringify(stats));
+  if (currentStudent) {
+    profiles[currentStudent] = stats;
+    localStorage.setItem('mathProfiles', JSON.stringify(profiles));
+  }
   updateStatsDisplay();
 }
 function updateStatsDisplay() {
@@ -533,13 +653,86 @@ function updateStatsDisplay() {
   const coinEls = document.querySelectorAll('.coin-count');
   coinEls.forEach(el => el.textContent = stats.coins);
 }
+function updateStudentDisplay() {
+  document.querySelectorAll('.student-name-text').forEach(el => el.textContent = currentStudent || '');
+}
 function resetStats() {
-  if (confirm('לאפס את כל הסטטיסטיקה, המטבעות והנעילות של רמות?')) {
-    stats = {correct:0, attempts:0, streak:0, levelProgress:{}, coins:0};
+  if (!currentStudent) return;
+  if (confirm(`לאפס את הסטטיסטיקה, המטבעות והנעילות עבור ${currentStudent}?`)) {
+    stats = defaultStats();
+    profiles[currentStudent] = stats;
     saveStats();
     location.reload();
   }
 }
+
+function showWelcomeModal() {
+  const overlay = document.getElementById('welcome-overlay');
+  const input = document.getElementById('welcome-name');
+  const wrap = document.getElementById('profile-list-wrap');
+  const list = document.getElementById('profile-list');
+  input.value = '';
+  list.innerHTML = '';
+  const names = Object.keys(profiles);
+  if (names.length > 0) {
+    wrap.classList.remove('hidden');
+    names.forEach(name => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = name;
+      btn.onclick = () => pickStudent(name);
+      list.appendChild(btn);
+    });
+  } else {
+    wrap.classList.add('hidden');
+  }
+  overlay.classList.remove('hidden');
+  setTimeout(() => input.focus(), 50);
+}
+function submitWelcomeName() {
+  const input = document.getElementById('welcome-name');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  if (name.length > 20) { alert('שם פרטי עד 20 תווים'); return; }
+  pickStudent(name);
+}
+function pickStudent(name) {
+  const isFirstEver = Object.keys(profiles).length === 0;
+  if (!profiles[name]) {
+    profiles[name] = defaultStats();
+    if (isFirstEver) {
+      try {
+        const legacyRaw = localStorage.getItem('mathStats');
+        if (legacyRaw) {
+          const legacy = JSON.parse(legacyRaw);
+          profiles[name] = Object.assign(defaultStats(), legacy);
+          localStorage.removeItem('mathStats');
+        }
+      } catch (_) {}
+    }
+  }
+  currentStudent = name;
+  stats = profiles[name];
+  localStorage.setItem('currentStudent', name);
+  saveStats();
+  updateStudentDisplay();
+  document.getElementById('welcome-overlay').classList.add('hidden');
+}
+function switchStudent() {
+  showWelcomeModal();
+}
+
+function initStudent() {
+  if (currentStudent && profiles[currentStudent]) {
+    stats = profiles[currentStudent];
+    Object.keys(defaultStats()).forEach(k => { if (!(k in stats)) stats[k] = defaultStats()[k]; });
+    updateStudentDisplay();
+    updateStatsDisplay();
+  } else {
+    showWelcomeModal();
+  }
+}
+initStudent();
 
 function showCoinPopup(amount, mult) {
   const fb = document.getElementById('feedback');
@@ -559,8 +752,6 @@ function showCoinPopup(amount, mult) {
     b.classList.add('coin-bump');
   });
 }
-
-updateStatsDisplay();
 
 // ============================================================
 // מצב נוכחי
