@@ -568,7 +568,10 @@ updateStatsDisplay();
 let currentTopic = null;
 let currentLevel = 1;
 let levelCorrectInRow = 0;
+let helpUsedForProblem = false;
 const CORRECT_TO_UNLOCK = 3; // כמה צריך להצליח כדי לפתוח רמה
+
+function markHelpUsed() { helpUsedForProblem = true; }
 
 function openTopic(topicNum) {
   currentTopic = topicNum;
@@ -628,10 +631,12 @@ function recordAnswer(correct) {
     stats.correct++;
     stats.streak++;
     levelCorrectInRow++;
-    const mult = coinMultiplier(stats.streak);
-    const reward = Math.round(COIN_BASE[currentLevel] * mult);
-    stats.coins += reward;
-    showCoinPopup(reward, mult);
+    if (!helpUsedForProblem) {
+      const mult = coinMultiplier(stats.streak);
+      const reward = Math.round(COIN_BASE[currentLevel] * mult);
+      stats.coins += reward;
+      showCoinPopup(reward, mult);
+    }
     const progKey = `t${currentTopic}`;
     const unlocked = stats.levelProgress[progKey] || 1;
     if (levelCorrectInRow >= CORRECT_TO_UNLOCK && currentLevel === unlocked && currentLevel < 3) {
@@ -790,8 +795,8 @@ function renderTopic1() {
       <input type="number" id="num-roots" min="0" max="2">
       <div id="roots-input" style="margin-top:10px;"></div>
       <button class="btn btn-primary" onclick="checkTopic1()">בדוק תשובה</button>
-      <button class="btn btn-warning" onclick="showHintTopic1()">רמז</button>
-      <button class="btn btn-secondary" onclick="showSolutionTopic1()">פתרון מלא</button>
+      <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic1()">רמז</button>
+      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic1()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -986,8 +991,8 @@ function renderTopic2() {
       <input type="text" id="vertex-y" placeholder="לדוגמה: -3">
       ${extraQ}
       <br><button class="btn btn-primary" onclick="checkTopic2()">בדוק תשובה</button>
-      <button class="btn btn-warning" onclick="showHintTopic2()">רמז</button>
-      <button class="btn btn-secondary" onclick="showSolutionTopic2()">פתרון מלא</button>
+      <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic2()">רמז</button>
+      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic2()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -1305,8 +1310,8 @@ function renderTopic3() {
     <div class="answer-section">
       ${inputHtml}
       <br><button class="btn btn-primary" onclick="checkTopic3()">בדוק תשובה</button>
-      <button class="btn btn-warning" onclick="showHintTopic3()">רמז</button>
-      <button class="btn btn-secondary" onclick="showSolutionTopic3()">פתרון מלא</button>
+      <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic3()">רמז</button>
+      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic3()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -1666,8 +1671,8 @@ function renderTopic4() {
     <div class="answer-section">
       ${inputHtml}
       <br><button class="btn btn-primary" onclick="checkTopic4()">בדוק תשובה</button>
-      <button class="btn btn-warning" onclick="showHintTopic4()">רמז</button>
-      <button class="btn btn-secondary" onclick="showSolutionTopic4()">פתרון מלא</button>
+      <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic4()">רמז</button>
+      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic4()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -1774,6 +1779,7 @@ const TOPICS = {
 };
 
 function newProblem() {
+  helpUsedForProblem = false;
   TOPICS[currentTopic].render();
   initNotebook();
 }
