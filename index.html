@@ -1336,14 +1336,14 @@ function checkTopic1() {
 }
 
 function showHintTopic1() {
-  const eq = currentProblem;
   const fb = document.getElementById('feedback');
   fb.className = 'solution';
   fb.innerHTML = `
     <h4>💡 רמז:</h4>
-    <div class="solution-step">1. זהה את המקדמים: a = ${eq.a}, b = ${eq.b}, c = ${eq.c}</div>
-    <div class="solution-step">2. חשב את הדיסקרימיננטה: Δ = b² − 4ac = ${eq.b}² − 4·${eq.a}·${eq.c} = ${eq.b*eq.b} − ${4*eq.a*eq.c} = ${eq.b*eq.b - 4*eq.a*eq.c}</div>
-    <div class="solution-step">3. אם Δ > 0 → שני שורשים. אם Δ = 0 → שורש כפול. אם Δ < 0 → אין שורשים.</div>
+    <div class="solution-step">1. כל משוואה ריבועית בנויה כך: ax² + bx + c = 0. תמצא מי המספרים a, b ו-c במשוואה שלך.</div>
+    <div class="solution-step">2. חשב בעצמך את הביטוי Δ = b² − 4ac. המספר שיצא יגיד לך כמה פתרונות יש.</div>
+    <div class="solution-step">3. אם Δ גדול מ-0 → שני שורשים. אם Δ שווה ל-0 → שורש אחד. אם Δ קטן מ-0 → אין פתרון.</div>
+    <div class="solution-step">4. אם יש שורשים, הצב את a, b ואת Δ בנוסחת השורשים שלמעלה ותחשב.</div>
   `;
 }
 
@@ -1449,13 +1449,12 @@ function checkTopic2() {
 }
 
 function showHintTopic2() {
-  const fn = currentProblem;
   document.getElementById('feedback').className = 'solution';
   document.getElementById('feedback').innerHTML = `
     <h4>💡 רמז:</h4>
-    <div class="solution-step">1. הסתכל על מקדם a = ${fn.a}. אם a > 0 הפרבולה פתוחה למעלה (מינימום), אם a < 0 פתוחה למטה (מקסימום).</div>
-    <div class="solution-step">2. שיעור x של הקודקוד: x = -b/(2a) = -(${fn.b})/(2·${fn.a})</div>
-    <div class="solution-step">3. שיעור y של הקודקוד: הצב את x שמצאת בפונקציה f(x).</div>
+    <div class="solution-step">1. תסתכל על המספר שצמוד ל-x² (קוראים לו a). אם הוא חיובי הפרבולה כמו חיוך (לקודקוד קוראים מינימום), אם הוא שלילי היא כמו פרצוף עצוב (מקסימום).</div>
+    <div class="solution-step">2. כדי למצוא איפה הקודקוד יושב על ציר ה-x, השתמש בנוסחה x = -b/(2a) עם המספרים מהפונקציה שלך.</div>
+    <div class="solution-step">3. כדי למצוא את הגובה של הקודקוד (ה-y), קח את ה-x שמצאת והצב אותו בחזרה בתוך הפונקציה.</div>
   `;
 }
 
@@ -1793,23 +1792,23 @@ function showHintTopic3() {
   fb.className = 'solution';
   let h = '<h4>💡 רמז:</h4>';
   if (p.type === 'trapezoid-angles' || p.type === 'isoceles-angles') {
-    h += '<div class="solution-step">בטרפז: סכום זוויות צמודות לאותה שוק = 180°. כלומר A + D = 180° וגם B + C = 180°.</div>';
+    h += '<div class="solution-step">בטרפז, שתי זוויות שיושבות על אותה צלע אלכסונית (שוק) מסתכמות תמיד ל-180°. תחשוב איזו זווית "משלימה" את הזווית החסרה ל-180.</div>';
   } else if (p.type === 'trapezoid-perimeter') {
-    h += '<div class="solution-step">היקף = סכום אורכי כל ארבע הצלעות.</div>';
+    h += '<div class="solution-step">היקף זה פשוט לחבר יחד את האורכים של כל ארבע הצלעות.</div>';
   } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area' || p.type === 'right-trapezoid') {
-    h += '<div class="solution-step">שטח טרפז = (בסיס גדול + בסיס קטן) × גובה ÷ 2</div>';
+    h += '<div class="solution-step">שטח של טרפז = הבסיס הגדול ועוד הבסיס הקטן, כפול הגובה, ואז לחלק ב-2.</div>';
     if (p.type === 'right-trapezoid') {
-      h += '<div class="solution-step">לשוק הנטויה: השתמש בפיתגורס. הפרש הבסיסים הוא הניצב האופקי, והגובה הוא הניצב האנכי.</div>';
+      h += '<div class="solution-step">בשביל הצלע האלכסונית: צייר את הגובה ותקבל משולש ישר-זווית. אחד הניצבים הוא הגובה, השני הוא ההפרש בין הבסיסים. השתמש במשפט פיתגורס.</div>';
     }
   } else if (p.type === 'isoceles-find-h') {
-    h += `<div class="solution-step">הורד גובה מ-D וגם מ-C על הבסיס הגדול AB. נוצרים שני משולשים ישרי-זווית זהים. הניצב האופקי הוא ${p.overhang}, היתר הוא השוק (${p.leg}).</div>`;
-    h += '<div class="solution-step">לפי פיתגורס: גובה² + הצצה² = שוק²</div>';
+    h += '<div class="solution-step">תוריד גובה משתי הפינות העליונות אל הבסיס הגדול. נוצר משולש ישר-זווית: אחד הניצבים הוא הגובה שאתה מחפש, והיתר הוא השוק.</div>';
+    h += '<div class="solution-step">השתמש במשפט פיתגורס: סכום הריבועים של שני הניצבים שווה לריבוע היתר.</div>';
   } else if (p.type === 'right-find-h') {
-    h += `<div class="solution-step">במשולש שיוצרת השוק הנטויה: הניצב האופקי הוא ${p.dx}, היתר הוא ${p.slantLeg}.</div>`;
-    h += '<div class="solution-step">לפי פיתגורס: גובה² + הפרש² = שוק נטויה²</div>';
+    h += '<div class="solution-step">הצלע האלכסונית יוצרת משולש ישר-זווית יחד עם הגובה ועם ההפרש בין שני הבסיסים.</div>';
+    h += '<div class="solution-step">השתמש במשפט פיתגורס כדי למצוא את הגובה החסר.</div>';
   } else if (p.type === 'full-isoceles') {
-    h += `<div class="solution-step">הצצה מכל צד = (${p.b}-${p.a})/2 = ${p.overhang}.</div>`;
-    h += '<div class="solution-step">שוק = √(גובה² + הצצה²)</div>';
+    h += '<div class="solution-step">תוריד גובה ותקבל משולש ישר-זווית: הניצבים הם הגובה וההפרש מהקצה, והיתר הוא השוק.</div>';
+    h += '<div class="solution-step">השתמש במשפט פיתגורס כדי למצוא את אורך השוק.</div>';
   }
   fb.innerHTML = h;
 }
@@ -2083,16 +2082,16 @@ function showHintTopic4() {
   fb.className = 'solution';
   let h = '<h4>💡 רמז:</h4>';
   if (p.kind === 'linear-value') {
-    h += '<div class="solution-step">חיתוך עם ציר y: ערך y בנקודה שבה x=0 (איפה הקו חוצה את הציר האנכי).</div>';
-    h += '<div class="solution-step">שיפוע: כמה y עולה כאשר x עולה ב-1.</div>';
-    h += '<div class="solution-step">f(x) במספר נתון: הצב את הערך בנוסחה או קרא ישירות מהגרף.</div>';
+    h += '<div class="solution-step">חיתוך עם ציר y: חפש בגרף את הנקודה שבה הקו חוצה את הקו האנכי (שם x שווה ל-0), וקרא את ערך ה-y.</div>';
+    h += '<div class="solution-step">שיפוע: בדוק בכמה ה-y עולה (או יורד) כשזזים צעד אחד ימינה ב-x.</div>';
+    h += '<div class="solution-step">f של מספר נתון: לך על ציר ה-x למספר הזה, עלה עד הקו, וקרא את ה-y.</div>';
   } else if (p.kind === 'parabola-features') {
-    h += '<div class="solution-step">שורשים = נקודות החיתוך של הפרבולה עם ציר x (הנקודות הכחולות).</div>';
-    h += '<div class="solution-step">קודקוד = הנקודה הירוקה (הנקודה הנמוכה/הגבוהה ביותר).</div>';
-    h += '<div class="solution-step">אם הפרבולה פתוחה כלפי מעלה → קודקוד הוא מינימום. כלפי מטה → מקסימום.</div>';
+    h += '<div class="solution-step">שורשים = המקומות שבהם הפרבולה נוגעת או חוצה את הקו האופקי (ציר x) - הנקודות הכחולות.</div>';
+    h += '<div class="solution-step">קודקוד = הנקודה הכי נמוכה או הכי גבוהה של הפרבולה - הנקודה הירוקה.</div>';
+    h += '<div class="solution-step">אם הפרבולה כמו חיוך → הקודקוד הוא הנקודה הכי נמוכה (מינימום). אם הפוכה → הכי גבוהה (מקסימום).</div>';
   } else {
-    h += '<div class="solution-step">פונקציה חיובית = החלק של הפרבולה שמעל ציר x.</div>';
-    h += '<div class="solution-step">פונקציה עולה = הולכת ימינה ולמעלה (לאחר הקודקוד אם הפרבולה מינימום, לפניו אם מקסימום).</div>';
+    h += '<div class="solution-step">הפונקציה חיובית בכל מקום שבו הקו נמצא מעל לקו האופקי (ציר x).</div>';
+    h += '<div class="solution-step">הפונקציה עולה בכל מקום שבו, כשזזים ימינה, הקו גם עולה למעלה.</div>';
   }
   fb.innerHTML = h;
 }
@@ -2203,14 +2202,14 @@ function showHintTopic5() {
   fb.className = 'solution';
   let h = '<h4>💡 רמז:</h4>';
   if (p.kind === 'identify') {
-    h += '<div class="solution-step">במשוואה y = mx + b: השיפוע m הוא המקדם שליד x.</div>';
-    h += '<div class="solution-step">נקודת החיתוך עם ציר y היא b - המספר החופשי (אם אין מספר חופשי, b = 0).</div>';
+    h += '<div class="solution-step">במשוואה y = mx + b: המספר שצמוד ל-x הוא השיפוע (m).</div>';
+    h += '<div class="solution-step">המספר שעומד לבד, בלי x, הוא נקודת החיתוך עם ציר y (b). אם אין מספר כזה, אז b שווה ל-0.</div>';
   } else if (p.kind === 'slope-from-points') {
-    h += '<div class="solution-step">השיפוע = הפרש ה-y חלקי הפרש ה-x.</div>';
-    h += `<div class="solution-step">m = (${p.y2} − ${p.y1}) / (${p.x2} − ${p.x1})</div>`;
+    h += '<div class="solution-step">השיפוע אומר כמה ה-y משתנה כשזזים ב-x.</div>';
+    h += '<div class="solution-step">בדוק בכמה ה-y השתנה בין שתי הנקודות, ובכמה ה-x השתנה. השיפוע = השינוי ב-y חלקי השינוי ב-x.</div>';
   } else {
-    h += `<div class="solution-step">שלב 1: חשב שיפוע: m = (${p.y2} − ${p.y1}) / (${p.x2} − ${p.x1}).</div>`;
-    h += `<div class="solution-step">שלב 2: הצב נקודה אחת (למשל (${p.x1}, ${p.y1})) במשוואה y = mx + b וחלץ את b.</div>`;
+    h += '<div class="solution-step">שלב 1: מצא את השיפוע - בכמה ה-y השתנה בין הנקודות, חלקי בכמה ה-x השתנה.</div>';
+    h += '<div class="solution-step">שלב 2: קח נקודה אחת, הצב את ה-x, ה-y והשיפוע במשוואה y = mx + b, ופתור כדי למצוא את b.</div>';
   }
   fb.innerHTML = h;
 }
