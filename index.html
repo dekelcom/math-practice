@@ -446,204 +446,19 @@
     .problem-text { font-size: 1.05em; }
     .notebook-canvas { height: 320px; }
   }
-
-  .welcome-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 20px;
-  }
-  .welcome-overlay.hidden { display: none; }
-  .welcome-card {
-    background: white;
-    padding: 28px 24px;
-    border-radius: 16px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-  }
-  .welcome-card h2 {
-    margin: 0 0 8px;
-    color: #2c3e50;
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  .welcome-card p { margin: 8px 0; color: #5a6573; }
-  .welcome-card input {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #3498db;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-family: inherit;
-    text-align: center;
-    margin: 12px 0;
-    box-sizing: border-box;
-  }
-  .welcome-card .btn { margin-top: 4px; }
-  .profile-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin: 10px 0 0;
-  }
-  .profile-list button {
-    padding: 8px 14px;
-    border: 1px solid #3498db;
-    background: #ecf6fc;
-    color: #2980b9;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.95em;
-  }
-  .profile-list button:hover { background: #d6ebf7; }
-
-  .student-greeting {
-    text-align: center;
-    margin: 4px 0 14px;
-    color: #2c3e50;
-    font-size: 1.05em;
-  }
-  .student-greeting b { color: #2980b9; }
-  .btn-link {
-    background: none;
-    border: none;
-    color: #3498db;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.9em;
-    text-decoration: underline;
-    padding: 0 4px;
-  }
-  .student-name-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ecf0f1;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.95em;
-    color: #2c3e50;
-    margin-left: 6px;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .leaderboard-list, .teacher-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 20px 0;
-  }
-  .leaderboard-row, .teacher-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
-    background: #f8f9fa;
-    border: 1px solid #e1e4e8;
-    border-radius: 10px;
-  }
-  .leaderboard-row.is-me, .teacher-row.is-me {
-    background: #e8f4fd;
-    border-color: #3498db;
-  }
-  .leaderboard-rank {
-    font-size: 1.6em;
-    font-weight: 700;
-    color: #7f8c8d;
-    min-width: 50px;
-    text-align: center;
-  }
-  .leaderboard-rank.gold { color: #f1c40f; }
-  .leaderboard-rank.silver { color: #95a5a6; }
-  .leaderboard-rank.bronze { color: #cd7f32; }
-  .leaderboard-name, .teacher-name {
-    flex: 1;
-    font-size: 1.15em;
-    font-weight: 600;
-    color: #2c3e50;
-  }
-  .leaderboard-stats {
-    text-align: left;
-    color: #7f8c8d;
-    font-size: 0.95em;
-  }
-  .leaderboard-stats b {
-    color: #d97706;
-    font-size: 1.2em;
-  }
-  .teacher-activity {
-    color: #2980b9;
-    font-size: 0.95em;
-    text-align: left;
-  }
-  .teacher-activity .muted {
-    color: #95a5a6;
-    font-style: italic;
-  }
-  .teacher-last-seen {
-    color: #95a5a6;
-    font-size: 0.8em;
-  }
 </style>
 </head>
 <body>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAgxCpPbxPFF2awfjygkabhS60UV13sSUc",
-  authDomain: "math-practice-class.firebaseapp.com",
-  databaseURL: "https://math-practice-class-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "math-practice-class",
-  storageBucket: "math-practice-class.firebasestorage.app",
-  messagingSenderId: "1015683299854",
-  appId: "1:1015683299854:web:d05118ea913592b37b9a5f"
-};
-let firebaseDb = null;
-try {
-  firebase.initializeApp(firebaseConfig);
-  firebaseDb = firebase.database();
-} catch (e) {
-  console.warn('Firebase init failed:', e);
-}
-function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
-</script>
-<div id="welcome-overlay" class="welcome-overlay hidden">
-  <div class="welcome-card">
-    <h2>ברוכים הבאים! 👋</h2>
-    <p>איך קוראים לך?</p>
-    <input type="text" id="welcome-name" maxlength="20" placeholder="שם פרטי"
-           onkeydown="if(event.key==='Enter') submitWelcomeName()">
-    <button class="btn btn-primary" onclick="submitWelcomeName()">המשך ←</button>
-    <div id="profile-list-wrap" class="hidden">
-      <p style="margin-top:18px;">או בחר תלמיד קיים:</p>
-      <div id="profile-list" class="profile-list"></div>
-    </div>
-  </div>
-</div>
-
 <div class="container">
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
   <div id="main-menu">
-    <p class="student-greeting">שלום, <b class="student-name-text"></b>! 👋
-      <button class="btn-link" onclick="switchStudent()">החלף תלמיד</button>
-    </p>
     <p style="text-align:center; font-size:1.1em; color:#7f8c8d;">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
     <div class="topics-menu">
+      <button class="topic-card topic-5" onclick="openTopic(5)">
+        📉 משוואת קו ישר<br>
+        <small style="opacity:0.9">שיפוע ונקודת חיתוך</small>
+      </button>
       <button class="topic-card topic-1" onclick="openTopic(1)">
         📐 פתרון משוואה ריבועית<br>
         <small style="opacity:0.9">נוסחת השורשים</small>
@@ -659,10 +474,6 @@ function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
       <button class="topic-card topic-4" onclick="openTopic(4)">
         📊 קריאת גרפים<br>
         <small style="opacity:0.9">פונקציות וערכים</small>
-      </button>
-      <button class="topic-card topic-5" onclick="openTopic(5)">
-        📉 משוואת קו ישר<br>
-        <small style="opacity:0.9">שיפוע ונקודת חיתוך</small>
       </button>
     </div>
 
@@ -684,38 +495,13 @@ function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
         <div class="stat-label">מטבעות 🪙</div>
       </div>
     </div>
-    <div style="text-align:center; margin: 15px 0;">
-      <button class="btn btn-success" onclick="showLeaderboard()">🏆 לוח תוצאות</button>
-      <button class="btn btn-warning" onclick="showTeacher()">👩‍🏫 מסך מורה</button>
-    </div>
     <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
-  </div>
-
-  <div id="leaderboard-view" class="hidden">
-    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
-    <h2 style="text-align:center;">🏆 לוח תוצאות הכיתה</h2>
-    <p style="text-align:center; color:#7f8c8d;">המטבעות של כל הכיתה. שתבא אצל החברים שלך!</p>
-    <div id="leaderboard-list" class="leaderboard-list">
-      <p style="text-align:center; color:#95a5a6;">טוען...</p>
-    </div>
-  </div>
-
-  <div id="teacher-view" class="hidden">
-    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
-    <h2 style="text-align:center;">👩‍🏫 מסך מורה</h2>
-    <p style="text-align:center; color:#7f8c8d;">מה כל תלמיד עושה כרגע (מתעדכן בזמן אמת)</p>
-    <div id="teacher-list" class="teacher-list">
-      <p style="text-align:center; color:#95a5a6;">טוען...</p>
-    </div>
   </div>
 
   <div id="topic-view" class="hidden">
     <div class="topic-view-header">
       <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
-      <div class="header-right">
-        <span class="student-name-badge">👤 <span class="student-name-text"></span></span>
-        <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
-      </div>
+      <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
     </div>
     <h2 id="topic-title"></h2>
     <div class="level-selector" id="level-selector"></div>
@@ -729,14 +515,10 @@ function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
 
 <script>
 // ============================================================
-// פרופילי תלמידים + סטטיסטיקה
+// סטטיסטיקה גלובלית
 // ============================================================
-function defaultStats() {
-  return { correct: 0, attempts: 0, streak: 0, levelProgress: {}, coins: 0 };
-}
-let profiles = JSON.parse(localStorage.getItem('mathProfiles') || '{}');
-let currentStudent = localStorage.getItem('currentStudent') || '';
-let stats = defaultStats();
+let stats = JSON.parse(localStorage.getItem('mathStats') || '{"correct":0,"attempts":0,"streak":0,"levelProgress":{},"coins":0}');
+if (typeof stats.coins !== 'number') stats.coins = 0;
 
 const COIN_BASE = [0, 5, 10, 20];
 function coinMultiplier(streak) {
@@ -746,37 +528,8 @@ function coinMultiplier(streak) {
 }
 
 function saveStats() {
-  if (currentStudent) {
-    profiles[currentStudent] = stats;
-    localStorage.setItem('mathProfiles', JSON.stringify(profiles));
-    syncStudentToFirebase();
-  }
+  localStorage.setItem('mathStats', JSON.stringify(stats));
   updateStatsDisplay();
-}
-
-function syncStudentToFirebase() {
-  if (!firebaseDb || !currentStudent) return;
-  try {
-    firebaseDb.ref('students/' + fbKey(currentStudent)).update({
-      name: currentStudent,
-      coins: stats.coins || 0,
-      streak: stats.streak || 0,
-      correct: stats.correct || 0,
-      attempts: stats.attempts || 0,
-      levelProgress: stats.levelProgress || {},
-      lastSeen: firebase.database.ServerValue.TIMESTAMP
-    });
-  } catch (e) { console.warn('sync failed', e); }
-}
-
-function updateCurrentActivity(label) {
-  if (!firebaseDb || !currentStudent) return;
-  try {
-    firebaseDb.ref('students/' + fbKey(currentStudent) + '/currentActivity').set({
-      label: label || null,
-      timestamp: firebase.database.ServerValue.TIMESTAMP
-    });
-  } catch (e) { console.warn('activity update failed', e); }
 }
 function updateStatsDisplay() {
   document.getElementById('total-correct').textContent = stats.correct;
@@ -785,89 +538,13 @@ function updateStatsDisplay() {
   const coinEls = document.querySelectorAll('.coin-count');
   coinEls.forEach(el => el.textContent = stats.coins);
 }
-function updateStudentDisplay() {
-  document.querySelectorAll('.student-name-text').forEach(el => el.textContent = currentStudent || '');
-}
 function resetStats() {
-  if (!currentStudent) return;
-  if (confirm(`לאפס את הסטטיסטיקה, המטבעות והנעילות עבור ${currentStudent}?`)) {
-    stats = defaultStats();
-    profiles[currentStudent] = stats;
+  if (confirm('לאפס את כל הסטטיסטיקה, המטבעות והנעילות של רמות?')) {
+    stats = {correct:0, attempts:0, streak:0, levelProgress:{}, coins:0};
     saveStats();
     location.reload();
   }
 }
-
-function showWelcomeModal() {
-  const overlay = document.getElementById('welcome-overlay');
-  const input = document.getElementById('welcome-name');
-  const wrap = document.getElementById('profile-list-wrap');
-  const list = document.getElementById('profile-list');
-  input.value = '';
-  list.innerHTML = '';
-  const names = Object.keys(profiles);
-  if (names.length > 0) {
-    wrap.classList.remove('hidden');
-    names.forEach(name => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = name;
-      btn.onclick = () => pickStudent(name);
-      list.appendChild(btn);
-    });
-  } else {
-    wrap.classList.add('hidden');
-  }
-  overlay.classList.remove('hidden');
-  setTimeout(() => input.focus(), 50);
-}
-function submitWelcomeName() {
-  const input = document.getElementById('welcome-name');
-  const name = input.value.trim();
-  if (!name) { input.focus(); return; }
-  if (name.length > 20) { alert('שם פרטי עד 20 תווים'); return; }
-  pickStudent(name);
-}
-function pickStudent(name) {
-  const isFirstEver = Object.keys(profiles).length === 0;
-  if (!profiles[name]) {
-    profiles[name] = defaultStats();
-    if (isFirstEver) {
-      try {
-        const legacyRaw = localStorage.getItem('mathStats');
-        if (legacyRaw) {
-          const legacy = JSON.parse(legacyRaw);
-          profiles[name] = Object.assign(defaultStats(), legacy);
-          localStorage.removeItem('mathStats');
-        }
-      } catch (_) {}
-    }
-  }
-  currentStudent = name;
-  stats = profiles[name];
-  localStorage.setItem('currentStudent', name);
-  saveStats();
-  updateStudentDisplay();
-  document.getElementById('welcome-overlay').classList.add('hidden');
-  updateCurrentActivity('בתפריט הראשי');
-}
-function switchStudent() {
-  showWelcomeModal();
-}
-
-function initStudent() {
-  if (currentStudent && profiles[currentStudent]) {
-    stats = profiles[currentStudent];
-    Object.keys(defaultStats()).forEach(k => { if (!(k in stats)) stats[k] = defaultStats()[k]; });
-    updateStudentDisplay();
-    updateStatsDisplay();
-    syncStudentToFirebase();
-    updateCurrentActivity('בתפריט הראשי');
-  } else {
-    showWelcomeModal();
-  }
-}
-initStudent();
 
 function showCoinPopup(amount, mult) {
   const fb = document.getElementById('feedback');
@@ -888,6 +565,8 @@ function showCoinPopup(amount, mult) {
   });
 }
 
+updateStatsDisplay();
+
 // ============================================================
 // מצב נוכחי
 // ============================================================
@@ -895,9 +574,27 @@ let currentTopic = null;
 let currentLevel = 1;
 let levelCorrectInRow = 0;
 let helpUsedForProblem = false;
+let hintLevel = 0;
 const CORRECT_TO_UNLOCK = 3; // כמה צריך להצליח כדי לפתוח רמה
 
 function markHelpUsed() { helpUsedForProblem = true; }
+
+// רמז מדורג - כמו מורה שמסביר שלב-שלב, בלי לחשוף את התשובה
+function renderStagedHint(stages) {
+  hintLevel = Math.min(hintLevel + 1, stages.length);
+  const fb = document.getElementById('feedback');
+  fb.className = 'solution';
+  let html = `<h4>💡 רמז (${hintLevel} מתוך ${stages.length}):</h4>`;
+  for (let i = 0; i < hintLevel; i++) {
+    html += `<div class="solution-step">${stages[i]}</div>`;
+  }
+  if (hintLevel < stages.length) {
+    html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">עוד לא הבנת? לחץ שוב על "רמז" ואני אסביר עוד צעד.</div>`;
+  } else {
+    html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">נסה עכשיו לפתור לבד - אתה יכול!</div>`;
+  }
+  fb.innerHTML = html;
+}
 
 function openTopic(topicNum) {
   currentTopic = topicNum;
@@ -913,132 +610,7 @@ function openTopic(topicNum) {
 function backToMenu() {
   document.getElementById('main-menu').classList.remove('hidden');
   document.getElementById('topic-view').classList.add('hidden');
-  document.getElementById('leaderboard-view').classList.add('hidden');
-  document.getElementById('teacher-view').classList.add('hidden');
   currentTopic = null;
-  stopLiveListener();
-  updateCurrentActivity('בתפריט הראשי');
-}
-
-let liveRef = null;
-function stopLiveListener() {
-  if (liveRef) { try { liveRef.off(); } catch(_) {} liveRef = null; }
-}
-
-function timeAgo(ms) {
-  if (!ms) return '';
-  const diff = Date.now() - ms;
-  if (diff < 0) return 'כעת';
-  if (diff < 60000) return 'לפני פחות מדקה';
-  if (diff < 3600000) return `לפני ${Math.floor(diff/60000)} ד'`;
-  if (diff < 86400000) return `לפני ${Math.floor(diff/3600000)} ש'`;
-  return `לפני ${Math.floor(diff/86400000)} ימים`;
-}
-
-function showLeaderboard() {
-  if (!firebaseDb) {
-    alert('לוח התוצאות דורש חיבור לאינטרנט.');
-    return;
-  }
-  document.getElementById('main-menu').classList.add('hidden');
-  document.getElementById('leaderboard-view').classList.remove('hidden');
-  syncStudentToFirebase();
-  stopLiveListener();
-  liveRef = firebaseDb.ref('students');
-  liveRef.on('value', renderLeaderboard, err => {
-    console.warn(err);
-    document.getElementById('leaderboard-list').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינת הלוח. בדוק את כללי האבטחה ב-Firebase.</p>';
-  });
-}
-
-function renderLeaderboard(snap) {
-  const list = [];
-  snap.forEach(child => {
-    const v = child.val() || {};
-    list.push({
-      name: v.name || child.key,
-      coins: v.coins || 0,
-      correct: v.correct || 0,
-      streak: v.streak || 0
-    });
-  });
-  list.sort((a, b) => b.coins - a.coins);
-  const container = document.getElementById('leaderboard-list');
-  if (!list.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין תלמידים בלוח. תתחיל לתרגל!</p>';
-    return;
-  }
-  const medals = ['🥇', '🥈', '🥉'];
-  container.innerHTML = list.map((s, i) => {
-    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-    const rank = i < 3 ? medals[i] : `#${i + 1}`;
-    const isMe = s.name === currentStudent;
-    return `
-      <div class="leaderboard-row ${isMe ? 'is-me' : ''}">
-        <div class="leaderboard-rank ${rankClass}">${rank}</div>
-        <div class="leaderboard-name">${escapeHtml(s.name)}${isMe ? ' (אתה)' : ''}</div>
-        <div class="leaderboard-stats"><b>${s.coins} 🪙</b><br>${s.correct} נכונות · 🔥 ${s.streak}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function showTeacher() {
-  if (!firebaseDb) {
-    alert('מסך המורה דורש חיבור לאינטרנט.');
-    return;
-  }
-  document.getElementById('main-menu').classList.add('hidden');
-  document.getElementById('teacher-view').classList.remove('hidden');
-  stopLiveListener();
-  liveRef = firebaseDb.ref('students');
-  liveRef.on('value', renderTeacher, err => {
-    console.warn(err);
-    document.getElementById('teacher-list').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה.</p>';
-  });
-}
-
-function renderTeacher(snap) {
-  const list = [];
-  snap.forEach(child => {
-    const v = child.val() || {};
-    list.push({
-      name: v.name || child.key,
-      activity: v.currentActivity && v.currentActivity.label,
-      activityTime: v.currentActivity && v.currentActivity.timestamp,
-      lastSeen: v.lastSeen,
-      coins: v.coins || 0,
-      correct: v.correct || 0,
-      attempts: v.attempts || 0
-    });
-  });
-  list.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
-  const container = document.getElementById('teacher-list');
-  if (!list.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין תלמידים.</p>';
-    return;
-  }
-  container.innerHTML = list.map(s => {
-    const isMe = s.name === currentStudent;
-    const activityLabel = s.activity
-      ? escapeHtml(s.activity)
-      : '<span class="muted">לא ידוע</span>';
-    const success = s.attempts ? Math.round(100 * s.correct / s.attempts) : 0;
-    return `
-      <div class="teacher-row ${isMe ? 'is-me' : ''}">
-        <div class="teacher-name">${escapeHtml(s.name)}${isMe ? ' (אתה)' : ''}<br>
-          <span class="teacher-last-seen">${timeAgo(s.lastSeen)}</span></div>
-        <div class="teacher-activity">${activityLabel}<br>
-          <span class="teacher-last-seen">${s.correct}/${s.attempts} (${success}%) · ${s.coins} 🪙</span></div>
-      </div>
-    `;
-  }).join('');
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
 
 function renderLevelSelector() {
@@ -1336,15 +908,12 @@ function checkTopic1() {
 }
 
 function showHintTopic1() {
-  const eq = currentProblem;
-  const fb = document.getElementById('feedback');
-  fb.className = 'solution';
-  fb.innerHTML = `
-    <h4>💡 רמז:</h4>
-    <div class="solution-step">1. זהה את המקדמים: a = ${eq.a}, b = ${eq.b}, c = ${eq.c}</div>
-    <div class="solution-step">2. חשב את הדיסקרימיננטה: Δ = b² − 4ac = ${eq.b}² − 4·${eq.a}·${eq.c} = ${eq.b*eq.b} − ${4*eq.a*eq.c} = ${eq.b*eq.b - 4*eq.a*eq.c}</div>
-    <div class="solution-step">3. אם Δ > 0 → שני שורשים. אם Δ = 0 → שורש כפול. אם Δ < 0 → אין שורשים.</div>
-  `;
+  renderStagedHint([
+    'בוא נתחיל מהתחלה. כל משוואה ריבועית בנויה כך: ax² + bx + c = 0. הצעד הראשון הוא לזהות מי המספרים a, b ו-c במשוואה שלך.',
+    'יופי. עכשיו, כדי לדעת כמה פתרונות יש למשוואה, מחשבים ביטוי שנקרא דיסקרימיננטה: Δ = b² − 4ac. נסה לחשב אותו עם המספרים שמצאת.',
+    'מצוין. עכשיו תסתכל על המספר שקיבלת: אם הוא גדול מ-0 יש שני שורשים, אם הוא בדיוק 0 יש שורש אחד, ואם הוא קטן מ-0 אין פתרון.',
+    'אם יש שורשים - הצב את a, b ואת הדיסקרימיננטה בנוסחת השורשים שכתובה למעלה, ותחשב צעד-צעד.'
+  ]);
 }
 
 // ============================================================
@@ -1449,14 +1018,12 @@ function checkTopic2() {
 }
 
 function showHintTopic2() {
-  const fn = currentProblem;
-  document.getElementById('feedback').className = 'solution';
-  document.getElementById('feedback').innerHTML = `
-    <h4>💡 רמז:</h4>
-    <div class="solution-step">1. הסתכל על מקדם a = ${fn.a}. אם a > 0 הפרבולה פתוחה למעלה (מינימום), אם a < 0 פתוחה למטה (מקסימום).</div>
-    <div class="solution-step">2. שיעור x של הקודקוד: x = -b/(2a) = -(${fn.b})/(2·${fn.a})</div>
-    <div class="solution-step">3. שיעור y של הקודקוד: הצב את x שמצאת בפונקציה f(x).</div>
-  `;
+  renderStagedHint([
+    'נתחיל מהדבר הכי קל. תסתכל על המספר שצמוד ל-x² (קוראים לו a). הסימן שלו - חיובי או שלילי - יגיד לך אם הפרבולה כמו חיוך או כמו פרצוף עצוב.',
+    'אם a חיובי הפרבולה כמו חיוך, והקודקוד הוא הנקודה הכי נמוכה (מינימום). אם a שלילי - הפוך, והקודקוד הוא מקסימום.',
+    'עכשיו לקודקוד. כדי למצוא איפה הוא יושב על ציר ה-x יש נוסחה: x = -b/(2a). הצב בה את b ו-a מהפונקציה שלך.',
+    'מצאת את ה-x של הקודקוד? עכשיו הצב את ה-x הזה בחזרה בתוך הפונקציה כדי לקבל את גובה הקודקוד (ה-y).'
+  ]);
 }
 
 function fmtNumber(n) {
@@ -1789,29 +1356,51 @@ function checkTopic3() {
 
 function showHintTopic3() {
   const p = currentProblem;
-  const fb = document.getElementById('feedback');
-  fb.className = 'solution';
-  let h = '<h4>💡 רמז:</h4>';
+  let stages;
   if (p.type === 'trapezoid-angles' || p.type === 'isoceles-angles') {
-    h += '<div class="solution-step">בטרפז: סכום זוויות צמודות לאותה שוק = 180°. כלומר A + D = 180° וגם B + C = 180°.</div>';
+    stages = [
+      'זה תרגיל על זוויות בטרפז. חשוב על הקשר בין שתי זוויות שיושבות על אותה צלע אלכסונית (שוק).',
+      'הכלל: שתי זוויות שיושבות על אותה שוק מסתכמות תמיד ל-180°.' +
+        (p.type === 'isoceles-angles' ? ' בטרפז שווה-שוקיים גם שתי זוויות הבסיס שוות זו לזו.' : ''),
+      'אז כדי למצוא את הזווית החסרה - תחשוב איזו זווית "משלימה" את הזווית הנתונה ל-180.'
+    ];
   } else if (p.type === 'trapezoid-perimeter') {
-    h += '<div class="solution-step">היקף = סכום אורכי כל ארבע הצלעות.</div>';
+    stages = [
+      'מבקשים ממך היקף. נסה להיזכר מה זה היקף של צורה.',
+      'היקף = סכום האורכים של כל הצלעות.',
+      'חבר יחד את אורכי כל ארבע הצלעות של הטרפז.'
+    ];
   } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area' || p.type === 'right-trapezoid') {
-    h += '<div class="solution-step">שטח טרפז = (בסיס גדול + בסיס קטן) × גובה ÷ 2</div>';
+    stages = [
+      'מבקשים שטח של טרפז - יש לזה נוסחה קבועה ששווה לזכור.',
+      'שטח טרפז = הבסיס הגדול ועוד הבסיס הקטן, כפול הגובה.',
+      'אחרי שכפלת - אל תשכח לחלק את התוצאה ב-2.'
+    ];
     if (p.type === 'right-trapezoid') {
-      h += '<div class="solution-step">לשוק הנטויה: השתמש בפיתגורס. הפרש הבסיסים הוא הניצב האופקי, והגובה הוא הניצב האנכי.</div>';
+      stages.push('בשביל הצלע האלכסונית: צייר את הגובה ותקבל משולש ישר-זווית - אחד הניצבים הוא הגובה, השני הוא ההפרש בין הבסיסים. השתמש במשפט פיתגורס.');
     }
   } else if (p.type === 'isoceles-find-h') {
-    h += `<div class="solution-step">הורד גובה מ-D וגם מ-C על הבסיס הגדול AB. נוצרים שני משולשים ישרי-זווית זהים. הניצב האופקי הוא ${p.overhang}, היתר הוא השוק (${p.leg}).</div>`;
-    h += '<div class="solution-step">לפי פיתגורס: גובה² + הצצה² = שוק²</div>';
+    stages = [
+      'צריך למצוא גובה. תיעזר במשולש ישר-זווית שאפשר ליצור בתוך הטרפז.',
+      'תוריד גובה משתי הפינות העליונות אל הבסיס הגדול - נוצר משולש ישר-זווית.',
+      'אחד הניצבים הוא הגובה שאתה מחפש, והיתר הוא השוק. השתמש במשפט פיתגורס.'
+    ];
   } else if (p.type === 'right-find-h') {
-    h += `<div class="solution-step">במשולש שיוצרת השוק הנטויה: הניצב האופקי הוא ${p.dx}, היתר הוא ${p.slantLeg}.</div>`;
-    h += '<div class="solution-step">לפי פיתגורס: גובה² + הפרש² = שוק נטויה²</div>';
+    stages = [
+      'צריך למצוא גובה. חפש משולש ישר-זווית בתוך הציור.',
+      'הצלע האלכסונית יוצרת משולש ישר-זווית יחד עם הגובה ועם ההפרש בין שני הבסיסים.',
+      'השתמש במשפט פיתגורס כדי למצוא את הגובה החסר.'
+    ];
   } else if (p.type === 'full-isoceles') {
-    h += `<div class="solution-step">הצצה מכל צד = (${p.b}-${p.a})/2 = ${p.overhang}.</div>`;
-    h += '<div class="solution-step">שוק = √(גובה² + הצצה²)</div>';
+    stages = [
+      'כדי למצוא את אורך השוק, חפש משולש ישר-זווית.',
+      'תוריד גובה - הניצבים הם הגובה וההפרש מהקצה, והיתר הוא השוק.',
+      'השתמש במשפט פיתגורס כדי למצוא את אורך השוק.'
+    ];
+  } else {
+    stages = ['קרא שוב את הנתונים, וחשוב איזה כלל בטרפז מתאים למה שמבקשים.'];
   }
-  fb.innerHTML = h;
+  renderStagedHint(stages);
 }
 
 // ============================================================
@@ -2079,22 +1668,28 @@ function checkTopic4() {
 
 function showHintTopic4() {
   const p = currentProblem;
-  const fb = document.getElementById('feedback');
-  fb.className = 'solution';
-  let h = '<h4>💡 רמז:</h4>';
+  let stages;
   if (p.kind === 'linear-value') {
-    h += '<div class="solution-step">חיתוך עם ציר y: ערך y בנקודה שבה x=0 (איפה הקו חוצה את הציר האנכי).</div>';
-    h += '<div class="solution-step">שיפוע: כמה y עולה כאשר x עולה ב-1.</div>';
-    h += '<div class="solution-step">f(x) במספר נתון: הצב את הערך בנוסחה או קרא ישירות מהגרף.</div>';
+    stages = [
+      'הכול נמצא בגרף - צריך רק לדעת איפה להסתכל. נתחיל מהחיתוך עם ציר y.',
+      'חיתוך עם ציר y = הנקודה שבה הקו חוצה את הקו האנכי (שם x שווה 0). קרא שם את ערך ה-y.',
+      'שיפוע = בכמה הקו עולה (או יורד) כשזזים צעד אחד ימינה ב-x.',
+      'בשביל f של מספר נתון: לך על ציר ה-x למספר הזה, עלה עד הקו, וקרא את ערך ה-y.'
+    ];
   } else if (p.kind === 'parabola-features') {
-    h += '<div class="solution-step">שורשים = נקודות החיתוך של הפרבולה עם ציר x (הנקודות הכחולות).</div>';
-    h += '<div class="solution-step">קודקוד = הנקודה הירוקה (הנקודה הנמוכה/הגבוהה ביותר).</div>';
-    h += '<div class="solution-step">אם הפרבולה פתוחה כלפי מעלה → קודקוד הוא מינימום. כלפי מטה → מקסימום.</div>';
+    stages = [
+      'תסתכל על הצורה של הפרבולה ועל המקומות שבהם היא נוגעת בצירים.',
+      'שורשים = איפה הפרבולה חוצה את הקו האופקי (ציר x) - הנקודות הכחולות. קודקוד = הנקודה הכי נמוכה או הכי גבוהה - הנקודה הירוקה.',
+      'אם הפרבולה כמו חיוך → הקודקוד הוא מינימום. אם הפוכה → מקסימום.'
+    ];
   } else {
-    h += '<div class="solution-step">פונקציה חיובית = החלק של הפרבולה שמעל ציר x.</div>';
-    h += '<div class="solution-step">פונקציה עולה = הולכת ימינה ולמעלה (לאחר הקודקוד אם הפרבולה מינימום, לפניו אם מקסימום).</div>';
+    stages = [
+      'חשוב מה המשמעות של "הפונקציה חיובית" ושל "הפונקציה עולה" כשמסתכלים על הגרף.',
+      'חיובית = בכל מקום שבו הקו נמצא מעל הקו האופקי (ציר x). עולה = כשזזים ימינה, הקו גם עולה למעלה.',
+      'השווה את המיקום ביחס לשורשים ולקודקוד כדי לקבוע את התחומים המבוקשים.'
+    ];
   }
-  fb.innerHTML = h;
+  renderStagedHint(stages);
 }
 
 // ============================================================
@@ -2199,20 +1794,27 @@ function checkTopic5() {
 
 function showHintTopic5() {
   const p = currentProblem;
-  const fb = document.getElementById('feedback');
-  fb.className = 'solution';
-  let h = '<h4>💡 רמז:</h4>';
+  let stages;
   if (p.kind === 'identify') {
-    h += '<div class="solution-step">במשוואה y = mx + b: השיפוע m הוא המקדם שליד x.</div>';
-    h += '<div class="solution-step">נקודת החיתוך עם ציר y היא b - המספר החופשי (אם אין מספר חופשי, b = 0).</div>';
+    stages = [
+      'המשוואה בנויה תמיד בצורה y = mx + b. נסה לזהות מי המספר שצמוד ל-x ומי המספר שעומד לבד.',
+      'המספר שצמוד ל-x הוא השיפוע (m).',
+      'המספר שעומד לבד, בלי x, הוא נקודת החיתוך עם ציר y (b). אם אין מספר כזה - אז b שווה 0.'
+    ];
   } else if (p.kind === 'slope-from-points') {
-    h += '<div class="solution-step">השיפוע = הפרש ה-y חלקי הפרש ה-x.</div>';
-    h += `<div class="solution-step">m = (${p.y2} − ${p.y1}) / (${p.x2} − ${p.x1})</div>`;
+    stages = [
+      'השיפוע מתאר כמה ה-y משתנה ביחס לשינוי ב-x. נתחיל מלבדוק את ההפרשים.',
+      'בדוק בכמה ה-y השתנה בין שתי הנקודות, ובכמה ה-x השתנה.',
+      'השיפוע = השינוי ב-y חלקי השינוי ב-x.'
+    ];
   } else {
-    h += `<div class="solution-step">שלב 1: חשב שיפוע: m = (${p.y2} − ${p.y1}) / (${p.x2} − ${p.x1}).</div>`;
-    h += `<div class="solution-step">שלב 2: הצב נקודה אחת (למשל (${p.x1}, ${p.y1})) במשוואה y = mx + b וחלץ את b.</div>`;
+    stages = [
+      'כדי למצוא משוואת קו צריך שני דברים: שיפוע (m) ונקודת חיתוך (b).',
+      'קודם מצא את השיפוע: בכמה ה-y השתנה בין הנקודות, חלקי בכמה ה-x השתנה.',
+      'עכשיו קח נקודה אחת, הצב את ה-x, ה-y והשיפוע במשוואה y = mx + b, ופתור כדי למצוא את b.'
+    ];
   }
-  fb.innerHTML = h;
+  renderStagedHint(stages);
 }
 
 // ============================================================
@@ -2228,11 +1830,9 @@ const TOPICS = {
 
 function newProblem() {
   helpUsedForProblem = false;
+  hintLevel = 0;
   TOPICS[currentTopic].render();
   initNotebook();
-  const topicTitle = TOPICS[currentTopic].title;
-  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
-  updateCurrentActivity(`${topicTitle} · רמה ${currentLevel} (${levelNames[currentLevel]})`);
 }
 
 // ============================================================
