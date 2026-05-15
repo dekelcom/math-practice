@@ -55,6 +55,7 @@
   .topic-card.topic-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
   .topic-card.topic-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
   .topic-card.topic-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+  .topic-card.topic-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
 
   .level-selector {
     display: flex;
@@ -659,6 +660,10 @@ function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
         📊 קריאת גרפים<br>
         <small style="opacity:0.9">פונקציות וערכים</small>
       </button>
+      <button class="topic-card topic-5" onclick="openTopic(5)">
+        📉 משוואת קו ישר<br>
+        <small style="opacity:0.9">שיפוע ונקודת חיתוך</small>
+      </button>
     </div>
 
     <div class="stats" id="overall-stats">
@@ -1242,7 +1247,6 @@ function renderTopic1() {
       <div id="roots-input" style="margin-top:10px;"></div>
       <button class="btn btn-primary" onclick="checkTopic1()">בדוק תשובה</button>
       <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic1()">רמז</button>
-      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic1()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -1343,36 +1347,6 @@ function showHintTopic1() {
   `;
 }
 
-function showSolutionTopic1() {
-  const eq = currentProblem;
-  const disc = eq.b*eq.b - 4*eq.a*eq.c;
-  const fb = document.getElementById('feedback');
-  let html = `<h4>📝 פתרון מלא:</h4>`;
-  html += `<div class="solution-step"><b>שלב 1:</b> זיהוי המקדמים: a = ${eq.a}, b = ${eq.b}, c = ${eq.c}</div>`;
-  html += `<div class="solution-step"><b>שלב 2:</b> חישוב הדיסקרימיננטה Δ:<br>
-    Δ = b² − 4ac = (${eq.b})² − 4·(${eq.a})·(${eq.c}) = ${eq.b*eq.b} − ${4*eq.a*eq.c} = <b>${disc}</b></div>`;
-
-  if (disc < 0) {
-    html += `<div class="solution-step"><b>שלב 3:</b> מכיוון ש-Δ < 0, <b>אין למשוואה שורשים ממשיים</b>.</div>`;
-  } else if (disc === 0) {
-    const x = -eq.b / (2*eq.a);
-    html += `<div class="solution-step"><b>שלב 3:</b> מכיוון ש-Δ = 0, יש שורש כפול:<br>
-      x = -b / (2a) = -(${eq.b}) / (2·${eq.a}) = <b>${x}</b></div>`;
-  } else {
-    const sqrtDisc = Math.sqrt(disc);
-    const isInt = Number.isInteger(sqrtDisc);
-    const x1 = (-eq.b - sqrtDisc) / (2*eq.a);
-    const x2 = (-eq.b + sqrtDisc) / (2*eq.a);
-    html += `<div class="solution-step"><b>שלב 3:</b> מכיוון ש-Δ > 0, יש שני שורשים:<br>
-      √Δ = √${disc} ${isInt ? '= ' + sqrtDisc : '≈ ' + sqrtDisc.toFixed(3)}</div>`;
-    html += `<div class="solution-step"><b>שלב 4:</b> הצבה בנוסחה:<br>
-      x₁ = (-(${eq.b}) - ${isInt ? sqrtDisc : '√'+disc}) / (2·${eq.a}) = <b>${isInt ? x1 : x1.toFixed(2)}</b><br>
-      x₂ = (-(${eq.b}) + ${isInt ? sqrtDisc : '√'+disc}) / (2·${eq.a}) = <b>${isInt ? x2 : x2.toFixed(2)}</b></div>`;
-  }
-  fb.className = 'solution';
-  fb.innerHTML = html;
-}
-
 // ============================================================
 // נושא 2: חקירת פונקציה ריבועית
 // ============================================================
@@ -1438,7 +1412,6 @@ function renderTopic2() {
       ${extraQ}
       <br><button class="btn btn-primary" onclick="checkTopic2()">בדוק תשובה</button>
       <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic2()">רמז</button>
-      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic2()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -1484,22 +1457,6 @@ function showHintTopic2() {
     <div class="solution-step">2. שיעור x של הקודקוד: x = -b/(2a) = -(${fn.b})/(2·${fn.a})</div>
     <div class="solution-step">3. שיעור y של הקודקוד: הצב את x שמצאת בפונקציה f(x).</div>
   `;
-}
-
-function showSolutionTopic2() {
-  const fn = currentProblem;
-  const xv = -fn.b / (2 * fn.a);
-  const yv = fn.a * xv * xv + fn.b * xv + fn.c;
-  const type = fn.a > 0 ? 'פתוחה כלפי מעלה (מינימום)' : 'פתוחה כלפי מטה (מקסימום)';
-  let html = `<h4>📝 פתרון מלא:</h4>`;
-  html += `<div class="solution-step"><b>שלב 1 - סוג הפרבולה:</b> מקדם a = ${fn.a} ${fn.a > 0 ? '> 0' : '< 0'}, לכן הפרבולה <b>${type}</b>.</div>`;
-  html += `<div class="solution-step"><b>שלב 2 - שיעור x של הקודקוד:</b><br>
-    x = -b/(2a) = -(${fn.b})/(2·${fn.a}) = ${fmtNumber(xv)}</div>`;
-  html += `<div class="solution-step"><b>שלב 3 - שיעור y של הקודקוד (הצבה):</b><br>
-    y = ${fn.a}·(${fmtNumber(xv)})² ${fn.b >= 0 ? '+' : ''} ${fn.b}·(${fmtNumber(xv)}) ${fn.c >= 0 ? '+' : ''} ${fn.c} = <b>${fmtNumber(yv)}</b></div>`;
-  html += `<div class="solution-step"><b>קודקוד הפרבולה:</b> (${fmtNumber(xv)}, ${fmtNumber(yv)})</div>`;
-  document.getElementById('feedback').className = 'solution';
-  document.getElementById('feedback').innerHTML = html;
 }
 
 function fmtNumber(n) {
@@ -1757,7 +1714,6 @@ function renderTopic3() {
       ${inputHtml}
       <br><button class="btn btn-primary" onclick="checkTopic3()">בדוק תשובה</button>
       <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic3()">רמז</button>
-      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic3()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -1854,56 +1810,6 @@ function showHintTopic3() {
   } else if (p.type === 'full-isoceles') {
     h += `<div class="solution-step">הצצה מכל צד = (${p.b}-${p.a})/2 = ${p.overhang}.</div>`;
     h += '<div class="solution-step">שוק = √(גובה² + הצצה²)</div>';
-  }
-  fb.innerHTML = h;
-}
-
-function showSolutionTopic3() {
-  const p = currentProblem;
-  const fb = document.getElementById('feedback');
-  fb.className = 'solution';
-  let h = '<h4>📝 פתרון מלא:</h4>';
-
-  if (p.type === 'trapezoid-angles') {
-    const letters = ['A','B','C','D'];
-    h += `<div class="solution-step">בטרפז עם AB||CD: A + D = 180° וגם B + C = 180°.</div>`;
-    if (p.hide === 0) h += `<div class="solution-step">A = 180° - D = 180° - ${p.angles[3]}° = <b>${p.answer}°</b></div>`;
-    else if (p.hide === 1) h += `<div class="solution-step">B = 180° - C = 180° - ${p.angles[2]}° = <b>${p.answer}°</b></div>`;
-    else if (p.hide === 2) h += `<div class="solution-step">C = 180° - B = 180° - ${p.angles[1]}° = <b>${p.answer}°</b></div>`;
-    else h += `<div class="solution-step">D = 180° - A = 180° - ${p.angles[0]}° = <b>${p.answer}°</b></div>`;
-  } else if (p.type === 'trapezoid-perimeter') {
-    h += `<div class="solution-step">היקף = AB + BC + CD + DA = ${p.sides.AB} + ${p.sides.BC} + ${p.sides.CD} + ${p.sides.AD} = <b>${p.answer} ס"מ</b></div>`;
-  } else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area') {
-    h += `<div class="solution-step">שטח = (בסיס גדול + בסיס קטן) × גובה ÷ 2</div>`;
-    h += `<div class="solution-step">שטח = (${p.b} + ${p.a}) × ${p.h} ÷ 2 = ${p.a+p.b} × ${p.h} ÷ 2 = <b>${p.answer} סמ"ר</b></div>`;
-  } else if (p.type === 'isoceles-angles') {
-    h += `<div class="solution-step">בטרפז שווה שוקיים זוויות הבסיס שוות: A = B = ${p.baseAngle}°.</div>`;
-    h += `<div class="solution-step">A + D = 180° → D = 180° - ${p.baseAngle}° = <b>${p.answer}°</b></div>`;
-  } else if (p.type === 'right-trapezoid') {
-    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
-    h += `<div class="solution-step"><b>שוק נטויה BC (פיתגורס):</b><br>
-      הפרש הבסיסים = ${p.b} - ${p.a} = ${p.dx}<br>
-      BC² = ${p.dx}² + ${p.h}² = ${p.dx*p.dx} + ${p.h*p.h} = ${p.dx*p.dx + p.h*p.h}<br>
-      BC = √${p.dx*p.dx + p.h*p.h} ≈ <b>${p.leg.toFixed(2)} ס"מ</b></div>`;
-    h += `<div class="solution-step"><b>היקף:</b> ${p.a} + ${p.b} + ${p.h} + ${p.leg.toFixed(2)} ≈ <b>${p.perim.toFixed(2)} ס"מ</b></div>`;
-  } else if (p.type === 'isoceles-find-h') {
-    h += `<div class="solution-step">הורדת הגבהים יוצרת משולש ישר-זווית עם:<br>ניצב אופקי = ${p.overhang}, יתר = ${p.leg}.</div>`;
-    h += `<div class="solution-step"><b>פיתגורס:</b> גובה² + ${p.overhang}² = ${p.leg}²<br>
-      גובה² = ${p.leg}² - ${p.overhang}² = ${(p.leg*p.leg).toFixed(2)} - ${p.overhang*p.overhang} = ${(p.leg*p.leg - p.overhang*p.overhang).toFixed(2)}<br>
-      גובה = <b>${p.h} ס"מ</b></div>`;
-    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
-  } else if (p.type === 'right-find-h') {
-    h += `<div class="solution-step">הפרש הבסיסים = ${p.b} - ${p.a} = ${p.dx}</div>`;
-    h += `<div class="solution-step"><b>פיתגורס:</b> גובה² + ${p.dx}² = ${p.slantLeg}²<br>
-      גובה² = ${(p.slantLeg*p.slantLeg).toFixed(2)} - ${p.dx*p.dx} = ${(p.slantLeg*p.slantLeg - p.dx*p.dx).toFixed(2)}<br>
-      גובה = <b>${p.h} ס"מ</b></div>`;
-    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
-  } else if (p.type === 'full-isoceles') {
-    h += `<div class="solution-step">הצצה מכל צד = (${p.b} - ${p.a}) / 2 = ${p.overhang}</div>`;
-    h += `<div class="solution-step"><b>שוק (פיתגורס):</b> שוק² = ${p.h}² + ${p.overhang}² = ${p.h*p.h} + ${p.overhang*p.overhang} = ${p.h*p.h + p.overhang*p.overhang}<br>
-      שוק = √${p.h*p.h + p.overhang*p.overhang} ≈ <b>${p.leg.toFixed(2)} ס"מ</b></div>`;
-    h += `<div class="solution-step"><b>שטח:</b> (${p.b} + ${p.a}) × ${p.h} ÷ 2 = <b>${p.area} סמ"ר</b></div>`;
-    h += `<div class="solution-step"><b>היקף:</b> ${p.a} + ${p.b} + 2 × ${p.leg.toFixed(2)} ≈ <b>${p.perim.toFixed(2)} ס"מ</b></div>`;
   }
   fb.innerHTML = h;
 }
@@ -2118,7 +2024,6 @@ function renderTopic4() {
       ${inputHtml}
       <br><button class="btn btn-primary" onclick="checkTopic4()">בדוק תשובה</button>
       <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic4()">רמז</button>
-      <button class="btn btn-secondary" onclick="markHelpUsed(); showSolutionTopic4()">פתרון מלא</button>
       <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
       <div id="feedback"></div>
     </div>
@@ -2192,24 +2097,120 @@ function showHintTopic4() {
   fb.innerHTML = h;
 }
 
-function showSolutionTopic4() {
+// ============================================================
+// נושא 5: משוואת קו ישר
+// ============================================================
+function genLinearProblem(level) {
+  if (level === 1) {
+    const m = randNonZero(-5, 5);
+    const b = randInt(-9, 9);
+    return { level, kind: 'identify', m, b };
+  }
+  const m = randNonZero(-4, 4);
+  const b = randInt(-6, 6);
+  const x1 = randInt(-5, 5);
+  let x2 = x1;
+  while (x2 === x1) x2 = randInt(-5, 5);
+  const y1 = m * x1 + b;
+  const y2 = m * x2 + b;
+  return {
+    level, m, b, x1, y1, x2, y2,
+    kind: level === 2 ? 'slope-from-points' : 'equation-from-points'
+  };
+}
+
+function renderTopic5() {
+  const p = genLinearProblem(currentLevel);
+  currentProblem = p;
+  const area = document.getElementById('problem-area');
+  const levelBadges = ['', 'badge-easy', 'badge-medium', 'badge-hard'];
+  const levelNames = ['', 'קל', 'בינוני', 'מתקדם'];
+
+  let problemText = '';
+  let extraTop = '';
+  let inputHtml = '';
+  let formulaBox = `
+    <div class="formula-box">
+      <span class="label">משוואת קו ישר:</span>
+      <span class="math">y = mx + b</span>
+    </div>`;
+
+  if (p.kind === 'identify') {
+    problemText = 'נתונה משוואת הקו הישר. מצא את השיפוע (m) ואת נקודת החיתוך עם ציר y (b):';
+    extraTop = `<div class="equation">y = ${fmtCoef(p.m, 'x', true)}${fmtCoef(p.b, '') || ' + 0'}</div>`;
+    inputHtml = `
+      <label>שיפוע (m):</label><input type="text" id="ans-m" placeholder="לדוגמה: 2"><br>
+      <label>חיתוך עם ציר y (b):</label><input type="text" id="ans-b" placeholder="לדוגמה: -3">`;
+  } else if (p.kind === 'slope-from-points') {
+    problemText = `הקו הישר עובר דרך הנקודות (${p.x1}, ${p.y1}) ו-(${p.x2}, ${p.y2}).<br>חשב את <b>השיפוע</b> של הקו.`;
+    formulaBox = `
+      <div class="formula-box">
+        <span class="label">נוסחת השיפוע:</span>
+        <span class="math">m = (y₂ − y₁) / (x₂ − x₁)</span>
+      </div>`;
+    inputHtml = `<label>שיפוע (m):</label><input type="text" id="ans-m" placeholder="לדוגמה: 2 או 1/2">`;
+  } else {
+    problemText = `הקו הישר עובר דרך הנקודות (${p.x1}, ${p.y1}) ו-(${p.x2}, ${p.y2}).<br>מצא את <b>משוואת הקו</b>: את השיפוע (m) ואת נקודת החיתוך עם ציר y (b).`;
+    formulaBox = `
+      <div class="formula-box">
+        <span class="label">נוסחת השיפוע:</span>
+        <span class="math">m = (y₂ − y₁) / (x₂ − x₁)</span>
+      </div>`;
+    inputHtml = `
+      <label>שיפוע (m):</label><input type="text" id="ans-m" placeholder="לדוגמה: 2"><br>
+      <label>חיתוך עם ציר y (b):</label><input type="text" id="ans-b" placeholder="לדוגמה: -3">`;
+  }
+
+  area.innerHTML = `
+    <span class="badge ${levelBadges[currentLevel]}">רמה ${currentLevel} - ${levelNames[currentLevel]}</span>
+    <div class="problem-text">${problemText}</div>
+    ${extraTop}
+    ${formulaBox}
+    ${notebookHTML()}
+    <div class="answer-section">
+      ${inputHtml}
+      <br><button class="btn btn-primary" onclick="checkTopic5()">בדוק תשובה</button>
+      <button class="btn btn-warning" onclick="markHelpUsed(); showHintTopic5()">רמז</button>
+      <button class="btn btn-success" onclick="newProblem()">תרגיל הבא ←</button>
+      <div id="feedback"></div>
+    </div>
+  `;
+}
+
+function checkTopic5() {
+  const p = currentProblem;
+  const fb = document.getElementById('feedback');
+  const issues = [];
+  const mEl = document.getElementById('ans-m');
+  if (!nearlyEqual(parseAnswer(mEl.value), p.m, 0.01)) issues.push('שיפוע');
+  const bEl = document.getElementById('ans-b');
+  if (bEl && !nearlyEqual(parseAnswer(bEl.value), p.b, 0.01)) issues.push('חיתוך עם ציר y');
+
+  if (issues.length === 0) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = '✓ מצוין! מצאת את משוואת הקו הישר נכון.';
+    recordAnswer(true);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.innerHTML = `✗ שגיאה ב: ${issues.join(', ')}. נסה שוב או השתמש ברמז.`;
+    recordAnswer(false);
+  }
+}
+
+function showHintTopic5() {
   const p = currentProblem;
   const fb = document.getElementById('feedback');
   fb.className = 'solution';
-  let h = '<h4>📝 פתרון מלא:</h4>';
-  if (p.kind === 'linear-value') {
-    h += `<div class="solution-step">חיתוך עם ציר y: כאשר x=0, f(0) = <b>${p.b}</b></div>`;
-    h += `<div class="solution-step">שיפוע: מקדם x, כלומר m = <b>${p.m}</b></div>`;
-    h += `<div class="solution-step">f(${p.xQ}) = ${p.m}·${p.xQ} + ${p.b} = ${p.m*p.xQ} + ${p.b} = <b>${p.m*p.xQ + p.b}</b></div>`;
-  } else if (p.kind === 'parabola-features') {
-    h += `<div class="solution-step">שורשים: <b>x = ${p.r1}</b> ו-<b>x = ${p.r2}</b></div>`;
-    h += `<div class="solution-step">קודקוד: x = -b/(2a) = ${fmtNumber(p.vx)}, y = <b>(${fmtNumber(p.vx)}, ${fmtNumber(p.vy)})</b></div>`;
-    h += `<div class="solution-step">a = ${p.a} ${p.a > 0 ? '> 0 → פרבולה פתוחה למעלה → קודקוד הוא <b>מינימום</b>' : '< 0 → פרבולה פתוחה למטה → קודקוד הוא <b>מקסימום</b>'}</div>`;
+  let h = '<h4>💡 רמז:</h4>';
+  if (p.kind === 'identify') {
+    h += '<div class="solution-step">במשוואה y = mx + b: השיפוע m הוא המקדם שליד x.</div>';
+    h += '<div class="solution-step">נקודת החיתוך עם ציר y היא b - המספר החופשי (אם אין מספר חופשי, b = 0).</div>';
+  } else if (p.kind === 'slope-from-points') {
+    h += '<div class="solution-step">השיפוע = הפרש ה-y חלקי הפרש ה-x.</div>';
+    h += `<div class="solution-step">m = (${p.y2} − ${p.y1}) / (${p.x2} − ${p.x1})</div>`;
   } else {
-    h += `<div class="solution-step">השורשים הם x = ${p.r1} ו-x = ${p.r2}.</div>`;
-    h += `<div class="solution-step">a = ${p.a}, לכן הפרבולה ${p.a > 0 ? 'פתוחה למעלה' : 'פתוחה למטה'}.</div>`;
-    h += `<div class="solution-step"><b>תחום חיוביות:</b> ${p.posDesc}</div>`;
-    h += `<div class="solution-step"><b>תחום עליה:</b> ${p.incDesc} (אחרי/לפני הקודקוד ב-x=${fmtNumber(p.vx)})</div>`;
+    h += `<div class="solution-step">שלב 1: חשב שיפוע: m = (${p.y2} − ${p.y1}) / (${p.x2} − ${p.x1}).</div>`;
+    h += `<div class="solution-step">שלב 2: הצב נקודה אחת (למשל (${p.x1}, ${p.y1})) במשוואה y = mx + b וחלץ את b.</div>`;
   }
   fb.innerHTML = h;
 }
@@ -2221,7 +2222,8 @@ const TOPICS = {
   1: {title: '📐 פתרון משוואה ריבועית', render: renderTopic1},
   2: {title: '📈 חקירת פונקציה ריבועית', render: renderTopic2},
   3: {title: '📏 גיאומטריה - טרפז', render: renderTopic3},
-  4: {title: '📊 קריאת גרפים', render: renderTopic4}
+  4: {title: '📊 קריאת גרפים', render: renderTopic4},
+  5: {title: '📉 משוואת קו ישר', render: renderTopic5}
 };
 
 function newProblem() {
