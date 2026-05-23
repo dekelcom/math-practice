@@ -495,6 +495,17 @@
   .basics-track-card.negatives { background: linear-gradient(135deg, #232526 0%, #414345 100%); }
   .basics-track-card.orderops { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #2c3e50; }
   .basics-track-card.fractions { background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); color: #2c3e50; }
+  .basics-track-card.multiAdd { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+  .basics-track-card.multiSub { background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%); }
+  .basics-track-card.longMul { background: linear-gradient(135deg, #5614b0 0%, #dbd65c 100%); }
+  .basics-track-card.longDiv { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+  .basics-track-card.fractionsAdv { background: linear-gradient(135deg, #c471f5 0%, #fa71cd 100%); }
+  .basics-track-card.decimals { background: linear-gradient(135deg, #4ca1af 0%, #c4e0e5 100%); color: #2c3e50; }
+  .basics-track-card.simplify { background: linear-gradient(135deg, #355c7d 0%, #6c5b7b 50%, #c06c84 100%); }
+  .basics-track-card.solveLinear { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
+  .basics-track-card.factorize { background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); }
+  .basics-track-card.inequalities { background: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%); color: #2c3e50; }
+  .basics-track-card.simultaneous { background: linear-gradient(135deg, #4568dc 0%, #b06ab3 100%); }
 
   .frac {
     display: inline-flex; flex-direction: column; vertical-align: middle;
@@ -675,39 +686,42 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
   <div id="main-menu">
-    <div class="section-title">🌱 יסודות - חיבור וחיסור</div>
-    <p style="text-align:center; font-size:0.95em; color:#7f8c8d;">בונים שליטה צעד-צעד. כל שלב נפתח כשמשיגים 9 נכון מתוך 10.</p>
+    <div class="section-title">🌱 חשבון בסיסי</div>
+    <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">9 נכון מתוך 10 = נפתח השלב הבא</p>
     <div class="basics-menu">
-      <button class="basics-track-card addition" onclick="openBasicsTrack('addition')">
-        ➕ חיבור<br>
-        <small style="opacity:0.9">+1, +2, +3... עד מעורב</small>
-      </button>
-      <button class="basics-track-card subtraction" onclick="openBasicsTrack('subtraction')">
-        ➖ חיסור<br>
-        <small style="opacity:0.9">-1, -2, -3... עד מעורב</small>
-      </button>
-      <button class="basics-track-card multiplication" onclick="openBasicsTrack('multiplication')">
-        ✕ כפל<br>
-        <small style="opacity:0.9">×1, ×2, ×3... עד מעורב</small>
-      </button>
-      <button class="basics-track-card division" onclick="openBasicsTrack('division')">
-        ➗ חילוק<br>
-        <small style="opacity:0.9">÷1, ÷2, ÷3... עד מעורב</small>
-      </button>
-      <button class="basics-track-card negatives" onclick="openBasicsTrack('negatives')">
-        ± מספרים שליליים<br>
-        <small style="opacity:0.9">חיבור וחיסור עם שלילי</small>
-      </button>
-      <button class="basics-track-card orderops" onclick="openBasicsTrack('orderops')">
-        🧮 סדר פעולות<br>
-        <small style="opacity:0.9">סוגריים, כפל לפני חיבור</small>
-      </button>
-      <button class="basics-track-card fractions" onclick="openBasicsTrack('fractions')">
-        ½ שברים<br>
-        <small style="opacity:0.9">שווי-ערך, צמצום, חיבור</small>
-      </button>
+      <button class="basics-track-card addition" onclick="openBasicsTrack('addition')">➕ חיבור<br><small style="opacity:0.9">+1, +2, +3... מעורב</small></button>
+      <button class="basics-track-card subtraction" onclick="openBasicsTrack('subtraction')">➖ חיסור<br><small style="opacity:0.9">-1, -2, -3... מעורב</small></button>
+      <button class="basics-track-card multiplication" onclick="openBasicsTrack('multiplication')">✕ כפל<br><small style="opacity:0.9">×1, ×2, ×3... מעורב</small></button>
+      <button class="basics-track-card division" onclick="openBasicsTrack('division')">➗ חילוק<br><small style="opacity:0.9">÷1, ÷2, ÷3... מעורב</small></button>
     </div>
-    <div style="text-align:center; margin: 10px 0 20px;">
+
+    <div class="section-title">🔢 חישוב מורכב</div>
+    <div class="basics-menu">
+      <button class="basics-track-card multiAdd" onclick="openBasicsTrack('multiAdd')">🔢 חיבור רב-ספרתי<br><small style="opacity:0.9">עם נשיאה</small></button>
+      <button class="basics-track-card multiSub" onclick="openBasicsTrack('multiSub')">🔢 חיסור רב-ספרתי<br><small style="opacity:0.9">עם שאילה</small></button>
+      <button class="basics-track-card longMul" onclick="openBasicsTrack('longMul')">✖ כפל ארוך<br><small style="opacity:0.9">2 ספרות × 2 ספרות</small></button>
+      <button class="basics-track-card longDiv" onclick="openBasicsTrack('longDiv')">➗ חילוק ארוך<br><small style="opacity:0.9">לפני אלגברה</small></button>
+    </div>
+
+    <div class="section-title">📐 לקראת אלגברה</div>
+    <div class="basics-menu">
+      <button class="basics-track-card negatives" onclick="openBasicsTrack('negatives')">± מספרים שליליים<br><small style="opacity:0.9">חיבור וחיסור עם שלילי</small></button>
+      <button class="basics-track-card orderops" onclick="openBasicsTrack('orderops')">🧮 סדר פעולות<br><small style="opacity:0.9">סוגריים, כפל לפני חיבור</small></button>
+      <button class="basics-track-card fractions" onclick="openBasicsTrack('fractions')">½ שברים<br><small style="opacity:0.9">שווי-ערך, צמצום, חיבור</small></button>
+      <button class="basics-track-card fractionsAdv" onclick="openBasicsTrack('fractionsAdv')">⅔ שברים מתקדם<br><small style="opacity:0.9">כפל, חילוק, מספר מעורב</small></button>
+      <button class="basics-track-card decimals" onclick="openBasicsTrack('decimals')">·5 עשרוניים<br><small style="opacity:0.9">חיבור, כפל, המרה לשבר</small></button>
+    </div>
+
+    <div class="section-title">🅰️ אלגברה</div>
+    <div class="basics-menu">
+      <button class="basics-track-card simplify" onclick="openBasicsTrack('simplify')">🅰️ פישוט ביטויים<br><small style="opacity:0.9">איסוף איברים, פילוג</small></button>
+      <button class="basics-track-card solveLinear" onclick="openBasicsTrack('solveLinear')">🟰 פתרון משוואה לינארית<br><small style="opacity:0.9">ax + b = c</small></button>
+      <button class="basics-track-card factorize" onclick="openBasicsTrack('factorize')">✂ פירוק לגורמים<br><small style="opacity:0.9">x² + bx + c</small></button>
+      <button class="basics-track-card inequalities" onclick="openBasicsTrack('inequalities')">&lt; אי-שוויונים<br><small style="opacity:0.9">פתרון x &gt; N</small></button>
+      <button class="basics-track-card simultaneous" onclick="openBasicsTrack('simultaneous')">⊞ שתי משוואות<br><small style="opacity:0.9">2 משוואות, 2 נעלמים</small></button>
+    </div>
+
+    <div style="text-align:center; margin: 18px 0 20px;">
       <button class="btn btn-warning" onclick="startDiagnostic()">🎯 בדיקת רמה (פותח שלבים אוטומטית)</button>
       <button class="btn btn-secondary" onclick="showHistory()">📜 ההיסטוריה שלי</button>
     </div>
@@ -974,13 +988,25 @@ const BASICS_TRACKS = {
   subtraction: { title: '➖ יסודות - חיסור', op: '−' },
   multiplication: { title: '✕ יסודות - כפל', op: '×' },
   division: { title: '➗ יסודות - חילוק', op: '÷' },
+  multiAdd: { title: '🔢 חיבור רב-ספרתי' },
+  multiSub: { title: '🔢 חיסור רב-ספרתי' },
+  longMul: { title: '✖ כפל ארוך' },
+  longDiv: { title: '➗ חילוק ארוך' },
   negatives: { title: '± מספרים שליליים', op: '±' },
   orderops: { title: '🧮 סדר פעולות', op: '?' },
-  fractions: { title: '½ שברים', op: '/' }
+  fractions: { title: '½ שברים', op: '/' },
+  fractionsAdv: { title: '⅔ שברים מתקדם' },
+  decimals: { title: '·5 עשרוניים' },
+  simplify: { title: '🅰️ פישוט ביטויים' },
+  solveLinear: { title: '🟰 פתרון משוואה לינארית' },
+  factorize: { title: '✂ פירוק לגורמים' },
+  inequalities: { title: '< אי-שוויונים' },
+  simultaneous: { title: '⊞ שתי משוואות' }
 };
 
+const ALL_TRACK_KEYS = Object.keys(BASICS_TRACKS);
 let basicsProgress = JSON.parse(localStorage.getItem('basicsProgress') || '{}');
-['addition','subtraction','multiplication','division','negatives','orderops','fractions'].forEach(t => {
+ALL_TRACK_KEYS.forEach(t => {
   if (typeof basicsProgress[t] !== 'number') basicsProgress[t] = 0;
 });
 let basicsTrack = null;
@@ -1352,24 +1378,59 @@ function showHistoryDetail(idx) {
 }
 
 function sheetLabelFor(track, index) {
-  if (track === 'negatives') {
-    const labels = ['חיובי + שלילי', 'שלילי + חיובי', 'שלילי + שלילי',
-                    'חיובי − שלילי', 'שלילי − חיובי', 'שלילי − שלילי',
-                    'מעורב 1', 'מעורב 2', 'מעורב 3', 'מעורב'];
-    return labels[index] || '';
-  }
-  if (track === 'orderops') {
-    const labels = ['+ ואז ×', '× ואז +', '− ואז ×', '+ ואז ÷',
-                    'סוגריים +', 'סוגריים −', 'שני כפלים', 'סוגריים כפולים',
-                    '3 פעולות', 'מעורב'];
-    return labels[index] || '';
-  }
-  if (track === 'fractions') {
-    const labels = ['שברים שווי-ערך 1', 'שברים שווי-ערך 2', 'צמצום 1', 'צמצום 2',
-                    'חיבור (מכנה שווה)', 'חיסור (מכנה שווה)', 'השוואת שברים',
-                    'חיבור שונה 1', 'חיבור שונה 2', 'מעורב'];
-    return labels[index] || '';
-  }
+  const LABELS = {
+    negatives: ['חיובי + שלילי', 'שלילי + חיובי', 'שלילי + שלילי',
+                'חיובי − שלילי', 'שלילי − חיובי', 'שלילי − שלילי',
+                'מעורב 1', 'מעורב 2', 'מעורב 3', 'מעורב'],
+    orderops: ['+ ואז ×', '× ואז +', '− ואז ×', '+ ואז ÷',
+               'סוגריים +', 'סוגריים −', 'שני כפלים', 'סוגריים כפולים',
+               '3 פעולות', 'מעורב'],
+    fractions: ['שברים שווי-ערך 1', 'שברים שווי-ערך 2', 'צמצום 1', 'צמצום 2',
+                'חיבור (מכנה שווה)', 'חיסור (מכנה שווה)', 'השוואת שברים',
+                'חיבור שונה 1', 'חיבור שונה 2', 'מעורב'],
+    multiAdd: ['2ספ + 1ספ', '2ספ + 2ספ קל', '2ספ + 2ספ עם נשיאה',
+               '3ספ + 2ספ', '3ספ + 3ספ', '3ספ + 3ספ עם נשיאה',
+               '4ספ + 3ספ', '4ספ + 4ספ', '4ספ + 4ספ עם נשיאה', 'מעורב'],
+    multiSub: ['2ספ − 1ספ', '2ספ − 2ספ קל', '2ספ − 2ספ עם שאילה',
+               '3ספ − 2ספ', '3ספ − 3ספ', '3ספ − 3ספ עם שאילה',
+               '4ספ − 3ספ', '4ספ − 4ספ', '4ספ − 4ספ עם שאילה', 'מעורב'],
+    longMul: ['2ספ × 1ספ קל', '2ספ × 1ספ', '3ספ × 1ספ',
+              '2ספ × 2ספ קל', '2ספ × 2ספ', '3ספ × 2ספ',
+              'עשרות שלמות', 'מאות שלמות', '3ספ × 3ספ', 'מעורב'],
+    longDiv: ['2ספ ÷ 1ספ קל', '2ספ ÷ 1ספ', '3ספ ÷ 1ספ',
+              '2ספ ÷ 2ספ', '3ספ ÷ 2ספ', 'חילוק לעשרות',
+              'חילוק עם שארית 1', 'חילוק עם שארית 2',
+              '4ספ ÷ 2ספ', 'מעורב'],
+    fractionsAdv: ['כפל פשוט', 'כפל עם מספרים שלמים', 'כפל וצמצום',
+                   'חילוק 1', 'חילוק 2', 'הופכי של שבר',
+                   'מספר מעורב לשבר', 'שבר למספר מעורב',
+                   'כפל מספרים מעורבים', 'מעורב'],
+    decimals: ['חיבור פשוט', 'חיבור עם נשיאה', 'חיסור פשוט',
+               'חיסור עם שאילה', 'כפל ב-10/100', 'חילוק ב-10/100',
+               'כפל שלם × עשרוני', 'עשרוני × עשרוני',
+               'המרה לשבר', 'מעורב'],
+    simplify: ['איסוף איברים בסיסי', 'איסוף עם חיסור', 'איסוף עם קבועים',
+               'חוק הפילוג +', 'חוק הפילוג −', 'פילוג ואיסוף',
+               'איסוף 2 משתנים', 'משוואות עם x²', 'פילוג בסוגריים כפולים',
+               'מעורב'],
+    solveLinear: ['x + a = b', 'x − a = b', 'ax = b',
+                  'x/a = b', 'ax + b = c', 'ax − b = c',
+                  'a − x = b', 'משתנה משני הצדדים', 'עם סוגריים',
+                  'מעורב'],
+    factorize: ['גורם משותף 1', 'גורם משותף 2', 'הפרש ריבועים',
+                'x² + bx + c קל', 'x² + bx + c', 'x² − bx + c',
+                'x² + bx − c', 'x² − bx − c', '3 איברים שונים',
+                'מעורב'],
+    inequalities: ['x + a > b', 'x − a > b', 'ax > b',
+                   'ax < b (a חיובי)', 'ax > b (a שלילי - היפוך)',
+                   'ax + b > c', 'ax − b < c', 'a − x > b',
+                   'משתנה משני הצדדים', 'מעורב'],
+    simultaneous: ['ביטול קל', 'ביטול עם x', 'ביטול עם y',
+                   'הצבה x=', 'הצבה y=', 'מקדמים שונים',
+                   'מקדמים גדולים', 'עם שליליים', 'משוואות מורכבות',
+                   'מעורב']
+  };
+  if (LABELS[track]) return LABELS[track][index] || '';
   if (index === 9) return 'מעורב';
   const sign = track === 'addition' ? '+' :
                track === 'subtraction' ? '−' :
@@ -1619,10 +1680,449 @@ function genFractionsProblem(sheetIdx) {
   };
 }
 
+// ============================================================
+// מסלולים מתקדמים: חישוב מורכב, אלגברה
+// ============================================================
+function pickInt(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+function genBigNumOptions(answer) {
+  const opts = new Set([answer]);
+  const cands = [answer + 1, answer - 1, answer + 10, answer - 10, answer + 100, answer - 100];
+  cands.sort(() => Math.random() - 0.5);
+  for (const c of cands) {
+    if (opts.size >= 4) break;
+    if (c < 0 || c === answer) continue;
+    opts.add(c);
+  }
+  let pad = 0;
+  while (opts.size < 4 && pad++ < 50) {
+    const delta = pickInt(-Math.max(20, Math.floor(answer / 10)), Math.max(20, Math.floor(answer / 10)));
+    if (answer + delta >= 0) opts.add(answer + delta);
+  }
+  return [...opts].sort(() => Math.random() - 0.5);
+}
+function genStringOptions(answer, distractors) {
+  const opts = new Set([answer]);
+  for (const c of distractors) {
+    if (opts.size >= 4) break;
+    if (c === answer) continue;
+    opts.add(c);
+  }
+  // Pad if still <4: vary the answer slightly
+  let pad = 0;
+  while (opts.size < 4 && pad++ < 40) {
+    const fracM = String(answer).match(/^(-?\d+)\/(\d+)$/);
+    if (fracM) {
+      const n = parseInt(fracM[1]), d = parseInt(fracM[2]);
+      opts.add(`${n + pickInt(-2, 2)}/${d + pickInt(-1, 2)}`.replace(/\/0$/, '/1'));
+    } else {
+      opts.add(answer + ' ' + pad);
+    }
+  }
+  return [...opts].slice(0, 4).sort(() => Math.random() - 0.5);
+}
+
+// --- חיבור רב-ספרתי ---
+function genMultiAddProblem(s) {
+  const ranges = [
+    [10, 99, 1, 9, false], [10, 49, 10, 49, false], [10, 99, 10, 99, true],
+    [100, 999, 10, 99, true], [100, 500, 100, 500, false], [100, 999, 100, 999, true],
+    [1000, 9999, 100, 999, true], [1000, 4999, 1000, 4999, false], [1000, 9999, 1000, 9999, true],
+    [10, 9999, 10, 9999, true]
+  ];
+  const r = ranges[s] || ranges[9];
+  const a = pickInt(r[0], r[1]);
+  const b = pickInt(r[2], r[3]);
+  const answer = a + b;
+  return { displayQ: `${a} + ${b}`, answer, options: genBigNumOptions(answer) };
+}
+// --- חיסור רב-ספרתי ---
+function genMultiSubProblem(s) {
+  const ranges = [
+    [10, 99, 1, 9], [20, 99, 10, 49], [20, 99, 10, 99],
+    [100, 999, 10, 99], [100, 999, 100, 500], [200, 999, 100, 999],
+    [1000, 9999, 100, 999], [1000, 9999, 1000, 5000], [1000, 9999, 1000, 9999],
+    [10, 9999, 10, 9999]
+  ];
+  const r = ranges[s] || ranges[9];
+  let a = pickInt(r[0], r[1]);
+  let b = pickInt(r[2], r[3]);
+  if (b > a) [a, b] = [b, a];
+  const answer = a - b;
+  return { displayQ: `${a} − ${b}`, answer, options: genBigNumOptions(answer) };
+}
+// --- כפל ארוך ---
+function genLongMulProblem(s) {
+  const ranges = [
+    [10, 30, 2, 5], [10, 99, 2, 9], [100, 999, 2, 9],
+    [10, 25, 10, 25], [10, 99, 10, 99], [100, 999, 10, 99],
+    [10, 90, 10, 90, true], [100, 900, 10, 90, true], [100, 999, 100, 999],
+    [10, 999, 10, 99]
+  ];
+  const r = ranges[s] || ranges[9];
+  let a, b;
+  if (r[4]) { // round numbers
+    a = 10 * pickInt(1, 9); b = 10 * pickInt(1, 9);
+  } else {
+    a = pickInt(r[0], r[1]); b = pickInt(r[2], r[3]);
+  }
+  const answer = a * b;
+  return { displayQ: `${a} × ${b}`, answer, options: genBigNumOptions(answer) };
+}
+// --- חילוק ארוך ---
+function genLongDivProblem(s) {
+  const ranges = [
+    [2, 9, 1, 9], [2, 9, 1, 11], [2, 9, 10, 99],
+    [10, 25, 1, 9], [10, 50, 2, 19], [2, 9, 10, 50, true],
+    [2, 9, 10, 30, 'rem'], [2, 12, 5, 50, 'rem'],
+    [10, 99, 5, 50], [2, 99, 1, 99]
+  ];
+  const r = ranges[s] || ranges[9];
+  const divisor = pickInt(r[0], r[1]);
+  const quotient = pickInt(Math.max(1, r[2]), r[3]);
+  const dividend = divisor * quotient;
+  // (We ignore remainder sheets for simplicity; result is always integer.)
+  const answer = quotient;
+  return { displayQ: `${dividend} ÷ ${divisor}`, answer, options: genBigNumOptions(answer) };
+}
+// --- שברים מתקדם (כפל, חילוק, מספרים מעורבים) ---
+function genFractionsAdvProblem(s) {
+  const pick = (lo, hi) => pickInt(lo, hi);
+  if (s <= 1) {
+    // multiplication of fractions
+    const n1 = pick(1, 5), d1 = pick(2, 7);
+    const n2 = pick(1, 5), d2 = pick(2, 7);
+    const newN = n1 * n2, newD = d1 * d2;
+    const g = gcd(newN, newD);
+    const answer = fracStr(newN / g, newD / g);
+    const distractors = [fracStr(n1 + n2, d1 + d2), fracStr(newN + 1, newD), fracStr(newN, newD + 1)];
+    return { displayQ: `${fracHtml(n1, d1)} × ${fracHtml(n2, d2)}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 2) {
+    // multiply fraction by whole
+    const n = pick(1, 5), d = pick(2, 7), w = pick(2, 6);
+    const newN = n * w;
+    const g = gcd(newN, d);
+    const answer = fracStr(newN / g, d / g);
+    const distractors = [fracStr(n, d * w), fracStr(newN + 1, d), fracStr(n + w, d)];
+    return { displayQ: `${w} × ${fracHtml(n, d)}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 3 || s === 4) {
+    // division of fractions
+    const n1 = pick(1, 5), d1 = pick(2, 7);
+    const n2 = pick(1, 5), d2 = pick(2, 7);
+    const newN = n1 * d2, newD = d1 * n2;
+    const g = gcd(newN, newD);
+    const answer = fracStr(newN / g, newD / g);
+    const distractors = [fracStr(n1 * n2, d1 * d2), fracStr(newN + 1, newD), fracStr(d1 * n2, n1 * d2)];
+    return { displayQ: `${fracHtml(n1, d1)} ÷ ${fracHtml(n2, d2)}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 5) {
+    // reciprocal: what is the reciprocal of a/b?
+    const n = pick(1, 7), d = pick(2, 9);
+    const answer = fracStr(d, n);
+    const distractors = [fracStr(n, d), fracStr(n + 1, d), fracStr(d, n + 1)];
+    return { displayQ: `מהו ההופכי של ${fracHtml(n, d)}?`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 6) {
+    // mixed → improper: e.g., 2 1/3 = 7/3
+    const w = pick(1, 4), n = pick(1, 5), d = pick(2, 7);
+    const newN = w * d + n;
+    const answer = fracStr(newN, d);
+    const distractors = [fracStr(w + n, d), fracStr(newN + 1, d), fracStr(w * n, d)];
+    return { displayQ: `המר למספר רגיל: ${w} ${fracHtml(n, d)}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 7) {
+    // improper → mixed: 7/3 = 2 1/3
+    const w = pick(1, 4), n = pick(1, 5), d = pick(n + 1, n + 6);
+    const N = w * d + n;
+    const answer = `${w} ${n}/${d}`;
+    const distractors = [`${w + 1} ${n}/${d}`, `${w} ${n + 1}/${d}`, `${n} ${w}/${d}`];
+    return { displayQ: `המר למספר מעורב: ${fracHtml(N, d)}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  // s 8-9: multiply mixed numbers
+  const w1 = pick(1, 3), n1 = pick(1, 4), d1 = pick(n1 + 1, n1 + 5);
+  const w2 = pick(1, 3), n2 = pick(1, 4), d2 = pick(n2 + 1, n2 + 5);
+  const N1 = w1 * d1 + n1, N2 = w2 * d2 + n2;
+  const newN = N1 * N2, newD = d1 * d2;
+  const g = gcd(newN, newD);
+  const answer = fracStr(newN / g, newD / g);
+  const distractors = [fracStr(w1 * w2, d1 * d2), fracStr(newN + 1, newD), fracStr(N1 + N2, d1 * d2)];
+  return { displayQ: `${w1} ${fracHtml(n1, d1)} × ${w2} ${fracHtml(n2, d2)}`, answer, options: genStringOptions(answer, distractors) };
+}
+// --- עשרוניים ---
+function fmtDec(x) {
+  let s = (Math.round(x * 100) / 100).toString();
+  return s;
+}
+function padDecOpts(set, answerNum) {
+  let pad = 0;
+  while (set.size < 4 && pad++ < 40) {
+    const delta = (pickInt(-9, 9) / 10) + pickInt(-3, 3);
+    const v = +(answerNum + delta).toFixed(2);
+    if (v >= 0) set.add(fmtDec(v));
+  }
+  return [...set].slice(0, 4).sort(() => Math.random() - 0.5);
+}
+function genDecimalsProblem(s) {
+  if (s === 0 || s === 1) {
+    // addition with one decimal
+    const a = pickInt(1, 9) + (s === 1 ? pickInt(1, 9) / 10 : pickInt(1, 4) / 10);
+    const b = pickInt(1, 9) + (s === 1 ? pickInt(1, 9) / 10 : pickInt(1, 4) / 10);
+    const answer = +(a + b).toFixed(1);
+    const opts = new Set([fmtDec(answer)]);
+    [+(answer + 0.1).toFixed(1), +(answer - 0.1).toFixed(1), +(answer + 1).toFixed(1)].forEach(v => { if (v >= 0) opts.add(fmtDec(v)); });
+    while (opts.size < 4) opts.add(fmtDec(+(answer + (pickInt(-9, 9) / 10)).toFixed(1)));
+    return { displayQ: `${fmtDec(a)} + ${fmtDec(b)}`, answer: fmtDec(answer), options: [...opts].sort(() => Math.random() - 0.5) };
+  }
+  if (s === 2 || s === 3) {
+    let a = pickInt(2, 19) + pickInt(1, 9) / 10;
+    let b = pickInt(1, 9) + pickInt(1, 9) / 10;
+    if (b > a) [a, b] = [b, a];
+    const answer = +(a - b).toFixed(1);
+    const opts = new Set([fmtDec(answer)]);
+    [+(answer + 0.1).toFixed(1), +(answer - 0.1).toFixed(1), +(answer + 1).toFixed(1)].forEach(v => { if (v >= 0) opts.add(fmtDec(v)); });
+    while (opts.size < 4) opts.add(fmtDec(+(answer + (pickInt(-9, 9) / 10)).toFixed(1)));
+    return { displayQ: `${fmtDec(a)} − ${fmtDec(b)}`, answer: fmtDec(answer), options: [...opts].sort(() => Math.random() - 0.5) };
+  }
+  if (s === 4) {
+    const a = pickInt(1, 99) + pickInt(0, 9) / 10;
+    const k = [10, 100][pickInt(0, 1)];
+    const answer = +(a * k).toFixed(2);
+    const opts = new Set([fmtDec(answer), fmtDec(a * 1000), fmtDec(a), fmtDec(a * (k / 10))]);
+    return { displayQ: `${fmtDec(a)} × ${k}`, answer: fmtDec(answer), options: padDecOpts(opts, answer) };
+  }
+  if (s === 5) {
+    const k = [10, 100][pickInt(0, 1)];
+    const ans = pickInt(1, 99) + pickInt(0, 9) / 10;
+    const a = +(ans * k).toFixed(1);
+    const opts = new Set([fmtDec(ans), fmtDec(ans * 10), fmtDec(ans / 10), fmtDec(ans + 1)]);
+    return { displayQ: `${fmtDec(a)} ÷ ${k}`, answer: fmtDec(ans), options: padDecOpts(opts, ans) };
+  }
+  if (s === 6) {
+    const w = pickInt(2, 9);
+    const d = pickInt(1, 9) / 10;
+    const answer = +(w * d).toFixed(2);
+    const opts = new Set([fmtDec(answer), fmtDec(answer + 0.1), fmtDec(answer - 0.1), fmtDec(answer * 10), fmtDec(w * d * 10)]);
+    return { displayQ: `${w} × ${fmtDec(d)}`, answer: fmtDec(answer), options: padDecOpts(opts, answer) };
+  }
+  if (s === 7) {
+    const a = pickInt(1, 9) / 10;
+    const b = pickInt(1, 9) / 10;
+    const answer = +(a * b).toFixed(2);
+    const opts = new Set([fmtDec(answer), fmtDec(a + b), fmtDec(a * b * 10), fmtDec(answer + 0.01)]);
+    return { displayQ: `${fmtDec(a)} × ${fmtDec(b)}`, answer: fmtDec(answer), options: padDecOpts(opts, answer) };
+  }
+  if (s === 8) {
+    // decimal → fraction: 0.5 = 1/2, 0.25 = 1/4
+    const choices = [[0.5, '1/2'], [0.25, '1/4'], [0.75, '3/4'], [0.2, '1/5'], [0.1, '1/10']];
+    const [v, frac] = choices[pickInt(0, choices.length - 1)];
+    const opts = new Set([frac, '1/3', '2/3', '1/8', '3/8']);
+    return { displayQ: `${fmtDec(v)} = ?`, answer: frac, options: [...opts].slice(0, 4).sort(() => Math.random() - 0.5) };
+  }
+  // s 9: mixed
+  return genDecimalsProblem(pickInt(0, 7));
+}
+// --- פישוט ביטויים אלגבריים ---
+function termStr(coef, varStr) {
+  if (coef === 0) return '';
+  if (!varStr) return coef.toString();
+  if (coef === 1) return varStr;
+  if (coef === -1) return '−' + varStr;
+  return coef + varStr;
+}
+function exprStr(coefX, constant) {
+  let s = termStr(coefX, 'x');
+  if (constant > 0) s += (s ? ' + ' : '') + constant;
+  else if (constant < 0) s += (s ? ' − ' : '−') + Math.abs(constant);
+  return s || '0';
+}
+function genSimplifyProblem(s) {
+  const p = pickInt;
+  if (s === 0) {
+    const a = p(2, 6), b = p(1, 5);
+    const answer = termStr(a + b, 'x');
+    const distractors = [termStr(a * b, 'x'), termStr(a + b, ''), termStr(Math.abs(a - b), 'x')];
+    return { displayQ: `${a}x + ${b}x`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 1) {
+    const a = p(3, 8), b = p(1, a - 1);
+    const answer = termStr(a - b, 'x');
+    const distractors = [termStr(a + b, 'x'), termStr(a - b, ''), termStr(a * b, 'x')];
+    return { displayQ: `${a}x − ${b}x`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 2) {
+    const a = p(2, 5), b = p(2, 5), c = p(1, 5), d = p(1, 5);
+    const answer = exprStr(a + b, c + d);
+    const distractors = [exprStr(a * b, c + d), exprStr(a + b + c + d, 0), exprStr(a + b, c * d)];
+    return { displayQ: `${a}x + ${c} + ${b}x + ${d}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 3) {
+    const k = p(2, 5), x = p(1, 5), c = p(1, 5);
+    const answer = exprStr(k * x, k * c);
+    const distractors = [exprStr(k + x, k + c), exprStr(k * x, c), exprStr(x, k * c)];
+    return { displayQ: `${k}(${x}x + ${c})`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 4) {
+    const k = p(2, 5), x = p(1, 5), c = p(1, 5);
+    const answer = exprStr(k * x, -k * c);
+    const distractors = [exprStr(k * x, k * c), exprStr(k + x, -c), exprStr(x, -k * c)];
+    return { displayQ: `${k}(${x}x − ${c})`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 5) {
+    const k = p(2, 4), x = p(1, 4), c = p(1, 5), more = p(1, 5);
+    const answer = exprStr(k * x + more, k * c);
+    const distractors = [exprStr(k * x, k * c + more), exprStr(x + more, k * c), exprStr(k + x, c + more)];
+    return { displayQ: `${k}(${x}x + ${c}) + ${more}x`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 6) {
+    const a = p(2, 5), b = p(1, 4);
+    const yA = p(2, 5), yB = p(1, 4);
+    const answer = `${a + b}x + ${yA + yB}y`;
+    const distractors = [`${a * b}x + ${yA * yB}y`, `${a + b}x + ${yA - yB}y`, `${(a + b) + (yA + yB)}xy`];
+    return { displayQ: `${a}x + ${yA}y + ${b}x + ${yB}y`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 7) {
+    const a = p(2, 5), b = p(1, 4);
+    const answer = `${a + b}x²`;
+    const distractors = [`${a * b}x²`, `${a + b}x`, `${a + b}x⁴`];
+    return { displayQ: `${a}x² + ${b}x²`, answer, options: genStringOptions(answer, distractors) };
+  }
+  // s 8-9: (a+b)(c+d) style or harder mix
+  const a = p(2, 4), b = p(1, 3), c = p(2, 4), d = p(1, 3);
+  // (a+b)(c+d) = ac + ad + bc + bd, treating x as common var... let's just do (x+a)(x+b) = x² + (a+b)x + ab
+  const answer = `x² + ${a + b}x + ${a * b}`;
+  const distractors = [`x² + ${a * b}x + ${a + b}`, `2x + ${a + b}`, `x² + ${a + b}`];
+  return { displayQ: `(x + ${a})(x + ${b})`, answer, options: genStringOptions(answer, distractors) };
+}
+// --- פתרון משוואה לינארית ---
+function genSolveLinearProblem(s) {
+  const p = pickInt;
+  if (s === 0) { const x = p(1, 15), a = p(1, 10); return { displayQ: `x + ${a} = ${x + a}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) }; }
+  if (s === 1) { const x = p(1, 15), a = p(1, 5); return { displayQ: `x − ${a} = ${x - a}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) }; }
+  if (s === 2) { const x = p(2, 10), a = p(2, 9); return { displayQ: `${a}x = ${a * x}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) }; }
+  if (s === 3) { const x = p(2, 10), a = p(2, 9); return { displayQ: `x ÷ ${a} = ${x}`, answer: String(x * a), options: genNumericOptionsAllowNeg(x * a).map(String) }; }
+  if (s === 4) { const x = p(1, 10), a = p(2, 6), b = p(1, 9); return { displayQ: `${a}x + ${b} = ${a * x + b}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) }; }
+  if (s === 5) { const x = p(2, 10), a = p(2, 6), b = p(1, 9); return { displayQ: `${a}x − ${b} = ${a * x - b}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) }; }
+  if (s === 6) { const x = p(1, 8), a = p(2, 9), b = p(1, 5); return { displayQ: `${a} − x = ${a - x + b - b}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) }; }
+  if (s === 7) {
+    const x = p(1, 8), a = p(2, 5), b = p(1, 4), c = p(1, 5);
+    const lhs = a * x + b, rhs = c * x + (lhs - c * x);
+    return { displayQ: `${a}x + ${b} = ${c}x + ${lhs - c * x}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) };
+  }
+  if (s === 8) {
+    const x = p(1, 7), k = p(2, 5), b = p(1, 5);
+    return { displayQ: `${k}(x + ${b}) = ${k * (x + b)}`, answer: String(x), options: genNumericOptionsAllowNeg(x).map(String) };
+  }
+  // mixed
+  return genSolveLinearProblem(pickInt(0, 7));
+}
+// --- פירוק לגורמים ---
+function genFactorizeProblem(s) {
+  const p = pickInt;
+  if (s === 0) {
+    // gcd(ax, b)
+    const k = p(2, 6), x = p(1, 5), c = p(1, 5);
+    const answer = `${k}(${x === 1 ? 'x' : x + 'x'} + ${c})`;
+    const distractors = [`${k * x}(x + ${c})`, `${k}(x + ${k * c})`, `${k}x(x + ${c})`];
+    return { displayQ: `${k * x}x + ${k * c}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 1) {
+    const k = p(2, 6), x = p(2, 5);
+    const answer = `${k}x(x + ${x})`;
+    const distractors = [`${k}(x² + ${x}x)`, `${k}x²(x + 1)`, `x(${k}x + ${k * x})`];
+    return { displayQ: `${k}x² + ${k * x}x`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 2) {
+    // difference of squares: x² - k²
+    const k = p(2, 9);
+    const answer = `(x − ${k})(x + ${k})`;
+    const distractors = [`(x − ${k})²`, `(x + ${k})²`, `x² − ${2 * k}x + ${k * k}`];
+    return { displayQ: `x² − ${k * k}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 3 || s === 4) {
+    // x² + bx + c with positive b, c
+    const r1 = p(1, 6), r2 = p(1, 6);
+    const sum = r1 + r2, prod = r1 * r2;
+    const answer = `(x + ${Math.min(r1, r2)})(x + ${Math.max(r1, r2)})`;
+    const distractors = [`(x − ${r1})(x − ${r2})`, `(x + ${sum})(x + ${prod})`, `(x + ${r1})(x − ${r2})`];
+    return { displayQ: `x² + ${sum}x + ${prod}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 5) {
+    // x² - bx + c
+    const r1 = p(1, 6), r2 = p(1, 6);
+    const sum = r1 + r2, prod = r1 * r2;
+    const answer = `(x − ${Math.min(r1, r2)})(x − ${Math.max(r1, r2)})`;
+    const distractors = [`(x + ${r1})(x + ${r2})`, `(x − ${sum})(x − ${prod})`, `(x − ${r1})(x + ${r2})`];
+    return { displayQ: `x² − ${sum}x + ${prod}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 6 || s === 7) {
+    // x² + bx - c (different signs)
+    const r1 = p(1, 6), r2 = p(r1 + 1, r1 + 6);
+    const sum = r2 - r1, prod = r1 * r2;
+    const answer = s === 6 ? `(x − ${r1})(x + ${r2})` : `(x + ${r1})(x − ${r2})`;
+    const displayB = s === 6 ? sum : -sum;
+    const sign = displayB >= 0 ? '+' : '−';
+    const distractors = [`(x + ${r1})(x + ${r2})`, `(x − ${r1})(x − ${r2})`, `(x ${sign} ${r1 + r2})²`];
+    return { displayQ: `x² ${sign} ${Math.abs(displayB)}x − ${prod}`, answer, options: genStringOptions(answer, distractors) };
+  }
+  if (s === 8) {
+    // ax² + bx with common ax
+    const a = p(2, 4), x = p(1, 4);
+    const answer = `${a === 1 ? 'x' : a + 'x'}(x + ${x})`;
+    const distractors = [`${a}(x² + ${x}x)`, `(${a}x + ${x})(x)`, `${a}x²(1 + ${x})`];
+    return { displayQ: `${a}x² + ${a * x}x`, answer, options: genStringOptions(answer, distractors) };
+  }
+  // mixed
+  return genFactorizeProblem(pickInt(0, 7));
+}
+// --- אי-שוויונים ---
+function genInequalityProblem(s) {
+  const p = pickInt;
+  const fmt = (op, n) => `x ${op} ${n}`;
+  if (s === 0) { const x = p(1, 10), a = p(1, 9); return { displayQ: `x + ${a} > ${x + a - 1}`, answer: fmt('>', x - 1), options: [fmt('>', x - 1), fmt('>', x), fmt('<', x - 1), fmt('<', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 1) { const x = p(2, 10), a = p(1, 5); return { displayQ: `x − ${a} < ${x - a + 1}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('<', x), fmt('>', x + 1), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 2) { const a = p(2, 5), x = p(2, 8); return { displayQ: `${a}x > ${a * x - 1}`, answer: fmt('>', x - 0.5 < x ? x : x), options: [fmt('>', x), fmt('>', x + 1), fmt('<', x), fmt('<', x + 1)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 3) { const a = p(2, 5), x = p(2, 8); return { displayQ: `${a}x < ${a * x + a}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('<', x), fmt('>', x + 1), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 4) {
+    // negative coefficient → flip
+    const a = p(2, 5), x = p(2, 6), rhs = -a * x - a;
+    return { displayQ: `−${a}x > ${rhs}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('>', x + 1), fmt('<', x), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) };
+  }
+  if (s === 5) { const a = p(2, 5), x = p(1, 6), b = p(1, 5); return { displayQ: `${a}x + ${b} > ${a * x + b - 1}`, answer: fmt('>', x - 1), options: [fmt('>', x - 1), fmt('>', x), fmt('<', x - 1), fmt('<', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 6) { const a = p(2, 5), x = p(2, 8), b = p(1, 5); return { displayQ: `${a}x − ${b} < ${a * x - b + a}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('<', x), fmt('>', x + 1), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 7) { const a = p(2, 8), x = p(1, a - 1); return { displayQ: `${a} − x > ${a - x - 1}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('>', x + 1), fmt('<', x), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  // s 8-9
+  return genInequalityProblem(pickInt(0, 7));
+}
+// --- שתי משוואות ---
+function genSimultaneousProblem(s) {
+  const p = pickInt;
+  // pick a known solution then build equations
+  const x = p(1, 6), y = p(1, 6);
+  const a1 = p(1, 4), b1 = p(1, 4), c1 = a1 * x + b1 * y;
+  const a2 = p(1, 4), b2 = p(1, 4), c2 = a2 * x + b2 * y;
+  // ensure independent: a1*b2 !== a2*b1
+  if (a1 * b2 === a2 * b1) return genSimultaneousProblem(s);
+  const answer = `(${x},${y})`;
+  const distractors = [`(${y},${x})`, `(${x + 1},${y})`, `(${x},${y + 1})`];
+  return {
+    displayQ: `${a1}x + ${b1}y = ${c1}<br>${a2}x + ${b2}y = ${c2}`,
+    answer,
+    options: genStringOptions(answer, distractors)
+  };
+}
+
 function genBasicsProblems(track, sheetIndex) {
-  if (track === 'negatives') return Array.from({ length: BASICS_SHEET_SIZE }, () => genNegativesProblem(sheetIndex));
-  if (track === 'orderops') return Array.from({ length: BASICS_SHEET_SIZE }, () => genOrderOpsProblem(sheetIndex));
-  if (track === 'fractions') return Array.from({ length: BASICS_SHEET_SIZE }, () => genFractionsProblem(sheetIndex));
+  const customGens = {
+    negatives: genNegativesProblem, orderops: genOrderOpsProblem, fractions: genFractionsProblem,
+    multiAdd: genMultiAddProblem, multiSub: genMultiSubProblem,
+    longMul: genLongMulProblem, longDiv: genLongDivProblem,
+    fractionsAdv: genFractionsAdvProblem, decimals: genDecimalsProblem,
+    simplify: genSimplifyProblem, solveLinear: genSolveLinearProblem,
+    factorize: genFactorizeProblem, inequalities: genInequalityProblem,
+    simultaneous: genSimultaneousProblem
+  };
+  if (customGens[track]) return Array.from({ length: BASICS_SHEET_SIZE }, () => customGens[track](sheetIndex));
   const problems = [];
   const used = new Set();
   let safety = 0;
