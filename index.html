@@ -180,6 +180,18 @@
     color: white;
   }
   .btn-secondary:hover { background: #7f8c8d; }
+  .btn-info {
+    background: #c0392b;
+    color: white;
+  }
+  .btn-info:hover { background: #a93226; }
+  .video-help-btn {
+    animation: video-pulse 1.6s ease-in-out 2;
+  }
+  @keyframes video-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(192, 57, 43, 0); }
+  }
 
   .feedback {
     padding: 15px;
@@ -717,9 +729,58 @@ let currentLevel = 1;
 let levelCorrectInRow = 0;
 let helpUsedForProblem = false;
 let hintLevel = 0;
+let wrongAttemptsForProblem = 0;
 const CORRECT_TO_UNLOCK = 3; // כמה צריך להצליח כדי לפתוח רמה
+const STRUGGLE_THRESHOLD = 2; // אחרי כמה תשובות שגויות באותו תרגיל מופיע כפתור וידאו
 
 function markHelpUsed() { helpUsedForProblem = true; }
+
+// ============================================================
+// וידאו - חיפוש דינמי ב-YouTube כשהתלמיד מתקשה
+// ============================================================
+function videoSearchQuery() {
+  if (basicsTrack) {
+    return basicsTrack === 'addition' ? 'חיבור בסיסי הסבר לתלמידים' : 'חיסור בסיסי הסבר לתלמידים';
+  }
+  if (currentTopic === 1) return 'פתרון משוואה ריבועית נוסחת השורשים הסבר';
+  if (currentTopic === 2) return 'חקירת פונקציה ריבועית קודקוד הסבר';
+  if (currentTopic === 3) {
+    const p = currentProblem;
+    if (p && p.type) {
+      if (p.type.includes('angles')) return 'זוויות בטרפז הסבר';
+      if (p.type.includes('perimeter')) return 'היקף טרפז הסבר';
+      if (p.type.includes('find-h') || p.type === 'right-trapezoid' || p.type === 'full-isoceles')
+        return 'טרפז משפט פיתגורס הסבר';
+      if (p.type.includes('area')) return 'שטח טרפז הסבר';
+    }
+    return 'טרפז גיאומטריה הסבר';
+  }
+  if (currentTopic === 4) {
+    const p = currentProblem;
+    if (p && p.kind === 'linear-value') return 'קריאת גרף פונקציה ליניארית הסבר';
+    return 'קריאת גרף פונקציה ריבועית הסבר';
+  }
+  if (currentTopic === 5) return 'משוואת קו ישר שיפוע ונקודת חיתוך הסבר';
+  return 'מתמטיקה כיתה ט הסבר';
+}
+
+function openVideoSearch(query) {
+  const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query || videoSearchQuery());
+  window.open(url, '_blank', 'noopener');
+}
+
+function showVideoButtonInAnswerSection() {
+  const section = document.querySelector('.answer-section');
+  if (!section || section.querySelector('.video-help-btn')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-info video-help-btn';
+  btn.innerHTML = '🎥 הסבר בווידאו';
+  btn.onclick = () => openVideoSearch();
+  const fb = section.querySelector('#feedback');
+  if (fb) section.insertBefore(btn, fb);
+  else section.appendChild(btn);
+}
 
 // רמז מדורג - כמו מורה שמסביר שלב-שלב, בלי לחשוף את התשובה
 function renderStagedHint(stages) {
@@ -734,6 +795,7 @@ function renderStagedHint(stages) {
     html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">עוד לא הבנת? לחץ שוב על "רמז" ואני אסביר עוד צעד.</div>`;
   } else {
     html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">נסה עכשיו לפתור לבד - אתה יכול!</div>`;
+    showVideoButtonInAnswerSection();
   }
   fb.innerHTML = html;
 }
@@ -920,11 +982,14 @@ function finishBasicsSheet() {
         ? (basicsSheetIndex < 9 ? '🎉 שלט בשלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
         : '✓ עברת. אפשר להמשיך לשלב הבא או לתרגל שוב.')
     : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
+  const videoBtn = passed ? '' :
+    `<button class="btn btn-info video-help-btn" onclick="openVideoSearch()">🎥 הסבר בווידאו</button>`;
   container.innerHTML = `
     <div class="basics-result ${cls}">
       ${headline}
       <span class="score">${basicsCorrect} / ${BASICS_SHEET_SIZE}</span>
     </div>
+    ${videoBtn}
     <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב</button>
     <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
   `;
@@ -995,6 +1060,8 @@ function recordAnswer(correct) {
   } else {
     stats.streak = 0;
     levelCorrectInRow = 0;
+    wrongAttemptsForProblem++;
+    if (wrongAttemptsForProblem >= STRUGGLE_THRESHOLD) showVideoButtonInAnswerSection();
   }
   saveStats();
   updateLevelProgress();
@@ -2154,6 +2221,7 @@ const TOPICS = {
 function newProblem() {
   helpUsedForProblem = false;
   hintLevel = 0;
+  wrongAttemptsForProblem = 0;
   TOPICS[currentTopic].render();
   initNotebook();
 }
