@@ -548,17 +548,33 @@
     direction: ltr;
     unicode-bidi: isolate;
   }
-  .basics-input {
-    font-size: 2em;
-    padding: 12px 20px;
-    width: 140px;
-    text-align: center;
-    border: 2px solid #3498db;
-    border-radius: 10px;
-    font-family: inherit;
+  .basics-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 520px;
+    margin: 20px auto 0;
   }
-  .basics-input.flash-correct { border-color: #28a745; background: #d4edda; }
-  .basics-input.flash-incorrect { border-color: #dc3545; background: #f8d7da; }
+  .basics-option {
+    font-size: 2em;
+    font-weight: 700;
+    padding: 16px 10px;
+    min-height: 70px;
+    border: 2px solid #3498db;
+    background: white;
+    color: #3498db;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.12s, background 0.12s, color 0.12s;
+  }
+  .basics-option:hover:not(:disabled) { background: #ecf6fc; transform: translateY(-2px); }
+  .basics-option:disabled { cursor: not-allowed; }
+  .basics-option.correct { background: #28a745; color: white; border-color: #1e7e34; }
+  .basics-option.incorrect { background: #dc3545; color: white; border-color: #bd2130; }
+  @media (max-width: 600px) {
+    .basics-options { grid-template-columns: repeat(2, 1fr); }
+  }
   .basics-result {
     font-size: 1.3em;
     margin: 20px 0;
@@ -870,6 +886,25 @@ function renderBasicsLadder() {
   ladder.innerHTML = html;
 }
 
+function genBasicsOptions(answer, a, b, track) {
+  const opts = new Set([answer]);
+  const candidates = [answer + 1, answer - 1, answer + 2, answer - 2];
+  if (track === 'addition') candidates.push(Math.abs(a - b));
+  else candidates.push(a + b);
+  candidates.sort(() => Math.random() - 0.5);
+  for (const c of candidates) {
+    if (opts.size >= 4) break;
+    if (c < 0) continue;
+    opts.add(c);
+  }
+  let pad = 0;
+  while (opts.size < 4 && pad++ < 50) {
+    const v = answer + (Math.floor(Math.random() * 9) - 4);
+    if (v >= 0) opts.add(v);
+  }
+  return [...opts].sort(() => Math.random() - 0.5);
+}
+
 function genBasicsProblems(track, sheetIndex) {
   const problems = [];
   const used = new Set();
@@ -899,7 +934,8 @@ function genBasicsProblems(track, sheetIndex) {
     if (used.has(key)) continue;
     used.add(key);
     const answer = track === 'addition' ? a + b : a - b;
-    problems.push({ a, b, op: BASICS_TRACKS[track].op, answer });
+    const options = genBasicsOptions(answer, a, b, track);
+    problems.push({ a, b, op: BASICS_TRACKS[track].op, answer, options });
   }
   return problems;
 }
@@ -921,44 +957,35 @@ function openBasicsSheet(index) {
 function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
   const container = document.getElementById('basics-session');
+  const optionsHtml = p.options.map(v =>
+    `<button type="button" class="basics-option" data-val="${v}" onclick="checkBasicsAnswer(${v}, this)">${v}</button>`
+  ).join('');
   container.innerHTML = `
     <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
-    <div class="basics-equation">${p.a} ${p.op} ${p.b} = <input type="number" id="basics-answer" class="basics-input" autofocus></div>
-    <button class="btn btn-primary" onclick="checkBasicsAnswer()">בדוק</button>
+    <div class="basics-equation">${p.a} ${p.op} ${p.b} = ?</div>
+    <div class="basics-options">${optionsHtml}</div>
   `;
-  const input = document.getElementById('basics-answer');
-  input.focus();
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkBasicsAnswer(); });
 }
 
-function checkBasicsAnswer() {
-  const input = document.getElementById('basics-answer');
-  if (!input) return;
-  const val = parseInt(input.value);
-  if (isNaN(val)) { input.focus(); return; }
+function checkBasicsAnswer(value, btnEl) {
   const p = basicsProblems[basicsCurrent];
-  const correct = val === p.answer;
+  const correct = value === p.answer;
+  const allBtns = document.querySelectorAll('.basics-option');
+  allBtns.forEach(b => b.disabled = true);
   if (correct) {
     basicsCorrect++;
-    input.classList.add('flash-correct');
+    btnEl.classList.add('correct');
   } else {
-    input.classList.add('flash-incorrect');
+    btnEl.classList.add('incorrect');
+    allBtns.forEach(b => {
+      if (parseInt(b.dataset.val, 10) === p.answer) b.classList.add('correct');
+    });
   }
-  input.disabled = true;
   setTimeout(() => {
     basicsCurrent++;
     if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
     else renderBasicsProblem();
-  }, correct ? 400 : 1200);
-  if (!correct) {
-    const container = document.getElementById('basics-session');
-    const note = document.createElement('div');
-    note.className = 'basics-progress';
-    note.style.color = '#dc3545';
-    note.style.marginTop = '8px';
-    note.textContent = `התשובה הנכונה: ${p.answer}`;
-    container.appendChild(note);
-  }
+  }, correct ? 500 : 1300);
 }
 
 function finishBasicsSheet() {
