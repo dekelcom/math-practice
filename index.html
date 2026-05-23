@@ -577,30 +577,6 @@
     .basics-options { grid-template-columns: repeat(2, 1fr); }
   }
 
-  .welcome-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-    display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;
-  }
-  .welcome-overlay.hidden { display: none; }
-  .welcome-card {
-    background: white; padding: 28px 24px; border-radius: 16px; max-width: 420px; width: 100%;
-    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-  }
-  .welcome-card h2 { margin: 0 0 8px; color: #2c3e50; border: none; padding: 0; }
-  .welcome-card p { margin: 8px 0; color: #5a6573; }
-  .welcome-card input {
-    width: 100%; padding: 12px; border: 2px solid #3498db; border-radius: 8px;
-    font-size: 1.1em; font-family: inherit; text-align: center; margin: 12px 0; box-sizing: border-box;
-  }
-  .student-name-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #ecf0f1; color: #2c3e50; padding: 6px 12px; border-radius: 20px; font-size: 0.95em;
-  }
-  .menu-header {
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
-  }
-
   .submission-banner {
     background: #fff3cd; color: #856404; padding: 12px 14px; border-radius: 8px;
     margin: 14px 0; text-align: center; font-weight: 600;
@@ -687,20 +663,7 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
 <div class="container">
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
-  <div id="welcome-overlay" class="welcome-overlay hidden">
-    <div class="welcome-card">
-      <h2>ברוכים הבאים! 👋</h2>
-      <p>איך קוראים לך? (זה השם שהמורה תראה)</p>
-      <input type="text" id="welcome-name" maxlength="20" placeholder="שם פרטי"
-             onkeydown="if(event.key==='Enter') submitWelcomeName()">
-      <button class="btn btn-primary" onclick="submitWelcomeName()">המשך ←</button>
-    </div>
-  </div>
-
   <div id="main-menu">
-    <div class="menu-header">
-      <span class="student-name-pill">👤 <span class="student-name-text"></span> <button class="btn-link" style="background:none;border:none;color:#3498db;cursor:pointer;text-decoration:underline;font-family:inherit;font-size:0.85em;" onclick="changeStudent()">החלף</button></span>
-    </div>
     <div class="section-title">🌱 יסודות - חיבור וחיסור</div>
     <p style="text-align:center; font-size:0.95em; color:#7f8c8d;">בונים שליטה צעד-צעד. כל שלב נפתח כשמשיגים 9 נכון מתוך 10.</p>
     <div class="basics-menu">
@@ -719,6 +682,7 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
     </div>
     <div style="text-align:center; margin: 10px 0 20px;">
       <button class="btn btn-warning" onclick="startDiagnostic()">🎯 בדיקת רמה (פותח שלבים אוטומטית)</button>
+      <button class="btn btn-secondary" onclick="showHistory()">📜 ההיסטוריה שלי</button>
     </div>
 
     <div class="section-title">📚 נושאי הבגרות</div>
@@ -794,6 +758,14 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
       <p style="text-align:center; color:#95a5a6;">טוען...</p>
     </div>
     <div id="teacher-detail-container"></div>
+  </div>
+
+  <div id="history-view" class="hidden">
+    <button class="back-btn" onclick="exitHistory()">← חזרה לתפריט</button>
+    <h2 style="text-align:center;">📜 ההיסטוריה שלי</h2>
+    <p style="text-align:center; color:#7f8c8d;">כל התרגולים שעשית במכשיר הזה. לחץ על שורה לפירוט.</p>
+    <div id="history-list" class="teacher-list"></div>
+    <div id="history-detail-container"></div>
   </div>
 
   <div id="topic-view" class="hidden">
@@ -960,6 +932,8 @@ function backToMenu() {
   document.getElementById('topic-view').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.add('hidden');
   document.getElementById('basics-session-view').classList.add('hidden');
+  const hv = document.getElementById('history-view'); if (hv) hv.classList.add('hidden');
+  const dv = document.getElementById('diagnostic-view'); if (dv) dv.classList.add('hidden');
   currentTopic = null;
 }
 
@@ -991,39 +965,31 @@ function saveBasicsProgress() {
 }
 
 // ============================================================
-// זיהוי תלמיד
+// זיהוי תלמיד - יונתן בלבד (אין מסך כניסה)
 // ============================================================
-let studentName = localStorage.getItem('studentName') || '';
+const DEFAULT_STUDENT_NAME = 'יונתן';
+let studentName = localStorage.getItem('studentName') || DEFAULT_STUDENT_NAME;
+localStorage.setItem('studentName', studentName);
 
-function showWelcomeModal() {
-  const overlay = document.getElementById('welcome-overlay');
-  const input = document.getElementById('welcome-name');
-  input.value = '';
-  overlay.classList.remove('hidden');
-  setTimeout(() => input.focus(), 50);
-}
-function submitWelcomeName() {
-  const input = document.getElementById('welcome-name');
-  const name = input.value.trim();
-  if (!name) { input.focus(); return; }
-  if (name.length > 20) { alert('שם עד 20 תווים'); return; }
-  studentName = name;
-  localStorage.setItem('studentName', name);
-  document.getElementById('welcome-overlay').classList.add('hidden');
-  updateStudentNameDisplay();
-}
-function updateStudentNameDisplay() {
-  document.querySelectorAll('.student-name-text').forEach(el => el.textContent = studentName || '');
-}
-function changeStudent() { showWelcomeModal(); }
 function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
 
 // ============================================================
-// שליחת תרגול למורה
+// היסטוריה מקומית + שמירה אוטומטית לענן
 // ============================================================
-function submitSessionToTeacher(sessionType, trackOrLabel, sheetLabel, btnEl) {
-  if (!firebaseDb) { alert('אין חיבור לאינטרנט - לא ניתן לשלוח.'); return; }
-  if (!studentName) { showWelcomeModal(); return; }
+const HISTORY_MAX = 200;
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem('sessionHistory') || '[]'); }
+  catch (_) { return []; }
+}
+function appendHistory(entry) {
+  const hist = loadHistory();
+  hist.unshift(entry);
+  if (hist.length > HISTORY_MAX) hist.length = HISTORY_MAX;
+  try { localStorage.setItem('sessionHistory', JSON.stringify(hist)); }
+  catch (_) {}
+}
+
+function autoSaveSession(sessionType, trackOrLabel, sheetLabel) {
   const totalTime = basicsSessionLog.reduce((s, p) => s + (p.timeMs || 0), 0);
   const avgTime = basicsSessionLog.length ? Math.round(totalTime / basicsSessionLog.length) : 0;
   const correctCount = basicsSessionLog.filter(p => p.correct).length;
@@ -1032,8 +998,7 @@ function submitSessionToTeacher(sessionType, trackOrLabel, sheetLabel, btnEl) {
     type: sessionType,
     track: trackOrLabel,
     sheet: sheetLabel,
-    timestamp: firebase.database.ServerValue.TIMESTAMP,
-    problems: basicsSessionLog,
+    problems: basicsSessionLog.slice(),
     summary: {
       correct: correctCount,
       total: basicsSessionLog.length,
@@ -1041,18 +1006,17 @@ function submitSessionToTeacher(sessionType, trackOrLabel, sheetLabel, btnEl) {
       totalTimeMs: totalTime
     }
   };
+  // שמור מקומית עם חותמת זמן מקומית
+  appendHistory({ ...submission, timestamp: Date.now() });
+  // ופרסם ל-Firebase עם חותמת שרת
+  if (!firebaseDb) return;
   try {
-    const ref = firebaseDb.ref('submissions').push(submission);
-    basicsLastSubmissionRef = ref.key;
-    if (btnEl) {
-      btnEl.disabled = true;
-      btnEl.innerHTML = '✓ נשלח למורה';
-      btnEl.classList.remove('btn-primary');
-      btnEl.classList.add('btn-success');
-    }
+    firebaseDb.ref('submissions').push({
+      ...submission,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
   } catch (e) {
-    console.warn('submit failed', e);
-    alert('שגיאה בשליחה. נסה שוב בעוד רגע.');
+    console.warn('auto-save to Firebase failed', e);
   }
 }
 
@@ -1080,7 +1044,6 @@ function buildDiagnostic() {
 }
 
 function startDiagnostic() {
-  if (!studentName) { showWelcomeModal(); return; }
   diagnosticQuestions = buildDiagnostic();
   diagnosticCurrent = 0;
   diagnosticCorrect = 0;
@@ -1149,6 +1112,7 @@ function finishDiagnostic() {
     unlockedSummary.push(`${labelName}: ${lvl === 0 ? sign + '1' : lvl === 10 ? 'הכול פתוח 🏆' : 'עד ' + sign + lvl + ' (השלב הנוכחי: ' + (lvl === 9 ? 'מעורב' : sign + (lvl + 1)) + ')'}`);
   });
   saveBasicsProgress();
+  autoSaveSession('diagnostic', 'mixed', 'בדיקת רמה');
   const total = diagnosticQuestions.length;
   const container = document.getElementById('diagnostic-session');
   container.innerHTML = `
@@ -1156,8 +1120,7 @@ function finishDiagnostic() {
       🎯 סיימת את בדיקת הרמה
       <span class="score">${diagnosticCorrect} / ${total}</span>
     </div>
-    <div class="submission-banner">פתחנו עבורך:<br>${unlockedSummary.map(s => '• ' + s).join('<br>')}</div>
-    <button class="btn btn-primary" onclick="submitSessionToTeacher('diagnostic', 'mixed', 'בדיקת רמה', this)">📤 שלח למורה</button>
+    <div class="submission-banner sent">פתחנו עבורך:<br>${unlockedSummary.map(s => '• ' + s).join('<br>')}<br><br>✓ נשמר בהיסטוריה ונשלח למורה</div>
     <button class="btn btn-secondary" onclick="exitDiagnostic()">חזרה לתפריט</button>
   `;
 }
@@ -1281,6 +1244,81 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
 
+// ============================================================
+// היסטוריה - מסך לתלמיד
+// ============================================================
+function showHistory() {
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('history-view').classList.remove('hidden');
+  document.getElementById('history-detail-container').innerHTML = '';
+  renderHistoryList();
+}
+function exitHistory() {
+  document.getElementById('history-view').classList.add('hidden');
+  document.getElementById('main-menu').classList.remove('hidden');
+}
+function renderHistoryList() {
+  const hist = loadHistory();
+  const container = document.getElementById('history-list');
+  if (!hist.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין תרגולים. תתחיל לתרגל ותרגיש את ההתקדמות שלך!</p>';
+    return;
+  }
+  container.innerHTML = hist.map((s, idx) => {
+    const sum = s.summary || {};
+    const pct = sum.total ? Math.round(100 * sum.correct / sum.total) : 0;
+    const scoreCls = pct >= 90 ? 'high' : pct >= 70 ? 'mid' : 'low';
+    const avg = sum.avgTimeMs ? (sum.avgTimeMs / 1000).toFixed(1) + ' שנ\'' : '';
+    const when = s.timestamp ? new Date(s.timestamp).toLocaleString('he-IL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '';
+    return `
+      <div class="teacher-row" onclick="showHistoryDetail(${idx})">
+        <div class="name">${escapeHtml(trackLabelHebrew(s.track))} · ${escapeHtml(s.sheet || '')}</div>
+        <div class="score ${scoreCls}">${sum.correct || 0}/${sum.total || 0}</div>
+        <div class="meta">⏱ ${avg}</div>
+        <div class="meta">${when}</div>
+      </div>
+    `;
+  }).join('');
+}
+function showHistoryDetail(idx) {
+  const hist = loadHistory();
+  const s = hist[idx];
+  if (!s) return;
+  const sum = s.summary || {};
+  const probs = s.problems || [];
+  const rows = probs.map((p, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td dir="ltr">${escapeHtml(p.question || '')}</td>
+      <td>${p.chosen ?? ''}</td>
+      <td>${p.expected ?? ''}</td>
+      <td class="${p.correct ? 'q-correct' : 'q-wrong'}">${p.correct ? '✓' : '✗'}</td>
+      <td>${p.timeMs ? (p.timeMs / 1000).toFixed(1) : ''} שנ'</td>
+    </tr>
+  `).join('');
+  const when = s.timestamp ? new Date(s.timestamp).toLocaleString('he-IL') : '';
+  const avg = sum.avgTimeMs ? (sum.avgTimeMs / 1000).toFixed(1) : '0';
+  const total = sum.totalTimeMs ? (sum.totalTimeMs / 1000).toFixed(0) : '0';
+  document.getElementById('history-detail-container').innerHTML = `
+    <div class="teacher-detail">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">${escapeHtml(trackLabelHebrew(s.track))} ${escapeHtml(s.sheet || '')}</h3>
+        <button class="btn btn-secondary" onclick="document.getElementById('history-detail-container').innerHTML=''">סגור</button>
+      </div>
+      <p style="color:#7f8c8d; font-size:0.9em; margin:4px 0;">${when}</p>
+      <div class="teacher-summary">
+        <div class="stat"><div class="stat-num">${sum.correct || 0}/${sum.total || 0}</div><div class="stat-lbl">נכונות</div></div>
+        <div class="stat"><div class="stat-num">${avg}</div><div class="stat-lbl">שניות לשאלה (ממוצע)</div></div>
+        <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">סה"כ שניות</div></div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>שאלה</th><th>תשובה</th><th>נכון</th><th></th><th>זמן</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 function sheetLabelFor(track, index) {
   if (index === 9) return 'מעורב';
   const sign = track === 'addition' ? '+' : track === 'subtraction' ? '−' : '×';
@@ -1288,7 +1326,6 @@ function sheetLabelFor(track, index) {
 }
 
 function openBasicsTrack(track) {
-  if (!studentName) { showWelcomeModal(); return; }
   basicsTrack = track;
   document.getElementById('main-menu').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.remove('hidden');
@@ -1460,17 +1497,17 @@ function finishBasicsSheet() {
         ? (basicsSheetIndex < 9 ? '🎉 שלט בשלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
         : '✓ עברת. אפשר להמשיך לשלב הבא או לתרגל שוב.')
     : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
+  autoSaveSession('sheet', basicsTrack, sheetLabelFor(basicsTrack, basicsSheetIndex));
   const videoBtn = passed ? '' :
     `<button class="btn btn-info video-help-btn" onclick="openVideoSearch()">🎥 הסבר בווידאו</button>`;
-  const submitBtn = `<button class="btn btn-primary" onclick="submitSessionToTeacher('sheet', basicsTrack, sheetLabelFor(basicsTrack, basicsSheetIndex), this)">📤 שלח למורה</button>`;
   container.innerHTML = `
     <div class="basics-result ${cls}">
       ${headline}
       <span class="score">${basicsCorrect} / ${BASICS_SHEET_SIZE}</span>
     </div>
+    <div class="submission-banner sent">✓ נשמר בהיסטוריה ונשלח למורה</div>
     ${videoBtn}
-    ${submitBtn}
-    <button class="btn btn-secondary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב</button>
+    <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב</button>
     <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
   `;
 }
@@ -2852,10 +2889,6 @@ function initNotebook() {
   if (TEACHER_MODE) {
     initTeacherMode();
     return;
-  }
-  updateStudentNameDisplay();
-  if (!studentName) {
-    setTimeout(showWelcomeModal, 50);
   }
 })();
 </script>
