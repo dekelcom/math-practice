@@ -180,6 +180,18 @@
     color: white;
   }
   .btn-secondary:hover { background: #7f8c8d; }
+  .btn-info {
+    background: #c0392b;
+    color: white;
+  }
+  .btn-info:hover { background: #a93226; }
+  .video-help-btn {
+    animation: video-pulse 1.6s ease-in-out 2;
+  }
+  @keyframes video-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(192, 57, 43, 0); }
+  }
 
   .feedback {
     padding: 15px;
@@ -446,6 +458,137 @@
     .problem-text { font-size: 1.05em; }
     .notebook-canvas { height: 320px; }
   }
+
+  .section-title {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 1.15em;
+    font-weight: 700;
+    margin: 24px 0 10px;
+    padding-top: 16px;
+    border-top: 2px dashed #e1e4e8;
+  }
+  .section-title:first-child { border-top: none; padding-top: 0; }
+  .basics-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .basics-track-card {
+    color: white;
+    padding: 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.05em;
+    font-weight: 600;
+    border: none;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .basics-track-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+  .basics-track-card.addition { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+  .basics-track-card.subtraction { background: linear-gradient(135deg, #ff5858 0%, #f09819 100%); }
+
+  .ladder {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .ladder-cell {
+    padding: 18px 8px;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.2em;
+    border: 2px solid #3498db;
+    background: white;
+    color: #3498db;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .ladder-cell:hover:not(.locked) { background: #ecf6fc; transform: translateY(-2px); }
+  .ladder-cell.mastered {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+  }
+  .ladder-cell.current {
+    border-color: #f39c12;
+    background: #fff8e1;
+    color: #b8860b;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.3);
+  }
+  .ladder-cell.locked {
+    background: #f1f3f5;
+    border-color: #d1d5da;
+    color: #95a5a6;
+    cursor: not-allowed;
+  }
+  .ladder-cell small { display: block; font-size: 0.65em; font-weight: 500; opacity: 0.8; margin-top: 4px; }
+
+  .basics-session {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .basics-progress {
+    color: #7f8c8d;
+    font-size: 1em;
+    margin-bottom: 16px;
+  }
+  .basics-equation {
+    font-size: 3em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 16px 0;
+    font-family: "Cambria Math", serif;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  .basics-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 520px;
+    margin: 20px auto 0;
+  }
+  .basics-option {
+    font-size: 2em;
+    font-weight: 700;
+    padding: 16px 10px;
+    min-height: 70px;
+    border: 2px solid #3498db;
+    background: white;
+    color: #3498db;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.12s, background 0.12s, color 0.12s;
+  }
+  .basics-option:hover:not(:disabled) { background: #ecf6fc; transform: translateY(-2px); }
+  .basics-option:disabled { cursor: not-allowed; }
+  .basics-option.correct { background: #28a745; color: white; border-color: #1e7e34; }
+  .basics-option.incorrect { background: #dc3545; color: white; border-color: #bd2130; }
+  @media (max-width: 600px) {
+    .basics-options { grid-template-columns: repeat(2, 1fr); }
+  }
+  .basics-result {
+    font-size: 1.3em;
+    margin: 20px 0;
+    color: #2c3e50;
+  }
+  .basics-result .score {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #3498db;
+    display: block;
+    margin: 10px 0;
+  }
+  .basics-result.passed .score { color: #28a745; }
+  .basics-result.failed .score { color: #dc3545; }
 </style>
 </head>
 <body>
@@ -453,7 +596,21 @@
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
   <div id="main-menu">
-    <p style="text-align:center; font-size:1.1em; color:#7f8c8d;">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
+    <div class="section-title">🌱 יסודות - חיבור וחיסור</div>
+    <p style="text-align:center; font-size:0.95em; color:#7f8c8d;">בונים שליטה צעד-צעד. כל שלב נפתח כשמשיגים 9 נכון מתוך 10.</p>
+    <div class="basics-menu">
+      <button class="basics-track-card addition" onclick="openBasicsTrack('addition')">
+        ➕ חיבור<br>
+        <small style="opacity:0.9">+1, +2, +3... עד מעורב</small>
+      </button>
+      <button class="basics-track-card subtraction" onclick="openBasicsTrack('subtraction')">
+        ➖ חיסור<br>
+        <small style="opacity:0.9">-1, -2, -3... עד מעורב</small>
+      </button>
+    </div>
+
+    <div class="section-title">📚 נושאי הבגרות</div>
+    <p style="text-align:center; font-size:0.95em; color:#7f8c8d;">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
     <div class="topics-menu">
       <button class="topic-card topic-5" onclick="openTopic(5)">
         📉 משוואת קו ישר<br>
@@ -496,6 +653,19 @@
       </div>
     </div>
     <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
+  </div>
+
+  <div id="basics-ladder-view" class="hidden">
+    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+    <h2 id="basics-ladder-title" style="text-align:center;"></h2>
+    <p style="text-align:center; color:#7f8c8d;">לחץ על שלב שנפתח. השלב הבא נפתח לאחר 9/10 נכון בשלב הנוכחי.</p>
+    <div id="basics-ladder" class="ladder"></div>
+  </div>
+
+  <div id="basics-session-view" class="hidden">
+    <button class="back-btn" onclick="exitBasicsSession()">← חזרה לסולם</button>
+    <h2 id="basics-session-title" style="text-align:center;"></h2>
+    <div id="basics-session" class="basics-session"></div>
   </div>
 
   <div id="topic-view" class="hidden">
@@ -575,9 +745,58 @@ let currentLevel = 1;
 let levelCorrectInRow = 0;
 let helpUsedForProblem = false;
 let hintLevel = 0;
+let wrongAttemptsForProblem = 0;
 const CORRECT_TO_UNLOCK = 3; // כמה צריך להצליח כדי לפתוח רמה
+const STRUGGLE_THRESHOLD = 2; // אחרי כמה תשובות שגויות באותו תרגיל מופיע כפתור וידאו
 
 function markHelpUsed() { helpUsedForProblem = true; }
+
+// ============================================================
+// וידאו - חיפוש דינמי ב-YouTube כשהתלמיד מתקשה
+// ============================================================
+function videoSearchQuery() {
+  if (basicsTrack) {
+    return basicsTrack === 'addition' ? 'חיבור בסיסי הסבר לתלמידים' : 'חיסור בסיסי הסבר לתלמידים';
+  }
+  if (currentTopic === 1) return 'פתרון משוואה ריבועית נוסחת השורשים הסבר';
+  if (currentTopic === 2) return 'חקירת פונקציה ריבועית קודקוד הסבר';
+  if (currentTopic === 3) {
+    const p = currentProblem;
+    if (p && p.type) {
+      if (p.type.includes('angles')) return 'זוויות בטרפז הסבר';
+      if (p.type.includes('perimeter')) return 'היקף טרפז הסבר';
+      if (p.type.includes('find-h') || p.type === 'right-trapezoid' || p.type === 'full-isoceles')
+        return 'טרפז משפט פיתגורס הסבר';
+      if (p.type.includes('area')) return 'שטח טרפז הסבר';
+    }
+    return 'טרפז גיאומטריה הסבר';
+  }
+  if (currentTopic === 4) {
+    const p = currentProblem;
+    if (p && p.kind === 'linear-value') return 'קריאת גרף פונקציה ליניארית הסבר';
+    return 'קריאת גרף פונקציה ריבועית הסבר';
+  }
+  if (currentTopic === 5) return 'משוואת קו ישר שיפוע ונקודת חיתוך הסבר';
+  return 'מתמטיקה כיתה ט הסבר';
+}
+
+function openVideoSearch(query) {
+  const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query || videoSearchQuery());
+  window.open(url, '_blank', 'noopener');
+}
+
+function showVideoButtonInAnswerSection() {
+  const section = document.querySelector('.answer-section');
+  if (!section || section.querySelector('.video-help-btn')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-info video-help-btn';
+  btn.innerHTML = '🎥 הסבר בווידאו';
+  btn.onclick = () => openVideoSearch();
+  const fb = section.querySelector('#feedback');
+  if (fb) section.insertBefore(btn, fb);
+  else section.appendChild(btn);
+}
 
 // רמז מדורג - כמו מורה שמסביר שלב-שלב, בלי לחשוף את התשובה
 function renderStagedHint(stages) {
@@ -592,6 +811,7 @@ function renderStagedHint(stages) {
     html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">עוד לא הבנת? לחץ שוב על "רמז" ואני אסביר עוד צעד.</div>`;
   } else {
     html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">נסה עכשיו לפתור לבד - אתה יכול!</div>`;
+    showVideoButtonInAnswerSection();
   }
   fb.innerHTML = html;
 }
@@ -610,7 +830,202 @@ function openTopic(topicNum) {
 function backToMenu() {
   document.getElementById('main-menu').classList.remove('hidden');
   document.getElementById('topic-view').classList.add('hidden');
+  document.getElementById('basics-ladder-view').classList.add('hidden');
+  document.getElementById('basics-session-view').classList.add('hidden');
   currentTopic = null;
+}
+
+// ============================================================
+// יסודות - חיבור וחיסור (Kumon-style)
+// ============================================================
+const BASICS_SHEET_SIZE = 10;
+const BASICS_PASS_THRESHOLD = 9;
+const BASICS_TRACKS = {
+  addition: { title: '➕ יסודות - חיבור', op: '+' },
+  subtraction: { title: '➖ יסודות - חיסור', op: '−' }
+};
+
+let basicsProgress = JSON.parse(localStorage.getItem('basicsProgress') || '{"addition":0,"subtraction":0}');
+let basicsTrack = null;
+let basicsSheetIndex = 0;
+let basicsProblems = [];
+let basicsCurrent = 0;
+let basicsCorrect = 0;
+
+function saveBasicsProgress() {
+  localStorage.setItem('basicsProgress', JSON.stringify(basicsProgress));
+}
+
+function sheetLabelFor(track, index) {
+  if (index === 9) return 'מעורב';
+  return (track === 'addition' ? '+' : '−') + (index + 1);
+}
+
+function openBasicsTrack(track) {
+  basicsTrack = track;
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('basics-ladder-view').classList.remove('hidden');
+  document.getElementById('basics-ladder-title').textContent = BASICS_TRACKS[track].title;
+  renderBasicsLadder();
+}
+
+function renderBasicsLadder() {
+  const unlocked = basicsProgress[basicsTrack] || 0;
+  const ladder = document.getElementById('basics-ladder');
+  let html = '';
+  for (let i = 0; i < 10; i++) {
+    let cls = 'ladder-cell';
+    let onclick = `openBasicsSheet(${i})`;
+    if (i < unlocked) cls += ' mastered';
+    else if (i === unlocked) cls += ' current';
+    else { cls += ' locked'; onclick = ''; }
+    const label = sheetLabelFor(basicsTrack, i);
+    const sub = i < unlocked ? '✓ שלט' : (i === unlocked ? 'תור שלך' : '🔒');
+    html += `<button type="button" class="${cls}" ${onclick ? `onclick="${onclick}"` : ''}>${label}<small>${sub}</small></button>`;
+  }
+  ladder.innerHTML = html;
+}
+
+function genBasicsOptions(answer, a, b, track) {
+  const opts = new Set([answer]);
+  const candidates = [answer + 1, answer - 1, answer + 2, answer - 2];
+  if (track === 'addition') candidates.push(Math.abs(a - b));
+  else candidates.push(a + b);
+  candidates.sort(() => Math.random() - 0.5);
+  for (const c of candidates) {
+    if (opts.size >= 4) break;
+    if (c < 0) continue;
+    opts.add(c);
+  }
+  let pad = 0;
+  while (opts.size < 4 && pad++ < 50) {
+    const v = answer + (Math.floor(Math.random() * 9) - 4);
+    if (v >= 0) opts.add(v);
+  }
+  return [...opts].sort(() => Math.random() - 0.5);
+}
+
+function genBasicsProblems(track, sheetIndex) {
+  const problems = [];
+  const used = new Set();
+  let safety = 0;
+  while (problems.length < BASICS_SHEET_SIZE && safety++ < 500) {
+    let a, b;
+    if (track === 'addition') {
+      if (sheetIndex < 9) {
+        const n = sheetIndex + 1;
+        const x = Math.floor(Math.random() * 10);
+        if (Math.random() < 0.5) { a = x; b = n; } else { a = n; b = x; }
+      } else {
+        a = Math.floor(Math.random() * 10);
+        b = Math.floor(Math.random() * 10);
+      }
+    } else {
+      if (sheetIndex < 9) {
+        const n = sheetIndex + 1;
+        const x = n + Math.floor(Math.random() * (19 - n));
+        a = x; b = n;
+      } else {
+        a = Math.floor(Math.random() * 19) + 1;
+        b = Math.floor(Math.random() * (a + 1));
+      }
+    }
+    const key = `${a}|${b}`;
+    if (used.has(key)) continue;
+    used.add(key);
+    const answer = track === 'addition' ? a + b : a - b;
+    const options = genBasicsOptions(answer, a, b, track);
+    problems.push({ a, b, op: BASICS_TRACKS[track].op, answer, options });
+  }
+  return problems;
+}
+
+function openBasicsSheet(index) {
+  const unlocked = basicsProgress[basicsTrack] || 0;
+  if (index > unlocked) return;
+  basicsSheetIndex = index;
+  basicsProblems = genBasicsProblems(basicsTrack, index);
+  basicsCurrent = 0;
+  basicsCorrect = 0;
+  document.getElementById('basics-ladder-view').classList.add('hidden');
+  document.getElementById('basics-session-view').classList.remove('hidden');
+  document.getElementById('basics-session-title').textContent =
+    `${BASICS_TRACKS[basicsTrack].title} · שלב ${sheetLabelFor(basicsTrack, index)}`;
+  renderBasicsProblem();
+}
+
+function renderBasicsProblem() {
+  const p = basicsProblems[basicsCurrent];
+  const container = document.getElementById('basics-session');
+  const optionsHtml = p.options.map(v =>
+    `<button type="button" class="basics-option" data-val="${v}" onclick="checkBasicsAnswer(${v}, this)">${v}</button>`
+  ).join('');
+  container.innerHTML = `
+    <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
+    <div class="basics-equation">${p.a} ${p.op} ${p.b} = ?</div>
+    <div class="basics-options">${optionsHtml}</div>
+  `;
+}
+
+function checkBasicsAnswer(value, btnEl) {
+  const p = basicsProblems[basicsCurrent];
+  const correct = value === p.answer;
+  const allBtns = document.querySelectorAll('.basics-option');
+  allBtns.forEach(b => b.disabled = true);
+  if (correct) {
+    basicsCorrect++;
+    btnEl.classList.add('correct');
+  } else {
+    btnEl.classList.add('incorrect');
+    allBtns.forEach(b => {
+      if (parseInt(b.dataset.val, 10) === p.answer) b.classList.add('correct');
+    });
+  }
+  setTimeout(() => {
+    basicsCurrent++;
+    if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
+    else renderBasicsProblem();
+  }, correct ? 500 : 1300);
+}
+
+function finishBasicsSheet() {
+  const passed = basicsCorrect >= BASICS_PASS_THRESHOLD;
+  const wasUnlockSheet = basicsSheetIndex === (basicsProgress[basicsTrack] || 0);
+  let unlocked = false;
+  if (passed && wasUnlockSheet && basicsSheetIndex < 9) {
+    basicsProgress[basicsTrack] = basicsSheetIndex + 1;
+    saveBasicsProgress();
+    unlocked = true;
+  } else if (passed && wasUnlockSheet && basicsSheetIndex === 9) {
+    // mark mixed as mastered too
+    basicsProgress[basicsTrack] = 10;
+    saveBasicsProgress();
+    unlocked = true;
+  }
+  const container = document.getElementById('basics-session');
+  const cls = passed ? 'passed' : 'failed';
+  const headline = passed
+    ? (unlocked
+        ? (basicsSheetIndex < 9 ? '🎉 שלט בשלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
+        : '✓ עברת. אפשר להמשיך לשלב הבא או לתרגל שוב.')
+    : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
+  const videoBtn = passed ? '' :
+    `<button class="btn btn-info video-help-btn" onclick="openVideoSearch()">🎥 הסבר בווידאו</button>`;
+  container.innerHTML = `
+    <div class="basics-result ${cls}">
+      ${headline}
+      <span class="score">${basicsCorrect} / ${BASICS_SHEET_SIZE}</span>
+    </div>
+    ${videoBtn}
+    <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב</button>
+    <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
+  `;
+}
+
+function exitBasicsSession() {
+  document.getElementById('basics-session-view').classList.add('hidden');
+  document.getElementById('basics-ladder-view').classList.remove('hidden');
+  renderBasicsLadder();
 }
 
 function renderLevelSelector() {
@@ -672,6 +1087,8 @@ function recordAnswer(correct) {
   } else {
     stats.streak = 0;
     levelCorrectInRow = 0;
+    wrongAttemptsForProblem++;
+    if (wrongAttemptsForProblem >= STRUGGLE_THRESHOLD) showVideoButtonInAnswerSection();
   }
   saveStats();
   updateLevelProgress();
@@ -1831,6 +2248,7 @@ const TOPICS = {
 function newProblem() {
   helpUsedForProblem = false;
   hintLevel = 0;
+  wrongAttemptsForProblem = 0;
   TOPICS[currentTopic].render();
   initNotebook();
 }
