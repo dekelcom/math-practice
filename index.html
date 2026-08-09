@@ -495,6 +495,7 @@
   .basics-track-card.negatives { background: linear-gradient(135deg, #232526 0%, #414345 100%); }
   .basics-track-card.orderops { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #2c3e50; }
   .basics-track-card.fractions { background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); color: #2c3e50; }
+  .basics-track-card.additionBreakApart { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
   .basics-track-card.multiAdd { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
   .basics-track-card.multiSub { background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%); }
   .basics-track-card.longMul { background: linear-gradient(135deg, #5614b0 0%, #dbd65c 100%); }
@@ -599,6 +600,74 @@
     .basics-options { grid-template-columns: repeat(2, 1fr); }
   }
 
+  /* חיבור עם פירוק (break-apart) */
+  .ba-container { max-width: 480px; margin: 0 auto; text-align: center; }
+  .ba-headline {
+    font-size: 2.4em; font-weight: 700; color: #2c3e50; margin: 10px 0 6px;
+    font-family: "Cambria Math", serif; direction: ltr; unicode-bidi: isolate;
+  }
+  .ba-decompose {
+    display: flex; justify-content: center; gap: 10px; margin: 12px 0 18px; flex-wrap: wrap;
+  }
+  .ba-decompose-box {
+    background: #f0f7ff; border: 2px solid #b8daff; border-radius: 10px;
+    padding: 8px 14px; font-size: 1.15em; color: #2c3e50;
+    font-family: "Cambria Math", serif; direction: ltr; unicode-bidi: isolate;
+  }
+  .ba-step {
+    background: #fafbfc; border: 2px solid #e1e4e8; border-radius: 12px;
+    padding: 12px 10px; margin: 10px 0;
+    opacity: 0.45; transition: opacity 0.25s, border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+  .ba-step.active {
+    opacity: 1; border-color: #3498db; background: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+  }
+  .ba-step.done { opacity: 1; border-color: #28a745; background: #f5fff8; }
+  .ba-step-title { font-size: 0.9em; color: #7f8c8d; font-weight: 600; margin-bottom: 6px; }
+  .ba-step.active .ba-step-title { color: #3498db; }
+  .ba-step.done .ba-step-title { color: #28a745; }
+  .ba-step-eq {
+    font-size: 1.6em; font-weight: 700; color: #2c3e50;
+    direction: ltr; unicode-bidi: isolate; font-family: "Cambria Math", serif;
+    display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
+  }
+  .ba-input {
+    display: inline-block; min-width: 62px; padding: 4px 10px;
+    border: 2px dashed #b1b8bf; border-radius: 8px; background: #fafbfc;
+    color: #2c3e50; text-align: center; font: inherit;
+  }
+  .ba-step.active .ba-input { border-color: #3498db; background: #eaf3fb; }
+  .ba-input.shake { animation: ba-shake 0.35s; border-color: #dc3545; background: #fff5f5; color: #dc3545; }
+  .ba-input.solved { border-style: solid; border-color: #28a745; background: #eafcf1; color: #28a745; }
+  .ba-input.revealed { border-style: solid; border-color: #f39c12; background: #fff8e6; color: #b8860b; }
+  @keyframes ba-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .ba-hint {
+    color: #856404; font-size: 0.95em; background: #fff8e6; border-radius: 8px;
+    padding: 8px 10px; margin-top: 8px; display: none;
+  }
+  .ba-hint.show { display: block; }
+  .ba-keypad {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+    max-width: 400px; margin: 16px auto 0;
+  }
+  .ba-key {
+    font-size: 1.4em; font-weight: 700; padding: 14px 0;
+    border: 2px solid #3498db; background: white; color: #3498db;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    transition: background 0.1s, transform 0.05s;
+  }
+  .ba-key:hover:not(:disabled) { background: #ecf6fc; }
+  .ba-key:active:not(:disabled) { transform: scale(0.95); }
+  .ba-key:disabled { opacity: 0.4; cursor: not-allowed; }
+  .ba-key.submit { background: #28a745; color: white; border-color: #1e7e34; }
+  .ba-key.submit:hover:not(:disabled) { background: #218838; }
+  .ba-key.backspace { color: #dc3545; border-color: #dc3545; }
+
   .submission-banner {
     background: #fff3cd; color: #856404; padding: 12px 14px; border-radius: 8px;
     margin: 14px 0; text-align: center; font-weight: 600;
@@ -697,6 +766,7 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
 
     <div class="section-title">🔢 חישוב מורכב</div>
     <div class="basics-menu">
+      <button class="basics-track-card additionBreakApart" onclick="openBasicsTrack('additionBreakApart')">🧩 חיבור עם פירוק<br><small style="opacity:0.9">שיטת "פרק וחבר" · דו-ספרתי</small></button>
       <button class="basics-track-card multiAdd" onclick="openBasicsTrack('multiAdd')">🔢 חיבור רב-ספרתי<br><small style="opacity:0.9">עם נשיאה</small></button>
       <button class="basics-track-card multiSub" onclick="openBasicsTrack('multiSub')">🔢 חיסור רב-ספרתי<br><small style="opacity:0.9">עם שאילה</small></button>
       <button class="basics-track-card longMul" onclick="openBasicsTrack('longMul')">✖ כפל ארוך<br><small style="opacity:0.9">2 ספרות × 2 ספרות</small></button>
@@ -988,6 +1058,7 @@ const BASICS_TRACKS = {
   subtraction: { title: '➖ יסודות - חיסור', op: '−' },
   multiplication: { title: '✕ יסודות - כפל', op: '×' },
   division: { title: '➗ יסודות - חילוק', op: '÷' },
+  additionBreakApart: { title: '🧩 חיבור עם פירוק (דו-ספרתי)' },
   multiAdd: { title: '🔢 חיבור רב-ספרתי' },
   multiSub: { title: '🔢 חיסור רב-ספרתי' },
   longMul: { title: '✖ כפל ארוך' },
@@ -1388,6 +1459,9 @@ function sheetLabelFor(track, index) {
     fractions: ['שברים שווי-ערך 1', 'שברים שווי-ערך 2', 'צמצום 1', 'צמצום 2',
                 'חיבור (מכנה שווה)', 'חיסור (מכנה שווה)', 'השוואת שברים',
                 'חיבור שונה 1', 'חיבור שונה 2', 'מעורב'],
+    additionBreakApart: ['ללא נשיאה 1', 'ללא נשיאה 2', 'ללא נשיאה 3',
+                         'קל + מעט נשיאה', 'מעורב 1', 'מעורב 2', 'מעורב 3',
+                         'עם נשיאה 1', 'עם נשיאה 2', 'מעורב'],
     multiAdd: ['2ספ + 1ספ', '2ספ + 2ספ קל', '2ספ + 2ספ עם נשיאה',
                '3ספ + 2ספ', '3ספ + 3ספ', '3ספ + 3ספ עם נשיאה',
                '4ספ + 3ספ', '4ספ + 4ספ', '4ספ + 4ספ עם נשיאה', 'מעורב'],
@@ -1719,6 +1793,27 @@ function genStringOptions(answer, distractors) {
     }
   }
   return [...opts].slice(0, 4).sort(() => Math.random() - 0.5);
+}
+
+// --- חיבור עם פירוק (partial sums / break-apart) ---
+function genBreakApartAddProblem(sheetIdx) {
+  const wantCarry = sheetIdx >= 7 ? true : sheetIdx >= 3 ? Math.random() < (sheetIdx - 2) / 5 : false;
+  const [aHi, bHi] = sheetIdx < 3 ? [49, 39] : sheetIdx < 7 ? [79, 69] : [99, 99];
+  let a, b, safety = 0;
+  do {
+    a = pickInt(10, aHi);
+    b = pickInt(10, bHi);
+    safety++;
+  } while (safety < 30 && ((a % 10) + (b % 10) >= 10) !== wantCarry);
+  const tensA = Math.floor(a / 10) * 10;
+  const onesA = a % 10;
+  const tensB = Math.floor(b / 10) * 10;
+  const onesB = b % 10;
+  return {
+    a, b, tensA, onesA, tensB, onesB,
+    tensSum: tensA + tensB, onesSum: onesA + onesB, answer: a + b,
+    displayQ: `${a} + ${b}`, breakApart: true
+  };
 }
 
 // --- חיבור רב-ספרתי ---
@@ -2115,6 +2210,7 @@ function genSimultaneousProblem(s) {
 function genBasicsProblems(track, sheetIndex) {
   const customGens = {
     negatives: genNegativesProblem, orderops: genOrderOpsProblem, fractions: genFractionsProblem,
+    additionBreakApart: genBreakApartAddProblem,
     multiAdd: genMultiAddProblem, multiSub: genMultiSubProblem,
     longMul: genLongMulProblem, longDiv: genLongDivProblem,
     fractionsAdv: genFractionsAdvProblem, decimals: genDecimalsProblem,
@@ -2203,6 +2299,7 @@ function renderOptionDisplay(v) {
 }
 function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
+  if (p && p.breakApart) { renderBreakApartProblem(); return; }
   const container = document.getElementById('basics-session');
   const optionsHtml = p.options.map(v =>
     `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="checkBasicsAnswer(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
@@ -2241,6 +2338,157 @@ function checkBasicsAnswer(value, btnEl) {
     if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
     else renderBasicsProblem();
   }, correct ? 500 : 1400);
+}
+
+// ============================================================
+// חיבור עם פירוק - אינטראקציה שלב-אחר-שלב
+// ============================================================
+let baStepIdx = 0;
+let baMistakes = [0, 0, 0];
+let baHelpUsed = false;
+let baInputBuffer = '';
+let baLocked = false;
+
+function renderBreakApartProblem() {
+  const p = basicsProblems[basicsCurrent];
+  baStepIdx = 0;
+  baMistakes = [0, 0, 0];
+  baHelpUsed = false;
+  baInputBuffer = '';
+  baLocked = false;
+  const container = document.getElementById('basics-session');
+  container.innerHTML = `
+    <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
+    <div class="ba-container">
+      <div class="ba-headline">${p.a} + ${p.b} = ?</div>
+      <div class="ba-decompose">
+        <div class="ba-decompose-box">${p.a} = ${p.tensA} + ${p.onesA}</div>
+        <div class="ba-decompose-box">${p.b} = ${p.tensB} + ${p.onesB}</div>
+      </div>
+      <div class="ba-step active" id="ba-step-0">
+        <div class="ba-step-title">1️⃣ עשרות</div>
+        <div class="ba-step-eq"><span>${p.tensA} + ${p.tensB} =</span><span class="ba-input" id="ba-in-0">▢</span></div>
+        <div class="ba-hint" id="ba-hint-0">כמה עשרות ב-${p.tensA}? כמה ב-${p.tensB}? חבר אותן.</div>
+      </div>
+      <div class="ba-step" id="ba-step-1">
+        <div class="ba-step-title">2️⃣ יחידות</div>
+        <div class="ba-step-eq"><span>${p.onesA} + ${p.onesB} =</span><span class="ba-input" id="ba-in-1">▢</span></div>
+        <div class="ba-hint" id="ba-hint-1">חיבור פשוט של יחידות. מותר להיעזר באצבעות!</div>
+      </div>
+      <div class="ba-step" id="ba-step-2">
+        <div class="ba-step-title">3️⃣ הרכבה</div>
+        <div class="ba-step-eq"><span id="ba-tsum">▢</span><span>+</span><span id="ba-osum">▢</span><span>=</span><span class="ba-input" id="ba-in-2">▢</span></div>
+        <div class="ba-hint" id="ba-hint-2">חבר את שני המספרים שקיבלת בשלבים הקודמים.</div>
+      </div>
+      <div class="ba-keypad" id="ba-keypad">
+        <button class="ba-key" onclick="baKey('1')">1</button>
+        <button class="ba-key" onclick="baKey('2')">2</button>
+        <button class="ba-key" onclick="baKey('3')">3</button>
+        <button class="ba-key" onclick="baKey('4')">4</button>
+        <button class="ba-key" onclick="baKey('5')">5</button>
+        <button class="ba-key" onclick="baKey('6')">6</button>
+        <button class="ba-key" onclick="baKey('7')">7</button>
+        <button class="ba-key" onclick="baKey('8')">8</button>
+        <button class="ba-key" onclick="baKey('9')">9</button>
+        <button class="ba-key" onclick="baKey('0')">0</button>
+        <button class="ba-key backspace" onclick="baBackspace()" style="grid-column: span 2;">⌫</button>
+        <button class="ba-key submit" onclick="baSubmit()" style="grid-column: span 3;">✓ בדוק</button>
+      </div>
+    </div>
+  `;
+  basicsProblemStart = Date.now();
+}
+
+function baKey(d) {
+  if (baLocked) return;
+  if (baInputBuffer.length >= 3) return;
+  baInputBuffer += d;
+  baRenderInput();
+}
+function baBackspace() {
+  if (baLocked) return;
+  baInputBuffer = baInputBuffer.slice(0, -1);
+  baRenderInput();
+}
+function baRenderInput() {
+  const el = document.getElementById('ba-in-' + baStepIdx);
+  if (el) el.textContent = baInputBuffer || '▢';
+}
+function baSubmit() {
+  if (baLocked || baInputBuffer === '') return;
+  const p = basicsProblems[basicsCurrent];
+  const expected = [p.tensSum, p.onesSum, p.answer][baStepIdx];
+  const val = parseInt(baInputBuffer, 10);
+  const stepEl = document.getElementById('ba-step-' + baStepIdx);
+  const inEl = document.getElementById('ba-in-' + baStepIdx);
+  const hintEl = document.getElementById('ba-hint-' + baStepIdx);
+  if (val === expected) {
+    inEl.classList.add('solved');
+    stepEl.classList.remove('active');
+    stepEl.classList.add('done');
+    if (hintEl) hintEl.classList.remove('show');
+    baFillCarryOver(baStepIdx, val);
+    baAdvance();
+  } else {
+    baMistakes[baStepIdx]++;
+    if (baMistakes[baStepIdx] === 1) {
+      inEl.classList.add('shake');
+      setTimeout(() => inEl.classList.remove('shake'), 400);
+      if (hintEl) hintEl.classList.add('show');
+      baInputBuffer = '';
+      baRenderInput();
+    } else {
+      baHelpUsed = true;
+      baInputBuffer = String(expected);
+      baRenderInput();
+      inEl.classList.remove('shake');
+      inEl.classList.add('revealed');
+      stepEl.classList.remove('active');
+      stepEl.classList.add('done');
+      if (hintEl) hintEl.classList.remove('show');
+      baFillCarryOver(baStepIdx, expected);
+      baLocked = true;
+      setTimeout(() => { baLocked = false; baAdvance(); }, 900);
+    }
+  }
+}
+function baFillCarryOver(stepIdx, value) {
+  if (stepIdx === 0) {
+    const t = document.getElementById('ba-tsum');
+    if (t) t.textContent = value;
+  } else if (stepIdx === 1) {
+    const o = document.getElementById('ba-osum');
+    if (o) o.textContent = value;
+  }
+}
+function baAdvance() {
+  baStepIdx++;
+  baInputBuffer = '';
+  if (baStepIdx >= 3) { baFinishProblem(); return; }
+  const nextStepEl = document.getElementById('ba-step-' + baStepIdx);
+  if (nextStepEl) nextStepEl.classList.add('active');
+  baRenderInput();
+}
+function baFinishProblem() {
+  const p = basicsProblems[basicsCurrent];
+  const noMistakes = baMistakes.every(n => n === 0);
+  const timeMs = Date.now() - basicsProblemStart;
+  basicsSessionLog.push({
+    track: basicsTrack, sheetIdx: basicsSheetIndex,
+    question: p.displayQ,
+    chosen: baHelpUsed ? 'עם עזרה' : p.answer,
+    correct: noMistakes,
+    expected: p.answer,
+    timeMs
+  });
+  if (noMistakes) basicsCorrect++;
+  const keypad = document.getElementById('ba-keypad');
+  if (keypad) keypad.querySelectorAll('button').forEach(b => b.disabled = true);
+  setTimeout(() => {
+    basicsCurrent++;
+    if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
+    else renderBasicsProblem();
+  }, 700);
 }
 
 function finishBasicsSheet() {
