@@ -2613,6 +2613,11 @@ function renderSheetReview() {
     : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
   const videoBtn = basicsSheetPassed ? '' :
     `<button class="btn btn-info video-help-btn" onclick="openVideoSearch()">🎥 הסבר בווידאו</button>`;
+  const nextSheetIdx = basicsSheetIndex + 1;
+  const nextUnlocked = nextSheetIdx <= 9 && nextSheetIdx <= (basicsProgress[basicsTrack] || 0);
+  const nextBtn = basicsSheetPassed && nextUnlocked
+    ? `<button class="btn btn-success" onclick="openBasicsSheet(${nextSheetIdx})">→ לשלב הבא</button>`
+    : '';
   const rowsHtml = basicsSessionLog.map((p, i) => {
     const rowCls = p.correct ? '' : (p.retryOk ? 'row-fixed' : 'row-wrong');
     let statusCell;
@@ -2655,6 +2660,7 @@ function renderSheetReview() {
     <div class="review-actions">
       <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב את השלב</button>
       <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
+      ${nextBtn}
     </div>
   `;
 }
