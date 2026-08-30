@@ -652,8 +652,9 @@
   }
   .ba-hint.show { display: block; }
   .ba-keypad {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
-    max-width: 400px; margin: 16px auto 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    max-width: 260px; margin: 16px auto 0;
+    direction: ltr;
   }
   .ba-key {
     font-size: 1.4em; font-weight: 700; padding: 14px 0;
@@ -667,6 +668,7 @@
   .ba-key.submit { background: #28a745; color: white; border-color: #1e7e34; }
   .ba-key.submit:hover:not(:disabled) { background: #218838; }
   .ba-key.backspace { color: #dc3545; border-color: #dc3545; }
+  .ba-keyboard-hint { text-align: center; color: #95a5a6; font-size: 0.85em; margin: 8px 0 0; }
 
   .submission-banner {
     background: #fff3cd; color: #856404; padding: 12px 14px; border-radius: 8px;
@@ -2476,10 +2478,11 @@ function renderBreakApartProblem() {
         <button class="ba-key" onclick="baKey('7')">7</button>
         <button class="ba-key" onclick="baKey('8')">8</button>
         <button class="ba-key" onclick="baKey('9')">9</button>
+        <button class="ba-key backspace" onclick="baBackspace()">⌫</button>
         <button class="ba-key" onclick="baKey('0')">0</button>
-        <button class="ba-key backspace" onclick="baBackspace()" style="grid-column: span 2;">⌫</button>
-        <button class="ba-key submit" onclick="baSubmit()" style="grid-column: span 3;">✓ בדוק</button>
+        <button class="ba-key submit" onclick="baSubmit()">✓</button>
       </div>
+      <p class="ba-keyboard-hint">אפשר גם להקליד במקלדת ולאשר עם Enter</p>
     </div>
   `;
   basicsProblemStart = Date.now();
@@ -2500,6 +2503,15 @@ function baRenderInput() {
   const el = document.getElementById('ba-in-' + baStepIdx);
   if (el) el.textContent = baInputBuffer || '▢';
 }
+document.addEventListener('keydown', (e) => {
+  const keypad = document.getElementById('ba-keypad');
+  if (!keypad || keypad.querySelector('button:disabled')) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.key >= '0' && e.key <= '9') { e.preventDefault(); baKey(e.key); }
+  else if (e.key === 'Backspace') { e.preventDefault(); baBackspace(); }
+  else if (e.key === 'Enter') { e.preventDefault(); baSubmit(); }
+});
 function baSubmit() {
   if (baLocked || baInputBuffer === '') return;
   const p = basicsProblems[basicsCurrent];
