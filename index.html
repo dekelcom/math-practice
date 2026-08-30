@@ -727,6 +727,42 @@
   }
   .basics-result.passed .score { color: #28a745; }
   .basics-result.failed .score { color: #dc3545; }
+  .review-pct { font-size: 1.05em; color: #7f8c8d; margin-top: 4px; }
+
+  /* מסך סיכום סוף שלב */
+  .review-table-wrap { margin: 16px 0; overflow-x: auto; }
+  .review-table {
+    width: 100%; border-collapse: collapse; font-size: 0.95em;
+    background: white; border: 1px solid #e1e4e8; border-radius: 10px; overflow: hidden;
+  }
+  .review-table th {
+    background: #ecf0f1; color: #2c3e50; padding: 8px 10px;
+    text-align: right; font-weight: 700; border-bottom: 1px solid #d1d5da;
+  }
+  .review-table td {
+    padding: 8px 10px; border-bottom: 1px solid #eef1f4; vertical-align: middle;
+  }
+  .review-table tr:last-child td { border-bottom: none; }
+  .review-table .review-q {
+    font-family: "Cambria Math", serif; font-weight: 600; color: #2c3e50;
+  }
+  .review-table .q-correct { color: #28a745; font-weight: 700; }
+  .review-table .q-wrong { color: #dc3545; font-weight: 700; }
+  .review-table .row-wrong td { background: #fff5f5; }
+  .review-table .row-fixed td { background: #eafcf1; }
+  .review-fixed { color: #28a745; font-weight: 600; font-size: 0.9em; }
+  .btn.btn-sm { padding: 6px 12px; font-size: 0.88em; margin: 0; }
+  .review-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+  .retry-back-btn {
+    display: inline-block; background: #ecf0f1; color: #2c3e50; border: none;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-family: inherit;
+    font-size: 0.95em; margin-bottom: 14px;
+  }
+  .retry-back-btn:hover { background: #dfe6e9; }
+  @media (max-width: 600px) {
+    .review-table { font-size: 0.85em; }
+    .review-table th, .review-table td { padding: 6px 6px; }
+  }
 </style>
 </head>
 <body>
@@ -2317,22 +2353,26 @@ function checkBasicsAnswer(value, btnEl) {
   const p = basicsProblems[basicsCurrent];
   const correct = String(value) === String(p.answer);
   const timeMs = Date.now() - basicsProblemStart;
-  basicsSessionLog.push({
-    track: basicsTrack, sheetIdx: basicsSheetIndex,
-    question: p.displayQ || `${p.a} ${p.op} ${p.b}`,
-    chosen: value, correct, expected: p.answer, timeMs
-  });
   const allBtns = document.querySelectorAll('.basics-option');
   allBtns.forEach(b => b.disabled = true);
-  if (correct) {
-    basicsCorrect++;
-    btnEl.classList.add('correct');
-  } else {
+  if (correct) btnEl.classList.add('correct');
+  else {
     btnEl.classList.add('incorrect');
     allBtns.forEach(b => {
       if (b.dataset.val === String(p.answer)) b.classList.add('correct');
     });
   }
+  if (basicsRetryIdx !== null) {
+    if (correct) basicsSessionLog[basicsRetryIdx].retryOk = true;
+    setTimeout(() => { basicsRetryIdx = null; renderSheetReview(); }, correct ? 700 : 1400);
+    return;
+  }
+  basicsSessionLog.push({
+    track: basicsTrack, sheetIdx: basicsSheetIndex,
+    question: p.displayQ || `${p.a} ${p.op} ${p.b}`,
+    chosen: value, correct, expected: p.answer, timeMs
+  });
+  if (correct) basicsCorrect++;
   setTimeout(() => {
     basicsCurrent++;
     if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
@@ -2348,6 +2388,7 @@ let baMistakes = [0, 0, 0];
 let baHelpUsed = false;
 let baInputBuffer = '';
 let baLocked = false;
+let basicsRetryIdx = null;
 
 function renderBreakApartProblem() {
   const p = basicsProblems[basicsCurrent];
@@ -2472,6 +2513,13 @@ function baAdvance() {
 function baFinishProblem() {
   const p = basicsProblems[basicsCurrent];
   const noMistakes = baMistakes.every(n => n === 0);
+  const keypad = document.getElementById('ba-keypad');
+  if (keypad) keypad.querySelectorAll('button').forEach(b => b.disabled = true);
+  if (basicsRetryIdx !== null) {
+    if (noMistakes) basicsSessionLog[basicsRetryIdx].retryOk = true;
+    setTimeout(() => { basicsRetryIdx = null; renderSheetReview(); }, 700);
+    return;
+  }
   const timeMs = Date.now() - basicsProblemStart;
   basicsSessionLog.push({
     track: basicsTrack, sheetIdx: basicsSheetIndex,
@@ -2482,8 +2530,6 @@ function baFinishProblem() {
     timeMs
   });
   if (noMistakes) basicsCorrect++;
-  const keypad = document.getElementById('ba-keypad');
-  if (keypad) keypad.querySelectorAll('button').forEach(b => b.disabled = true);
   setTimeout(() => {
     basicsCurrent++;
     if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
@@ -2491,40 +2537,96 @@ function baFinishProblem() {
   }, 700);
 }
 
+let basicsSheetPassed = false;
+let basicsSheetUnlocked = false;
+
 function finishBasicsSheet() {
-  const passed = basicsCorrect >= BASICS_PASS_THRESHOLD;
+  basicsSheetPassed = basicsCorrect >= BASICS_PASS_THRESHOLD;
   const wasUnlockSheet = basicsSheetIndex === (basicsProgress[basicsTrack] || 0);
-  let unlocked = false;
-  if (passed && wasUnlockSheet && basicsSheetIndex < 9) {
+  basicsSheetUnlocked = false;
+  if (basicsSheetPassed && wasUnlockSheet && basicsSheetIndex < 9) {
     basicsProgress[basicsTrack] = basicsSheetIndex + 1;
     saveBasicsProgress();
-    unlocked = true;
-  } else if (passed && wasUnlockSheet && basicsSheetIndex === 9) {
-    // mark mixed as mastered too
+    basicsSheetUnlocked = true;
+  } else if (basicsSheetPassed && wasUnlockSheet && basicsSheetIndex === 9) {
     basicsProgress[basicsTrack] = 10;
     saveBasicsProgress();
-    unlocked = true;
+    basicsSheetUnlocked = true;
   }
+  autoSaveSession('sheet', basicsTrack, sheetLabelFor(basicsTrack, basicsSheetIndex));
+  renderSheetReview();
+}
+
+function renderSheetReview() {
   const container = document.getElementById('basics-session');
-  const cls = passed ? 'passed' : 'failed';
-  const headline = passed
-    ? (unlocked
+  const cls = basicsSheetPassed ? 'passed' : 'failed';
+  const pct = Math.round(100 * basicsCorrect / BASICS_SHEET_SIZE);
+  const headline = basicsSheetPassed
+    ? (basicsSheetUnlocked
         ? (basicsSheetIndex < 9 ? '🎉 שלט בשלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
         : '✓ עברת. אפשר להמשיך לשלב הבא או לתרגל שוב.')
     : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
-  autoSaveSession('sheet', basicsTrack, sheetLabelFor(basicsTrack, basicsSheetIndex));
-  const videoBtn = passed ? '' :
+  const videoBtn = basicsSheetPassed ? '' :
     `<button class="btn btn-info video-help-btn" onclick="openVideoSearch()">🎥 הסבר בווידאו</button>`;
+  const rowsHtml = basicsSessionLog.map((p, i) => {
+    const rowCls = p.correct ? '' : (p.retryOk ? 'row-fixed' : 'row-wrong');
+    let statusCell;
+    if (p.correct) {
+      statusCell = `<span class="q-correct">✓ ${escapeHtml(String(p.chosen ?? ''))}</span>`;
+    } else {
+      statusCell = `<span class="q-wrong">✗ ${escapeHtml(String(p.chosen ?? '—'))}</span>`;
+    }
+    let action = '';
+    if (!p.correct) {
+      action = p.retryOk
+        ? '<span class="review-fixed">✓ תוקן בניסיון נוסף</span>'
+        : `<button class="btn btn-primary btn-sm" onclick="retryProblemFromReview(${i})">🔁 נסה שוב</button>`;
+    }
+    return `
+      <tr class="${rowCls}">
+        <td>${i + 1}</td>
+        <td dir="ltr" class="review-q">${p.question || ''}</td>
+        <td>${statusCell}</td>
+        <td>${escapeHtml(String(p.expected ?? ''))}</td>
+        <td>${action}</td>
+      </tr>`;
+  }).join('');
   container.innerHTML = `
     <div class="basics-result ${cls}">
       ${headline}
       <span class="score">${basicsCorrect} / ${BASICS_SHEET_SIZE}</span>
+      <div class="review-pct">${pct}%</div>
     </div>
     <div class="submission-banner sent">✓ נשמר בהיסטוריה ונשלח למורה</div>
+    <div class="review-table-wrap">
+      <table class="review-table">
+        <thead>
+          <tr><th>#</th><th>שאלה</th><th>מה עניתי</th><th>נכון</th><th></th></tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
     ${videoBtn}
-    <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב</button>
-    <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
+    <div class="review-actions">
+      <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב את השלב</button>
+      <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
+    </div>
   `;
+}
+
+function retryProblemFromReview(idx) {
+  if (idx < 0 || idx >= basicsProblems.length) return;
+  if (basicsSessionLog[idx] && basicsSessionLog[idx].correct) return;
+  basicsRetryIdx = idx;
+  basicsCurrent = idx;
+  renderBasicsProblem();
+  const container = document.getElementById('basics-session');
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'retry-back-btn';
+  back.textContent = '← חזרה לסיכום';
+  back.onclick = () => { basicsRetryIdx = null; renderSheetReview(); };
+  container.insertBefore(back, container.firstChild);
 }
 
 function exitBasicsSession() {
