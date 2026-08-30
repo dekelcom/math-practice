@@ -965,9 +965,50 @@ function markHelpUsed() { helpUsedForProblem = true; }
 // ============================================================
 // וידאו - חיפוש דינמי ב-YouTube כשהתלמיד מתקשה
 // ============================================================
+// ערוץ Kraken Kumon (youtube.com/@krakenkumon): כיסינו את הערוץ במלואו (60 סרטונים) -
+// יש בו רק רמות E (שברים), F (שברים מתקדם/עשרוניים) ו-H (משוואות/אי-שוויונים/מערכות).
+// אין בו שום תוכן על חיבור/חיסור/כפל/חילוק בסיסיים - אלו ממשיכים לחיפוש הרגיל.
+// כל מערך מסודר מהקל לקשה (worksheet מספר נמוך -> גבוה), כך שלב קשה יותר = סרטון "מתקדם" יותר בערוץ.
+const KUMON_VIDEO_MAP = {
+  fractions: [ // רמת E - שברים: שקילות, צמצום, חיבור/חיסור
+    'MAuAjr0Hfos', 'yi66pNBQhqo', '4T17Q49zNxc', 'UmHzOdhGdmw', 'ruiSyPzaevg',
+    'bBV1ANb_0GA', 'DwHk7v84cK4', '4zRV2UfwitQ', 'PukUIacp5-8', 'l8ZSxbIpF9w'
+  ],
+  fractionsAdv: [ // רמת F - כפל/חילוק שברים, מספרים מעורבים
+    'QZopG28eeuM', 'W6ZnrxNWCK0', '9SmQ9CUbcrY', '_g6v8RVs724', 'CZ1g509Prv4',
+    'Ymvjks2I8f0', 'rwIxIwnpB6U', 'mpM2iDM0Ado', 'dKy2voBt0EE', 'wKAYKgkXz3k'
+  ],
+  decimals: [ // רמת F - עשרוניים משולבים עם שברים
+    'QZopG28eeuM', 'W6ZnrxNWCK0', '9SmQ9CUbcrY', '_g6v8RVs724', 'CZ1g509Prv4',
+    'Ymvjks2I8f0', 'rwIxIwnpB6U', 'mpM2iDM0Ado', 'dKy2voBt0EE', 'wKAYKgkXz3k'
+  ],
+  solveLinear: [ // רמת H1-H3 - משוואות ליניאריות עם נעלם אחד
+    'A55dCxCUUHE', 'TgmWOV49jvg', 'ZASuIB6HXGs', 'EVTO-omqeio', 'OIkUcu8pdUQ',
+    'u-Wun-WYS4U', 'pCglwQtWOO4', 'aiaXgrnZu5w', 'Zz7-DKU4azY', 'Tvzw_NY0kCM'
+  ],
+  inequalities: [ // רמת H1-H3 (אותו טווח - אי-שוויונים נלמדים יחד עם המשוואות בשלב זה)
+    'A55dCxCUUHE', 'TgmWOV49jvg', 'ZASuIB6HXGs', 'EVTO-omqeio', 'OIkUcu8pdUQ',
+    'u-Wun-WYS4U', 'pCglwQtWOO4', 'aiaXgrnZu5w', 'Zz7-DKU4azY', 'Tvzw_NY0kCM'
+  ],
+  simultaneous: [ // רמת H87 / H141 / H142 - מערכות משוואות
+    'MyhIMZ1odAI', 'MyhIMZ1odAI', 'MyhIMZ1odAI', 'MyhIMZ1odAI',
+    'B_-2UX-AL0A', 'B_-2UX-AL0A', 'B_-2UX-AL0A',
+    'L45kEhgx0nQ', 'L45kEhgx0nQ', 'L45kEhgx0nQ'
+  ]
+};
+
+function kumonChannelVideoId() {
+  const pool = KUMON_VIDEO_MAP[basicsTrack];
+  if (!pool) return null;
+  const idx = Math.min(basicsSheetIndex || 0, pool.length - 1);
+  return pool[idx];
+}
+
 function videoSearchQuery() {
   if (basicsTrack) {
-    return basicsTrack === 'addition' ? 'חיבור בסיסי הסבר לתלמידים' : 'חיסור בסיסי הסבר לתלמידים';
+    const label = (BASICS_TRACKS[basicsTrack] && BASICS_TRACKS[basicsTrack].title || basicsTrack)
+      .replace(/^[^֐-׿]+/, '').trim(); // מסיר אמוג'י מוביל
+    return `${label} הסבר לתלמידים`;
   }
   if (currentTopic === 1) return 'פתרון משוואה ריבועית נוסחת השורשים הסבר';
   if (currentTopic === 2) return 'חקירת פונקציה ריבועית קודקוד הסבר';
@@ -992,7 +1033,10 @@ function videoSearchQuery() {
 }
 
 function openVideoSearch(query) {
-  const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query || videoSearchQuery());
+  const channelVideoId = !query ? kumonChannelVideoId() : null;
+  const url = channelVideoId
+    ? 'https://www.youtube.com/watch?v=' + channelVideoId
+    : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query || videoSearchQuery());
   window.open(url, '_blank', 'noopener');
 }
 
@@ -1031,6 +1075,7 @@ function openTopic(topicNum) {
   currentTopic = topicNum;
   currentLevel = 1;
   levelCorrectInRow = 0;
+  basicsTrack = null;
   document.getElementById('main-menu').classList.add('hidden');
   document.getElementById('topic-view').classList.remove('hidden');
   document.getElementById('topic-title').textContent = TOPICS[topicNum].title;
