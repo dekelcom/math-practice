@@ -731,6 +731,18 @@
   .basics-result.failed .score { color: #dc3545; }
   .review-pct { font-size: 1.05em; color: #7f8c8d; margin-top: 4px; }
 
+  /* שעון שיעור - צף בכל מסך */
+  .lesson-timer-widget {
+    position: fixed; top: 10px; left: 10px; z-index: 2000;
+    background: rgba(52, 152, 219, 0.95); color: white;
+    padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9em;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    display: flex; align-items: center; gap: 6px;
+    direction: rtl;
+  }
+  .lesson-timer-widget.paused { background: rgba(149, 165, 166, 0.95); }
+
+
   /* מסך סיכום סוף שלב */
   .review-table-wrap { margin: 16px 0; overflow-x: auto; }
   .review-table {
@@ -788,11 +800,22 @@ try {
   console.warn('Firebase init failed:', e);
 }
 const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teacher';
+const PARENT_MODE = new URLSearchParams(location.search).get('mode') === 'parent';
 </script>
+<div id="lesson-timer-widget" class="lesson-timer-widget hidden">
+  <span>⏱</span>
+  <span id="lesson-timer-label"></span>
+</div>
 <div class="container">
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
   <div id="main-menu">
+    <div class="section-title">🎓 שיעורים (10 × שעה וחצי)</div>
+    <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
+    <div style="text-align:center; margin-bottom: 10px;">
+      <button class="btn btn-primary" onclick="openLessonsView()">📖 פתח את מסך השיעורים</button>
+    </div>
+
     <div class="section-title">🌱 חשבון בסיסי</div>
     <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">9 נכון מתוך 10 = נפתח השלב הבא</p>
     <div class="basics-menu">
@@ -887,6 +910,13 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
     <div id="basics-ladder" class="ladder"></div>
   </div>
 
+  <div id="lessons-view" class="hidden">
+    <button class="back-btn" onclick="exitLessonsView()">← חזרה לתפריט</button>
+    <h2 style="text-align:center;">🎓 שיעורים (10 × שעה וחצי)</h2>
+    <p style="text-align:center; color:#7f8c8d;">לחץ על שיעור כדי להתחיל או להמשיך אותו. כל שיעור צריך 90 דקות נטו של פתרון בפועל, ואם לא הושלם - הוא מתאפס למחרת.</p>
+    <div id="lessons-list" class="ladder"></div>
+  </div>
+
   <div id="basics-session-view" class="hidden">
     <button class="back-btn" onclick="exitBasicsSession()">← חזרה לסולם</button>
     <h2 id="basics-session-title" style="text-align:center;"></h2>
@@ -907,6 +937,14 @@ const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teach
       <p style="text-align:center; color:#95a5a6;">טוען...</p>
     </div>
     <div id="teacher-detail-container"></div>
+  </div>
+
+  <div id="parent-view" class="hidden">
+    <h2 style="text-align:center;">👨‍👩‍👦 מעקב שיעורים</h2>
+    <p style="text-align:center; color:#7f8c8d;">מתעדכן בזמן אמת · 90 דקות נטו = שיעור הושלם</p>
+    <div id="parent-lessons-list" class="ladder">
+      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+    </div>
   </div>
 
   <div id="history-view" class="hidden">
@@ -1128,7 +1166,9 @@ function backToMenu() {
   document.getElementById('basics-session-view').classList.add('hidden');
   const hv = document.getElementById('history-view'); if (hv) hv.classList.add('hidden');
   const dv = document.getElementById('diagnostic-view'); if (dv) dv.classList.add('hidden');
+  const lv = document.getElementById('lessons-view'); if (lv) lv.classList.add('hidden');
   currentTopic = null;
+  basicsTrack = null;
 }
 
 // ============================================================
@@ -1185,6 +1225,176 @@ let studentName = localStorage.getItem('studentName') || DEFAULT_STUDENT_NAME;
 localStorage.setItem('studentName', studentName);
 
 function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
+
+// ============================================================
+// שיעורים - 10 שיעורים של 90 דקות נטו כל אחד
+// ============================================================
+const LESSON_COUNT = 10;
+const LESSON_TARGET_MS = 90 * 60 * 1000;
+const LESSON_IDLE_MS = 60 * 1000; // דקה בלי פעילות = השעון נעצר
+const LESSON_ACTIVITY_SELECTOR = '#basics-session, #diagnostic-session, #problem-area';
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function formatMsClock(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+function loadLessons() {
+  try {
+    const arr = JSON.parse(localStorage.getItem('lessonsProgress') || 'null');
+    if (Array.isArray(arr) && arr.length === LESSON_COUNT) return arr;
+  } catch (_) {}
+  return Array.from({ length: LESSON_COUNT }, () => ({ netMs: 0, date: '', completed: false, completedAt: null }));
+}
+let lessons = loadLessons();
+function saveLessons() {
+  try { localStorage.setItem('lessonsProgress', JSON.stringify(lessons)); } catch (_) {}
+}
+
+let activeLessonIdx = (() => {
+  const v = localStorage.getItem('activeLessonIdx');
+  return v === null ? null : parseInt(v, 10);
+})();
+function saveActiveLessonIdx() {
+  if (activeLessonIdx === null) localStorage.removeItem('activeLessonIdx');
+  else localStorage.setItem('activeLessonIdx', String(activeLessonIdx));
+}
+
+let lessonLastActivity = 0;
+let lessonTickHandle = null;
+let lessonLastFirebasePush = 0;
+
+function lessonPing() { lessonLastActivity = Date.now(); }
+document.addEventListener('click', (e) => {
+  if (e.target.closest && e.target.closest(LESSON_ACTIVITY_SELECTOR)) lessonPing();
+}, true);
+document.addEventListener('keydown', (e) => {
+  if (e.target && e.target.closest && e.target.closest(LESSON_ACTIVITY_SELECTOR)) lessonPing();
+}, true);
+
+function lessonStartTicking() {
+  if (lessonTickHandle) return;
+  lessonTickHandle = setInterval(lessonTick, 1000);
+}
+function lessonStopTicking() {
+  if (lessonTickHandle) { clearInterval(lessonTickHandle); lessonTickHandle = null; }
+}
+function lessonTick() {
+  if (activeLessonIdx === null) { lessonStopTicking(); return; }
+  const lesson = lessons[activeLessonIdx];
+  if (!lesson || lesson.completed) { activeLessonIdx = null; saveActiveLessonIdx(); lessonStopTicking(); renderLessonTimerWidget(); return; }
+  const idle = (Date.now() - lessonLastActivity > LESSON_IDLE_MS) || document.hidden;
+  if (!idle) {
+    lesson.netMs = Math.min(LESSON_TARGET_MS, lesson.netMs + 1000);
+    saveLessons();
+    syncLessonsToFirebase(false);
+    if (lesson.netMs >= LESSON_TARGET_MS) {
+      lesson.completed = true;
+      lesson.completedAt = Date.now();
+      saveLessons();
+      syncLessonsToFirebase(true);
+      const finishedIdx = activeLessonIdx;
+      activeLessonIdx = null;
+      saveActiveLessonIdx();
+      lessonStopTicking();
+      renderLessonTimerWidget();
+      setTimeout(() => alert(`🎉 סיימת את שיעור ${finishedIdx + 1}! 90 דקות נטו הושלמו.`), 50);
+      return;
+    }
+  }
+  renderLessonTimerWidget();
+}
+function renderLessonTimerWidget() {
+  const widget = document.getElementById('lesson-timer-widget');
+  if (!widget) return;
+  if (activeLessonIdx === null) { widget.classList.add('hidden'); return; }
+  const lesson = lessons[activeLessonIdx];
+  if (!lesson) { widget.classList.add('hidden'); return; }
+  const idle = (Date.now() - lessonLastActivity > LESSON_IDLE_MS) || document.hidden;
+  const label = document.getElementById('lesson-timer-label');
+  if (label) {
+    label.textContent = `שיעור ${activeLessonIdx + 1} · ${formatMsClock(lesson.netMs)} / ${formatMsClock(LESSON_TARGET_MS)}` + (idle ? ' ⏸' : '');
+  }
+  widget.classList.toggle('paused', idle);
+  widget.classList.remove('hidden');
+}
+function syncLessonsToFirebase(force) {
+  if (!firebaseDb) return;
+  const now = Date.now();
+  if (!force && now - lessonLastFirebasePush < 20000) return;
+  lessonLastFirebasePush = now;
+  try {
+    firebaseDb.ref('lessons/' + fbKey(studentName)).set({
+      studentName,
+      lessons,
+      activeLessonIdx,
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+  } catch (e) { console.warn('lessons sync failed', e); }
+}
+
+function openLessonsView() {
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('lessons-view').classList.remove('hidden');
+  renderLessonsList();
+}
+function exitLessonsView() {
+  document.getElementById('lessons-view').classList.add('hidden');
+  document.getElementById('main-menu').classList.remove('hidden');
+}
+function renderLessonsList() {
+  const container = document.getElementById('lessons-list');
+  let html = '';
+  for (let i = 0; i < LESSON_COUNT; i++) {
+    const lesson = lessons[i];
+    let cls = 'ladder-cell';
+    let sub;
+    if (lesson.completed) {
+      cls += ' mastered';
+      sub = '✓ הושלם';
+    } else if (i === activeLessonIdx) {
+      cls += ' current';
+      sub = `${formatMsClock(lesson.netMs)} / 90:00 · נבחר`;
+    } else if (lesson.date === todayStr() && lesson.netMs > 0) {
+      sub = `${formatMsClock(lesson.netMs)} / 90:00 (מושהה)`;
+    } else {
+      sub = 'לא התחיל';
+    }
+    html += `<button type="button" class="${cls}" onclick="startOrResumeLesson(${i})">שיעור ${i + 1}<small>${sub}</small></button>`;
+  }
+  container.innerHTML = html;
+}
+function startOrResumeLesson(idx) {
+  const lesson = lessons[idx];
+  if (!lesson || lesson.completed) return;
+  if (lesson.date !== todayStr()) {
+    lesson.netMs = 0;
+    lesson.date = todayStr();
+  }
+  activeLessonIdx = idx;
+  saveActiveLessonIdx();
+  saveLessons();
+  lessonLastActivity = 0;
+  lessonStartTicking();
+  renderLessonTimerWidget();
+  syncLessonsToFirebase(true);
+  exitLessonsView();
+}
+(function initLessonsOnBoot() {
+  if (activeLessonIdx === null) return;
+  const lesson = lessons[activeLessonIdx];
+  if (!lesson || lesson.completed || lesson.date !== todayStr()) {
+    activeLessonIdx = null;
+    saveActiveLessonIdx();
+  } else {
+    lessonStartTicking();
+  }
+})();
 
 // ============================================================
 // היסטוריה מקומית + שמירה אוטומטית לענן
@@ -1371,6 +1581,50 @@ function initTeacherMode() {
       '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
   });
 }
+
+function initParentMode() {
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('parent-view').classList.remove('hidden');
+  if (!firebaseDb) {
+    document.getElementById('parent-lessons-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">אין חיבור לאינטרנט.</p>';
+    return;
+  }
+  const ref = firebaseDb.ref('lessons/' + fbKey(studentName));
+  ref.on('value', snap => {
+    renderParentLessons(snap.val());
+  }, err => {
+    console.warn(err);
+    document.getElementById('parent-lessons-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+  });
+}
+function renderParentLessons(data) {
+  const container = document.getElementById('parent-lessons-list');
+  if (!data || !Array.isArray(data.lessons)) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין נתונים. השיעורים יופיעו כאן כשהתלמיד יתחיל לתרגל.</p>';
+    return;
+  }
+  let html = '';
+  data.lessons.forEach((lesson, i) => {
+    let cls = 'ladder-cell';
+    let sub;
+    if (lesson.completed) {
+      cls += ' mastered';
+      sub = '✓ הושלם';
+    } else if (i === data.activeLessonIdx) {
+      cls += ' current';
+      sub = `${formatMsClock(lesson.netMs || 0)} / 90:00 · פעיל עכשיו`;
+    } else if (lesson.netMs > 0) {
+      sub = `${formatMsClock(lesson.netMs)} / 90:00`;
+    } else {
+      sub = 'לא התחיל';
+    }
+    html += `<div class="${cls}" style="cursor:default;">שיעור ${i + 1}<small>${sub}</small></div>`;
+  });
+  container.innerHTML = html;
+}
+
 
 function renderTeacherList(arr) {
   const previouslySeen = teacherSeenIds.size > 0;
@@ -2508,9 +2762,9 @@ document.addEventListener('keydown', (e) => {
   if (!keypad || keypad.querySelector('button:disabled')) return;
   const tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-  if (e.key >= '0' && e.key <= '9') { e.preventDefault(); baKey(e.key); }
-  else if (e.key === 'Backspace') { e.preventDefault(); baBackspace(); }
-  else if (e.key === 'Enter') { e.preventDefault(); baSubmit(); }
+  if (e.key >= '0' && e.key <= '9') { e.preventDefault(); lessonPing(); baKey(e.key); }
+  else if (e.key === 'Backspace') { e.preventDefault(); lessonPing(); baBackspace(); }
+  else if (e.key === 'Enter') { e.preventDefault(); lessonPing(); baSubmit(); }
 });
 function baSubmit() {
   if (baLocked || baInputBuffer === '') return;
@@ -4066,8 +4320,13 @@ function initNotebook() {
 // Bootstrap
 // ============================================================
 (function boot() {
+  renderLessonTimerWidget();
   if (TEACHER_MODE) {
     initTeacherMode();
+    return;
+  }
+  if (PARENT_MODE) {
+    initParentMode();
     return;
   }
 })();
