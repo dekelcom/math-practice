@@ -1028,8 +1028,24 @@ try {
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
     </div>
-    <h2 style="text-align:center;">ניהול משתמשים</h2>
-    <p style="text-align:center; color:#7f8c8d;">מסך ניהול המשתמשים יתווסף בשלב הבא.</p>
+    <h2 style="text-align:center;">ניהול הורים</h2>
+    <div id="admin-parents-list" class="teacher-list">
+      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+    </div>
+    <div style="text-align:center; margin: 20px 0;">
+      <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה</button>
+    </div>
+    <div id="create-parent-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <label>שם מלא</label>
+      <input type="text" id="new-parent-displayname">
+      <label>שם משתמש</label>
+      <input type="text" id="new-parent-username">
+      <label>סיסמה זמנית</label>
+      <input type="password" id="new-parent-password">
+      <button class="btn btn-primary" onclick="handleCreateParent()">צור הורה</button>
+      <button class="btn btn-secondary" onclick="closeCreateParentForm()">ביטול</button>
+      <div class="auth-error" id="create-parent-error"></div>
+    </div>
   </div>
 
   <div id="parent-home-view" class="hidden">
@@ -1043,6 +1059,35 @@ try {
     <div style="text-align:center; margin: 24px 0;">
       <button class="btn btn-primary" onclick="initTeacherMode()">📋 תרגולים שהוגשו</button>
       <button class="btn btn-primary" onclick="initParentMode()">🧩 פאזל השיעורים</button>
+      <button class="btn btn-primary" onclick="openParentStudentsView()">👨‍🎓 ניהול תלמידים</button>
+    </div>
+  </div>
+
+  <div id="parent-students-view" class="hidden">
+    <button class="back-btn" onclick="exitParentStudentsView()">← חזרה</button>
+    <h2 style="text-align:center;">👨‍🎓 ניהול תלמידים</h2>
+    <div id="parent-students-list" class="teacher-list">
+      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+    </div>
+    <div style="text-align:center; margin: 20px 0;">
+      <button class="btn btn-primary" onclick="openCreateStudentForm()">+ הוסף תלמיד</button>
+    </div>
+    <div id="create-student-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <label>שם מלא</label>
+      <input type="text" id="new-student-displayname">
+      <label>שם משתמש</label>
+      <input type="text" id="new-student-username">
+      <label>סיסמה זמנית</label>
+      <input type="password" id="new-student-password">
+      <label>כיתה / גיל (אופציונלי)</label>
+      <input type="text" id="new-student-grade">
+      <label>הערות (אופציונלי)</label>
+      <input type="text" id="new-student-notes">
+      <label>שיוך התקדמות ישנה (שם קודם, אופציונלי)</label>
+      <input type="text" id="new-student-legacy-name" placeholder="לדוגמה: יונתן">
+      <button class="btn btn-primary" onclick="handleCreateStudent()">צור תלמיד</button>
+      <button class="btn btn-secondary" onclick="closeCreateStudentForm()">ביטול</button>
+      <div class="auth-error" id="create-student-error"></div>
     </div>
   </div>
 
@@ -4495,6 +4540,7 @@ function routeByRole(role) {
   if (role === 'admin') {
     document.getElementById('admin-username-label').textContent = currentUser.username;
     showAppView('admin-home-view');
+    renderAdminHome();
   } else if (role === 'parent') {
     document.getElementById('parent-username-label').textContent = currentUser.username;
     showAppView('parent-home-view');
@@ -4504,6 +4550,192 @@ function routeByRole(role) {
     localStorage.setItem('studentName', studentName);
     document.getElementById('student-username-label').textContent = studentName;
     showAppView('main-menu');
+    restoreLessonsFromCloudIfNeeded();
+  }
+}
+
+// אם המכשיר הזה "נקי" (אף שיעור לא נגע בו עדיין) אבל יש כבר נתונים
+// בענן תחת ה-uid הזה (למשל התקדמות שהועברה מחשבון ישן בעת יצירת
+// התלמיד) - משחזרים אותם, כדי שהתלמיד ימשיך מאיפה שהפסיק גם על
+// מכשיר חדש. אם למכשיר כבר יש התקדמות אמיתית - לא נוגעים בה.
+async function restoreLessonsFromCloudIfNeeded() {
+  if (!firebaseDb || !studentUid) return;
+  const isPristine = activeLessonIdx === null && lessons.every(l => l.netMs === 0 && !l.completed);
+  if (!isPristine) return;
+  try {
+    const snap = await firebaseDb.ref('lessons/' + studentUid).once('value');
+    const data = snap.val();
+    if (data && Array.isArray(data.lessons) && data.lessons.length === LESSON_COUNT) {
+      lessons = data.lessons;
+      activeLessonIdx = (typeof data.activeLessonIdx === 'number') ? data.activeLessonIdx : null;
+      saveLessons();
+      saveActiveLessonIdx();
+      if (activeLessonIdx !== null) lessonStartTicking();
+      renderLessonTimerWidget();
+      renderLessonsList();
+    }
+  } catch (e) {
+    console.warn('lessons restore failed', e);
+  }
+}
+
+// ============================================================
+// ניהול משתמשים היררכי - admin יוצר הורים, הורה יוצר תלמידים
+// ============================================================
+let secondaryAppCounter = 0;
+async function createAuthUserIsolated(username, password) {
+  const appName = 'Secondary-' + (secondaryAppCounter++) + '-' + Date.now();
+  const secondaryApp = firebase.initializeApp(firebaseConfig, appName);
+  try {
+    const cred = await secondaryApp.auth().createUserWithEmailAndPassword(usernameToEmail(username), password);
+    const uid = cred.user.uid;
+    await secondaryApp.auth().signOut();
+    return uid;
+  } finally {
+    try { await secondaryApp.delete(); } catch (_) {}
+  }
+}
+
+let adminParentsListenerStarted = false;
+function renderAdminHome() {
+  if (adminParentsListenerStarted) return;
+  adminParentsListenerStarted = true;
+  firebaseDb.ref('users').orderByChild('role').equalTo('parent').on('value', snap => {
+    const arr = [];
+    snap.forEach(child => arr.push({ uid: child.key, ...child.val() }));
+    renderAdminParentsList(arr);
+  }, err => {
+    console.warn(err);
+    document.getElementById('admin-parents-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+  });
+}
+function renderAdminParentsList(arr) {
+  const container = document.getElementById('admin-parents-list');
+  if (!arr.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין לא נוצרו חשבונות הורה.</p>';
+    return;
+  }
+  container.innerHTML = arr.map(p => `
+    <div class="teacher-row" style="cursor:default;">
+      <div class="name">${escapeHtml(p.displayName || p.username)}</div>
+      <div class="meta">שם משתמש: ${escapeHtml(p.username)}</div>
+    </div>
+  `).join('');
+}
+function openCreateParentForm() {
+  document.getElementById('create-parent-form').classList.remove('hidden');
+  document.getElementById('new-parent-displayname').value = '';
+  document.getElementById('new-parent-username').value = '';
+  document.getElementById('new-parent-password').value = '';
+  document.getElementById('create-parent-error').textContent = '';
+}
+function closeCreateParentForm() {
+  document.getElementById('create-parent-form').classList.add('hidden');
+}
+async function handleCreateParent() {
+  const displayName = document.getElementById('new-parent-displayname').value.trim();
+  const username = document.getElementById('new-parent-username').value.trim();
+  const password = document.getElementById('new-parent-password').value;
+  const errEl = document.getElementById('create-parent-error');
+  errEl.textContent = '';
+  if (!displayName || !username || !password) { errEl.textContent = 'נא למלא את כל השדות.'; return; }
+  if (password.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  try {
+    const uid = await createAuthUserIsolated(username, password);
+    await firebaseDb.ref('users/' + uid).set({
+      username, displayName, role: 'parent', parentUid: null,
+      mustChangePassword: false,
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      createdBy: currentUser.uid
+    });
+    closeCreateParentForm();
+  } catch (e) {
+    errEl.textContent = e.code === 'auth/email-already-in-use' ? 'שם המשתמש הזה כבר תפוס.' : 'שגיאה: ' + (e.message || e);
+  }
+}
+
+function openParentStudentsView() {
+  document.getElementById('parent-home-view').classList.add('hidden');
+  document.getElementById('parent-students-view').classList.remove('hidden');
+  renderParentStudentsView();
+}
+function exitParentStudentsView() {
+  document.getElementById('parent-students-view').classList.add('hidden');
+  document.getElementById('parent-home-view').classList.remove('hidden');
+}
+let parentStudentsListenerStarted = false;
+function renderParentStudentsView() {
+  if (parentStudentsListenerStarted) return;
+  parentStudentsListenerStarted = true;
+  firebaseDb.ref('users').orderByChild('parentUid').equalTo(currentUser.uid).on('value', snap => {
+    const arr = [];
+    snap.forEach(child => arr.push({ uid: child.key, ...child.val() }));
+    renderParentStudentsList(arr);
+  }, err => {
+    console.warn(err);
+    document.getElementById('parent-students-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+  });
+}
+function renderParentStudentsList(arr) {
+  const container = document.getElementById('parent-students-list');
+  if (!arr.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין לא נוצרו חשבונות תלמיד.</p>';
+    return;
+  }
+  container.innerHTML = arr.map(s => `
+    <div class="teacher-row" style="cursor:default;">
+      <div class="name">${escapeHtml(s.displayName || s.username)}</div>
+      <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
+      ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
+    </div>
+  `).join('');
+}
+function openCreateStudentForm() {
+  document.getElementById('create-student-form').classList.remove('hidden');
+  ['new-student-displayname', 'new-student-username', 'new-student-password',
+   'new-student-grade', 'new-student-notes', 'new-student-legacy-name'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('create-student-error').textContent = '';
+}
+function closeCreateStudentForm() {
+  document.getElementById('create-student-form').classList.add('hidden');
+}
+async function handleCreateStudent() {
+  const displayName = document.getElementById('new-student-displayname').value.trim();
+  const username = document.getElementById('new-student-username').value.trim();
+  const password = document.getElementById('new-student-password').value;
+  const grade = document.getElementById('new-student-grade').value.trim();
+  const notes = document.getElementById('new-student-notes').value.trim();
+  const legacyName = document.getElementById('new-student-legacy-name').value.trim();
+  const errEl = document.getElementById('create-student-error');
+  errEl.textContent = '';
+  if (!displayName || !username || !password) { errEl.textContent = 'נא למלא שם מלא, שם משתמש וסיסמה.'; return; }
+  if (password.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  try {
+    const uid = await createAuthUserIsolated(username, password);
+    await firebaseDb.ref('users/' + uid).set({
+      username, displayName, role: 'student', parentUid: currentUser.uid,
+      grade: grade || null, notes: notes || null,
+      mustChangePassword: false,
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      createdBy: currentUser.uid
+    });
+    if (legacyName) {
+      try {
+        const legacySnap = await firebaseDb.ref('lessons/' + fbKey(legacyName)).once('value');
+        if (legacySnap.exists()) {
+          await firebaseDb.ref('lessons/' + uid).set(legacySnap.val());
+        }
+      } catch (migErr) {
+        console.warn('legacy lessons migration failed', migErr);
+      }
+    }
+    closeCreateStudentForm();
+  } catch (e) {
+    errEl.textContent = e.code === 'auth/email-already-in-use' ? 'שם המשתמש הזה כבר תפוס.' : 'שגיאה: ' + (e.message || e);
   }
 }
 
