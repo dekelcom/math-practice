@@ -1209,6 +1209,9 @@ function resetStats() {
   if (confirm('לאפס את כל הסטטיסטיקה, המטבעות והנעילות של רמות?')) {
     stats = {correct:0, attempts:0, streak:0, levelProgress:{}, coins:0};
     saveStats();
+    if (firebaseDb && studentUid) {
+      firebaseDb.ref('users/' + studentUid + '/coins').set(0).catch(e => console.warn('coin reset sync failed', e));
+    }
     location.reload();
   }
 }
@@ -1230,6 +1233,52 @@ function showCoinPopup(amount, mult) {
     void b.offsetWidth;
     b.classList.add('coin-bump');
   });
+}
+
+// ============================================================
+// מטבעות - Firebase כמקור אמת (users/{uid}/coins), כדי שהורה יראה
+// ויוכל להעניק מתנה בזמן אמת. דורש חיבור אינטרנט פעיל כדי לצבור.
+// ============================================================
+let coinsListenerStarted = false;
+async function initStudentCoinsSync() {
+  if (!firebaseDb || !studentUid) return;
+  try {
+    const snap = await firebaseDb.ref('users/' + studentUid + '/coins').once('value');
+    if (snap.exists()) {
+      stats.coins = snap.val();
+      saveStats();
+    } else {
+      // ראשונה שה-uid הזה נוגע במטבעות ב-Firebase: אם זה אותו מכשיר
+      // שכבר יש בו יתרה מקומית (למשל יונתן מקבל חשבון אמיתי על אותו
+      // מחשב שהוא כבר משתמש בו) - שומרים אותה כברירת המחדל בענן,
+      // במקום לאבד אותה.
+      await firebaseDb.ref('users/' + studentUid + '/coins').set(stats.coins || 0);
+    }
+  } catch (e) {
+    console.warn('coins sync init failed', e);
+  }
+  if (coinsListenerStarted) return;
+  coinsListenerStarted = true;
+  firebaseDb.ref('users/' + studentUid + '/coins').on('value', snap => {
+    if (snap.exists() && snap.val() !== stats.coins) {
+      stats.coins = snap.val();
+      saveStats();
+    }
+  });
+}
+function awardCoins(reward, mult) {
+  if (firebaseDb && studentUid) {
+    firebaseDb.ref('users/' + studentUid + '/coins').transaction(current => (current || 0) + reward)
+      .catch(e => {
+        console.warn('coin award failed, falling back to local-only', e);
+        stats.coins += reward;
+        saveStats();
+      });
+  } else {
+    stats.coins += reward;
+    saveStats();
+  }
+  showCoinPopup(reward, mult);
 }
 
 updateStatsDisplay();
@@ -3236,8 +3285,7 @@ function recordAnswer(correct) {
     if (!helpUsedForProblem) {
       const mult = coinMultiplier(stats.streak);
       const reward = Math.round(COIN_BASE[currentLevel] * mult);
-      stats.coins += reward;
-      showCoinPopup(reward, mult);
+      awardCoins(reward, mult);
     }
     const progKey = `t${currentTopic}`;
     const unlocked = stats.levelProgress[progKey] || 1;
@@ -4604,6 +4652,7 @@ async function routeByRole(role) {
     showAppView('main-menu');
     await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
+    initStudentCoinsSync();
   }
 }
 
@@ -4742,9 +4791,23 @@ function renderParentStudentsList(arr) {
       <div class="name">${escapeHtml(s.displayName || s.username)}</div>
       <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
       ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
+      <div class="meta">🪙 ${s.coins || 0}</div>
       <button class="btn btn-secondary" onclick="openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
+      <button class="btn btn-secondary" onclick="handleGiftCoins('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🎁 העניק מטבעות</button>
     </div>
   `).join('');
+}
+async function handleGiftCoins(uid, name) {
+  const amountStr = prompt(`כמה מטבעות להעניק ל${name}?`);
+  if (amountStr === null) return;
+  const amount = parseInt(amountStr, 10);
+  if (!amount || amount <= 0) { alert('כמות לא תקינה.'); return; }
+  try {
+    await firebaseDb.ref('users/' + uid + '/coins').transaction(current => (current || 0) + amount);
+    alert(`✓ הוענקו ${amount} מטבעות ל${name}!`);
+  } catch (e) {
+    alert('שגיאה: ' + (e.message || e));
+  }
 }
 
 let editProgramStudentUid = null;
