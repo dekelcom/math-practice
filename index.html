@@ -885,6 +885,10 @@ try {
       <input type="text" id="login-username" autocomplete="username">
       <label>סיסמה</label>
       <input type="password" id="login-password" autocomplete="current-password">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+        <input type="checkbox" id="login-remember" checked style="width:auto;">
+        שמור אותי מחובר במחשב הזה
+      </label>
       <button type="submit" class="btn btn-primary" style="width:100%;">התחבר</button>
       <div class="auth-error" id="login-error"></div>
     </form>
@@ -5228,10 +5232,15 @@ async function handleBootstrap() {
 async function handleLogin() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
+  const remember = document.getElementById('login-remember').checked;
   const errEl = document.getElementById('login-error');
   errEl.textContent = '';
   if (!username || !password) { errEl.textContent = 'נא למלא שם משתמש וסיסמה.'; return; }
   try {
+    const persistence = remember
+      ? firebase.auth.Auth.Persistence.LOCAL
+      : firebase.auth.Auth.Persistence.SESSION;
+    await firebaseAuth.setPersistence(persistence);
     await firebaseAuth.signInWithEmailAndPassword(usernameToEmail(username), password);
   } catch (e) {
     errEl.textContent = 'שם משתמש או סיסמה שגויים.';
