@@ -1487,6 +1487,35 @@ let basicsLastSubmissionRef = null;
 
 function saveBasicsProgress() {
   localStorage.setItem('basicsProgress', JSON.stringify(basicsProgress));
+  if (firebaseDb && studentUid) {
+    firebaseDb.ref('users/' + studentUid + '/basicsProgress').set(basicsProgress)
+      .catch(e => console.warn('basicsProgress cloud sync failed', e));
+  }
+}
+
+// ההתקדמות בסולם (איזה דף פתוח בכל תחום) הייתה שמורה רק ב-localStorage,
+// ולכן לא שרדה מעבר בין מכשירים/דפדפנים - בניגוד לשיעורים ולמטבעות שכבר
+// הפכו לענן-קודם. מאמצים את גרסת הענן אם קיימת (לוקחים את הגבוה מבין
+// המקומי לענן בכל תחום, כדי לא לאבד התקדמות משני הצדדים), אחרת מזרעים
+// את הענן מהמצב המקומי הנוכחי.
+async function initStudentBasicsProgressSync() {
+  if (!firebaseDb || !studentUid) return;
+  try {
+    const snap = await firebaseDb.ref('users/' + studentUid + '/basicsProgress').once('value');
+    const cloud = snap.val();
+    if (cloud && typeof cloud === 'object') {
+      let changed = false;
+      Object.keys(cloud).forEach(t => {
+        if (typeof cloud[t] === 'number' && cloud[t] > (basicsProgress[t] || 0)) {
+          basicsProgress[t] = cloud[t];
+          changed = true;
+        }
+      });
+      if (changed) localStorage.setItem('basicsProgress', JSON.stringify(basicsProgress));
+    } else {
+      await firebaseDb.ref('users/' + studentUid + '/basicsProgress').set(basicsProgress);
+    }
+  } catch (e) { console.warn('basicsProgress cloud sync failed', e); }
 }
 
 // ============================================================
@@ -1878,10 +1907,16 @@ function openParentDashboard(uid, name) {
   }
 
   if (dashboardSubmissionsRef) dashboardSubmissionsRef.off();
-  dashboardSubmissionsRef = firebaseDb.ref('submissions').orderByChild('studentUid').equalTo(uid).limitToLast(200);
+  // סינון לפי studentUid נעשה בצד הלקוח ולא עם orderByChild/equalTo: עם 151
+  // רשומות סה"כ אין בעיית ביצועים, וזה נמנע מהתלות בקיום .indexOn על
+  // studentUid (שמעולם לא הופעל בפועל ב-Rules החיים).
+  dashboardSubmissionsRef = firebaseDb.ref('submissions').limitToLast(500);
   dashboardSubmissionsRef.on('value', snap => {
     const arr = [];
-    snap.forEach(child => arr.push({ id: child.key, ...(child.val() || {}) }));
+    snap.forEach(child => {
+      const val = child.val() || {};
+      if (val.studentUid === uid) arr.push({ id: child.key, ...val });
+    });
     arr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     dashboardSubmissions = arr;
     renderDashboardSubmissions(arr);
@@ -4791,6 +4826,7 @@ async function routeByRole(role) {
     await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
     initStudentCoinsSync();
+    await initStudentBasicsProgressSync();
   }
 }
 
