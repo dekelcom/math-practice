@@ -1124,6 +1124,9 @@ try {
     <div class="section-title">🎯 ניתוח פערי ידע</div>
     <div id="dashboard-gaps" class="teacher-list"></div>
 
+    <div class="section-title">🔍 ניתוח מעמיק ברמת תרגיל</div>
+    <div id="dashboard-deep"></div>
+
     <div class="section-title">🪙 מטבעות</div>
     <div id="dashboard-coins"></div>
 
@@ -1923,6 +1926,7 @@ function openParentDashboard(uid, name) {
     renderDashboardStatus(arr);
     renderDashboardTime(arr);
     renderDashboardGaps(arr);
+    renderDashboardDeepAnalysis(arr);
   }, err => {
     console.warn(err);
     document.getElementById('dashboard-submissions').innerHTML =
@@ -2097,6 +2101,120 @@ function renderDashboardGaps(arr) {
       ${g.stuck ? '<div class="meta" style="color:#dc3545;">נראה תקוע באותו שלב</div>' : ''}
     </div>
   `).join('');
+}
+
+// ============================================================
+// ניתוח מעמיק ברמת תרגיל בודד: משתמש בנתוני problems[] שכבר נשמרים
+// בכל תרגול (שאלה, נכון/לא, זמן פתרון) כדי לזהות עובדות חוזרות
+// שאיטיות/שגויות, מהירות חישוב כללית, ומגמה לאורך זמן.
+// ============================================================
+function flattenProblems(sheetSubs) {
+  const out = [];
+  sheetSubs.forEach(s => {
+    if (!Array.isArray(s.problems)) return;
+    s.problems.forEach(p => {
+      out.push({
+        question: p.question,
+        track: s.track,
+        correct: !!p.correct,
+        timeMs: p.timeMs || 0,
+        timestamp: s.timestamp || 0
+      });
+    });
+  });
+  return out;
+}
+
+function computeSlowFacts(problemsFlat) {
+  const byQ = {};
+  problemsFlat.forEach(p => {
+    if (!p.question) return;
+    const key = p.track + '|' + p.question;
+    if (!byQ[key]) byQ[key] = { question: p.question, track: p.track, attempts: 0, wrong: 0, totalTimeMs: 0 };
+    byQ[key].attempts++;
+    if (!p.correct) byQ[key].wrong++;
+    byQ[key].totalTimeMs += p.timeMs;
+  });
+  const rows = Object.values(byQ)
+    .filter(r => r.attempts >= 2)
+    .map(r => ({ ...r, avgTimeMs: Math.round(r.totalTimeMs / r.attempts), wrongRate: r.wrong / r.attempts }));
+  rows.sort((a, b) => (b.wrongRate - a.wrongRate) || (b.avgTimeMs - a.avgTimeMs));
+  return rows.slice(0, 8);
+}
+
+function renderDashboardDeepAnalysis(arr) {
+  const container = document.getElementById('dashboard-deep');
+  const sheetSubs = arr.filter(s => s.type === 'sheet' && s.summary);
+  if (!sheetSubs.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">אין עדיין מספיק נתונים.</p>';
+    return;
+  }
+  const problemsFlat = flattenProblems(sheetSubs);
+  const now = Date.now();
+  const WEEK_MS = 7 * 24 * 60 * 60 * 1000, MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+  const avgOf = list => list.length ? Math.round(list.reduce((s, p) => s + p.timeMs, 0) / list.length) : null;
+  const avgAll = avgOf(problemsFlat);
+  const avgWeek = avgOf(problemsFlat.filter(p => now - p.timestamp <= WEEK_MS));
+  const avgMonth = avgOf(problemsFlat.filter(p => now - p.timestamp <= MONTH_MS));
+
+  let html = '<p style="text-align:center;">';
+  html += `מהירות חישוב ממוצעת לתרגיל: <b>${(avgAll / 1000).toFixed(1)} שנ'</b>`;
+  if (avgWeek !== null) html += ` · שבוע אחרון: <b>${(avgWeek / 1000).toFixed(1)} שנ'</b>`;
+  if (avgMonth !== null) html += ` · חודש אחרון: <b>${(avgMonth / 1000).toFixed(1)} שנ'</b>`;
+  html += '</p>';
+
+  const slowFacts = computeSlowFacts(problemsFlat);
+  html += '<div style="margin-top:10px; font-weight:600;">🐌 עובדות איטיות / שגויות חוזרות</div>';
+  if (slowFacts.length) {
+    html += slowFacts.map(f => `
+      <div class="teacher-row" style="cursor:default;">
+        <div class="name" dir="ltr">${escapeHtml(f.question)}</div>
+        <div class="meta">${escapeHtml(trackLabelHebrew(f.track))}</div>
+        <div class="meta">${f.attempts} נסיונות · ${f.wrong} טעויות</div>
+        <div class="meta">⏱ ${(f.avgTimeMs / 1000).toFixed(1)} שנ'</div>
+      </div>
+    `).join('');
+  } else {
+    html += '<p style="text-align:center; color:#95a5a6;">אין עדיין מספיק חזרות על אותה עובדה לזיהוי דפוס.</p>';
+  }
+
+  const trend = sheetSubs.slice().sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0)).slice(-12);
+  if (trend.length >= 2) {
+    const maxAvg = Math.max(1, ...trend.map(s => (s.summary && s.summary.avgTimeMs) || 0));
+    html += `<div style="margin-top:14px; font-weight:600;">📈 מגמת מהירות (${trend.length} דפים אחרונים, מהישן לחדש)</div>`;
+    html += '<div style="display:flex; align-items:flex-end; gap:4px; height:60px; margin-top:8px;">';
+    html += trend.map(s => {
+      const t = (s.summary && s.summary.avgTimeMs) || 0;
+      const h = Math.max(4, Math.round((t / maxAvg) * 56));
+      const title = `${trackLabelHebrew(s.track)} ${s.sheet || ''} · ${(t / 1000).toFixed(1)} שנ'`;
+      return `<div title="${escapeAttr(title)}" style="flex:1; background:#4a90d9; border-radius:3px 3px 0 0; height:${h}px;"></div>`;
+    }).join('');
+    html += '</div>';
+    html += '<p style="text-align:center; color:#95a5a6; font-size:0.85em;">כל עמודה = דף אחד · גובה = זמן ממוצע לתרגיל באותו דף (עמודה נמוכה = פתרון מהיר יותר)</p>';
+  }
+
+  html += `<p style="text-align:center; margin-top:14px;"><button class="btn btn-secondary" onclick="handleExportRawData()">📥 ייצוא נתונים גולמיים (JSON)</button></p>`;
+
+  container.innerHTML = html;
+}
+
+function handleExportRawData() {
+  const name = document.getElementById('dashboard-student-name').textContent || 'student';
+  const payload = {
+    studentUid: dashboardStudentUid,
+    studentName: name,
+    exportedAt: new Date().toISOString(),
+    submissions: dashboardSubmissions
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name + '-practice-data.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function renderDashboardSubmissions(arr) {
