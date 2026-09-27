@@ -1057,9 +1057,7 @@ try {
       </span>
     </div>
     <div style="text-align:center; margin: 24px 0;">
-      <button class="btn btn-primary" onclick="initTeacherMode()">📋 תרגולים שהוגשו</button>
-      <button class="btn btn-primary" onclick="initParentMode()">🧩 פאזל השיעורים</button>
-      <button class="btn btn-primary" onclick="openParentStudentsView()">👨‍🎓 ניהול תלמידים</button>
+      <button class="btn btn-primary" onclick="openParentStudentsView()">👨‍🎓 התלמידים שלי</button>
     </div>
   </div>
 
@@ -1105,6 +1103,35 @@ try {
     </div>
   </div>
 
+  <div id="parent-dashboard-view" class="hidden">
+    <button class="back-btn" onclick="exitParentDashboard()">← חזרה לרשימת תלמידים</button>
+    <h2 style="text-align:center;" id="dashboard-student-name"></h2>
+
+    <div class="section-title">📊 סטטוס נוכחי</div>
+    <div id="dashboard-status"></div>
+
+    <div class="section-title">⏱ זמן תרגול</div>
+    <div id="dashboard-time"></div>
+
+    <div class="section-title">🎯 ניתוח פערי ידע</div>
+    <div id="dashboard-gaps" class="teacher-list"></div>
+
+    <div class="section-title">🪙 מטבעות</div>
+    <div id="dashboard-coins"></div>
+
+    <div class="section-title">🧩 פאזל השיעורים</div>
+    <div class="puzzle-wrap">
+      <div class="puzzle-image"></div>
+      <div id="dashboard-puzzle" class="puzzle-grid">
+        <p style="text-align:center; color:#95a5a6;">טוען...</p>
+      </div>
+    </div>
+
+    <div class="section-title">📋 תרגולים שהוגשו</div>
+    <div id="dashboard-submissions" class="teacher-list"></div>
+    <div id="dashboard-detail-container"></div>
+  </div>
+
   <div id="basics-ladder-view" class="hidden">
     <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
     <h2 id="basics-ladder-title" style="text-align:center;"></h2>
@@ -1133,28 +1160,6 @@ try {
     <h2 style="text-align:center;">🎯 בדיקת רמה</h2>
     <p style="text-align:center; color:#7f8c8d;">15 שאלות קצרות. לפי התוצאות נפתח עבורך את הרמה המתאימה בכל מסלול.</p>
     <div id="diagnostic-session" class="basics-session"></div>
-  </div>
-
-  <div id="teacher-view" class="hidden">
-    <button class="back-btn" onclick="exitParentSubview()">← חזרה</button>
-    <h2 style="text-align:center;">👩‍🏫 מסך מורה</h2>
-    <p style="text-align:center; color:#7f8c8d;">תרגילים שתלמידים שלחו לבדיקה (מתעדכן בזמן אמת)</p>
-    <div id="teacher-list" class="teacher-list">
-      <p style="text-align:center; color:#95a5a6;">טוען...</p>
-    </div>
-    <div id="teacher-detail-container"></div>
-  </div>
-
-  <div id="parent-view" class="hidden">
-    <button class="back-btn" onclick="exitParentSubview()">← חזרה</button>
-    <h2 style="text-align:center;">👨‍👩‍👦 מעקב שיעורים</h2>
-    <p style="text-align:center; color:#7f8c8d;">מתעדכן בזמן אמת · 90 דקות נטו = שיעור הושלם, וחלק נוסף בפאזל נחשף</p>
-    <div class="puzzle-wrap">
-      <div class="puzzle-image"></div>
-      <div id="parent-lessons-list" class="puzzle-grid">
-        <p style="text-align:center; color:#95a5a6;">טוען...</p>
-      </div>
-    </div>
   </div>
 
   <div id="history-view" class="hidden">
@@ -1708,6 +1713,7 @@ function autoSaveSession(sessionType, trackOrLabel, sheetLabel) {
   const correctCount = basicsSessionLog.filter(p => p.correct).length;
   const submission = {
     studentName,
+    studentUid: studentUid || null,
     type: sessionType,
     track: trackOrLabel,
     sheet: sheetLabel,
@@ -1843,86 +1849,152 @@ function exitDiagnostic() {
 }
 
 // ============================================================
-// מסך מורה (?mode=teacher)
+// מסך מעקב הורה מאוחד - נבחר תלמיד אחד בכל פעם, לפי uid
 // ============================================================
-let teacherSubmissions = []; // [{id, ...data}]
-let teacherListenerStarted = false;
-let teacherSeenIds = new Set();
+let dashboardStudentUid = null;
+let dashboardSubmissions = [];
+let dashboardSubmissionsRef = null;
+let dashboardLessonsRef = null;
+let dashboardCoinsRef = null;
 
-function initTeacherMode() {
-  document.getElementById('parent-home-view').classList.add('hidden');
-  document.getElementById('teacher-view').classList.remove('hidden');
+function openParentDashboard(uid, name) {
+  dashboardStudentUid = uid;
+  document.getElementById('dashboard-student-name').textContent = name;
+  document.getElementById('parent-students-view').classList.add('hidden');
+  document.getElementById('parent-dashboard-view').classList.remove('hidden');
+  document.getElementById('dashboard-detail-container').innerHTML = '';
   if (!firebaseDb) {
-    document.getElementById('teacher-list').innerHTML =
+    document.getElementById('dashboard-submissions').innerHTML =
       '<p style="text-align:center; color:#dc3545;">אין חיבור לאינטרנט.</p>';
     return;
   }
-  if (teacherListenerStarted) return;
-  teacherListenerStarted = true;
-  const ref = firebaseDb.ref('submissions').limitToLast(100);
-  ref.on('value', snap => {
+
+  if (dashboardSubmissionsRef) dashboardSubmissionsRef.off();
+  dashboardSubmissionsRef = firebaseDb.ref('submissions').orderByChild('studentUid').equalTo(uid).limitToLast(200);
+  dashboardSubmissionsRef.on('value', snap => {
     const arr = [];
     snap.forEach(child => arr.push({ id: child.key, ...(child.val() || {}) }));
     arr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-    renderTeacherList(arr);
+    dashboardSubmissions = arr;
+    renderDashboardSubmissions(arr);
+    renderDashboardStatus(arr);
+    renderDashboardTime(arr);
+    renderDashboardGaps(arr);
   }, err => {
     console.warn(err);
-    document.getElementById('teacher-list').innerHTML =
+    document.getElementById('dashboard-submissions').innerHTML =
       '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
   });
-}
 
-function initParentMode() {
-  document.getElementById('parent-home-view').classList.add('hidden');
-  document.getElementById('parent-view').classList.remove('hidden');
-  if (!firebaseDb) {
-    document.getElementById('parent-lessons-list').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">אין חיבור לאינטרנט.</p>';
-    return;
-  }
-  const ref = firebaseDb.ref('lessons/' + fbKey(studentName));
-  ref.on('value', snap => {
-    renderParentLessons(snap.val());
-  }, err => {
-    console.warn(err);
-    document.getElementById('parent-lessons-list').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+  if (dashboardLessonsRef) dashboardLessonsRef.off();
+  dashboardLessonsRef = firebaseDb.ref('lessons/' + uid);
+  dashboardLessonsRef.on('value', snap => {
+    renderDashboardPuzzle(uid, snap.val());
+  });
+
+  if (dashboardCoinsRef) dashboardCoinsRef.off();
+  dashboardCoinsRef = firebaseDb.ref('users/' + uid + '/coins');
+  dashboardCoinsRef.on('value', snap => {
+    document.getElementById('dashboard-coins').innerHTML = `
+      <p style="text-align:center; font-size:1.4em; font-weight:700;">🪙 ${snap.val() || 0}</p>
+      <p style="text-align:center;"><button class="btn btn-secondary" onclick="handleGiftCoins('${uid}', '${escapeAttr(name)}')">🎁 העניק מטבעות</button></p>
+    `;
   });
 }
-
-function exitParentSubview() {
-  document.getElementById('teacher-view').classList.add('hidden');
-  document.getElementById('parent-view').classList.add('hidden');
-  document.getElementById('parent-home-view').classList.remove('hidden');
+function exitParentDashboard() {
+  if (dashboardSubmissionsRef) { dashboardSubmissionsRef.off(); dashboardSubmissionsRef = null; }
+  if (dashboardLessonsRef) { dashboardLessonsRef.off(); dashboardLessonsRef = null; }
+  if (dashboardCoinsRef) { dashboardCoinsRef.off(); dashboardCoinsRef = null; }
+  dashboardStudentUid = null;
+  document.getElementById('parent-dashboard-view').classList.add('hidden');
+  document.getElementById('parent-students-view').classList.remove('hidden');
 }
 
-function renderParentLessons(data) {
-  const container = document.getElementById('parent-lessons-list');
+function renderDashboardPuzzle(uid, data) {
+  const container = document.getElementById('dashboard-puzzle');
   if (!data || !Array.isArray(data.lessons)) {
     container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין נתונים. השיעורים יופיעו כאן כשהתלמיד יתחיל לתרגל.</p>';
     return;
   }
   applyPuzzleGridLayout(container, data.lessons.length);
-  // הערה: מסך ההורה הזמני עדיין מצביע על הנתיב הישן (fbKey(studentName)),
-  // לא uid אמיתי, כך שאין לו users/{uid}/program לקרוא ממנו - משתמשים
-  // בברירת המחדל (90 דקות) עד שלב 5, שם המסך ייבנה מחדש עם בחירת
-  // תלמיד אמיתי לפי uid וממנו גם ניתן יהיה לקרוא את היעד המדויק שלו.
-  let html = '';
-  data.lessons.forEach((lesson, i) => {
-    html += puzzlePieceHtml(i, lesson, i === data.activeLessonIdx, false, LESSON_MINUTES_DEFAULT * 60 * 1000);
+  firebaseDb.ref('users/' + uid + '/program').once('value').then(progSnap => {
+    const program = progSnap.val();
+    const targetMs = program && program.minutesPerLesson ? program.minutesPerLesson * 60 * 1000 : LESSON_MINUTES_DEFAULT * 60 * 1000;
+    let html = '';
+    data.lessons.forEach((lesson, i) => {
+      html += puzzlePieceHtml(i, lesson, i === data.activeLessonIdx, false, targetMs);
+    });
+    container.innerHTML = html;
+  }).catch(() => {
+    let html = '';
+    data.lessons.forEach((lesson, i) => {
+      html += puzzlePieceHtml(i, lesson, i === data.activeLessonIdx, false, LESSON_MINUTES_DEFAULT * 60 * 1000);
+    });
+    container.innerHTML = html;
   });
-  container.innerHTML = html;
 }
 
+function renderDashboardStatus(arr) {
+  const last = arr[0];
+  const el = document.getElementById('dashboard-status');
+  if (!last) {
+    el.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין נתונים.</p>';
+    return;
+  }
+  const when = last.timestamp ? new Date(last.timestamp).toLocaleString('he-IL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '';
+  el.innerHTML = `<p style="text-align:center;">תרגול אחרון: ${escapeHtml(when)} · ${escapeHtml(trackLabelHebrew(last.track))} ${escapeHtml(last.sheet || '')}</p>`;
+}
 
-function renderTeacherList(arr) {
-  const previouslySeen = teacherSeenIds.size > 0;
-  const newIds = new Set();
-  arr.forEach(s => newIds.add(s.id));
-  const freshIds = [...newIds].filter(id => !teacherSeenIds.has(id));
-  teacherSubmissions = arr;
-  teacherSeenIds = newIds;
-  const container = document.getElementById('teacher-list');
+function renderDashboardTime(arr) {
+  const now = Date.now();
+  const WEEK_MS = 7 * 24 * 60 * 60 * 1000, MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+  const weekMs = arr.filter(s => s.timestamp && now - s.timestamp <= WEEK_MS).reduce((sum, s) => sum + ((s.summary && s.summary.totalTimeMs) || 0), 0);
+  const monthMs = arr.filter(s => s.timestamp && now - s.timestamp <= MONTH_MS).reduce((sum, s) => sum + ((s.summary && s.summary.totalTimeMs) || 0), 0);
+  document.getElementById('dashboard-time').innerHTML = `
+    <p style="text-align:center;">השבוע האחרון: ${formatMsClock(weekMs)} (דק:שנ)</p>
+    <p style="text-align:center;">החודש האחרון: ${formatMsClock(monthMs)} (דק:שנ)</p>
+  `;
+}
+
+function computeKnowledgeGaps(arr) {
+  const byTrack = {};
+  arr.filter(s => s.type === 'sheet' && s.track).forEach(s => {
+    if (!byTrack[s.track]) byTrack[s.track] = [];
+    byTrack[s.track].push(s);
+  });
+  const rows = [];
+  Object.keys(byTrack).forEach(track => {
+    const list = byTrack[track]; // already sorted desc by timestamp (parent array was sorted)
+    const recent = list.slice(0, 3);
+    const totalCorrect = recent.reduce((s, x) => s + ((x.summary && x.summary.correct) || 0), 0);
+    const totalQ = recent.reduce((s, x) => s + ((x.summary && x.summary.total) || 0), 0);
+    const avgPct = totalQ ? Math.round(100 * totalCorrect / totalQ) : 0;
+    const sameSheetRepeats = list.filter(x => x.sheet === list[0].sheet).length;
+    const passed = list[0].summary && list[0].summary.correct >= 9;
+    const stuck = sameSheetRepeats >= 3 && !passed;
+    rows.push({ track, avgPct, stuck, attempts: list.length, lastSheet: list[0].sheet });
+  });
+  return rows.sort((a, b) => a.avgPct - b.avgPct);
+}
+function renderDashboardGaps(arr) {
+  const gaps = computeKnowledgeGaps(arr);
+  const container = document.getElementById('dashboard-gaps');
+  if (!gaps.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">אין עדיין מספיק נתונים לניתוח.</p>';
+    return;
+  }
+  container.innerHTML = gaps.map(g => `
+    <div class="teacher-row" style="cursor:default;">
+      <div class="name">${(g.avgPct < 70 || g.stuck) ? '🔴 ' : '🟢 '}${escapeHtml(trackLabelHebrew(g.track))}</div>
+      <div class="meta">ממוצע 3 אחרונים: ${g.avgPct}%</div>
+      <div class="meta">שלב אחרון: ${escapeHtml(g.lastSheet || '')}</div>
+      ${g.stuck ? '<div class="meta" style="color:#dc3545;">נראה תקוע באותו שלב</div>' : ''}
+    </div>
+  `).join('');
+}
+
+function renderDashboardSubmissions(arr) {
+  const container = document.getElementById('dashboard-submissions');
   if (arr.length === 0) {
     container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין שליחות. תרגול שיוגש יופיע כאן בזמן אמת.</p>';
     return;
@@ -1932,33 +2004,28 @@ function renderTeacherList(arr) {
     const pct = sum.total ? Math.round(100 * sum.correct / sum.total) : 0;
     const scoreCls = pct >= 90 ? 'high' : pct >= 70 ? 'mid' : 'low';
     const avg = sum.avgTimeMs ? (sum.avgTimeMs / 1000).toFixed(1) + ' שנ\'' : '';
-    const isNew = freshIds.includes(s.id) && previouslySeen;
     const when = s.timestamp ? new Date(s.timestamp).toLocaleString('he-IL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '';
     return `
-      <div class="teacher-row ${isNew ? 'new-flash' : ''}" onclick="showTeacherDetail('${s.id}')">
-        <div class="name">${escapeHtml(s.studentName || 'ללא שם')}</div>
-        <div class="meta">${escapeHtml(trackLabelHebrew(s.track))} · ${escapeHtml(s.sheet || '')}</div>
+      <div class="teacher-row" onclick="showDashboardSubmissionDetail('${s.id}')">
+        <div class="name">${escapeHtml(trackLabelHebrew(s.track))} · ${escapeHtml(s.sheet || '')}</div>
         <div class="score ${scoreCls}">${sum.correct || 0}/${sum.total || 0}</div>
         <div class="meta">⏱ ${avg}</div>
         <div class="meta">${when}</div>
       </div>
     `;
   }).join('');
-  if (freshIds.length > 0 && previouslySeen) {
-    try { document.title = '🔔 הגשה חדשה - מסך מורה'; setTimeout(() => { document.title = 'תרגול למבחן מתמטיקה - כיתה ט\''; }, 3000); } catch (_) {}
-  }
 }
 
 function trackLabelHebrew(track) {
-  if (track === 'addition') return 'חיבור';
-  if (track === 'subtraction') return 'חיסור';
-  if (track === 'multiplication') return 'כפל';
+  if (BASICS_TRACKS[track] && BASICS_TRACKS[track].title) {
+    return BASICS_TRACKS[track].title.replace(/^[^֐-׿]+/, '').trim();
+  }
   if (track === 'mixed') return 'בדיקת רמה';
   return track || '';
 }
 
-function showTeacherDetail(id) {
-  const s = teacherSubmissions.find(x => x.id === id);
+function showDashboardSubmissionDetail(id) {
+  const s = dashboardSubmissions.find(x => x.id === id);
   if (!s) return;
   const sum = s.summary || {};
   const probs = s.problems || [];
@@ -1975,11 +2042,11 @@ function showTeacherDetail(id) {
   const when = s.timestamp ? new Date(s.timestamp).toLocaleString('he-IL') : '';
   const avg = sum.avgTimeMs ? (sum.avgTimeMs / 1000).toFixed(1) : '0';
   const total = sum.totalTimeMs ? (sum.totalTimeMs / 1000).toFixed(0) : '0';
-  document.getElementById('teacher-detail-container').innerHTML = `
+  document.getElementById('dashboard-detail-container').innerHTML = `
     <div class="teacher-detail">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-        <h3 style="margin:0;">${escapeHtml(s.studentName || '')} · ${escapeHtml(trackLabelHebrew(s.track))} ${escapeHtml(s.sheet || '')}</h3>
-        <button class="btn btn-secondary" onclick="document.getElementById('teacher-detail-container').innerHTML=''">סגור</button>
+        <h3 style="margin:0;">${escapeHtml(trackLabelHebrew(s.track))} ${escapeHtml(s.sheet || '')}</h3>
+        <button class="btn btn-secondary" onclick="document.getElementById('dashboard-detail-container').innerHTML=''">סגור</button>
       </div>
       <p style="color:#7f8c8d; font-size:0.9em; margin:4px 0;">${when}</p>
       <div class="teacher-summary">
@@ -4787,13 +4854,13 @@ function renderParentStudentsList(arr) {
     return;
   }
   container.innerHTML = arr.map(s => `
-    <div class="teacher-row" style="cursor:default;">
+    <div class="teacher-row" onclick="openParentDashboard('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">
       <div class="name">${escapeHtml(s.displayName || s.username)}</div>
       <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
       ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
       <div class="meta">🪙 ${s.coins || 0}</div>
-      <button class="btn btn-secondary" onclick="openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
-      <button class="btn btn-secondary" onclick="handleGiftCoins('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🎁 העניק מטבעות</button>
+      <button class="btn btn-secondary" onclick="event.stopPropagation(); openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
+      <button class="btn btn-secondary" onclick="event.stopPropagation(); handleGiftCoins('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🎁 העניק מטבעות</button>
     </div>
   `).join('');
 }
