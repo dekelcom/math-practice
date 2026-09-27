@@ -912,6 +912,14 @@ try {
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
     </div>
+
+    <!-- TEMP DEMO SEED: remove this button + handleSeedDemoData() before merging to production.
+         Must run as the student (not the parent) - submissions can only be written by their
+         own owner, so this can't live on the parent dashboard. -->
+    <p style="text-align:center;">
+      <button class="btn btn-secondary" style="border:1px dashed #e67e22; color:#e67e22;" onclick="handleSeedDemoData(studentUid, studentName)">🧪 הוסף נתוני דמו לבדיקה (הורה)</button>
+    </p>
+
     <div class="section-title">🎓 שיעורים (12 × שעה וחצי)</div>
     <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
     <div style="text-align:center; margin-bottom: 10px;">
@@ -1106,11 +1114,6 @@ try {
   <div id="parent-dashboard-view" class="hidden">
     <button class="back-btn" onclick="exitParentDashboard()">← חזרה לרשימת תלמידים</button>
     <h2 style="text-align:center;" id="dashboard-student-name"></h2>
-
-    <!-- TEMP DEMO SEED: remove this button + handleSeedDemoData() before merging to production -->
-    <p style="text-align:center;">
-      <button class="btn btn-secondary" style="border:1px dashed #e67e22; color:#e67e22;" onclick="handleSeedDemoData(dashboardStudentUid, document.getElementById('dashboard-student-name').textContent)">🧪 הוסף נתוני דמו לבדיקה</button>
-    </p>
 
     <div class="section-title">📊 סטטוס נוכחי</div>
     <div id="dashboard-status"></div>
