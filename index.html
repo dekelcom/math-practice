@@ -850,6 +850,10 @@ try {
   firebase.initializeApp(firebaseConfig);
   firebaseDb = firebase.database();
   firebaseAuth = firebase.auth();
+  // מפורש למרות שזו ברירת המחדל: נשארים מחוברים באותו דפדפן/מחשב עד
+  // "התנתק" מפורש, גם אחרי סגירת הדפדפן.
+  firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .catch(e => console.warn('setPersistence failed:', e));
 } catch (e) {
   console.warn('Firebase init failed:', e);
 }
@@ -865,39 +869,39 @@ try {
   <div id="bootstrap-view" class="hidden">
     <h2 style="text-align:center;">🔧 הגדרה ראשונית</h2>
     <p style="text-align:center; color:#7f8c8d;">לא נמצא חשבון מנהל במערכת. הגדר סיסמה זמנית עבור המנהל (<b>DekelCom</b>) — מיד לאחר מכן תתבקש להחליף אותה לסיסמה קבועה.</p>
-    <div class="auth-form">
+    <form class="auth-form" onsubmit="event.preventDefault(); handleBootstrap();">
       <label>סיסמה זמנית</label>
       <input type="password" id="bootstrap-password" autocomplete="new-password">
       <label>אימות סיסמה</label>
       <input type="password" id="bootstrap-password-confirm" autocomplete="new-password">
-      <button class="btn btn-primary" style="width:100%;" onclick="handleBootstrap()">צור חשבון מנהל</button>
+      <button type="submit" class="btn btn-primary" style="width:100%;">צור חשבון מנהל</button>
       <div class="auth-error" id="bootstrap-error"></div>
-    </div>
+    </form>
   </div>
   <div id="login-view" class="hidden">
     <h2 style="text-align:center;">🔐 התחברות</h2>
-    <div class="auth-form">
+    <form class="auth-form" onsubmit="event.preventDefault(); handleLogin();">
       <label>שם משתמש</label>
       <input type="text" id="login-username" autocomplete="username">
       <label>סיסמה</label>
       <input type="password" id="login-password" autocomplete="current-password">
-      <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">התחבר</button>
+      <button type="submit" class="btn btn-primary" style="width:100%;">התחבר</button>
       <div class="auth-error" id="login-error"></div>
-    </div>
+    </form>
   </div>
   <div id="force-password-view" class="hidden">
     <h2 style="text-align:center;">🔑 יש להחליף סיסמה</h2>
     <p style="text-align:center; color:#7f8c8d;">זו הכניסה הראשונה שלך. הקלד את הסיסמה הזמנית ובחר סיסמה קבועה חדשה.</p>
-    <div class="auth-form">
+    <form class="auth-form" onsubmit="event.preventDefault(); handleForcePasswordChange();">
       <label>סיסמה נוכחית (זמנית)</label>
       <input type="password" id="force-current-password" autocomplete="current-password">
       <label>סיסמה חדשה</label>
       <input type="password" id="force-new-password" autocomplete="new-password">
       <label>אימות סיסמה חדשה</label>
       <input type="password" id="force-new-password-confirm" autocomplete="new-password">
-      <button class="btn btn-primary" style="width:100%;" onclick="handleForcePasswordChange()">שמור והמשך</button>
+      <button type="submit" class="btn btn-primary" style="width:100%;">שמור והמשך</button>
       <div class="auth-error" id="force-password-error"></div>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -1016,16 +1020,16 @@ try {
   <div id="change-password-view" class="hidden">
     <button class="back-btn" onclick="closeChangePassword()">← ביטול</button>
     <h2 style="text-align:center;">🔑 החלפת סיסמה</h2>
-    <div class="auth-form">
+    <form class="auth-form" onsubmit="event.preventDefault(); handleChangePassword();">
       <label>סיסמה נוכחית</label>
       <input type="password" id="change-current-password" autocomplete="current-password">
       <label>סיסמה חדשה</label>
       <input type="password" id="change-new-password" autocomplete="new-password">
       <label>אימות סיסמה חדשה</label>
       <input type="password" id="change-new-password-confirm" autocomplete="new-password">
-      <button class="btn btn-primary" style="width:100%;" onclick="handleChangePassword()">שמור</button>
+      <button type="submit" class="btn btn-primary" style="width:100%;">שמור</button>
       <div class="auth-error" id="change-password-error"></div>
-    </div>
+    </form>
   </div>
 
   <div id="admin-home-view" class="hidden">
