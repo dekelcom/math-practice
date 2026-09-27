@@ -1089,6 +1089,20 @@ try {
       <button class="btn btn-secondary" onclick="closeCreateStudentForm()">ביטול</button>
       <div class="auth-error" id="create-student-error"></div>
     </div>
+    <div id="edit-program-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <h3 style="text-align:center;" id="edit-program-title"></h3>
+      <label>מספר שיעורים</label>
+      <input type="number" id="program-lesson-count" min="1" max="99">
+      <label>דקות נטו לכל שיעור</label>
+      <input type="number" id="program-minutes" min="1" max="600">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+        <input type="checkbox" id="program-reset-same-day" style="width:auto;">
+        לאפס שיעור שלא הושלם עד סוף היום
+      </label>
+      <button class="btn btn-primary" onclick="handleSaveProgram()">שמור</button>
+      <button class="btn btn-secondary" onclick="closeEditProgramForm()">ביטול</button>
+      <div class="auth-error" id="edit-program-error"></div>
+    </div>
   </div>
 
   <div id="basics-ladder-view" class="hidden">
@@ -1425,12 +1439,37 @@ let studentUid = null;
 function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
 
 // ============================================================
-// שיעורים - 10 שיעורים של 90 דקות נטו כל אחד
+// שיעורים - כברירת מחדל 12 שיעורים של 90 דקות נטו כל אחד, אבל כל
+// הורה יכול להתאים את זה לכל תלמיד בנפרד (users/{uid}/program)
 // ============================================================
-const LESSON_COUNT = 12;
-const LESSON_TARGET_MS = 90 * 60 * 1000;
+const LESSON_COUNT_DEFAULT = 12;
+const LESSON_MINUTES_DEFAULT = 90;
+let LESSON_COUNT = LESSON_COUNT_DEFAULT;
+let LESSON_TARGET_MS = LESSON_MINUTES_DEFAULT * 60 * 1000;
+let LESSON_RESET_IF_NOT_SAME_DAY = true;
 const LESSON_IDLE_MS = 60 * 1000; // דקה בלי פעילות = השעון נעצר
 const LESSON_ACTIVITY_SELECTOR = '#basics-session, #diagnostic-session, #problem-area';
+
+async function loadStudentProgram() {
+  if (!firebaseDb || !studentUid) return;
+  try {
+    const snap = await firebaseDb.ref('users/' + studentUid + '/program').once('value');
+    const program = snap.val();
+    if (program) {
+      LESSON_COUNT = program.lessonCount || LESSON_COUNT_DEFAULT;
+      LESSON_TARGET_MS = (program.minutesPerLesson || LESSON_MINUTES_DEFAULT) * 60 * 1000;
+      LESSON_RESET_IF_NOT_SAME_DAY = program.resetIfNotSameDay !== false;
+    }
+  } catch (e) {
+    console.warn('program load failed', e);
+  }
+  lessons = loadLessons();
+  // ליתר ביטחון: אם התלמיד כבר הספיק לפתוח את מסך השיעורים ברגע הקצר
+  // שבו עדיין נטענות ההגדרות (LESSON_COUNT/LESSON_TARGET_MS של ברירת
+  // המחדל), נרענן את מה שכבר מוצג במקום להשאיר אותו לא מעודכן.
+  renderLessonsList();
+  renderLessonTimerWidget();
+}
 
 function todayStr() {
   const d = new Date();
@@ -1545,8 +1584,15 @@ function exitLessonsView() {
   document.getElementById('lessons-view').classList.add('hidden');
   document.getElementById('main-menu').classList.remove('hidden');
 }
-function puzzlePieceHtml(i, lesson, isActive, clickable) {
-  const pct = Math.min(100, Math.round(100 * (lesson.netMs || 0) / LESSON_TARGET_MS));
+function applyPuzzleGridLayout(container, count) {
+  const cols = Math.max(1, Math.ceil(Math.sqrt(count)));
+  const rows = Math.max(1, Math.ceil(count / cols));
+  container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+}
+function puzzlePieceHtml(i, lesson, isActive, clickable, targetMs) {
+  const target = targetMs || LESSON_TARGET_MS;
+  const pct = Math.min(100, Math.round(100 * (lesson.netMs || 0) / target));
   if (lesson.completed) {
     return `<div class="puzzle-piece revealed"></div>`;
   }
@@ -1557,9 +1603,10 @@ function puzzlePieceHtml(i, lesson, isActive, clickable) {
 }
 function renderLessonsList() {
   const container = document.getElementById('lessons-list');
+  applyPuzzleGridLayout(container, LESSON_COUNT);
   let html = '';
   for (let i = 0; i < LESSON_COUNT; i++) {
-    html += puzzlePieceHtml(i, lessons[i], i === activeLessonIdx, true);
+    html += puzzlePieceHtml(i, lessons[i], i === activeLessonIdx, true, LESSON_TARGET_MS);
   }
   container.innerHTML = html;
 }
@@ -1567,7 +1614,7 @@ function startOrResumeLesson(idx) {
   const lesson = lessons[idx];
   if (!lesson || lesson.completed) return;
   if (lesson.date !== todayStr()) {
-    lesson.netMs = 0;
+    if (LESSON_RESET_IF_NOT_SAME_DAY) lesson.netMs = 0;
     lesson.date = todayStr();
   }
   activeLessonIdx = idx;
@@ -1806,9 +1853,14 @@ function renderParentLessons(data) {
     container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין נתונים. השיעורים יופיעו כאן כשהתלמיד יתחיל לתרגל.</p>';
     return;
   }
+  applyPuzzleGridLayout(container, data.lessons.length);
+  // הערה: מסך ההורה הזמני עדיין מצביע על הנתיב הישן (fbKey(studentName)),
+  // לא uid אמיתי, כך שאין לו users/{uid}/program לקרוא ממנו - משתמשים
+  // בברירת המחדל (90 דקות) עד שלב 5, שם המסך ייבנה מחדש עם בחירת
+  // תלמיד אמיתי לפי uid וממנו גם ניתן יהיה לקרוא את היעד המדויק שלו.
   let html = '';
   data.lessons.forEach((lesson, i) => {
-    html += puzzlePieceHtml(i, lesson, i === data.activeLessonIdx, false);
+    html += puzzlePieceHtml(i, lesson, i === data.activeLessonIdx, false, LESSON_MINUTES_DEFAULT * 60 * 1000);
   });
   container.innerHTML = html;
 }
@@ -4536,7 +4588,7 @@ function showAppView(viewId) {
   document.getElementById(viewId).classList.remove('hidden');
 }
 
-function routeByRole(role) {
+async function routeByRole(role) {
   if (role === 'admin') {
     document.getElementById('admin-username-label').textContent = currentUser.username;
     showAppView('admin-home-view');
@@ -4550,6 +4602,7 @@ function routeByRole(role) {
     localStorage.setItem('studentName', studentName);
     document.getElementById('student-username-label').textContent = studentName;
     showAppView('main-menu');
+    await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
   }
 }
@@ -4689,8 +4742,52 @@ function renderParentStudentsList(arr) {
       <div class="name">${escapeHtml(s.displayName || s.username)}</div>
       <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
       ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
+      <button class="btn btn-secondary" onclick="openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
     </div>
   `).join('');
+}
+
+let editProgramStudentUid = null;
+async function openEditProgramForm(uid, name) {
+  editProgramStudentUid = uid;
+  document.getElementById('edit-program-title').textContent = 'הגדרות שיעורים: ' + name;
+  document.getElementById('edit-program-error').textContent = '';
+  document.getElementById('program-lesson-count').value = LESSON_COUNT_DEFAULT;
+  document.getElementById('program-minutes').value = LESSON_MINUTES_DEFAULT;
+  document.getElementById('program-reset-same-day').checked = true;
+  document.getElementById('edit-program-form').classList.remove('hidden');
+  try {
+    const snap = await firebaseDb.ref('users/' + uid + '/program').once('value');
+    const program = snap.val();
+    if (program) {
+      document.getElementById('program-lesson-count').value = program.lessonCount || LESSON_COUNT_DEFAULT;
+      document.getElementById('program-minutes').value = program.minutesPerLesson || LESSON_MINUTES_DEFAULT;
+      document.getElementById('program-reset-same-day').checked = program.resetIfNotSameDay !== false;
+    }
+  } catch (e) {
+    console.warn('program fetch for edit failed', e);
+  }
+}
+function closeEditProgramForm() {
+  document.getElementById('edit-program-form').classList.add('hidden');
+  editProgramStudentUid = null;
+}
+async function handleSaveProgram() {
+  const count = parseInt(document.getElementById('program-lesson-count').value, 10);
+  const minutes = parseInt(document.getElementById('program-minutes').value, 10);
+  const resetSameDay = document.getElementById('program-reset-same-day').checked;
+  const errEl = document.getElementById('edit-program-error');
+  errEl.textContent = '';
+  if (!count || count < 1 || count > 99) { errEl.textContent = 'מספר שיעורים לא תקין (1-99).'; return; }
+  if (!minutes || minutes < 1 || minutes > 600) { errEl.textContent = 'משך שיעור לא תקין (1-600 דקות).'; return; }
+  try {
+    await firebaseDb.ref('users/' + editProgramStudentUid + '/program').set({
+      lessonCount: count, minutesPerLesson: minutes, resetIfNotSameDay: resetSameDay
+    });
+    closeEditProgramForm();
+  } catch (e) {
+    errEl.textContent = 'שגיאה: ' + (e.message || e);
+  }
 }
 function openCreateStudentForm() {
   document.getElementById('create-student-form').classList.remove('hidden');
