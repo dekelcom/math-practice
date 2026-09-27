@@ -507,6 +507,9 @@
   .basics-track-card.factorize { background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); }
   .basics-track-card.inequalities { background: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%); color: #2c3e50; }
   .basics-track-card.simultaneous { background: linear-gradient(135deg, #4568dc 0%, #b06ab3 100%); }
+  .basics-track-card.placeValue { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
+  .basics-track-card.properties { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
+  .basics-track-card.oneStepEq { background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%); }
 
   .frac {
     display: inline-flex; flex-direction: column; vertical-align: middle;
@@ -571,6 +574,12 @@
     font-family: "Cambria Math", serif;
     direction: ltr;
     unicode-bidi: isolate;
+  }
+  .basics-question-label {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #34495e;
+    margin-top: 8px;
   }
   .basics-options {
     display: grid;
@@ -941,6 +950,13 @@ try {
       <button class="basics-track-card subtraction" onclick="openBasicsTrack('subtraction')">➖ חיסור<br><small style="opacity:0.9">-1, -2, -3... מעורב</small></button>
       <button class="basics-track-card multiplication" onclick="openBasicsTrack('multiplication')">✕ כפל<br><small style="opacity:0.9">×1, ×2, ×3... מעורב</small></button>
       <button class="basics-track-card division" onclick="openBasicsTrack('division')">➗ חילוק<br><small style="opacity:0.9">÷1, ÷2, ÷3... מעורב</small></button>
+    </div>
+
+    <div class="section-title">📘 יחידה 1 - הרחבות</div>
+    <div class="basics-menu">
+      <button class="basics-track-card placeValue" onclick="openBasicsTrack('placeValue')">🔢 ערך מקום<br><small style="opacity:0.9">צורה מורחבת, מקום ספרה</small></button>
+      <button class="basics-track-card properties" onclick="openBasicsTrack('properties')">⚖️ תכונות וביטויים<br><small style="opacity:0.9">חילופיות, קיבוציות, פילוג</small></button>
+      <button class="basics-track-card oneStepEq" onclick="openBasicsTrack('oneStepEq')">🎯 משוואות חד-שלביות<br><small style="opacity:0.9">x + a = b וכדומה</small></button>
     </div>
 
     <div class="section-title">🔢 חישוב מורכב</div>
@@ -1478,7 +1494,10 @@ const BASICS_TRACKS = {
   solveLinear: { title: '🟰 פתרון משוואה לינארית' },
   factorize: { title: '✂ פירוק לגורמים' },
   inequalities: { title: '< אי-שוויונים' },
-  simultaneous: { title: '⊞ שתי משוואות' }
+  simultaneous: { title: '⊞ שתי משוואות' },
+  placeValue: { title: '🔢 ערך מקום וצורה מורחבת' },
+  properties: { title: '⚖️ תכונות וביטויים' },
+  oneStepEq: { title: '🎯 משוואות חד-שלביות' }
 };
 
 const ALL_TRACK_KEYS = Object.keys(BASICS_TRACKS);
@@ -1827,9 +1846,12 @@ function renderDiagnosticQuestion() {
     `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="answerDiagnostic(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
   ).join('');
   const eqHtml = p.displayQ || `${p.a} ${p.op} ${p.b}`;
+  const questionLine = p.questionLabel ? eqHtml : `${eqHtml} = ?`;
+  const labelHtml = p.questionLabel ? `<div class="basics-question-label">${escapeHtml(p.questionLabel)}</div>` : '';
   container.innerHTML = `
     <div class="basics-progress">שאלה ${diagnosticCurrent + 1} מתוך ${diagnosticQuestions.length} · נכונים עד כה: ${diagnosticCorrect}</div>
-    <div class="basics-equation">${eqHtml} = ?</div>
+    ${labelHtml}
+    <div class="basics-equation">${questionLine}</div>
     <div class="basics-options">${optionsHtml}</div>
   `;
   basicsProblemStart = Date.now();
@@ -2427,7 +2449,16 @@ function sheetLabelFor(track, index) {
     simultaneous: ['ביטול קל', 'ביטול עם x', 'ביטול עם y',
                    'הצבה x=', 'הצבה y=', 'מקדמים שונים',
                    'מקדמים גדולים', 'עם שליליים', 'משוואות מורכבות',
-                   'מעורב']
+                   'מעורב'],
+    placeValue: ['3 ספרות', '4 ספרות', '5 ספרות',
+                 '6 ספרות', '7 ספרות', '8 ספרות',
+                 '9 ספרות', '9 ספרות', '9 ספרות', 'מעורב'],
+    properties: ['זיהוי תכונה 1', 'זיהוי תכונה 2', 'זיהוי תכונה 3',
+                 'זיהוי תכונה 4', 'זיהוי תכונה 5', 'זיהוי תכונה 6',
+                 'הצבה בביטוי 1', 'הצבה בביטוי 2', 'הצבה בביטוי 3', 'מעורב'],
+    oneStepEq: ['x + a = b', 'x + a = b', 'x − a = b',
+                'x − a = b', 'ax = b', 'ax = b',
+                'x ÷ a = b', 'x ÷ a = b', 'מעורב', 'מעורב']
   };
   if (LABELS[track]) return LABELS[track][index] || '';
   if (index === 9) return 'מעורב';
@@ -3132,6 +3163,128 @@ function genSimultaneousProblem(s) {
   };
 }
 
+// --- ערך מקום וצורה מורחבת ---
+const PLACE_NAMES = ['אחדות', 'עשרות', 'מאות', 'אלפים', 'עשרות אלפים',
+  'מאות אלפים', 'מיליונים', 'עשרות מיליונים', 'מאות מיליונים'];
+function digitAtPlace(n, placeIdx) { return Math.floor(n / Math.pow(10, placeIdx)) % 10; }
+function numberToExpandedParts(n) {
+  const s = String(n);
+  const len = s.length;
+  const parts = [];
+  for (let i = 0; i < len; i++) {
+    const digit = parseInt(s[i], 10);
+    if (digit === 0) continue;
+    parts.push(digit * Math.pow(10, len - 1 - i));
+  }
+  return parts;
+}
+function formatExpanded(parts) { return parts.map(p => p.toLocaleString('en-US')).join(' + '); }
+function genPlaceValueProblem(sheetIdx) {
+  const p = pickInt;
+  const digitsCount = Math.min(3 + sheetIdx, 9);
+  const n = p(Math.pow(10, digitsCount - 1), Math.pow(10, digitsCount) - 1);
+  const qType = p(0, 2);
+  if (qType === 0) {
+    const parts = numberToExpandedParts(n);
+    const answer = formatExpanded(parts);
+    const distractors = [];
+    if (parts.length) {
+      const bad = parts.slice();
+      const idx = p(0, bad.length - 1);
+      bad[idx] = bad[idx] * 10;
+      distractors.push(formatExpanded(bad));
+    }
+    if (parts.length > 1) distractors.push(formatExpanded(parts.slice(0, -1)));
+    distractors.push(formatExpanded(parts.slice().reverse()));
+    return {
+      questionLabel: 'מהי הצורה המורחבת של המספר?',
+      displayQ: n.toLocaleString('en-US'),
+      answer, options: genStringOptions(answer, distractors)
+    };
+  }
+  const placeIdx = p(0, digitsCount - 1);
+  const digit = digitAtPlace(n, placeIdx);
+  if (qType === 1) {
+    const opts = new Set([digit]);
+    while (opts.size < 4) opts.add(p(0, 9));
+    return {
+      questionLabel: `מהי הספרה במקום ה"${PLACE_NAMES[placeIdx]}"?`,
+      displayQ: n.toLocaleString('en-US'),
+      answer: String(digit), options: [...opts].sort(() => Math.random() - 0.5).map(String)
+    };
+  }
+  const answer = digit * Math.pow(10, placeIdx);
+  return {
+    questionLabel: `מה הערך של הספרה במקום ה"${PLACE_NAMES[placeIdx]}"?`,
+    displayQ: n.toLocaleString('en-US'),
+    answer: String(answer), options: genBigNumOptions(answer).map(String)
+  };
+}
+
+// --- תכונות וביטויים ---
+const PROPERTY_LABELS = {
+  commAdd: 'חילופיות החיבור', commMul: 'חילופיות הכפל',
+  assocAdd: 'קיבוציות החיבור', assocMul: 'קיבוציות הכפל',
+  identityAdd: 'איבר נייטרלי בחיבור (0)', identityMul: 'איבר נייטרלי בכפל (1)',
+  zeroMul: 'תכונת האפס בכפל', distributive: 'תכונת הפילוג'
+};
+function genPropertiesProblem(sheetIdx) {
+  const p = pickInt;
+  if (sheetIdx < 6) {
+    const keys = Object.keys(PROPERTY_LABELS);
+    const key = keys[p(0, keys.length - 1)];
+    const a = p(2, 9), b = p(2, 9), c = p(2, 9);
+    const EQS = {
+      commAdd: `${a} + ${b} = ${b} + ${a}`,
+      commMul: `${a} × ${b} = ${b} × ${a}`,
+      assocAdd: `(${a} + ${b}) + ${c} = ${a} + (${b} + ${c})`,
+      assocMul: `(${a} × ${b}) × ${c} = ${a} × (${b} × ${c})`,
+      identityAdd: `${a} + 0 = ${a}`,
+      identityMul: `${a} × 1 = ${a}`,
+      zeroMul: `${a} × 0 = 0`,
+      distributive: `${a} × (${b} + ${c}) = (${a} × ${b}) + (${a} × ${c})`
+    };
+    const answer = PROPERTY_LABELS[key];
+    const otherKeys = keys.filter(k => k !== key).sort(() => Math.random() - 0.5);
+    const distractors = otherKeys.slice(0, 3).map(k => PROPERTY_LABELS[k]);
+    return {
+      questionLabel: 'איזו תכונה מודגמת במשוואה?',
+      displayQ: EQS[key],
+      answer, options: genStringOptions(answer, distractors)
+    };
+  }
+  const y = p(2, 12);
+  const forms = [
+    () => { const k = p(10, 40); return { text: `${k} − y`, val: k - y }; },
+    () => { const k = p(1, 20); return { text: `y + ${k}`, val: y + k }; },
+    () => { const k = p(2, 9); return { text: `${k}y`, val: k * y }; },
+    () => { const k = p(2, 9), c = p(1, 10); return { text: `${k}y + ${c}`, val: k * y + c }; }
+  ];
+  const f = forms[p(0, forms.length - 1)]();
+  return {
+    questionLabel: `הצב y = ${y} ופתור`,
+    displayQ: f.text,
+    answer: String(f.val), options: genNumericOptionsAllowNeg(f.val).map(String)
+  };
+}
+
+// --- משוואות חד-שלביות ---
+function genOneStepEqProblem(sheetIdx) {
+  const p = pickInt;
+  let kind;
+  if (sheetIdx <= 1) kind = 'add';
+  else if (sheetIdx <= 3) kind = 'sub';
+  else if (sheetIdx <= 5) kind = 'mul';
+  else if (sheetIdx <= 7) kind = 'div';
+  else kind = ['add', 'sub', 'mul', 'div'][p(0, 3)];
+  let sol, displayQ;
+  if (kind === 'add') { sol = p(1, 30); const a = p(1, 20); displayQ = `x + ${a} = ${sol + a}`; }
+  else if (kind === 'sub') { sol = p(1, 30); const a = p(1, 20); displayQ = `x − ${a} = ${sol - a}`; }
+  else if (kind === 'mul') { sol = p(2, 12); const a = p(2, 9); displayQ = `${a}x = ${a * sol}`; }
+  else { const a = p(2, 9); const q = p(2, 12); sol = q * a; displayQ = `x ÷ ${a} = ${q}`; }
+  return { displayQ, answer: String(sol), options: genNumericOptionsAllowNeg(sol).map(String) };
+}
+
 function genBasicsProblems(track, sheetIndex) {
   const customGens = {
     negatives: genNegativesProblem, orderops: genOrderOpsProblem, fractions: genFractionsProblem,
@@ -3141,7 +3294,9 @@ function genBasicsProblems(track, sheetIndex) {
     fractionsAdv: genFractionsAdvProblem, decimals: genDecimalsProblem,
     simplify: genSimplifyProblem, solveLinear: genSolveLinearProblem,
     factorize: genFactorizeProblem, inequalities: genInequalityProblem,
-    simultaneous: genSimultaneousProblem
+    simultaneous: genSimultaneousProblem,
+    placeValue: genPlaceValueProblem, properties: genPropertiesProblem,
+    oneStepEq: genOneStepEqProblem
   };
   if (customGens[track]) return Array.from({ length: BASICS_SHEET_SIZE }, () => customGens[track](sheetIndex));
   const problems = [];
@@ -3230,9 +3385,12 @@ function renderBasicsProblem() {
     `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="checkBasicsAnswer(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
   ).join('');
   const eqHtml = p.displayQ || `${p.a} ${p.op} ${p.b}`;
+  const questionLine = p.questionLabel ? eqHtml : `${eqHtml} = ?`;
+  const labelHtml = p.questionLabel ? `<div class="basics-question-label">${escapeHtml(p.questionLabel)}</div>` : '';
   container.innerHTML = `
     <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
-    <div class="basics-equation">${eqHtml} = ?</div>
+    ${labelHtml}
+    <div class="basics-equation">${questionLine}</div>
     <div class="basics-options">${optionsHtml}</div>
   `;
   basicsProblemStart = Date.now();
@@ -3258,7 +3416,7 @@ function checkBasicsAnswer(value, btnEl) {
   }
   basicsSessionLog.push({
     track: basicsTrack, sheetIdx: basicsSheetIndex,
-    question: p.displayQ || `${p.a} ${p.op} ${p.b}`,
+    question: (p.questionLabel ? p.questionLabel + ' ' : '') + (p.displayQ || `${p.a} ${p.op} ${p.b}`),
     chosen: value, correct, expected: p.answer, timeMs
   });
   if (correct) basicsCorrect++;
