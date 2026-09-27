@@ -742,6 +742,20 @@
   }
   .lesson-timer-widget.paused { background: rgba(149, 165, 166, 0.95); }
 
+  /* התחברות / ניהול סיסמאות */
+  #auth-container { max-width: 420px; }
+  .auth-form { display: flex; flex-direction: column; gap: 4px; margin-top: 14px; }
+  .auth-form label { font-weight: 600; color: #34495e; margin-top: 8px; }
+  .auth-form input[type="text"], .auth-form input[type="password"] {
+    padding: 10px; font-size: 1.05em; border: 2px solid #bdc3c7; border-radius: 6px;
+    width: 100%; font-family: inherit;
+  }
+  .auth-form input:focus { outline: none; border-color: #3498db; }
+  .auth-form button { margin-top: 14px; }
+  .auth-error {
+    color: #dc3545; text-align: center; margin-top: 10px; min-height: 1.2em; font-size: 0.95em;
+  }
+
   /* פאזל השיעורים - חושף תמונה חלק אחרי חלק */
   .puzzle-wrap {
     position: relative; width: 100%; max-width: 480px; aspect-ratio: 1 / 1;
@@ -819,6 +833,7 @@
 <body>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAgxCpPbxPFF2awfjygkabhS60UV13sSUc",
@@ -830,23 +845,73 @@ const firebaseConfig = {
   appId: "1:1015683299854:web:d05118ea913592b37b9a5f"
 };
 let firebaseDb = null;
+let firebaseAuth = null;
 try {
   firebase.initializeApp(firebaseConfig);
   firebaseDb = firebase.database();
+  firebaseAuth = firebase.auth();
 } catch (e) {
   console.warn('Firebase init failed:', e);
 }
-const TEACHER_MODE = new URLSearchParams(location.search).get('mode') === 'teacher';
-const PARENT_MODE = new URLSearchParams(location.search).get('mode') === 'parent';
 </script>
 <div id="lesson-timer-widget" class="lesson-timer-widget hidden">
   <span>⏱</span>
   <span id="lesson-timer-label"></span>
 </div>
-<div class="container">
+<div id="auth-container" class="container">
+  <div id="auth-loading" class="hidden">
+    <p style="text-align:center; color:#7f8c8d;">טוען...</p>
+  </div>
+  <div id="bootstrap-view" class="hidden">
+    <h2 style="text-align:center;">🔧 הגדרה ראשונית</h2>
+    <p style="text-align:center; color:#7f8c8d;">לא נמצא חשבון מנהל במערכת. הגדר סיסמה זמנית עבור המנהל (<b>DekelCom</b>) — מיד לאחר מכן תתבקש להחליף אותה לסיסמה קבועה.</p>
+    <div class="auth-form">
+      <label>סיסמה זמנית</label>
+      <input type="password" id="bootstrap-password" autocomplete="new-password">
+      <label>אימות סיסמה</label>
+      <input type="password" id="bootstrap-password-confirm" autocomplete="new-password">
+      <button class="btn btn-primary" style="width:100%;" onclick="handleBootstrap()">צור חשבון מנהל</button>
+      <div class="auth-error" id="bootstrap-error"></div>
+    </div>
+  </div>
+  <div id="login-view" class="hidden">
+    <h2 style="text-align:center;">🔐 התחברות</h2>
+    <div class="auth-form">
+      <label>שם משתמש</label>
+      <input type="text" id="login-username" autocomplete="username">
+      <label>סיסמה</label>
+      <input type="password" id="login-password" autocomplete="current-password">
+      <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">התחבר</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+  </div>
+  <div id="force-password-view" class="hidden">
+    <h2 style="text-align:center;">🔑 יש להחליף סיסמה</h2>
+    <p style="text-align:center; color:#7f8c8d;">זו הכניסה הראשונה שלך. הקלד את הסיסמה הזמנית ובחר סיסמה קבועה חדשה.</p>
+    <div class="auth-form">
+      <label>סיסמה נוכחית (זמנית)</label>
+      <input type="password" id="force-current-password" autocomplete="current-password">
+      <label>סיסמה חדשה</label>
+      <input type="password" id="force-new-password" autocomplete="new-password">
+      <label>אימות סיסמה חדשה</label>
+      <input type="password" id="force-new-password-confirm" autocomplete="new-password">
+      <button class="btn btn-primary" style="width:100%;" onclick="handleForcePasswordChange()">שמור והמשך</button>
+      <div class="auth-error" id="force-password-error"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app-container" class="container hidden">
   <h1>🎯 תרגול למבחן מתמטיקה - כיתה ט'</h1>
 
-  <div id="main-menu">
+  <div id="main-menu" class="hidden">
+    <div class="topic-view-header">
+      <span>👋 שלום, <b id="student-username-label"></b></span>
+      <span>
+        <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
+        <button class="back-btn" onclick="handleLogout()">התנתק</button>
+      </span>
+    </div>
     <div class="section-title">🎓 שיעורים (12 × שעה וחצי)</div>
     <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
     <div style="text-align:center; margin-bottom: 10px;">
@@ -940,6 +1005,47 @@ const PARENT_MODE = new URLSearchParams(location.search).get('mode') === 'parent
     <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
   </div>
 
+  <div id="change-password-view" class="hidden">
+    <button class="back-btn" onclick="closeChangePassword()">← ביטול</button>
+    <h2 style="text-align:center;">🔑 החלפת סיסמה</h2>
+    <div class="auth-form">
+      <label>סיסמה נוכחית</label>
+      <input type="password" id="change-current-password" autocomplete="current-password">
+      <label>סיסמה חדשה</label>
+      <input type="password" id="change-new-password" autocomplete="new-password">
+      <label>אימות סיסמה חדשה</label>
+      <input type="password" id="change-new-password-confirm" autocomplete="new-password">
+      <button class="btn btn-primary" style="width:100%;" onclick="handleChangePassword()">שמור</button>
+      <div class="auth-error" id="change-password-error"></div>
+    </div>
+  </div>
+
+  <div id="admin-home-view" class="hidden">
+    <div class="topic-view-header">
+      <span>👑 מנהל: <b id="admin-username-label"></b></span>
+      <span>
+        <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
+        <button class="back-btn" onclick="handleLogout()">התנתק</button>
+      </span>
+    </div>
+    <h2 style="text-align:center;">ניהול משתמשים</h2>
+    <p style="text-align:center; color:#7f8c8d;">מסך ניהול המשתמשים יתווסף בשלב הבא.</p>
+  </div>
+
+  <div id="parent-home-view" class="hidden">
+    <div class="topic-view-header">
+      <span>👨‍👩‍👦 הורה: <b id="parent-username-label"></b></span>
+      <span>
+        <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
+        <button class="back-btn" onclick="handleLogout()">התנתק</button>
+      </span>
+    </div>
+    <div style="text-align:center; margin: 24px 0;">
+      <button class="btn btn-primary" onclick="initTeacherMode()">📋 תרגולים שהוגשו</button>
+      <button class="btn btn-primary" onclick="initParentMode()">🧩 פאזל השיעורים</button>
+    </div>
+  </div>
+
   <div id="basics-ladder-view" class="hidden">
     <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
     <h2 id="basics-ladder-title" style="text-align:center;"></h2>
@@ -971,6 +1077,7 @@ const PARENT_MODE = new URLSearchParams(location.search).get('mode') === 'parent
   </div>
 
   <div id="teacher-view" class="hidden">
+    <button class="back-btn" onclick="exitParentSubview()">← חזרה</button>
     <h2 style="text-align:center;">👩‍🏫 מסך מורה</h2>
     <p style="text-align:center; color:#7f8c8d;">תרגילים שתלמידים שלחו לבדיקה (מתעדכן בזמן אמת)</p>
     <div id="teacher-list" class="teacher-list">
@@ -980,6 +1087,7 @@ const PARENT_MODE = new URLSearchParams(location.search).get('mode') === 'parent
   </div>
 
   <div id="parent-view" class="hidden">
+    <button class="back-btn" onclick="exitParentSubview()">← חזרה</button>
     <h2 style="text-align:center;">👨‍👩‍👦 מעקב שיעורים</h2>
     <p style="text-align:center; color:#7f8c8d;">מתעדכן בזמן אמת · 90 דקות נטו = שיעור הושלם, וחלק נוסף בפאזל נחשף</p>
     <div class="puzzle-wrap">
@@ -1261,11 +1369,13 @@ function saveBasicsProgress() {
 }
 
 // ============================================================
-// זיהוי תלמיד - יונתן בלבד (אין מסך כניסה)
-// ============================================================
+// זיהוי תלמיד - נגזר מהחשבון המחובר (Firebase Auth). עד שלב הבנייה הבא
+// (ניהול משתמשים) עדיין אין דרך ליצור חשבון תלמיד אמיתי, אז נשמר גם
+// ברירת המחדל הישנה למען המשכיות הנתונים הקיימים של יונתן.
 const DEFAULT_STUDENT_NAME = 'יונתן';
 let studentName = localStorage.getItem('studentName') || DEFAULT_STUDENT_NAME;
 localStorage.setItem('studentName', studentName);
+let studentUid = null;
 
 function fbKey(s) { return String(s).replace(/[.#$\[\]\/]/g, '_'); }
 
@@ -1372,7 +1482,7 @@ function syncLessonsToFirebase(force) {
   if (!force && now - lessonLastFirebasePush < 20000) return;
   lessonLastFirebasePush = now;
   try {
-    firebaseDb.ref('lessons/' + fbKey(studentName)).set({
+    firebaseDb.ref('lessons/' + (studentUid || fbKey(studentName))).set({
       studentName,
       lessons,
       activeLessonIdx,
@@ -1599,7 +1709,7 @@ let teacherListenerStarted = false;
 let teacherSeenIds = new Set();
 
 function initTeacherMode() {
-  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('parent-home-view').classList.add('hidden');
   document.getElementById('teacher-view').classList.remove('hidden');
   if (!firebaseDb) {
     document.getElementById('teacher-list').innerHTML =
@@ -1622,7 +1732,7 @@ function initTeacherMode() {
 }
 
 function initParentMode() {
-  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('parent-home-view').classList.add('hidden');
   document.getElementById('parent-view').classList.remove('hidden');
   if (!firebaseDb) {
     document.getElementById('parent-lessons-list').innerHTML =
@@ -1638,6 +1748,13 @@ function initParentMode() {
       '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
   });
 }
+
+function exitParentSubview() {
+  document.getElementById('teacher-view').classList.add('hidden');
+  document.getElementById('parent-view').classList.add('hidden');
+  document.getElementById('parent-home-view').classList.remove('hidden');
+}
+
 function renderParentLessons(data) {
   const container = document.getElementById('parent-lessons-list');
   if (!data || !Array.isArray(data.lessons)) {
@@ -4345,16 +4462,191 @@ function initNotebook() {
 // ============================================================
 // Bootstrap
 // ============================================================
+// ============================================================
+// התחברות (Firebase Authentication)
+// ============================================================
+let currentUser = null;
+let suppressAuthRouting = false;
+let changePasswordReturnView = 'main-menu';
+
+function usernameToEmail(username) {
+  return String(username).trim().toLowerCase() + '@math-practice.local';
+}
+
+function showAuthView(viewId) {
+  document.getElementById('app-container').classList.add('hidden');
+  document.getElementById('auth-container').classList.remove('hidden');
+  ['auth-loading', 'bootstrap-view', 'login-view', 'force-password-view'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  document.getElementById(viewId).classList.remove('hidden');
+}
+
+function showAppView(viewId) {
+  document.getElementById('auth-container').classList.add('hidden');
+  document.getElementById('app-container').classList.remove('hidden');
+  ['main-menu', 'admin-home-view', 'parent-home-view', 'change-password-view'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  document.getElementById(viewId).classList.remove('hidden');
+}
+
+function routeByRole(role) {
+  if (role === 'admin') {
+    document.getElementById('admin-username-label').textContent = currentUser.username;
+    showAppView('admin-home-view');
+  } else if (role === 'parent') {
+    document.getElementById('parent-username-label').textContent = currentUser.username;
+    showAppView('parent-home-view');
+  } else {
+    studentName = currentUser.displayName || currentUser.username;
+    studentUid = currentUser.uid;
+    localStorage.setItem('studentName', studentName);
+    document.getElementById('student-username-label').textContent = studentName;
+    showAppView('main-menu');
+  }
+}
+
+async function handleBootstrap() {
+  const pw = document.getElementById('bootstrap-password').value;
+  const pw2 = document.getElementById('bootstrap-password-confirm').value;
+  const errEl = document.getElementById('bootstrap-error');
+  errEl.textContent = '';
+  if (pw.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  if (pw !== pw2) { errEl.textContent = 'הסיסמאות אינן תואמות.'; return; }
+  suppressAuthRouting = true;
+  try {
+    const cred = await firebaseAuth.createUserWithEmailAndPassword(usernameToEmail('DekelCom'), pw);
+    const profile = {
+      username: 'DekelCom',
+      displayName: 'DekelCom',
+      role: 'admin',
+      parentId: null,
+      mustChangePassword: true,
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      createdBy: cred.user.uid
+    };
+    await firebaseDb.ref('users/' + cred.user.uid).set(profile);
+    await firebaseDb.ref('system/bootstrapped').set(true);
+    currentUser = { uid: cred.user.uid, ...profile };
+    suppressAuthRouting = false;
+    showAuthView('force-password-view');
+  } catch (e) {
+    suppressAuthRouting = false;
+    errEl.textContent = 'שגיאה: ' + (e.message || e);
+  }
+}
+
+async function handleLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!username || !password) { errEl.textContent = 'נא למלא שם משתמש וסיסמה.'; return; }
+  try {
+    await firebaseAuth.signInWithEmailAndPassword(usernameToEmail(username), password);
+  } catch (e) {
+    errEl.textContent = 'שם משתמש או סיסמה שגויים.';
+  }
+}
+
+async function handleForcePasswordChange() {
+  const curPw = document.getElementById('force-current-password').value;
+  const newPw = document.getElementById('force-new-password').value;
+  const newPw2 = document.getElementById('force-new-password-confirm').value;
+  const errEl = document.getElementById('force-password-error');
+  errEl.textContent = '';
+  if (newPw.length < 6) { errEl.textContent = 'הסיסמה החדשה חייבת להכיל לפחות 6 תווים.'; return; }
+  if (newPw !== newPw2) { errEl.textContent = 'הסיסמאות אינן תואמות.'; return; }
+  const user = firebaseAuth.currentUser;
+  if (!user) { errEl.textContent = 'שגיאה: אין משתמש מחובר.'; return; }
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, curPw);
+    await user.reauthenticateWithCredential(cred);
+    await user.updatePassword(newPw);
+    await firebaseDb.ref('users/' + user.uid + '/mustChangePassword').set(false);
+    currentUser.mustChangePassword = false;
+    routeByRole(currentUser.role);
+  } catch (e) {
+    errEl.textContent = 'הסיסמה הזמנית שגויה, או שגיאה אחרת.';
+  }
+}
+
+function handleLogout() {
+  firebaseAuth.signOut();
+}
+
+function openChangePassword() {
+  changePasswordReturnView = currentUser.role === 'admin' ? 'admin-home-view'
+    : currentUser.role === 'parent' ? 'parent-home-view' : 'main-menu';
+  document.getElementById('change-current-password').value = '';
+  document.getElementById('change-new-password').value = '';
+  document.getElementById('change-new-password-confirm').value = '';
+  document.getElementById('change-password-error').textContent = '';
+  showAppView('change-password-view');
+}
+function closeChangePassword() {
+  showAppView(changePasswordReturnView);
+}
+async function handleChangePassword() {
+  const curPw = document.getElementById('change-current-password').value;
+  const newPw = document.getElementById('change-new-password').value;
+  const newPw2 = document.getElementById('change-new-password-confirm').value;
+  const errEl = document.getElementById('change-password-error');
+  errEl.textContent = '';
+  if (newPw.length < 6) { errEl.textContent = 'הסיסמה החדשה חייבת להכיל לפחות 6 תווים.'; return; }
+  if (newPw !== newPw2) { errEl.textContent = 'הסיסמאות אינן תואמות.'; return; }
+  const user = firebaseAuth.currentUser;
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, curPw);
+    await user.reauthenticateWithCredential(cred);
+    await user.updatePassword(newPw);
+    closeChangePassword();
+  } catch (e) {
+    errEl.textContent = 'הסיסמה הנוכחית שגויה.';
+  }
+}
+
 (function boot() {
   renderLessonTimerWidget();
-  if (TEACHER_MODE) {
-    initTeacherMode();
+  showAuthView('auth-loading');
+  if (!firebaseAuth || !firebaseDb) {
+    showAuthView('login-view');
+    document.getElementById('login-error').textContent = 'שגיאה בטעינת Firebase.';
     return;
   }
-  if (PARENT_MODE) {
-    initParentMode();
-    return;
-  }
+  firebaseAuth.onAuthStateChanged(async (user) => {
+    if (suppressAuthRouting) return;
+    if (!user) {
+      currentUser = null;
+      try {
+        const snap = await firebaseDb.ref('system/bootstrapped').once('value');
+        showAuthView(snap.val() ? 'login-view' : 'bootstrap-view');
+      } catch (e) {
+        console.warn('bootstrap check failed', e);
+        showAuthView('login-view');
+      }
+      return;
+    }
+    try {
+      const snap = await firebaseDb.ref('users/' + user.uid).once('value');
+      const profile = snap.val();
+      if (!profile) {
+        console.warn('No profile found for authenticated user; signing out.');
+        firebaseAuth.signOut();
+        return;
+      }
+      currentUser = { uid: user.uid, ...profile };
+      if (profile.mustChangePassword) {
+        showAuthView('force-password-view');
+        return;
+      }
+      routeByRole(profile.role);
+    } catch (e) {
+      console.warn('profile load failed', e);
+      showAuthView('login-view');
+    }
+  });
 })();
 </script>
 </body>
