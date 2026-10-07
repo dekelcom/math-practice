@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>תרגול למבחן מתמטיקה - כיתה ט'</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap">
 <style>
   * { box-sizing: border-box; }
   body {
@@ -510,6 +511,7 @@
   .basics-track-card.placeValue { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
   .basics-track-card.properties { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
   .basics-track-card.oneStepEq { background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%); }
+  .basics-track-card.multiStepEq { background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%); }
 
   .frac {
     display: inline-flex; flex-direction: column; vertical-align: middle;
@@ -678,6 +680,63 @@
   .ba-key.submit:hover:not(:disabled) { background: #218838; }
   .ba-key.backspace { color: #dc3545; border-color: #dc3545; }
   .ba-keyboard-hint { text-align: center; color: #95a5a6; font-size: 0.85em; margin: 8px 0 0; }
+
+  /* משוואות מודרכות (notebook style) - חד-שלביות ומורכבות */
+  .geq-container { max-width: 460px; margin: 0 auto; text-align: center; }
+  .geq-notebook {
+    height: 150px; overflow: hidden; direction: ltr; unicode-bidi: isolate;
+    font-family: 'Patrick Hand', cursive; text-align: left; line-height: 1.55;
+    background-color: #ffffff;
+    background-image: linear-gradient(#dbeafe 1px, transparent 1px), linear-gradient(90deg, #dbeafe 1px, transparent 1px);
+    background-size: 22px 22px;
+    border: 1px solid #dbeafe; border-radius: 10px; padding: 10px 16px;
+    margin: 0 auto 10px;
+  }
+  .geq-nbline { font-size: 1.3em; font-weight: 700; color: #2c3e50; }
+  .geq-nbline.final { font-size: 1.55em; font-weight: 800; }
+  .geq-callout { color: #b45309; font-size: 0.85em; font-weight: 700; text-align: left; margin-bottom: 10px; }
+  .geq-hl-amber { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 0 6px; color: #92400e; }
+  .geq-hl-blue { background: #dbeafe; border: 2px solid #3498db; border-radius: 8px; padding: 0 6px; color: #1e40af; }
+  .geq-question { font-size: 1.1em; font-weight: 600; color: #34495e; margin: 10px 0; }
+  .geq-op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 420px; margin: 0 auto 10px; }
+  .geq-op-btn {
+    font-size: 1.1em; font-weight: 700; padding: 14px 10px;
+    border: 2px solid #3498db; background: white; color: #3498db;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    transition: transform 0.12s, background 0.12s, color 0.12s;
+  }
+  .geq-op-btn:hover:not(:disabled) { background: #ecf6fc; }
+  .geq-op-btn:disabled { cursor: not-allowed; }
+  .geq-op-btn.correct { background: #28a745; color: white; border-color: #1e7e34; }
+  .geq-op-btn.incorrect { background: #dc3545; color: white; border-color: #bd2130; }
+  .geq-compute-row {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #fafbfc; border: 2px solid #e1e4e8; border-radius: 12px;
+    padding: 12px 16px; margin: 8px auto; max-width: 420px;
+    font-family: 'Patrick Hand', cursive; direction: ltr; unicode-bidi: isolate;
+    font-size: 1.3em; font-weight: 700; color: #2c3e50;
+  }
+  .geq-compute-row.active { border-color: #f59e0b; background: #fffbeb; color: #92400e; box-shadow: 0 4px 12px rgba(245,158,11,0.15); }
+  .geq-compute-row.pending { border-style: dashed; color: #b6c0cb; }
+  .geq-compute-row.done { border-color: #28a745; background: #f5fff8; color: #1e7e34; }
+  .geq-blank {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
+    padding: 2px 8px; border: 2px dashed #b1b8bf; border-radius: 8px; background: #fafbfc; color: #2c3e50;
+  }
+  .geq-compute-row.active .geq-blank { border-color: #f59e0b; background: #fff8e6; }
+  .geq-blank.shake { animation: ba-shake 0.35s; border-color: #dc3545; background: #fff5f5; color: #dc3545; }
+  .geq-result {
+    font-size: 2.2em; font-weight: 800; color: #16a34a;
+    font-family: 'Patrick Hand', cursive; direction: ltr; unicode-bidi: isolate; margin: 14px 0 10px;
+  }
+  .geq-check-box { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px; margin: 10px auto; max-width: 420px; }
+  .geq-check-title { font-size: 0.95em; font-weight: 700; color: #166534; margin-bottom: 6px; }
+  .geq-check-eq {
+    font-family: 'Patrick Hand', cursive; direction: ltr; unicode-bidi: isolate;
+    font-size: 1.25em; font-weight: 700; color: #15803d;
+  }
+  .geq-hint { color: #856404; font-size: 0.95em; background: #fff8e6; border-radius: 8px; padding: 8px 10px; margin: 8px auto; max-width: 420px; display: none; }
+  .geq-hint.show { display: block; }
 
   .submission-banner {
     background: #fff3cd; color: #856404; padding: 12px 14px; border-radius: 8px;
@@ -930,13 +989,6 @@ try {
       </span>
     </div>
 
-    <!-- TEMP DEMO SEED: remove this button + handleSeedDemoData() before merging to production.
-         Must run as the student (not the parent) - submissions can only be written by their
-         own owner, so this can't live on the parent dashboard. -->
-    <p style="text-align:center;">
-      <button class="btn btn-secondary" style="border:1px dashed #e67e22; color:#e67e22;" onclick="handleSeedDemoData(studentUid, studentName)">🧪 הוסף נתוני דמו לבדיקה (הורה)</button>
-    </p>
-
     <div class="section-title">🎓 שיעורים (12 × שעה וחצי)</div>
     <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
     <div style="text-align:center; margin-bottom: 10px;">
@@ -957,6 +1009,7 @@ try {
       <button class="basics-track-card placeValue" onclick="openBasicsTrack('placeValue')">🔢 ערך מקום<br><small style="opacity:0.9">צורה מורחבת, מקום ספרה</small></button>
       <button class="basics-track-card properties" onclick="openBasicsTrack('properties')">⚖️ תכונות וביטויים<br><small style="opacity:0.9">חילופיות, קיבוציות, פילוג</small></button>
       <button class="basics-track-card oneStepEq" onclick="openBasicsTrack('oneStepEq')">🎯 משוואות חד-שלביות<br><small style="opacity:0.9">x + a = b וכדומה</small></button>
+      <button class="basics-track-card multiStepEq" onclick="openBasicsTrack('multiStepEq')">🧮 משוואות עם איסוף איברים<br><small style="opacity:0.9">משתנה משני הצדדים</small></button>
     </div>
 
     <div class="section-title">🔢 חישוב מורכב</div>
@@ -1497,7 +1550,8 @@ const BASICS_TRACKS = {
   simultaneous: { title: '⊞ שתי משוואות' },
   placeValue: { title: '🔢 ערך מקום וצורה מורחבת' },
   properties: { title: '⚖️ תכונות וביטויים' },
-  oneStepEq: { title: '🎯 משוואות חד-שלביות' }
+  oneStepEq: { title: '🎯 משוואות חד-שלביות' },
+  multiStepEq: { title: '🧮 משוואות עם איסוף איברים' }
 };
 
 const ALL_TRACK_KEYS = Object.keys(BASICS_TRACKS);
@@ -1978,69 +2032,6 @@ function openParentDashboard(uid, name) {
     `;
   });
 }
-// TEMP DEMO SEED: writes fake submissions/lessons/coins for the viewed student so the
-// dashboard can be visually checked before real students have practiced. Remove before
-// merging phase 6 to production (search "TEMP DEMO SEED").
-async function handleSeedDemoData(uid, name) {
-  if (!uid || !firebaseDb) { alert('אין חיבור לאינטרנט.'); return; }
-  if (!confirm(`להוסיף תרגולים פיקטיביים עבור "${name}" לצורך בדיקת הדשבורד?`)) return;
-  const tracks = ['addition', 'subtraction', 'multiplication', 'fractions'];
-  const now = Date.now();
-  const writes = [];
-  for (let i = 0; i < 15; i++) {
-    const track = tracks[Math.floor(Math.random() * tracks.length)];
-    const sheetIdx = Math.floor(Math.random() * 5) + 1;
-    const total = 10;
-    const correct = 6 + Math.floor(Math.random() * 5);
-    const avgTimeMs = 8000 + Math.floor(Math.random() * 12000);
-    const problems = Array.from({ length: total }, (_, q) => ({
-      question: `דוגמה ${q + 1}`,
-      chosen: '?',
-      expected: '?',
-      correct: q < correct,
-      timeMs: Math.max(2000, avgTimeMs + Math.floor(Math.random() * 4000) - 2000)
-    }));
-    const daysAgo = Math.floor(Math.random() * 29);
-    const timestamp = now - daysAgo * 86400000 - Math.floor(Math.random() * 3600000);
-    writes.push(firebaseDb.ref('submissions').push({
-      studentName: name,
-      studentUid: uid,
-      type: 'sheet',
-      track,
-      sheet: `דף ${sheetIdx}`,
-      problems,
-      summary: { correct, total, avgTimeMs, totalTimeMs: avgTimeMs * total },
-      timestamp
-    }));
-  }
-  try {
-    const progSnap = await firebaseDb.ref('users/' + uid + '/program').once('value');
-    const program = progSnap.val() || {};
-    const lessonCount = program.lessonCount || LESSON_COUNT_DEFAULT;
-    const minutesPerLesson = program.minutesPerLesson || LESSON_MINUTES_DEFAULT;
-    const targetMs = minutesPerLesson * 60 * 1000;
-    const completedCount = Math.min(4, lessonCount);
-    const demoLessons = Array.from({ length: lessonCount }, (_, i) => {
-      if (i < completedCount) return { netMs: targetMs, date: todayStr(), completed: true, completedAt: now - (completedCount - i) * 86400000 };
-      if (i === completedCount) return { netMs: Math.round(targetMs * 0.4), date: todayStr(), completed: false, completedAt: null };
-      return { netMs: 0, date: '', completed: false, completedAt: null };
-    });
-    writes.push(firebaseDb.ref('lessons/' + uid).set({
-      studentName: name,
-      lessons: demoLessons,
-      activeLessonIdx: null,
-      updatedAt: firebase.database.ServerValue.TIMESTAMP
-    }));
-  } catch (e) { console.warn('demo lessons seed failed', e); }
-  writes.push(firebaseDb.ref('users/' + uid + '/coins').set(85));
-  try {
-    await Promise.all(writes);
-    alert('נתוני דמו נוספו! הדשבורד יתעדכן אוטומטית.');
-  } catch (e) {
-    alert('שגיאה בהוספת נתוני דמו: ' + (e.message || e));
-  }
-}
-
 function exitParentDashboard() {
   if (dashboardSubmissionsRef) { dashboardSubmissionsRef.off(); dashboardSubmissionsRef = null; }
   if (dashboardLessonsRef) { dashboardLessonsRef.off(); dashboardLessonsRef = null; }
@@ -2458,7 +2449,10 @@ function sheetLabelFor(track, index) {
                  'הצבה בביטוי 1', 'הצבה בביטוי 2', 'הצבה בביטוי 3', 'מעורב'],
     oneStepEq: ['x + a = b', 'x + a = b', 'x − a = b',
                 'x − a = b', 'ax = b', 'ax = b',
-                'x ÷ a = b', 'x ÷ a = b', 'מעורב', 'מעורב']
+                'x ÷ a = b', 'x ÷ a = b', 'מעורב', 'מעורב'],
+    multiStepEq: ['איסוף איברים 1', 'איסוף איברים 2', 'משתנה בצד ימין 1',
+                  'משתנה בצד ימין 2', 'מקדמים גדולים 1', 'מקדמים גדולים 2',
+                  'פתרון שלילי 1', 'פתרון שלילי 2', 'מעורב', 'מעורב']
   };
   if (LABELS[track]) return LABELS[track][index] || '';
   if (index === 9) return 'מעורב';
@@ -3277,12 +3271,30 @@ function genOneStepEqProblem(sheetIdx) {
   else if (sheetIdx <= 5) kind = 'mul';
   else if (sheetIdx <= 7) kind = 'div';
   else kind = ['add', 'sub', 'mul', 'div'][p(0, 3)];
-  let sol, displayQ;
-  if (kind === 'add') { sol = p(1, 30); const a = p(1, 20); displayQ = `x + ${a} = ${sol + a}`; }
-  else if (kind === 'sub') { sol = p(1, 30); const a = p(1, 20); displayQ = `x − ${a} = ${sol - a}`; }
-  else if (kind === 'mul') { sol = p(2, 12); const a = p(2, 9); displayQ = `${a}x = ${a * sol}`; }
-  else { const a = p(2, 9); const q = p(2, 12); sol = q * a; displayQ = `x ÷ ${a} = ${q}`; }
-  return { displayQ, answer: String(sol), options: genNumericOptionsAllowNeg(sol).map(String) };
+  let sol, a, rhs, displayQ;
+  if (kind === 'add') { sol = p(1, 30); a = p(1, 20); rhs = sol + a; displayQ = `x + ${a} = ${rhs}`; }
+  else if (kind === 'sub') { sol = p(1, 30); a = p(1, 20); rhs = sol - a; displayQ = `x − ${a} = ${rhs}`; }
+  else if (kind === 'mul') { sol = p(2, 12); a = p(2, 9); rhs = a * sol; displayQ = `${a}x = ${rhs}`; }
+  else { a = p(2, 9); const q = p(2, 12); sol = q * a; rhs = q; displayQ = `x ÷ ${a} = ${rhs}`; }
+  return { guided: 'oneStep', kind, a, rhs, sol, answer: String(sol), displayQ };
+}
+
+// משוואה מורכבת: a1x + a2x + k1 = k2 + a3x  (איסוף איברים + משתנה משני הצדדים, B תמיד חיובי)
+function genMultiStepEqProblem(sheetIdx) {
+  const p = pickInt;
+  let a1, a2, a3, k1, k2, sol, B, tries = 0;
+  do {
+    a1 = p(1, 4); a2 = p(1, 4); a3 = p(1, a1 + a2 - 1);
+    k1 = p(5, 45);
+    sol = Math.random() < 0.5 ? p(1, 9) : -p(1, 9);
+    B = a1 + a2 - a3;
+    k2 = B * sol + k1;
+    tries++;
+  } while ((k2 < 1 || k2 > 250) && tries < 60);
+  const lhsX = `${a1 === 1 ? 'x' : a1 + 'x'} + ${a2}x`;
+  const rhsX = a3 === 1 ? 'x' : `${a3}x`;
+  const displayQ = `${lhsX} + ${k1} = ${k2} + ${rhsX}`;
+  return { guided: 'multiStep', a1, a2, a3, k1, k2, B, sol, answer: String(sol), displayQ };
 }
 
 function genBasicsProblems(track, sheetIndex) {
@@ -3296,7 +3308,7 @@ function genBasicsProblems(track, sheetIndex) {
     factorize: genFactorizeProblem, inequalities: genInequalityProblem,
     simultaneous: genSimultaneousProblem,
     placeValue: genPlaceValueProblem, properties: genPropertiesProblem,
-    oneStepEq: genOneStepEqProblem
+    oneStepEq: genOneStepEqProblem, multiStepEq: genMultiStepEqProblem
   };
   if (customGens[track]) return Array.from({ length: BASICS_SHEET_SIZE }, () => customGens[track](sheetIndex));
   const problems = [];
@@ -3380,6 +3392,8 @@ function renderOptionDisplay(v) {
 function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
   if (p && p.breakApart) { renderBreakApartProblem(); return; }
+  if (p && p.guided === 'oneStep') { renderGuidedOneStep(); return; }
+  if (p && p.guided === 'multiStep') { renderGuidedMultiStep(); return; }
   const container = document.getElementById('basics-session');
   const optionsHtml = p.options.map(v =>
     `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="checkBasicsAnswer(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
@@ -3592,6 +3606,377 @@ function baFinishProblem() {
     if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
     else renderBasicsProblem();
   }, 700);
+}
+
+// ============================================================
+// משוואות מודרגות (notebook): חד-שלביות + מורכבות (איסוף איברים)
+// שיטת "פעולה הפוכה" עם מחברת שנבנית צעד-אחר-צעד, בהשראת וויירפריים
+// שעוצב עם ההורה. שני המסלולים חולקים את אותם רכיבי אינטראקציה
+// גנריים: בחירת פעולה (4 אפשרויות) וחישוב בודד (מקלדת ספרות).
+// ============================================================
+let geq = null; // מצב התרגיל המודרך הנוכחי
+
+function geqRenderShell(bodyHtml) {
+  document.getElementById('basics-session').innerHTML = `
+    <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
+    <div class="geq-container">${bodyHtml}</div>
+  `;
+}
+
+function geqNum(n) { return n < 0 ? `−${Math.abs(n)}` : String(n); }
+
+function geqNotebookHtml(lines) {
+  // lines: [{ html, final? }]
+  const body = lines.map(l => `<div class="geq-nbline${l.final ? ' final' : ''}">${l.html}</div>`).join('');
+  return `<div class="geq-notebook">${body}</div>`;
+}
+
+// --- בחירת פעולה (4 אפשרויות, 1 נכונה) ---
+function geqShowOpChoices(notebookHtml, calloutHtml, question, choices, correctLabel, onCorrect) {
+  geq.onChoiceCorrect = onCorrect;
+  geq.correctLabel = correctLabel;
+  const shuffled = choices.slice().sort(() => Math.random() - 0.5);
+  const btnsHtml = shuffled.map((label, i) =>
+    `<button type="button" class="geq-op-btn" data-label="${escapeAttr(label)}" onclick="geqHandleOpChoice(this)">${escapeHtml(label)}</button>`
+  ).join('');
+  geqRenderShell(`
+    ${notebookHtml}
+    ${calloutHtml || ''}
+    <div class="geq-question">${escapeHtml(question)}</div>
+    <div class="geq-op-grid">${btnsHtml}</div>
+    <div class="geq-hint" id="geq-hint">רמז: חושבים על הפעולה שמבטלת את מה שכתוב - ומבצעים אותה משני צדי המשוואה.</div>
+  `);
+  geqProblemStartTs();
+}
+
+function geqHandleOpChoice(btnEl) {
+  const label = btnEl.dataset.label;
+  const allBtns = document.querySelectorAll('.geq-op-btn');
+  allBtns.forEach(b => b.disabled = true);
+  if (label === geq.correctLabel) {
+    btnEl.classList.add('correct');
+    setTimeout(() => geq.onChoiceCorrect(), 500);
+  } else {
+    geq.hadMistake = true;
+    btnEl.classList.add('incorrect');
+    allBtns.forEach(b => { if (b.dataset.label === geq.correctLabel) b.classList.add('correct'); });
+    const hint = document.getElementById('geq-hint');
+    if (hint) hint.classList.add('show');
+    setTimeout(() => geq.onChoiceCorrect(), 1400);
+  }
+}
+
+// --- חישוב בודד (מקלדת ספרות, עם סימן מינוס קבוע מראש אם צריך) ---
+let geqInputBuffer = '';
+function geqShowCompute(notebookHtml, calloutHtml, rows, expectedMagnitude, isNegative, onCorrect) {
+  // rows: array of extra compute-row html strings shown ABOVE the active one (e.g. an auto-solved "done" row)
+  geq.expectedMagnitude = expectedMagnitude;
+  geq.onComputeCorrect = onCorrect;
+  geqInputBuffer = '';
+  const rowsHtml = (rows || []).join('');
+  geqRenderShell(`
+    ${notebookHtml}
+    ${calloutHtml || ''}
+    <div class="geq-compute-rows">
+      ${rowsHtml}
+      <div class="geq-compute-row active" id="geq-active-row">
+        ${isNegative ? '<span>−</span>' : ''}<span class="geq-blank" id="geq-blank">?</span>
+      </div>
+    </div>
+    <div class="ba-keypad" id="geq-keypad">
+      <button class="ba-key" onclick="geqKey('1')">1</button>
+      <button class="ba-key" onclick="geqKey('2')">2</button>
+      <button class="ba-key" onclick="geqKey('3')">3</button>
+      <button class="ba-key" onclick="geqKey('4')">4</button>
+      <button class="ba-key" onclick="geqKey('5')">5</button>
+      <button class="ba-key" onclick="geqKey('6')">6</button>
+      <button class="ba-key" onclick="geqKey('7')">7</button>
+      <button class="ba-key" onclick="geqKey('8')">8</button>
+      <button class="ba-key" onclick="geqKey('9')">9</button>
+      <button class="ba-key backspace" onclick="geqBackspace()">⌫</button>
+      <button class="ba-key" onclick="geqKey('0')">0</button>
+      <button class="ba-key submit" onclick="geqSubmitCompute()">✓</button>
+    </div>
+    <p class="ba-keyboard-hint">אפשר גם להקליד במקלדת ולאשר עם Enter</p>
+  `);
+  geqProblemStartTs();
+}
+
+function geqKey(d) {
+  if (geqInputBuffer.length >= 4) return;
+  geqInputBuffer += d;
+  geqRenderInputBuf();
+}
+function geqBackspace() {
+  geqInputBuffer = geqInputBuffer.slice(0, -1);
+  geqRenderInputBuf();
+}
+function geqRenderInputBuf() {
+  const el = document.getElementById('geq-blank');
+  if (el) el.textContent = geqInputBuffer || '?';
+}
+function geqSubmitCompute() {
+  if (geqInputBuffer === '') return;
+  const val = parseInt(geqInputBuffer, 10);
+  const row = document.getElementById('geq-active-row');
+  const blank = document.getElementById('geq-blank');
+  const keypad = document.getElementById('geq-keypad');
+  if (val === geq.expectedMagnitude) {
+    if (keypad) keypad.querySelectorAll('button').forEach(b => b.disabled = true);
+    row.classList.remove('active');
+    row.classList.add('done');
+    setTimeout(() => geq.onComputeCorrect(), 500);
+  } else {
+    geq.hadMistake = true;
+    blank.classList.add('shake');
+    setTimeout(() => blank.classList.remove('shake'), 350);
+    geqInputBuffer = '';
+    geqRenderInputBuf();
+  }
+}
+
+function geqProblemStartTs() { basicsProblemStart = Date.now(); }
+
+function geqFinishGuided() {
+  const p = basicsProblems[basicsCurrent];
+  const timeMs = Date.now() - basicsProblemStart;
+  const correct = !geq.hadMistake;
+  if (basicsRetryIdx !== null) {
+    if (correct) basicsSessionLog[basicsRetryIdx].retryOk = true;
+    setTimeout(() => { basicsRetryIdx = null; renderSheetReview(); }, 300);
+    return;
+  }
+  basicsSessionLog.push({
+    track: basicsTrack, sheetIdx: basicsSheetIndex,
+    question: p.displayQ,
+    chosen: correct ? p.answer : 'עם טעויות',
+    correct, expected: p.answer, timeMs
+  });
+  if (correct) basicsCorrect++;
+  setTimeout(() => {
+    basicsCurrent++;
+    if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
+    else renderBasicsProblem();
+  }, 300);
+}
+
+document.addEventListener('keydown', (e) => {
+  const keypad = document.getElementById('geq-keypad');
+  if (!geq || !keypad || keypad.querySelector('button:disabled')) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.key >= '0' && e.key <= '9') { e.preventDefault(); lessonPing(); geqKey(e.key); }
+  else if (e.key === 'Backspace') { e.preventDefault(); lessonPing(); geqBackspace(); }
+  else if (e.key === 'Enter') { e.preventDefault(); lessonPing(); geqSubmitCompute(); }
+});
+
+// ------------------------------------------------------------
+// משוואה חד-שלבית: x±a=b / ax=b / x÷a=b
+// ------------------------------------------------------------
+const GEQ_OP_LABELS = { add: '− {a}', sub: '+ {a}', mul: '÷ {a}', div: '× {a}' };
+function geqOneStepLine(prob) {
+  return prob.kind === 'mul' ? `${prob.a}x = ${prob.rhs}` : prob.displayQ;
+}
+function geqOneStepInverseLabel(prob) {
+  const label = GEQ_OP_LABELS[prob.kind].replace('{a}', prob.a);
+  return label;
+}
+function geqOneStepDistractors(prob) {
+  const a = prob.a;
+  const all = {
+    add: [`− ${a}`, `+ ${a}`, `× ${a}`, `÷ ${a}`],
+    sub: [`+ ${a}`, `− ${a}`, `× ${a}`, `÷ ${a}`],
+    mul: [`÷ ${a}`, `× ${a}`, `+ ${a}`, `− ${a}`],
+    div: [`× ${a}`, `÷ ${a}`, `+ ${a}`, `− ${a}`]
+  };
+  return all[prob.kind];
+}
+
+function renderGuidedOneStep() {
+  const prob = basicsProblems[basicsCurrent];
+  geq = { hadMistake: false, prob };
+  geqOneStepPhase1();
+}
+
+function geqOneStepPhase1() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml([{ html: geqOneStepLine(prob) }]);
+  const targetTerm = prob.kind === 'mul' ? `${prob.a}x` : (prob.kind === 'div' ? `÷ ${prob.a}` : `${prob.kind === 'add' ? '+' : '−'} ${prob.a}`);
+  const question = `איזו פעולה מבטלת את ה-"${targetTerm}"?`;
+  geqShowOpChoices(nb, '', question, geqOneStepDistractors(prob), geqOneStepInverseLabel(prob), geqOneStepPhase2);
+}
+
+function geqOneStepLine1Filled(prob) {
+  const hl = `<span class="geq-hl-amber">${prob.a}</span>`;
+  if (prob.kind === 'add') return `x + ${prob.a} − ${hl} = ${prob.rhs} − ${hl}`;
+  if (prob.kind === 'sub') return `x − ${prob.a} + ${hl} = ${prob.rhs} + ${hl}`;
+  if (prob.kind === 'mul') return `${prob.a}x ÷ ${hl} = ${prob.rhs} ÷ ${hl}`;
+  return `x ÷ ${prob.a} × ${hl} = ${prob.rhs} × ${hl}`;
+}
+
+function geqOneStepPhase2() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml([
+    { html: geqOneStepLine(prob) },
+    { html: geqOneStepLine1Filled(prob) }
+  ]);
+  let val;
+  if (prob.kind === 'add') val = prob.rhs - prob.a;
+  else if (prob.kind === 'sub') val = prob.rhs + prob.a;
+  else if (prob.kind === 'mul') val = prob.rhs / prob.a;
+  else val = prob.rhs * prob.a;
+  const isNeg = val < 0;
+  const mag = Math.abs(val);
+  const rowLabel = prob.kind === 'add' ? `${prob.rhs} − ${prob.a} =`
+    : prob.kind === 'sub' ? `${prob.rhs} + ${prob.a} =`
+    : prob.kind === 'mul' ? `${prob.rhs} ÷ ${prob.a} =`
+    : `${prob.rhs} × ${prob.a} =`;
+  const callout = `<div class="geq-callout">↓ מחשבים את x</div>`;
+  const activeLabelRow = `<div class="geq-question">x = ${rowLabel}</div>`;
+  geq.onComputeDone = () => { geq.xValue = isNeg ? -mag : mag; geqOneStepPhase3(); };
+  geqShowComputeWithLabel(nb, callout + activeLabelRow, mag, isNeg, geq.onComputeDone);
+}
+
+// גרסה של geqShowCompute בלי שורות "done" נוספות - רק התווית + השורה הפעילה
+function geqShowComputeWithLabel(notebookHtml, labelHtml, expectedMagnitude, isNegative, onCorrect) {
+  geqShowCompute(notebookHtml, labelHtml, [], expectedMagnitude, isNegative, onCorrect);
+}
+
+function geqOneStepPhase3() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml([
+    { html: geqOneStepLine(prob), },
+    { html: `x = ${geqNum(prob.sol)}`, final: true }
+  ]);
+  const checkLine = prob.kind === 'add' ? `${geqNum(prob.sol)} + ${prob.a} = ${prob.rhs}`
+    : prob.kind === 'sub' ? `${geqNum(prob.sol)} − ${prob.a} = ${prob.rhs}`
+    : prob.kind === 'mul' ? `${prob.a} × ${geqNum(prob.sol)} = ${prob.rhs}`
+    : `${geqNum(prob.sol)} ÷ ${prob.a} = ${prob.rhs}`;
+  geqRenderShell(`
+    ${nb}
+    <div class="geq-result">x = ${geqNum(prob.sol)}</div>
+    <div class="geq-check-box">
+      <div class="geq-check-title">✓ בדיקה — הצבה בחזרה</div>
+      <div class="geq-check-eq">${checkLine}</div>
+    </div>
+    <button class="btn btn-primary" onclick="geqFinishGuided()">המשך לתרגיל הבא ←</button>
+  `);
+}
+
+// ------------------------------------------------------------
+// משוואה מורכבת: a1x + a2x + k1 = k2 + a3x
+// ------------------------------------------------------------
+function renderGuidedMultiStep() {
+  const prob = basicsProblems[basicsCurrent];
+  geq = { hadMistake: false, prob, lines: [] };
+  geq.lines.push({ html: prob.displayQ });
+  geqMultiStepPhase1();
+}
+
+function geqMultiStepPhase1() {
+  const prob = geq.prob;
+  const a1hl = `<span class="geq-hl-amber">${prob.a1 === 1 ? 'x' : prob.a1 + 'x'}</span>`;
+  const a2hl = `<span class="geq-hl-amber">${prob.a2}x</span>`;
+  const rhsX = prob.a3 === 1 ? 'x' : `${prob.a3}x`;
+  const nb = geqNotebookHtml([{ html: `${a1hl} + ${a2hl} + ${prob.k1} = ${prob.k2} + ${rhsX}` }]);
+  const combined = prob.a1 + prob.a2;
+  const correct = `${combined}x`;
+  const wrong = [`${prob.a1 * prob.a2}x²`, `${combined}x²`, `${Math.max(1, Math.abs(prob.a1 - prob.a2))}x`];
+  const options = genStringOptions(correct, wrong);
+  geqShowOpChoices(nb, '', `מה שווה ${prob.a1 === 1 ? 'x' : prob.a1 + 'x'} + ${prob.a2}x?`, options, correct, geqMultiStepPhase2);
+}
+
+function geqMultiStepPhase2() {
+  const prob = geq.prob;
+  const combined = prob.a1 + prob.a2;
+  geq.lines.push({ html: `${combined}x + ${prob.k1} = ${prob.k2} + ${prob.a3 === 1 ? 'x' : prob.a3 + 'x'}` });
+  const rhsHl = `<span class="geq-hl-amber">${prob.a3 === 1 ? 'x' : prob.a3 + 'x'}</span>`;
+  const nb = geqNotebookHtml([
+    ...geq.lines.slice(0, -1),
+    { html: `${combined}x + ${prob.k1} = ${prob.k2} + ${rhsHl}` }
+  ]);
+  const term = prob.a3 === 1 ? 'x' : `${prob.a3}x`;
+  const choices = [`מחסרים ${term}`, `מוסיפים ${term}`, `מכפילים ב-${term}`, `מחלקים ב-${term}`];
+  geqShowOpChoices(nb, '', `כדי לבטל את ה-"${term}" המסומן, מה עושים משני הצדדים?`, choices, `מחסרים ${term}`, geqMultiStepPhase3);
+}
+
+function geqMultiStepPhase3() {
+  const prob = geq.prob;
+  const combined = prob.a1 + prob.a2;
+  const termA = prob.a3 === 1 ? 'x' : `${prob.a3}x`;
+  const lhsHl = `<span class="geq-hl-amber">${combined}x</span> − <span class="geq-hl-amber">${termA}</span>`;
+  const rhsHl = `<span class="geq-hl-blue">${termA}</span> − <span class="geq-hl-blue">${termA}</span>`;
+  const nb = geqNotebookHtml([
+    ...geq.lines,
+    { html: `${lhsHl} + ${prob.k1} = ${prob.k2} + ${rhsHl}` }
+  ]);
+  const doneRow = `<div class="geq-compute-row done">${termA} − ${termA} = 0 ✓</div>`;
+  const callout = `<div class="geq-callout">↓ מחשבים כל צד · ${combined} − ${prob.a3} = ?</div>`;
+  geq.onMultiCompute3 = () => {
+    geq.lines.push({ html: `${prob.B}x + ${prob.k1} = ${prob.k2}` });
+    geqMultiStepPhase4();
+  };
+  geqShowCompute(nb, callout, [doneRow], prob.B, false, geq.onMultiCompute3);
+}
+
+function geqMultiStepPhase4() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml(geq.lines);
+  const choices = [`− ${prob.k1}`, `+ ${prob.k1}`, `× ${prob.k1}`, `÷ ${prob.k1}`];
+  geqShowOpChoices(nb, '', `איזו פעולה מבטלת את ה-"+ ${prob.k1}"?`, choices, `− ${prob.k1}`, geqMultiStepPhase5);
+}
+
+function geqMultiStepPhase5() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml(geq.lines);
+  const y = prob.k2 - prob.k1;
+  const isNeg = y < 0, mag = Math.abs(y);
+  const callout = `<div class="geq-question">${prob.B}x = ${prob.k2} − ${prob.k1} = </div>`;
+  geq.onMultiCompute5 = () => {
+    geq.lines.push({ html: `${prob.B}x = ${geqNum(y)}` });
+    geqMultiStepPhase6();
+  };
+  geqShowComputeWithLabel(nb, callout, mag, isNeg, geq.onMultiCompute5);
+}
+
+function geqMultiStepPhase6() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml(geq.lines);
+  const choices = [`÷ ${prob.B}`, `× ${prob.B}`, `+ ${prob.B}`, `− ${prob.B}`];
+  geqShowOpChoices(nb, '', `איזו פעולה מבטלת את המקדם ${prob.B}?`, choices, `÷ ${prob.B}`, geqMultiStepPhase7);
+}
+
+function geqMultiStepPhase7() {
+  const prob = geq.prob;
+  const y = prob.k2 - prob.k1;
+  const nb = geqNotebookHtml(geq.lines);
+  const isNeg = prob.sol < 0, mag = Math.abs(prob.sol);
+  const callout = `<div class="geq-question">x = ${y} ÷ ${prob.B} = </div>`;
+  geq.onMultiCompute7 = () => {
+    geq.lines.push({ html: `x = ${geqNum(prob.sol)}`, final: true });
+    geqMultiStepPhase8();
+  };
+  geqShowComputeWithLabel(nb, callout, mag, isNeg, geq.onMultiCompute7);
+}
+
+function geqMultiStepPhase8() {
+  const prob = geq.prob;
+  const nb = geqNotebookHtml(geq.lines);
+  const lhs = prob.a1 * prob.sol + prob.a2 * prob.sol + prob.k1;
+  const rhs = prob.k2 + prob.a3 * prob.sol;
+  const sol = geqNum(prob.sol);
+  const checkLine = `${prob.a1 === 1 ? '' : prob.a1}(${sol}) + ${prob.a2}(${sol}) + ${prob.k1} = ${prob.k2} + ${prob.a3}(${sol})`;
+  const checkResult = `${lhs} = ${rhs}`;
+  geqRenderShell(`
+    ${nb}
+    <div class="geq-result">x = ${sol}</div>
+    <div class="geq-check-box">
+      <div class="geq-check-title">✓ בדיקה — הצבה במשוואה המקורית</div>
+      <div class="geq-check-eq" style="font-size:1em;">${checkLine}</div>
+      <div class="geq-check-eq">${checkResult}</div>
+    </div>
+    <button class="btn btn-primary" onclick="geqFinishGuided()">המשך לתרגיל הבא ←</button>
+  `);
 }
 
 let basicsSheetPassed = false;
