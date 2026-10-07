@@ -989,13 +989,6 @@ try {
       </span>
     </div>
 
-    <!-- TEMP DEMO SEED: remove this button + handleSeedDemoData() before merging to production.
-         Must run as the student (not the parent) - submissions can only be written by their
-         own owner, so this can't live on the parent dashboard. -->
-    <p style="text-align:center;">
-      <button class="btn btn-secondary" style="border:1px dashed #e67e22; color:#e67e22;" onclick="handleSeedDemoData(studentUid, studentName)">🧪 הוסף נתוני דמו לבדיקה (הורה)</button>
-    </p>
-
     <div class="section-title">🎓 שיעורים (12 × שעה וחצי)</div>
     <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
     <div style="text-align:center; margin-bottom: 10px;">
@@ -2039,69 +2032,6 @@ function openParentDashboard(uid, name) {
     `;
   });
 }
-// TEMP DEMO SEED: writes fake submissions/lessons/coins for the viewed student so the
-// dashboard can be visually checked before real students have practiced. Remove before
-// merging phase 6 to production (search "TEMP DEMO SEED").
-async function handleSeedDemoData(uid, name) {
-  if (!uid || !firebaseDb) { alert('אין חיבור לאינטרנט.'); return; }
-  if (!confirm(`להוסיף תרגולים פיקטיביים עבור "${name}" לצורך בדיקת הדשבורד?`)) return;
-  const tracks = ['addition', 'subtraction', 'multiplication', 'fractions'];
-  const now = Date.now();
-  const writes = [];
-  for (let i = 0; i < 15; i++) {
-    const track = tracks[Math.floor(Math.random() * tracks.length)];
-    const sheetIdx = Math.floor(Math.random() * 5) + 1;
-    const total = 10;
-    const correct = 6 + Math.floor(Math.random() * 5);
-    const avgTimeMs = 8000 + Math.floor(Math.random() * 12000);
-    const problems = Array.from({ length: total }, (_, q) => ({
-      question: `דוגמה ${q + 1}`,
-      chosen: '?',
-      expected: '?',
-      correct: q < correct,
-      timeMs: Math.max(2000, avgTimeMs + Math.floor(Math.random() * 4000) - 2000)
-    }));
-    const daysAgo = Math.floor(Math.random() * 29);
-    const timestamp = now - daysAgo * 86400000 - Math.floor(Math.random() * 3600000);
-    writes.push(firebaseDb.ref('submissions').push({
-      studentName: name,
-      studentUid: uid,
-      type: 'sheet',
-      track,
-      sheet: `דף ${sheetIdx}`,
-      problems,
-      summary: { correct, total, avgTimeMs, totalTimeMs: avgTimeMs * total },
-      timestamp
-    }));
-  }
-  try {
-    const progSnap = await firebaseDb.ref('users/' + uid + '/program').once('value');
-    const program = progSnap.val() || {};
-    const lessonCount = program.lessonCount || LESSON_COUNT_DEFAULT;
-    const minutesPerLesson = program.minutesPerLesson || LESSON_MINUTES_DEFAULT;
-    const targetMs = minutesPerLesson * 60 * 1000;
-    const completedCount = Math.min(4, lessonCount);
-    const demoLessons = Array.from({ length: lessonCount }, (_, i) => {
-      if (i < completedCount) return { netMs: targetMs, date: todayStr(), completed: true, completedAt: now - (completedCount - i) * 86400000 };
-      if (i === completedCount) return { netMs: Math.round(targetMs * 0.4), date: todayStr(), completed: false, completedAt: null };
-      return { netMs: 0, date: '', completed: false, completedAt: null };
-    });
-    writes.push(firebaseDb.ref('lessons/' + uid).set({
-      studentName: name,
-      lessons: demoLessons,
-      activeLessonIdx: null,
-      updatedAt: firebase.database.ServerValue.TIMESTAMP
-    }));
-  } catch (e) { console.warn('demo lessons seed failed', e); }
-  writes.push(firebaseDb.ref('users/' + uid + '/coins').set(85));
-  try {
-    await Promise.all(writes);
-    alert('נתוני דמו נוספו! הדשבורד יתעדכן אוטומטית.');
-  } catch (e) {
-    alert('שגיאה בהוספת נתוני דמו: ' + (e.message || e));
-  }
-}
-
 function exitParentDashboard() {
   if (dashboardSubmissionsRef) { dashboardSubmissionsRef.off(); dashboardSubmissionsRef = null; }
   if (dashboardLessonsRef) { dashboardLessonsRef.off(); dashboardLessonsRef = null; }
