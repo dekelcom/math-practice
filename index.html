@@ -186,6 +186,11 @@
     color: white;
   }
   .btn-info:hover { background: #a93226; }
+  .btn-danger {
+    background: #e74c3c;
+    color: white;
+  }
+  .btn-danger:hover { background: #c0392b; }
   .video-help-btn {
     animation: video-pulse 1.6s ease-in-out 2;
   }
@@ -1130,6 +1135,34 @@ try {
       <button class="btn btn-primary" onclick="handleCreateParent()">צור הורה</button>
       <button class="btn btn-secondary" onclick="closeCreateParentForm()">ביטול</button>
       <div class="auth-error" id="create-parent-error"></div>
+    </div>
+    <div id="edit-parent-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <h3 style="text-align:center;">עריכת פרטי הורה</h3>
+      <label>שם מלא</label>
+      <input type="text" id="edit-parent-displayname">
+      <label>שם משתמש</label>
+      <input type="text" id="edit-parent-username">
+      <button class="btn btn-primary" onclick="handleSaveParentEdit()">שמור</button>
+      <button class="btn btn-secondary" onclick="closeEditParentForm()">ביטול</button>
+      <div class="auth-error" id="edit-parent-error"></div>
+    </div>
+    <div id="reset-parent-password-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <h3 style="text-align:center;" id="reset-parent-password-title"></h3>
+      <label>סיסמה זמנית חדשה</label>
+      <input type="text" id="reset-parent-password-value">
+      <button type="button" class="btn btn-secondary" onclick="generateRandomParentPassword()">🎲 צור סיסמה אקראית</button>
+      <p style="font-size:0.85em; color:#7f8c8d; text-align:center;">יש למסור את הסיסמה הזו להורה. הוא יתבקש להחליף אותה בכניסה הבאה.</p>
+      <button class="btn btn-primary" onclick="handleResetParentPassword()">אפס סיסמה</button>
+      <button class="btn btn-secondary" onclick="closeResetParentPasswordForm()">ביטול</button>
+      <div class="auth-error" id="reset-parent-password-error"></div>
+    </div>
+  </div>
+
+  <div id="admin-parent-students-view" class="hidden">
+    <button class="back-btn" onclick="exitAdminParentStudentsView()">← חזרה</button>
+    <h2 style="text-align:center;" id="admin-parent-students-title">תלמידים</h2>
+    <div id="admin-parent-students-list" class="teacher-list">
+      <p style="text-align:center; color:#95a5a6;">טוען...</p>
     </div>
   </div>
 
@@ -5565,9 +5598,127 @@ function renderAdminParentsList(arr) {
     <div class="teacher-row" style="cursor:default;">
       <div class="name">${escapeHtml(p.displayName || p.username)}</div>
       <div class="meta">שם משתמש: ${escapeHtml(p.username)}</div>
+      <button class="btn btn-secondary" onclick="openEditParentForm('${p.uid}', '${escapeAttr(p.displayName || '')}', '${escapeAttr(p.username || '')}')">✏️ ערוך</button>
+      <button class="btn btn-secondary" onclick="openResetParentPasswordForm('${p.uid}', '${escapeAttr(p.displayName || p.username)}')">🔑 אפס סיסמה</button>
+      <button class="btn btn-secondary" onclick="openAdminParentStudentsView('${p.uid}', '${escapeAttr(p.displayName || p.username)}')">👨‍🎓 תלמידים</button>
+      <button class="btn btn-danger" onclick="handleDeleteParent('${p.uid}', '${escapeAttr(p.displayName || p.username)}')">🗑️ מחק</button>
     </div>
   `).join('');
 }
+
+async function callAdminApi(action, payload) {
+  const idToken = await firebaseAuth.currentUser.getIdToken();
+  const res = await fetch('/api/admin-manage-parent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+    body: JSON.stringify({ action, ...payload })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'שגיאה בשרת.');
+  return data;
+}
+
+let editParentUid = null;
+function openEditParentForm(uid, displayName, username) {
+  editParentUid = uid;
+  document.getElementById('edit-parent-displayname').value = displayName || '';
+  document.getElementById('edit-parent-username').value = username || '';
+  document.getElementById('edit-parent-error').textContent = '';
+  document.getElementById('edit-parent-form').classList.remove('hidden');
+}
+function closeEditParentForm() {
+  document.getElementById('edit-parent-form').classList.add('hidden');
+  editParentUid = null;
+}
+async function handleSaveParentEdit() {
+  const displayName = document.getElementById('edit-parent-displayname').value.trim();
+  const username = document.getElementById('edit-parent-username').value.trim();
+  const errEl = document.getElementById('edit-parent-error');
+  errEl.textContent = '';
+  if (!displayName || !username) { errEl.textContent = 'נא למלא את כל השדות.'; return; }
+  try {
+    await callAdminApi('updateProfile', { targetUid: editParentUid, displayName, username });
+    closeEditParentForm();
+  } catch (e) {
+    errEl.textContent = e.message || 'שגיאה.';
+  }
+}
+
+let resetParentPasswordUid = null;
+function openResetParentPasswordForm(uid, name) {
+  resetParentPasswordUid = uid;
+  document.getElementById('reset-parent-password-title').textContent = 'איפוס סיסמה: ' + name;
+  document.getElementById('reset-parent-password-value').value = '';
+  document.getElementById('reset-parent-password-error').textContent = '';
+  document.getElementById('reset-parent-password-form').classList.remove('hidden');
+}
+function closeResetParentPasswordForm() {
+  document.getElementById('reset-parent-password-form').classList.add('hidden');
+  resetParentPasswordUid = null;
+}
+function generateRandomParentPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let pw = '';
+  for (let i = 0; i < 10; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('reset-parent-password-value').value = pw;
+}
+async function handleResetParentPassword() {
+  const newPassword = document.getElementById('reset-parent-password-value').value;
+  const errEl = document.getElementById('reset-parent-password-error');
+  errEl.textContent = '';
+  if (!newPassword || newPassword.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  try {
+    await callAdminApi('resetPassword', { targetUid: resetParentPasswordUid, newPassword });
+    alert('✓ הסיסמה אופסה. יש למסור אותה להורה - הוא יתבקש להחליף אותה בכניסה הבאה.');
+    closeResetParentPasswordForm();
+  } catch (e) {
+    errEl.textContent = e.message || 'שגיאה.';
+  }
+}
+
+async function handleDeleteParent(uid, name) {
+  if (!confirm(`למחוק את חשבון ההורה "${name}"? פעולה זו אינה הפיכה.`)) return;
+  try {
+    await callAdminApi('deleteParent', { targetUid: uid });
+  } catch (e) {
+    alert('שגיאה: ' + (e.message || e));
+  }
+}
+
+function openAdminParentStudentsView(uid, name) {
+  document.getElementById('admin-home-view').classList.add('hidden');
+  document.getElementById('admin-parent-students-view').classList.remove('hidden');
+  document.getElementById('admin-parent-students-title').textContent = 'תלמידים של ' + name;
+  document.getElementById('admin-parent-students-list').innerHTML = '<p style="text-align:center; color:#95a5a6;">טוען...</p>';
+  firebaseDb.ref('users').orderByChild('parentUid').equalTo(uid).once('value').then(snap => {
+    const arr = [];
+    snap.forEach(child => arr.push({ uid: child.key, ...child.val() }));
+    renderAdminParentStudentsList(arr);
+  }).catch(e => {
+    document.getElementById('admin-parent-students-list').innerHTML =
+      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (e.message || e) + '</p>';
+  });
+}
+function exitAdminParentStudentsView() {
+  document.getElementById('admin-parent-students-view').classList.add('hidden');
+  document.getElementById('admin-home-view').classList.remove('hidden');
+}
+function renderAdminParentStudentsList(arr) {
+  const container = document.getElementById('admin-parent-students-list');
+  if (!arr.length) {
+    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">אין תלמידים משויכים להורה זה.</p>';
+    return;
+  }
+  container.innerHTML = arr.map(s => `
+    <div class="teacher-row" style="cursor:default;">
+      <div class="name">${escapeHtml(s.displayName || s.username)}</div>
+      <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
+      ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
+      <div class="meta">🪙 ${s.coins || 0}</div>
+    </div>
+  `).join('');
+}
+
 function openCreateParentForm() {
   document.getElementById('create-parent-form').classList.remove('hidden');
   document.getElementById('new-parent-displayname').value = '';
