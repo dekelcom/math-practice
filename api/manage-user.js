@@ -37,14 +37,15 @@ module.exports = async (req, res) => {
     return;
   }
 
+  let callerRole;
   try {
-    const callerRoleSnap = await db.ref('users/' + callerUid + '/role').once('value');
-    if (callerRoleSnap.val() !== 'admin') {
-      res.status(403).json({ error: 'רק מנהל יכול לבצע פעולה זו.' });
-      return;
-    }
+    callerRole = (await db.ref('users/' + callerUid + '/role').once('value')).val();
   } catch (e) {
     res.status(500).json({ error: 'שגיאה באימות הרשאה.' });
+    return;
+  }
+  if (callerRole !== 'admin' && callerRole !== 'parent') {
+    res.status(403).json({ error: 'אין לך הרשאה לבצע פעולה זו.' });
     return;
   }
 
@@ -61,8 +62,12 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'שגיאה בטעינת המשתמש.' });
     return;
   }
-  if (!targetProfile || targetProfile.role !== 'parent') {
-    res.status(404).json({ error: 'הורה לא נמצא.' });
+
+  // מנהל יכול לפעול על הורה; הורה יכול לפעול רק על תלמיד משויך אליו
+  const callerIsAdminOverParent = callerRole === 'admin' && targetProfile && targetProfile.role === 'parent';
+  const callerIsParentOverOwnStudent = callerRole === 'parent' && targetProfile && targetProfile.role === 'student' && targetProfile.parentUid === callerUid;
+  if (!targetProfile || (!callerIsAdminOverParent && !callerIsParentOverOwnStudent)) {
+    res.status(404).json({ error: 'משתמש לא נמצא או שאין לך הרשאה אליו.' });
     return;
   }
 
@@ -76,6 +81,12 @@ module.exports = async (req, res) => {
       await auth.updateUser(targetUid, { password: newPassword });
       await db.ref('users/' + targetUid + '/mustChangePassword').set(true);
       res.status(200).json({ ok: true });
+      return;
+    }
+
+    // עריכת פרטים ומחיקה - רק מנהל, ורק על הורה (לא נחשפות להורה על תלמיד)
+    if (!callerIsAdminOverParent) {
+      res.status(403).json({ error: 'אין לך הרשאה לבצע פעולה זו.' });
       return;
     }
 

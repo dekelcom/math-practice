@@ -1219,6 +1219,16 @@ try {
       <button class="btn btn-secondary" onclick="closeEditProgramForm()">ביטול</button>
       <div class="auth-error" id="edit-program-error"></div>
     </div>
+    <div id="reset-student-password-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <h3 style="text-align:center;" id="reset-student-password-title"></h3>
+      <label>סיסמה זמנית חדשה</label>
+      <input type="text" id="reset-student-password-value">
+      <button type="button" class="btn btn-secondary" onclick="generateRandomStudentPassword()">🎲 צור סיסמה אקראית</button>
+      <p style="font-size:0.85em; color:#7f8c8d; text-align:center;">יש למסור את הסיסמה הזו לתלמיד. הוא יתבקש להחליף אותה בכניסה הבאה.</p>
+      <button class="btn btn-primary" onclick="handleResetStudentPassword()">אפס סיסמה</button>
+      <button class="btn btn-secondary" onclick="closeResetStudentPasswordForm()">ביטול</button>
+      <div class="auth-error" id="reset-student-password-error"></div>
+    </div>
   </div>
 
   <div id="parent-dashboard-view" class="hidden">
@@ -5606,9 +5616,9 @@ function renderAdminParentsList(arr) {
   `).join('');
 }
 
-async function callAdminApi(action, payload) {
+async function callManageUserApi(action, payload) {
   const idToken = await firebaseAuth.currentUser.getIdToken();
-  const res = await fetch('/api/admin-manage-parent', {
+  const res = await fetch('/api/manage-user', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
     body: JSON.stringify({ action, ...payload })
@@ -5637,7 +5647,7 @@ async function handleSaveParentEdit() {
   errEl.textContent = '';
   if (!displayName || !username) { errEl.textContent = 'נא למלא את כל השדות.'; return; }
   try {
-    await callAdminApi('updateProfile', { targetUid: editParentUid, displayName, username });
+    await callManageUserApi('updateProfile', { targetUid: editParentUid, displayName, username });
     closeEditParentForm();
   } catch (e) {
     errEl.textContent = e.message || 'שגיאה.';
@@ -5668,7 +5678,7 @@ async function handleResetParentPassword() {
   errEl.textContent = '';
   if (!newPassword || newPassword.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
   try {
-    await callAdminApi('resetPassword', { targetUid: resetParentPasswordUid, newPassword });
+    await callManageUserApi('resetPassword', { targetUid: resetParentPasswordUid, newPassword });
     alert('✓ הסיסמה אופסה. יש למסור אותה להורה - הוא יתבקש להחליף אותה בכניסה הבאה.');
     closeResetParentPasswordForm();
   } catch (e) {
@@ -5679,7 +5689,7 @@ async function handleResetParentPassword() {
 async function handleDeleteParent(uid, name) {
   if (!confirm(`למחוק את חשבון ההורה "${name}"? פעולה זו אינה הפיכה.`)) return;
   try {
-    await callAdminApi('deleteParent', { targetUid: uid });
+    await callManageUserApi('deleteParent', { targetUid: uid });
   } catch (e) {
     alert('שגיאה: ' + (e.message || e));
   }
@@ -5788,9 +5798,43 @@ function renderParentStudentsList(arr) {
       <div class="meta">🪙 ${s.coins || 0}</div>
       <button class="btn btn-secondary" onclick="event.stopPropagation(); openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
       <button class="btn btn-secondary" onclick="event.stopPropagation(); handleGiftCoins('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🎁 העניק מטבעות</button>
+      <button class="btn btn-secondary" onclick="event.stopPropagation(); openResetStudentPasswordForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🔑 אפס סיסמה</button>
     </div>
   `).join('');
 }
+
+let resetStudentPasswordUid = null;
+function openResetStudentPasswordForm(uid, name) {
+  resetStudentPasswordUid = uid;
+  document.getElementById('reset-student-password-title').textContent = 'איפוס סיסמה: ' + name;
+  document.getElementById('reset-student-password-value').value = '';
+  document.getElementById('reset-student-password-error').textContent = '';
+  document.getElementById('reset-student-password-form').classList.remove('hidden');
+}
+function closeResetStudentPasswordForm() {
+  document.getElementById('reset-student-password-form').classList.add('hidden');
+  resetStudentPasswordUid = null;
+}
+function generateRandomStudentPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let pw = '';
+  for (let i = 0; i < 10; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('reset-student-password-value').value = pw;
+}
+async function handleResetStudentPassword() {
+  const newPassword = document.getElementById('reset-student-password-value').value;
+  const errEl = document.getElementById('reset-student-password-error');
+  errEl.textContent = '';
+  if (!newPassword || newPassword.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  try {
+    await callManageUserApi('resetPassword', { targetUid: resetStudentPasswordUid, newPassword });
+    alert('✓ הסיסמה אופסה. יש למסור אותה לתלמיד - הוא יתבקש להחליף אותה בכניסה הבאה.');
+    closeResetStudentPasswordForm();
+  } catch (e) {
+    errEl.textContent = e.message || 'שגיאה.';
+  }
+}
+
 async function handleGiftCoins(uid, name) {
   const amountStr = prompt(`כמה מטבעות להעניק ל${name}?`);
   if (amountStr === null) return;
