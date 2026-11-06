@@ -5,30 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מערכת תרגול חשבון ומתמטיקה בהשראת Kumon</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;600;700;800&display=swap">
 <style>
+  :root{
+    /* surfaces */
+    --paper:#F5F7FF; --grid:#E2E7FA; --white:#fff;
+    --sand:#FFF1DE; --sand-d:#B4741F;
+
+    /* ink + lines */
+    --ink:#1B1B2F; --ink2:#5B6080; --ink3:#9AA0BC; --line:#E4E7F2;
+
+    /* brand + accents */
+    --blue:#3D5AFE; --blue-d:#2B43D6; --blue-l:#E8ECFF;
+    --orange:#FF6B3D; --orange-d:#C23F17; --orange-l:#FFE8DF;
+    --mint:#14B88A; --mint-d:#0B7058; --mint-l:#E2F7EF;
+    --sun:#FFC93C; --sun-d:#8F6406; --sun-l:#FFF6DC;
+    --pink:#F2559B; --pink-d:#C22E6F; --pink-l:#FDE6F0;
+    --purple:#8B5CF6; --purple-d:#6D3FE0;
+    --red:#FF4D4D; --red-d:#D32F2F; --red-l:#FFE5E5;
+    --neutral:#E4E7F2; --neutral-d:#C7CCE3;
+
+    /* type */
+    --display:'Fredoka','Rubik',system-ui,sans-serif;
+    --body:'Rubik',system-ui,sans-serif;
+
+    /* radius */
+    --r-lg:28px; --r-md:18px; --r-sm:12px;
+
+    /* elevation - pick one per element, never both */
+    --lift:0 4px 0 rgba(27,27,47,.12);
+    --ring:0 0 0 1px var(--line);
+    --drop:0 0 0 1px var(--line),0 16px 40px -24px rgba(27,27,47,.35);
+  }
   * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Heebo", Arial, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: var(--body);
+    background: var(--paper);
     margin: 0;
     padding: 20px;
     min-height: 100vh;
-    color: #2c3e50;
+    color: var(--ink);
   }
   .container {
     max-width: 900px;
     margin: 0 auto;
-    background: white;
-    border-radius: 16px;
+    background: var(--white);
+    border-radius: var(--r-lg);
     padding: 30px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    box-shadow: var(--drop);
   }
   h1 {
     text-align: center;
-    color: #2c3e50;
+    color: var(--ink);
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.7em;
     margin-top: 0;
-    border-bottom: 3px solid #3498db;
     padding-bottom: 15px;
+    text-wrap: balance;
   }
   .topics-menu {
     display: grid;
@@ -37,26 +72,24 @@
     margin: 20px 0;
   }
   .topic-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--blue);
     color: white;
     padding: 20px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: var(--display);
+    transition: transform .08s, box-shadow .08s;
     text-align: center;
     font-size: 1.05em;
     font-weight: 600;
     border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 0 var(--blue-d);
   }
-  .topic-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  }
-  .topic-card.topic-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-  .topic-card.topic-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-  .topic-card.topic-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-  .topic-card.topic-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+  .topic-card:active { transform: translateY(4px); box-shadow: none; }
+  .topic-card.topic-2 { background: var(--pink-d); box-shadow: 0 4px 0 #9E2760; }
+  .topic-card.topic-3 { background: var(--mint-d); box-shadow: 0 4px 0 #086B51; }
+  .topic-card.topic-4 { background: var(--orange-d); box-shadow: 0 4px 0 #A6350F; }
+  .topic-card.topic-5 { background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 var(--sun-d); }
 
   .level-selector {
     display: flex;
@@ -67,32 +100,32 @@
   }
   .level-btn {
     padding: 10px 20px;
-    border: 2px solid #3498db;
+    border: 2px solid var(--blue);
     background: white;
-    color: #3498db;
-    border-radius: 8px;
+    color: var(--blue);
+    border-radius: var(--r-sm);
     cursor: pointer;
     font-size: 1em;
     font-weight: 600;
-    font-family: inherit;
+    font-family: var(--body);
     transition: all 0.2s;
   }
-  .level-btn:hover { background: #ecf0f1; }
+  .level-btn:hover { background: var(--blue-l); }
   .level-btn.active {
-    background: #3498db;
+    background: var(--blue);
     color: white;
   }
   .level-btn.locked {
     opacity: 0.5;
     cursor: not-allowed;
-    border-color: #95a5a6;
-    color: #95a5a6;
+    border-color: var(--ink3);
+    color: var(--ink3);
   }
 
   .problem-area {
-    background: #f8f9fa;
-    border: 2px solid #e1e4e8;
-    border-radius: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
     padding: 25px;
     margin: 20px 0;
     min-height: 200px;
@@ -100,7 +133,7 @@
   .problem-text {
     font-size: 1.2em;
     line-height: 1.6;
-    color: #2c3e50;
+    color: var(--ink);
     margin-bottom: 20px;
     white-space: pre-wrap;
   }
@@ -109,94 +142,101 @@
     font-size: 1.4em;
     background: white;
     padding: 12px 20px;
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     display: inline-block;
     margin: 8px 0;
-    border-right: 4px solid #3498db;
+    box-shadow: var(--ring);
     direction: ltr;
     unicode-bidi: bidi-override;
   }
   .answer-section {
     background: white;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     margin-top: 15px;
+    box-shadow: var(--ring);
   }
   .answer-section label {
     display: block;
     margin: 10px 0 5px;
     font-weight: 600;
-    color: #34495e;
+    color: var(--ink2);
   }
   input[type="text"], input[type="number"] {
     padding: 10px;
     font-size: 1.1em;
-    border: 2px solid #bdc3c7;
-    border-radius: 6px;
+    border: 2px solid var(--line);
+    border-radius: var(--r-sm);
     width: 150px;
     direction: ltr;
     text-align: left;
-    font-family: inherit;
+    font-family: var(--body);
+    color: var(--ink);
   }
   input[type="text"]:focus, input[type="number"]:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--blue);
   }
   select {
     padding: 10px;
     font-size: 1.05em;
-    border: 2px solid #bdc3c7;
-    border-radius: 6px;
-    font-family: inherit;
+    border: 2px solid var(--line);
+    border-radius: var(--r-sm);
+    font-family: var(--body);
     background: white;
+    color: var(--ink);
   }
   .btn {
+    border: 0;
+    border-radius: var(--r-md);
+    font: 600 1em var(--body);
+    color: #fff;
     padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
+    min-height: 48px;
     cursor: pointer;
-    font-size: 1em;
-    font-weight: 600;
-    font-family: inherit;
     margin: 8px 4px;
-    transition: all 0.2s;
+    transition: transform .08s, box-shadow .08s;
   }
+  .btn:active { transform: translateY(4px); box-shadow: none !important; }
   .btn-primary {
-    background: #3498db;
-    color: white;
+    background: var(--blue);
+    box-shadow: var(--lift);
   }
-  .btn-primary:hover { background: #2980b9; }
+  .btn-primary:hover { background: var(--blue-d); }
   .btn-success {
-    background: #27ae60;
-    color: white;
+    background: var(--mint);
+    color: var(--ink);
+    box-shadow: 0 4px 0 var(--mint-d);
   }
-  .btn-success:hover { background: #229954; }
+  .btn-success:hover { background: var(--mint-d); color: #fff; }
   .btn-warning {
-    background: #f39c12;
-    color: white;
+    background: var(--orange);
+    color: var(--ink);
+    box-shadow: 0 4px 0 var(--orange-d);
   }
-  .btn-warning:hover { background: #e67e22; }
+  .btn-warning:hover { background: var(--orange-d); color: #fff; }
   .btn-secondary {
-    background: #95a5a6;
-    color: white;
+    background: var(--neutral);
+    color: var(--ink2);
+    box-shadow: 0 4px 0 var(--neutral-d);
   }
-  .btn-secondary:hover { background: #7f8c8d; }
+  .btn-secondary:hover { background: var(--neutral-d); color: var(--ink); }
   .btn-info {
-    background: #c0392b;
-    color: white;
+    background: var(--orange-d);
+    box-shadow: 0 4px 0 #A6350F;
   }
-  .btn-info:hover { background: #a93226; }
+  .btn-info:hover { background: #A6350F; }
   .video-help-btn {
     animation: video-pulse 1.6s ease-in-out 2;
   }
   @keyframes video-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(192, 57, 43, 0); }
+    0%, 100% { box-shadow: var(--lift), 0 0 0 0 rgba(222, 74, 28, 0.4); }
+    50% { box-shadow: var(--lift), 0 0 0 8px rgba(222, 74, 28, 0); }
   }
 
   .feedback {
-    padding: 15px;
-    border-radius: 8px;
+    padding: 15px 18px;
+    border-radius: var(--r-md);
     margin-top: 15px;
     font-size: 1.1em;
     font-weight: 600;
@@ -207,26 +247,27 @@
     to { opacity: 1; transform: translateY(0); }
   }
   .feedback.correct {
-    background: #d4edda;
-    color: #155724;
-    border-right: 4px solid #28a745;
+    background: var(--mint-l);
+    color: var(--mint-d);
+    box-shadow: 0 0 0 1.5px var(--mint);
   }
   .feedback.incorrect {
-    background: #f8d7da;
-    color: #721c24;
-    border-right: 4px solid #dc3545;
+    background: var(--red-l);
+    color: var(--red-d);
+    box-shadow: 0 0 0 1.5px var(--red);
   }
   .solution {
-    background: #fff3cd;
-    border-right: 4px solid #ffc107;
+    background: var(--sun-l);
     padding: 15px 20px;
-    border-radius: 8px;
+    border-radius: var(--r-md);
     margin-top: 15px;
     line-height: 1.8;
+    box-shadow: 0 0 0 1.5px var(--sun);
   }
   .solution h4 {
     margin-top: 0;
-    color: #856404;
+    color: var(--sun-d);
+    font-family: var(--display);
   }
   .solution-step {
     margin: 8px 0;
@@ -236,9 +277,9 @@
   .stats {
     display: flex;
     justify-content: space-around;
-    background: #ecf0f1;
+    background: var(--paper);
     padding: 15px;
-    border-radius: 8px;
+    border-radius: var(--r-md);
     margin: 15px 0;
     flex-wrap: wrap;
     gap: 10px;
@@ -249,44 +290,49 @@
   .stat-value {
     font-size: 1.6em;
     font-weight: bold;
-    color: #2c3e50;
+    font-family: var(--display);
+    color: var(--ink);
   }
   .stat-label {
     font-size: 0.9em;
-    color: #7f8c8d;
+    color: var(--ink2);
   }
   .progress-bar {
-    height: 8px;
-    background: #ecf0f1;
-    border-radius: 4px;
+    height: 10px;
+    background: var(--line);
+    border-radius: 999px;
     overflow: hidden;
     margin: 10px 0;
   }
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #2ecc71, #3498db);
+    background: var(--blue);
     transition: width 0.3s;
   }
 
   .back-btn {
-    background: #95a5a6;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
+    background: var(--neutral);
+    color: var(--ink2);
+    padding: 10px 18px;
+    border: 0;
+    border-radius: var(--r-md);
     cursor: pointer;
-    font-family: inherit;
+    font-family: var(--body);
+    font-weight: 600;
     font-size: 0.95em;
     margin-bottom: 10px;
+    box-shadow: 0 4px 0 var(--neutral-d);
+    transition: transform .08s, box-shadow .08s;
   }
-  .back-btn:hover { background: #7f8c8d; }
+  .back-btn:hover { background: var(--neutral-d); color: var(--ink); }
+  .back-btn:active { transform: translateY(4px); box-shadow: none; }
 
   .hidden { display: none !important; }
 
   canvas {
     background: white;
-    border: 2px solid #bdc3c7;
-    border-radius: 8px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
     max-width: 100%;
     display: block;
     margin: 10px auto;
@@ -304,21 +350,22 @@
   .badge {
     display: inline-block;
     padding: 3px 10px;
-    border-radius: 12px;
+    border-radius: 999px;
     font-size: 0.85em;
-    font-weight: 600;
+    font-weight: 700;
     margin-right: 8px;
   }
-  .badge-easy { background: #d4edda; color: #155724; }
-  .badge-medium { background: #fff3cd; color: #856404; }
-  .badge-hard { background: #f8d7da; color: #721c24; }
+  .badge-easy { background: var(--mint-l); color: var(--mint-d); }
+  .badge-medium { background: var(--sun-l); color: var(--sun-d); }
+  .badge-hard { background: var(--red-l); color: var(--red-d); }
 
-  .star { color: #f1c40f; font-size: 1.3em; }
+  .star { color: var(--sun-d); font-size: 1.3em; }
   .formula-box {
-    background: #e8f4f8;
-    border: 1px dashed #3498db;
+    background: var(--blue-l);
+    border: none;
+    box-shadow: var(--ring);
     padding: 10px 15px;
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     margin: 10px 0;
     text-align: center;
     font-family: "Cambria Math", serif;
@@ -330,9 +377,9 @@
     display: inline-block;
   }
   .formula-box .label {
-    font-family: inherit;
-    color: #2c3e50;
-    font-weight: 600;
+    font-family: var(--body);
+    color: var(--blue-d);
+    font-weight: 700;
     margin-left: 8px;
     font-size: 0.95em;
   }
@@ -343,29 +390,38 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    background: var(--blue);
+    color: white;
+    font-family: var(--display);
+    padding: 14px 18px;
+    border-radius: var(--r-md);
+    margin-bottom: 18px;
   }
+  .topic-view-header b { font-weight: 700; }
   .coin-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    color: #5a3a00;
+    background: var(--sun);
+    color: var(--ink);
     font-weight: 700;
+    font-family: var(--display);
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: 999px;
     font-size: 1em;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 0 0 1.5px var(--sun-d);
   }
-  #coins-stat .stat-value { color: #d97706; }
+  #coins-stat .stat-value { color: var(--sun-d); }
   .coin-pop {
     position: absolute;
     transform: translate(-50%, 0);
     font-weight: 700;
-    color: #d97706;
+    font-family: var(--display);
+    color: var(--sun-d);
     background: white;
     padding: 6px 12px;
     border-radius: 16px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    box-shadow: var(--drop);
     pointer-events: none;
     z-index: 1000;
     animation: coin-float 1.4s ease-out forwards;
@@ -385,16 +441,17 @@
 
   .notebook {
     margin: 12px 0;
-    border: 1px solid #d1d5da;
-    border-radius: 10px;
-    background: #fafbfc;
+    border: none;
+    box-shadow: var(--ring);
+    border-radius: var(--r-md);
+    background: var(--paper);
     overflow: hidden;
   }
   .notebook > summary {
     cursor: pointer;
     padding: 12px 16px;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--ink);
     user-select: none;
     list-style: none;
     display: flex;
@@ -414,24 +471,24 @@
     flex-wrap: wrap;
     gap: 6px;
     padding: 10px 12px;
-    border-top: 1px solid #e1e4e8;
+    border-top: 1px solid var(--line);
     background: white;
   }
   .notebook-tools button {
     padding: 8px 12px;
-    border: 1px solid #d1d5da;
+    border: 1px solid var(--line);
     background: white;
-    border-radius: 6px;
+    border-radius: var(--r-sm);
     cursor: pointer;
-    font-family: inherit;
+    font-family: var(--body);
     font-size: 0.95em;
     min-width: 44px;
     min-height: 44px;
   }
   .notebook-tools button.active {
-    background: #3498db;
+    background: var(--blue);
     color: white;
-    border-color: #2980b9;
+    border-color: var(--blue-d);
   }
   .notebook-tools .dot {
     display: inline-block;
@@ -445,7 +502,7 @@
     height: 400px;
     background: white;
     border: none;
-    border-top: 1px solid #e1e4e8;
+    border-top: 1px solid var(--line);
     border-radius: 0;
     margin: 0;
     touch-action: none;
@@ -462,12 +519,13 @@
 
   .section-title {
     text-align: center;
-    color: #2c3e50;
+    color: var(--ink);
+    font-family: var(--display);
     font-size: 1.15em;
-    font-weight: 700;
+    font-weight: 600;
     margin: 24px 0 10px;
     padding-top: 16px;
-    border-top: 2px dashed #e1e4e8;
+    border-top: 1px solid var(--line);
   }
   .section-title:first-child { border-top: none; padding-top: 0; }
   .basics-menu {
@@ -479,39 +537,41 @@
   .basics-track-card {
     color: white;
     padding: 18px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     cursor: pointer;
+    font-family: var(--display);
     font-size: 1.05em;
     font-weight: 600;
     border: none;
     text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform .08s, box-shadow .08s;
+    box-shadow: 0 4px 0 rgba(27,27,47,.2);
   }
-  .basics-track-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
-  .basics-track-card.addition { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
-  .basics-track-card.subtraction { background: linear-gradient(135deg, #ff5858 0%, #f09819 100%); }
-  .basics-track-card.multiplication { background: linear-gradient(135deg, #654ea3 0%, #eaafc8 100%); }
-  .basics-track-card.division { background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); }
-  .basics-track-card.negatives { background: linear-gradient(135deg, #232526 0%, #414345 100%); }
-  .basics-track-card.orderops { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #2c3e50; }
-  .basics-track-card.fractions { background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); color: #2c3e50; }
-  .basics-track-card.additionBreakApart { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
-  .basics-track-card.multiAdd { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-  .basics-track-card.multiSub { background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%); }
-  .basics-track-card.longMul { background: linear-gradient(135deg, #5614b0 0%, #dbd65c 100%); }
-  .basics-track-card.longDiv { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
-  .basics-track-card.fractionsAdv { background: linear-gradient(135deg, #c471f5 0%, #fa71cd 100%); }
-  .basics-track-card.decimals { background: linear-gradient(135deg, #4ca1af 0%, #c4e0e5 100%); color: #2c3e50; }
-  .basics-track-card.simplify { background: linear-gradient(135deg, #355c7d 0%, #6c5b7b 50%, #c06c84 100%); }
-  .basics-track-card.solveLinear { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
-  .basics-track-card.factorize { background: linear-gradient(135deg, #16a085 0%, #f4d03f 100%); }
-  .basics-track-card.inequalities { background: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%); color: #2c3e50; }
-  .basics-track-card.simultaneous { background: linear-gradient(135deg, #4568dc 0%, #b06ab3 100%); }
-  .basics-track-card.placeValue { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
-  .basics-track-card.properties { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
-  .basics-track-card.oneStepEq { background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%); }
-  .basics-track-card.multiStepEq { background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%); }
+  .basics-track-card:active { transform: translateY(4px); box-shadow: none; }
+  /* ארבעת תפקידי הצבע מתחלפים לפי קבוצה, כדי שהפלטה תישאר מחויבת ולא קשת בענן */
+  .basics-track-card.addition,
+  .basics-track-card.negatives,
+  .basics-track-card.multiAdd,
+  .basics-track-card.fractionsAdv,
+  .basics-track-card.factorize,
+  .basics-track-card.properties { background: var(--blue-d); box-shadow: 0 4px 0 #1E2FA0; }
+  .basics-track-card.subtraction,
+  .basics-track-card.orderops,
+  .basics-track-card.multiSub,
+  .basics-track-card.decimals,
+  .basics-track-card.inequalities,
+  .basics-track-card.oneStepEq { background: var(--orange-d); box-shadow: 0 4px 0 #A6350F; }
+  .basics-track-card.multiplication,
+  .basics-track-card.fractions,
+  .basics-track-card.longMul,
+  .basics-track-card.simplify,
+  .basics-track-card.simultaneous,
+  .basics-track-card.multiStepEq { background: var(--mint-d); box-shadow: 0 4px 0 #086B51; }
+  .basics-track-card.division,
+  .basics-track-card.additionBreakApart,
+  .basics-track-card.longDiv,
+  .basics-track-card.solveLinear,
+  .basics-track-card.placeValue { background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 var(--sun-d); }
 
   .frac {
     display: inline-flex; flex-direction: column; vertical-align: middle;
@@ -528,33 +588,33 @@
   }
   .ladder-cell {
     padding: 18px 8px;
-    border-radius: 10px;
+    border-radius: var(--r-sm);
     text-align: center;
     cursor: pointer;
     font-weight: 700;
     font-size: 1.2em;
-    border: 2px solid #3498db;
+    border: 2px solid var(--blue);
     background: white;
-    color: #3498db;
-    font-family: inherit;
+    color: var(--blue);
+    font-family: var(--body);
     transition: all 0.15s;
   }
-  .ladder-cell:hover:not(.locked) { background: #ecf6fc; transform: translateY(-2px); }
+  .ladder-cell:hover:not(.locked) { background: var(--blue-l); transform: translateY(-2px); }
   .ladder-cell.mastered {
-    background: #d4edda;
-    border-color: #28a745;
-    color: #155724;
+    background: var(--mint-l);
+    border-color: var(--mint);
+    color: var(--mint-d);
   }
   .ladder-cell.current {
-    border-color: #f39c12;
-    background: #fff8e1;
-    color: #b8860b;
-    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.3);
+    border-color: var(--sun-d);
+    background: var(--sun-l);
+    color: var(--sun-d);
+    box-shadow: 0 0 0 3px rgba(201, 142, 10, 0.25);
   }
   .ladder-cell.locked {
-    background: #f1f3f5;
-    border-color: #d1d5da;
-    color: #95a5a6;
+    background: var(--paper);
+    border-color: var(--line);
+    color: var(--ink3);
     cursor: not-allowed;
   }
   .ladder-cell small { display: block; font-size: 0.65em; font-weight: 500; opacity: 0.8; margin-top: 4px; }
@@ -564,14 +624,14 @@
     padding: 30px 20px;
   }
   .basics-progress {
-    color: #7f8c8d;
+    color: var(--ink2);
     font-size: 1em;
     margin-bottom: 16px;
   }
   .basics-equation {
     font-size: 3em;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--ink);
     margin: 16px 0;
     font-family: "Cambria Math", serif;
     direction: ltr;
@@ -580,7 +640,7 @@
   .basics-question-label {
     font-size: 1.1em;
     font-weight: 600;
-    color: #34495e;
+    color: var(--ink2);
     margin-top: 8px;
   }
   .basics-options {
@@ -595,18 +655,18 @@
     font-weight: 700;
     padding: 16px 10px;
     min-height: 70px;
-    border: 2px solid #3498db;
+    border: 2px solid var(--blue);
     background: white;
-    color: #3498db;
-    border-radius: 12px;
+    color: var(--blue);
+    border-radius: var(--r-md);
     cursor: pointer;
-    font-family: inherit;
+    font-family: var(--body);
     transition: transform 0.12s, background 0.12s, color 0.12s;
   }
-  .basics-option:hover:not(:disabled) { background: #ecf6fc; transform: translateY(-2px); }
+  .basics-option:hover:not(:disabled) { background: var(--blue-l); transform: translateY(-2px); }
   .basics-option:disabled { cursor: not-allowed; }
-  .basics-option.correct { background: #28a745; color: white; border-color: #1e7e34; }
-  .basics-option.incorrect { background: #dc3545; color: white; border-color: #bd2130; }
+  .basics-option.correct { background: var(--mint); color: white; border-color: var(--mint-d); }
+  .basics-option.incorrect { background: var(--red); color: white; border-color: var(--red-d); }
   @media (max-width: 600px) {
     .basics-options { grid-template-columns: repeat(2, 1fr); }
   }
@@ -614,51 +674,51 @@
   /* חיבור עם פירוק (break-apart) */
   .ba-container { max-width: 480px; margin: 0 auto; text-align: center; }
   .ba-headline {
-    font-size: 2.4em; font-weight: 700; color: #2c3e50; margin: 10px 0 6px;
+    font-size: 2.4em; font-weight: 700; color: var(--ink); margin: 10px 0 6px;
     font-family: "Cambria Math", serif; direction: ltr; unicode-bidi: isolate;
   }
   .ba-decompose {
     display: flex; justify-content: center; gap: 10px; margin: 12px 0 18px; flex-wrap: wrap;
   }
   .ba-decompose-box {
-    background: #f0f7ff; border: 2px solid #b8daff; border-radius: 10px;
-    padding: 8px 14px; font-size: 1.15em; color: #2c3e50;
+    background: var(--blue-l); border: 2px solid var(--blue); border-radius: var(--r-sm);
+    padding: 8px 14px; font-size: 1.15em; color: var(--blue-d);
     font-family: "Cambria Math", serif; direction: ltr; unicode-bidi: isolate;
   }
   .ba-step {
-    background: #fafbfc; border: 2px solid #e1e4e8; border-radius: 12px;
+    background: var(--paper); border: 2px solid var(--line); border-radius: var(--r-md);
     padding: 12px 10px; margin: 10px 0;
     opacity: 0.45; transition: opacity 0.25s, border-color 0.25s, background 0.25s, box-shadow 0.25s;
   }
   .ba-step.active {
-    opacity: 1; border-color: #3498db; background: white;
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    opacity: 1; border-color: var(--blue); background: white;
+    box-shadow: 0 4px 12px rgba(61, 90, 254, 0.15);
   }
-  .ba-step.done { opacity: 1; border-color: #28a745; background: #f5fff8; }
-  .ba-step-title { font-size: 0.9em; color: #7f8c8d; font-weight: 600; margin-bottom: 6px; }
-  .ba-step.active .ba-step-title { color: #3498db; }
-  .ba-step.done .ba-step-title { color: #28a745; }
+  .ba-step.done { opacity: 1; border-color: var(--mint); background: var(--mint-l); }
+  .ba-step-title { font-size: 0.9em; color: var(--ink2); font-weight: 600; margin-bottom: 6px; }
+  .ba-step.active .ba-step-title { color: var(--blue); }
+  .ba-step.done .ba-step-title { color: var(--mint-d); }
   .ba-step-eq {
-    font-size: 1.6em; font-weight: 700; color: #2c3e50;
+    font-size: 1.6em; font-weight: 700; color: var(--ink);
     direction: ltr; unicode-bidi: isolate; font-family: "Cambria Math", serif;
     display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
   }
   .ba-input {
     display: inline-block; min-width: 62px; padding: 4px 10px;
-    border: 2px dashed #b1b8bf; border-radius: 8px; background: #fafbfc;
-    color: #2c3e50; text-align: center; font: inherit;
+    border: 2px dashed var(--ink3); border-radius: var(--r-sm); background: var(--paper);
+    color: var(--ink); text-align: center; font: inherit;
   }
-  .ba-step.active .ba-input { border-color: #3498db; background: #eaf3fb; }
-  .ba-input.shake { animation: ba-shake 0.35s; border-color: #dc3545; background: #fff5f5; color: #dc3545; }
-  .ba-input.solved { border-style: solid; border-color: #28a745; background: #eafcf1; color: #28a745; }
-  .ba-input.revealed { border-style: solid; border-color: #f39c12; background: #fff8e6; color: #b8860b; }
+  .ba-step.active .ba-input { border-color: var(--blue); background: var(--blue-l); }
+  .ba-input.shake { animation: ba-shake 0.35s; border-color: var(--red); background: var(--red-l); color: var(--red-d); }
+  .ba-input.solved { border-style: solid; border-color: var(--mint); background: var(--mint-l); color: var(--mint-d); }
+  .ba-input.revealed { border-style: solid; border-color: var(--sun-d); background: var(--sun-l); color: var(--sun-d); }
   @keyframes ba-shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-6px); }
     75% { transform: translateX(6px); }
   }
   .ba-hint {
-    color: #856404; font-size: 0.95em; background: #fff8e6; border-radius: 8px;
+    color: var(--sun-d); font-size: 0.95em; background: var(--sun-l); border-radius: var(--r-sm);
     padding: 8px 10px; margin-top: 8px; display: none;
   }
   .ba-hint.show { display: block; }
@@ -669,17 +729,17 @@
   }
   .ba-key {
     font-size: 1.4em; font-weight: 700; padding: 14px 0;
-    border: 2px solid #3498db; background: white; color: #3498db;
-    border-radius: 10px; cursor: pointer; font-family: inherit;
+    border: 2px solid var(--blue); background: white; color: var(--blue);
+    border-radius: var(--r-sm); cursor: pointer; font-family: var(--body);
     transition: background 0.1s, transform 0.05s;
   }
-  .ba-key:hover:not(:disabled) { background: #ecf6fc; }
+  .ba-key:hover:not(:disabled) { background: var(--blue-l); }
   .ba-key:active:not(:disabled) { transform: scale(0.95); }
   .ba-key:disabled { opacity: 0.4; cursor: not-allowed; }
-  .ba-key.submit { background: #28a745; color: white; border-color: #1e7e34; }
-  .ba-key.submit:hover:not(:disabled) { background: #218838; }
-  .ba-key.backspace { color: #dc3545; border-color: #dc3545; }
-  .ba-keyboard-hint { text-align: center; color: #95a5a6; font-size: 0.85em; margin: 8px 0 0; }
+  .ba-key.submit { background: var(--mint); color: white; border-color: var(--mint-d); }
+  .ba-key.submit:hover:not(:disabled) { background: var(--mint-d); }
+  .ba-key.backspace { color: var(--red); border-color: var(--red); }
+  .ba-keyboard-hint { text-align: center; color: var(--ink3); font-size: 0.85em; margin: 8px 0 0; }
 
   /* משוואות מודרכות (notebook style) - חד-שלביות ומורכבות */
   .geq-container { max-width: 460px; margin: 0 auto; text-align: center; }
@@ -687,148 +747,149 @@
     height: 150px; overflow: hidden; direction: ltr; unicode-bidi: isolate;
     font-family: 'Patrick Hand', cursive; text-align: left; line-height: 1.55;
     background-color: #ffffff;
-    background-image: linear-gradient(#dbeafe 1px, transparent 1px), linear-gradient(90deg, #dbeafe 1px, transparent 1px);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
     background-size: 22px 22px;
-    border: 1px solid #dbeafe; border-radius: 10px; padding: 10px 16px;
+    border: none; box-shadow: 0 0 0 1.5px var(--grid); border-radius: var(--r-sm); padding: 10px 16px;
     margin: 0 auto 10px;
   }
-  .geq-nbline { font-size: 1.3em; font-weight: 700; color: #2c3e50; }
+  .geq-nbline { font-size: 1.3em; font-weight: 700; color: var(--ink); }
   .geq-nbline.final { font-size: 1.55em; font-weight: 800; }
-  .geq-callout { color: #b45309; font-size: 0.85em; font-weight: 700; text-align: left; margin-bottom: 10px; }
-  .geq-hl-amber { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 0 6px; color: #92400e; }
-  .geq-hl-blue { background: #dbeafe; border: 2px solid #3498db; border-radius: 8px; padding: 0 6px; color: #1e40af; }
-  .geq-question { font-size: 1.1em; font-weight: 600; color: #34495e; margin: 10px 0; }
+  .geq-callout { color: var(--sun-d); font-size: 0.85em; font-weight: 700; text-align: left; margin-bottom: 10px; }
+  .geq-hl-amber { background: var(--sun-l); border: 2px solid var(--sun-d); border-radius: 8px; padding: 0 6px; color: var(--sun-d); }
+  .geq-hl-blue { background: var(--blue-l); border: 2px solid var(--blue); border-radius: 8px; padding: 0 6px; color: var(--blue-d); }
+  .geq-question { font-size: 1.1em; font-weight: 600; color: var(--ink2); margin: 10px 0; }
   .geq-op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 420px; margin: 0 auto 10px; }
   .geq-op-btn {
     font-size: 1.1em; font-weight: 700; padding: 14px 10px;
-    border: 2px solid #3498db; background: white; color: #3498db;
-    border-radius: 10px; cursor: pointer; font-family: inherit;
+    border: 2px solid var(--blue); background: white; color: var(--blue);
+    border-radius: var(--r-sm); cursor: pointer; font-family: var(--body);
     transition: transform 0.12s, background 0.12s, color 0.12s;
   }
-  .geq-op-btn:hover:not(:disabled) { background: #ecf6fc; }
+  .geq-op-btn:hover:not(:disabled) { background: var(--blue-l); }
   .geq-op-btn:disabled { cursor: not-allowed; }
-  .geq-op-btn.correct { background: #28a745; color: white; border-color: #1e7e34; }
-  .geq-op-btn.incorrect { background: #dc3545; color: white; border-color: #bd2130; }
+  .geq-op-btn.correct { background: var(--mint); color: white; border-color: var(--mint-d); }
+  .geq-op-btn.incorrect { background: var(--red); color: white; border-color: var(--red-d); }
   .geq-compute-row {
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    background: #fafbfc; border: 2px solid #e1e4e8; border-radius: 12px;
+    background: var(--paper); border: 2px solid var(--line); border-radius: var(--r-md);
     padding: 12px 16px; margin: 8px auto; max-width: 420px;
     font-family: 'Patrick Hand', cursive; direction: ltr; unicode-bidi: isolate;
-    font-size: 1.3em; font-weight: 700; color: #2c3e50;
+    font-size: 1.3em; font-weight: 700; color: var(--ink);
   }
-  .geq-compute-row.active { border-color: #f59e0b; background: #fffbeb; color: #92400e; box-shadow: 0 4px 12px rgba(245,158,11,0.15); }
-  .geq-compute-row.pending { border-style: dashed; color: #b6c0cb; }
-  .geq-compute-row.done { border-color: #28a745; background: #f5fff8; color: #1e7e34; }
+  .geq-compute-row.active { border-color: var(--sun-d); background: var(--sun-l); color: var(--sun-d); box-shadow: 0 4px 12px rgba(201,142,10,0.15); }
+  .geq-compute-row.pending { border-style: dashed; color: var(--ink3); }
+  .geq-compute-row.done { border-color: var(--mint); background: var(--mint-l); color: var(--mint-d); }
   .geq-blank {
     display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
-    padding: 2px 8px; border: 2px dashed #b1b8bf; border-radius: 8px; background: #fafbfc; color: #2c3e50;
+    padding: 2px 8px; border: 2px dashed var(--ink3); border-radius: 8px; background: var(--paper); color: var(--ink);
   }
-  .geq-compute-row.active .geq-blank { border-color: #f59e0b; background: #fff8e6; }
-  .geq-blank.shake { animation: ba-shake 0.35s; border-color: #dc3545; background: #fff5f5; color: #dc3545; }
+  .geq-compute-row.active .geq-blank { border-color: var(--sun-d); background: var(--sun-l); }
+  .geq-blank.shake { animation: ba-shake 0.35s; border-color: var(--red); background: var(--red-l); color: var(--red-d); }
   .geq-result {
-    font-size: 2.2em; font-weight: 800; color: #16a34a;
+    font-size: 2.2em; font-weight: 800; color: var(--mint-d);
     font-family: 'Patrick Hand', cursive; direction: ltr; unicode-bidi: isolate; margin: 14px 0 10px;
   }
-  .geq-check-box { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px; margin: 10px auto; max-width: 420px; }
-  .geq-check-title { font-size: 0.95em; font-weight: 700; color: #166534; margin-bottom: 6px; }
+  .geq-check-box { background: var(--mint-l); border: 1.5px solid var(--mint); border-radius: var(--r-md); padding: 14px; margin: 10px auto; max-width: 420px; }
+  .geq-check-title { font-size: 0.95em; font-weight: 700; color: var(--mint-d); margin-bottom: 6px; }
   .geq-check-eq {
     font-family: 'Patrick Hand', cursive; direction: ltr; unicode-bidi: isolate;
-    font-size: 1.25em; font-weight: 700; color: #15803d;
+    font-size: 1.25em; font-weight: 700; color: var(--mint-d);
   }
-  .geq-hint { color: #856404; font-size: 0.95em; background: #fff8e6; border-radius: 8px; padding: 8px 10px; margin: 8px auto; max-width: 420px; display: none; }
+  .geq-hint { color: var(--sun-d); font-size: 0.95em; background: var(--sun-l); border-radius: 8px; padding: 8px 10px; margin: 8px auto; max-width: 420px; display: none; }
   .geq-hint.show { display: block; }
 
   .submission-banner {
-    background: #fff3cd; color: #856404; padding: 12px 14px; border-radius: 8px;
+    background: var(--sun-l); color: var(--sun-d); padding: 12px 14px; border-radius: var(--r-sm);
     margin: 14px 0; text-align: center; font-weight: 600;
   }
-  .submission-banner.sent { background: #d4edda; color: #155724; }
+  .submission-banner.sent { background: var(--mint-l); color: var(--mint-d); }
 
   .teacher-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
   .teacher-row {
-    background: #f8f9fa; border: 1px solid #e1e4e8; border-radius: 10px;
+    background: var(--paper); border: none; box-shadow: var(--ring); border-radius: var(--r-md);
     padding: 12px 14px; cursor: pointer; display: flex; align-items: center;
     gap: 12px; flex-wrap: wrap;
   }
   .teacher-row.new-flash { animation: row-flash 1.4s ease-out 2; }
   @keyframes row-flash {
-    0% { background: #fff3cd; box-shadow: 0 0 0 3px rgba(243,156,18,0.4); }
-    100% { background: #f8f9fa; box-shadow: 0 0 0 0 transparent; }
+    0% { background: var(--sun-l); box-shadow: 0 0 0 3px rgba(201,142,10,0.4); }
+    100% { background: var(--paper); box-shadow: var(--ring); }
   }
-  .teacher-row .name { font-weight: 700; color: #2c3e50; font-size: 1.05em; flex: 1; min-width: 100px; }
-  .teacher-row .meta { color: #7f8c8d; font-size: 0.9em; }
-  .teacher-row .score { font-weight: 700; padding: 4px 10px; border-radius: 12px; }
-  .teacher-row .score.high { background: #d4edda; color: #155724; }
-  .teacher-row .score.mid { background: #fff3cd; color: #856404; }
-  .teacher-row .score.low { background: #f8d7da; color: #721c24; }
+  .teacher-row .name { font-weight: 700; color: var(--ink); font-size: 1.05em; flex: 1; min-width: 100px; }
+  .teacher-row .meta { color: var(--ink2); font-size: 0.9em; }
+  .teacher-row .score { font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .teacher-row .score.high { background: var(--mint-l); color: var(--mint-d); }
+  .teacher-row .score.mid { background: var(--sun-l); color: var(--sun-d); }
+  .teacher-row .score.low { background: var(--red-l); color: var(--red-d); }
 
   .teacher-detail {
-    background: #fafbfc; border: 1px solid #e1e4e8; border-radius: 10px;
+    background: var(--paper); border: none; box-shadow: var(--ring); border-radius: var(--r-md);
     padding: 16px; margin-top: 14px;
   }
   .teacher-detail table { width: 100%; border-collapse: collapse; margin-top: 10px; }
   .teacher-detail th, .teacher-detail td {
-    padding: 6px 10px; border-bottom: 1px solid #e1e4e8; text-align: right; font-size: 0.95em;
+    padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; font-size: 0.95em;
   }
-  .teacher-detail th { background: #ecf0f1; color: #2c3e50; }
-  .teacher-detail .q-correct { color: #28a745; }
-  .teacher-detail .q-wrong { color: #dc3545; }
+  .teacher-detail th { background: var(--blue-l); color: var(--blue-d); }
+  .teacher-detail .q-correct { color: var(--mint-d); }
+  .teacher-detail .q-wrong { color: var(--red-d); }
   .teacher-summary {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 10px; margin-top: 10px;
   }
   .teacher-summary .stat {
-    background: white; padding: 10px; border-radius: 8px; text-align: center;
-    border: 1px solid #e1e4e8;
+    background: white; padding: 10px; border-radius: var(--r-sm); text-align: center;
+    box-shadow: var(--ring);
   }
-  .teacher-summary .stat-num { font-size: 1.6em; font-weight: 700; color: #2c3e50; }
-  .teacher-summary .stat-lbl { color: #7f8c8d; font-size: 0.85em; }
+  .teacher-summary .stat-num { font-size: 1.6em; font-weight: 700; font-family: var(--display); color: var(--ink); }
+  .teacher-summary .stat-lbl { color: var(--ink2); font-size: 0.85em; }
   .basics-result {
     font-size: 1.3em;
     margin: 20px 0;
-    color: #2c3e50;
+    color: var(--ink);
   }
   .basics-result .score {
     font-size: 2.5em;
     font-weight: 700;
-    color: #3498db;
+    font-family: var(--display);
+    color: var(--blue);
     display: block;
     margin: 10px 0;
   }
-  .basics-result.passed .score { color: #28a745; }
-  .basics-result.failed .score { color: #dc3545; }
-  .review-pct { font-size: 1.05em; color: #7f8c8d; margin-top: 4px; }
+  .basics-result.passed .score { color: var(--mint-d); }
+  .basics-result.failed .score { color: var(--red-d); }
+  .review-pct { font-size: 1.05em; color: var(--ink2); margin-top: 4px; }
 
   /* שעון שיעור - צף בכל מסך */
   .lesson-timer-widget {
     position: fixed; top: 10px; left: 10px; z-index: 2000;
-    background: rgba(52, 152, 219, 0.95); color: white;
-    padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9em;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    background: var(--blue); color: white;
+    padding: 8px 14px; border-radius: 999px; font-weight: 700; font-family: var(--display); font-size: 0.9em;
+    box-shadow: 0 3px 0 var(--blue-d);
     display: flex; align-items: center; gap: 6px;
     direction: rtl;
   }
-  .lesson-timer-widget.paused { background: rgba(149, 165, 166, 0.95); }
+  .lesson-timer-widget.paused { background: var(--ink3); box-shadow: 0 3px 0 var(--ink2); }
 
   /* התחברות / ניהול סיסמאות */
   #auth-container { max-width: 420px; }
   .auth-form { display: flex; flex-direction: column; gap: 4px; margin-top: 14px; }
-  .auth-form label { font-weight: 600; color: #34495e; margin-top: 8px; }
+  .auth-form label { font-weight: 600; color: var(--ink2); margin-top: 8px; }
   .auth-form input[type="text"], .auth-form input[type="password"] {
-    padding: 10px; font-size: 1.05em; border: 2px solid #bdc3c7; border-radius: 6px;
-    width: 100%; font-family: inherit;
+    padding: 10px; font-size: 1.05em; border: 2px solid var(--line); border-radius: var(--r-sm);
+    width: 100%; font-family: var(--body); color: var(--ink);
   }
-  .auth-form input:focus { outline: none; border-color: #3498db; }
+  .auth-form input:focus { outline: none; border-color: var(--blue); }
   .auth-form button { margin-top: 14px; }
   .auth-error {
-    color: #dc3545; text-align: center; margin-top: 10px; min-height: 1.2em; font-size: 0.95em;
+    color: var(--red-d); text-align: center; margin-top: 10px; min-height: 1.2em; font-size: 0.95em;
   }
 
   /* פאזל השיעורים - חושף תמונה חלק אחרי חלק */
   .puzzle-wrap {
     position: relative; width: 100%; max-width: 480px; aspect-ratio: 1 / 1;
-    margin: 16px auto; border-radius: 16px; overflow: hidden;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18); background: #e8ecef;
+    margin: 16px auto; border-radius: var(--r-lg); overflow: hidden;
+    box-shadow: var(--drop); background: var(--paper);
   }
   .puzzle-image {
     position: absolute; inset: 0;
@@ -841,19 +902,19 @@
   }
   .puzzle-piece {
     position: relative; width: 100%; height: 100%; border: 1px solid rgba(255,255,255,0.35);
-    background: #34495e;
-    color: white; font-weight: 700; font-size: 1.3em;
+    background: var(--ink);
+    color: white; font-weight: 700; font-family: var(--display); font-size: 1.3em;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-family: inherit; padding: 0;
+    cursor: pointer; padding: 0;
     opacity: 1; transition: opacity 0.6s ease;
   }
-  .puzzle-piece:hover:not(.revealed) { background: #3d566e; }
-  .puzzle-piece.current { box-shadow: inset 0 0 0 3px #f39c12; }
+  .puzzle-piece:hover:not(.revealed) { background: var(--ink2); }
+  .puzzle-piece.current { box-shadow: inset 0 0 0 3px var(--sun); }
   .puzzle-piece .piece-bar {
     position: absolute; bottom: 0; right: 0; left: 0; height: 4px;
     background: rgba(255,255,255,0.25);
   }
-  .puzzle-piece .piece-bar-fill { height: 100%; background: #2ecc71; width: 0%; }
+  .puzzle-piece .piece-bar-fill { height: 100%; background: var(--mint); width: 0%; }
   .puzzle-piece.revealed {
     opacity: 0; cursor: default; pointer-events: none;
   }
@@ -866,32 +927,32 @@
   .review-table-wrap { margin: 16px 0; overflow-x: auto; }
   .review-table {
     width: 100%; border-collapse: collapse; font-size: 0.95em;
-    background: white; border: 1px solid #e1e4e8; border-radius: 10px; overflow: hidden;
+    background: white; border: none; box-shadow: var(--ring); border-radius: var(--r-md); overflow: hidden;
   }
   .review-table th {
-    background: #ecf0f1; color: #2c3e50; padding: 8px 10px;
-    text-align: right; font-weight: 700; border-bottom: 1px solid #d1d5da;
+    background: var(--blue-l); color: var(--blue-d); padding: 8px 10px;
+    text-align: right; font-weight: 700; border-bottom: 1px solid var(--line);
   }
   .review-table td {
-    padding: 8px 10px; border-bottom: 1px solid #eef1f4; vertical-align: middle;
+    padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle;
   }
   .review-table tr:last-child td { border-bottom: none; }
   .review-table .review-q {
-    font-family: "Cambria Math", serif; font-weight: 600; color: #2c3e50;
+    font-family: "Cambria Math", serif; font-weight: 600; color: var(--ink);
   }
-  .review-table .q-correct { color: #28a745; font-weight: 700; }
-  .review-table .q-wrong { color: #dc3545; font-weight: 700; }
-  .review-table .row-wrong td { background: #fff5f5; }
-  .review-table .row-fixed td { background: #eafcf1; }
-  .review-fixed { color: #28a745; font-weight: 600; font-size: 0.9em; }
-  .btn.btn-sm { padding: 6px 12px; font-size: 0.88em; margin: 0; }
+  .review-table .q-correct { color: var(--mint-d); font-weight: 700; }
+  .review-table .q-wrong { color: var(--red-d); font-weight: 700; }
+  .review-table .row-wrong td { background: var(--red-l); }
+  .review-table .row-fixed td { background: var(--mint-l); }
+  .review-fixed { color: var(--mint-d); font-weight: 600; font-size: 0.9em; }
+  .btn.btn-sm { padding: 6px 12px; font-size: 0.88em; margin: 0; min-height: auto; }
   .review-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
   .retry-back-btn {
-    display: inline-block; background: #ecf0f1; color: #2c3e50; border: none;
-    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-family: inherit;
+    display: inline-block; background: var(--neutral); color: var(--ink2); border: none;
+    padding: 8px 14px; border-radius: var(--r-sm); cursor: pointer; font-family: var(--body);
     font-size: 0.95em; margin-bottom: 14px;
   }
-  .retry-back-btn:hover { background: #dfe6e9; }
+  .retry-back-btn:hover { background: var(--neutral-d); color: var(--ink); }
   @media (max-width: 600px) {
     .review-table { font-size: 0.85em; }
     .review-table th, .review-table td { padding: 6px 6px; }
@@ -932,11 +993,11 @@ try {
 </div>
 <div id="auth-container" class="container">
   <div id="auth-loading" class="hidden">
-    <p style="text-align:center; color:#7f8c8d;">טוען...</p>
+    <p style="text-align:center; color:var(--ink2);">טוען...</p>
   </div>
   <div id="bootstrap-view" class="hidden">
     <h2 style="text-align:center;">🔧 הגדרה ראשונית</h2>
-    <p style="text-align:center; color:#7f8c8d;">לא נמצא חשבון מנהל במערכת. הגדר סיסמה זמנית עבור המנהל (<b>DekelCom</b>) — מיד לאחר מכן תתבקש להחליף אותה לסיסמה קבועה.</p>
+    <p style="text-align:center; color:var(--ink2);">לא נמצא חשבון מנהל במערכת. הגדר סיסמה זמנית עבור המנהל (<b>DekelCom</b>) — מיד לאחר מכן תתבקש להחליף אותה לסיסמה קבועה.</p>
     <form class="auth-form" onsubmit="event.preventDefault(); handleBootstrap();">
       <label>סיסמה זמנית</label>
       <input type="password" id="bootstrap-password" autocomplete="new-password">
@@ -963,7 +1024,7 @@ try {
   </div>
   <div id="force-password-view" class="hidden">
     <h2 style="text-align:center;">🔑 יש להחליף סיסמה</h2>
-    <p style="text-align:center; color:#7f8c8d;">זו הכניסה הראשונה שלך. הקלד את הסיסמה הזמנית ובחר סיסמה קבועה חדשה.</p>
+    <p style="text-align:center; color:var(--ink2);">זו הכניסה הראשונה שלך. הקלד את הסיסמה הזמנית ובחר סיסמה קבועה חדשה.</p>
     <form class="auth-form" onsubmit="event.preventDefault(); handleForcePasswordChange();">
       <label>סיסמה נוכחית (זמנית)</label>
       <input type="password" id="force-current-password" autocomplete="current-password">
@@ -990,13 +1051,13 @@ try {
     </div>
 
     <div class="section-title">🎓 שיעורים (12 × שעה וחצי)</div>
-    <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
+    <p style="text-align:center; font-size:0.9em; color:var(--ink2);">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
     <div style="text-align:center; margin-bottom: 10px;">
       <button class="btn btn-primary" onclick="openLessonsView()">📖 פתח את מסך השיעורים</button>
     </div>
 
     <div class="section-title">🌱 חשבון בסיסי</div>
-    <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">9 נכון מתוך 10 = נפתח השלב הבא</p>
+    <p style="text-align:center; font-size:0.9em; color:var(--ink2);">9 נכון מתוך 10 = נפתח השלב הבא</p>
     <div class="basics-menu">
       <button class="basics-track-card addition" onclick="openBasicsTrack('addition')">➕ חיבור<br><small style="opacity:0.9">+1, +2, +3... מעורב</small></button>
       <button class="basics-track-card subtraction" onclick="openBasicsTrack('subtraction')">➖ חיסור<br><small style="opacity:0.9">-1, -2, -3... מעורב</small></button>
@@ -1045,7 +1106,7 @@ try {
     </div>
 
     <div class="section-title">📚 נושאי הבגרות</div>
-    <p style="text-align:center; font-size:0.95em; color:#7f8c8d;">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
+    <p style="text-align:center; font-size:0.95em; color:var(--ink2);">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
     <div class="topics-menu">
       <button class="topic-card topic-5" onclick="openTopic(5)">
         📉 משוואת קו ישר<br>
@@ -1115,7 +1176,7 @@ try {
     </div>
     <h2 style="text-align:center;">ניהול הורים</h2>
     <div id="admin-parents-list" class="teacher-list">
-      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+      <p style="text-align:center; color:var(--ink2);">טוען...</p>
     </div>
     <div style="text-align:center; margin: 20px 0;">
       <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה</button>
@@ -1150,7 +1211,7 @@ try {
     <button class="back-btn" onclick="exitParentStudentsView()">← חזרה</button>
     <h2 style="text-align:center;">👨‍🎓 ניהול תלמידים</h2>
     <div id="parent-students-list" class="teacher-list">
-      <p style="text-align:center; color:#95a5a6;">טוען...</p>
+      <p style="text-align:center; color:var(--ink2);">טוען...</p>
     </div>
     <div style="text-align:center; margin: 20px 0;">
       <button class="btn btn-primary" onclick="openCreateStudentForm()">+ הוסף תלמיד</button>
@@ -1211,7 +1272,7 @@ try {
     <div class="puzzle-wrap">
       <div class="puzzle-image"></div>
       <div id="dashboard-puzzle" class="puzzle-grid">
-        <p style="text-align:center; color:#95a5a6;">טוען...</p>
+        <p style="text-align:center; color:var(--ink2);">טוען...</p>
       </div>
     </div>
 
@@ -1223,14 +1284,14 @@ try {
   <div id="basics-ladder-view" class="hidden">
     <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
     <h2 id="basics-ladder-title" style="text-align:center;"></h2>
-    <p style="text-align:center; color:#7f8c8d;">לחץ על שלב שנפתח. השלב הבא נפתח לאחר 9/10 נכון בשלב הנוכחי.</p>
+    <p style="text-align:center; color:var(--ink2);">לחץ על שלב שנפתח. השלב הבא נפתח לאחר 9/10 נכון בשלב הנוכחי.</p>
     <div id="basics-ladder" class="ladder"></div>
   </div>
 
   <div id="lessons-view" class="hidden">
     <button class="back-btn" onclick="exitLessonsView()">← חזרה לתפריט</button>
     <h2 style="text-align:center;">🎓 שיעורים (12 × שעה וחצי)</h2>
-    <p style="text-align:center; color:#7f8c8d;">לחץ על חלק בפאזל כדי להתחיל או להמשיך שיעור. כל שיעור שמושלם חושף עוד חלק מהתמונה! (ואם לא מושלם עד סוף היום - הוא מתאפס למחרת)</p>
+    <p style="text-align:center; color:var(--ink2);">לחץ על חלק בפאזל כדי להתחיל או להמשיך שיעור. כל שיעור שמושלם חושף עוד חלק מהתמונה! (ואם לא מושלם עד סוף היום - הוא מתאפס למחרת)</p>
     <div class="puzzle-wrap">
       <div class="puzzle-image"></div>
       <div id="lessons-list" class="puzzle-grid"></div>
@@ -1246,14 +1307,14 @@ try {
   <div id="diagnostic-view" class="hidden">
     <button class="back-btn" onclick="exitDiagnostic()">← חזרה לתפריט</button>
     <h2 style="text-align:center;">🎯 בדיקת רמה</h2>
-    <p style="text-align:center; color:#7f8c8d;">15 שאלות קצרות. לפי התוצאות נפתח עבורך את הרמה המתאימה בכל מסלול.</p>
+    <p style="text-align:center; color:var(--ink2);">15 שאלות קצרות. לפי התוצאות נפתח עבורך את הרמה המתאימה בכל מסלול.</p>
     <div id="diagnostic-session" class="basics-session"></div>
   </div>
 
   <div id="history-view" class="hidden">
     <button class="back-btn" onclick="exitHistory()">← חזרה לתפריט</button>
     <h2 style="text-align:center;">📜 ההיסטוריה שלי</h2>
-    <p style="text-align:center; color:#7f8c8d;">כל התרגולים שעשית במכשיר הזה. לחץ על שורה לפירוט.</p>
+    <p style="text-align:center; color:var(--ink2);">כל התרגולים שעשית במכשיר הזה. לחץ על שורה לפירוט.</p>
     <div id="history-list" class="teacher-list"></div>
     <div id="history-detail-container"></div>
   </div>
@@ -1268,7 +1329,7 @@ try {
     <div class="progress-bar">
       <div class="progress-fill" id="level-progress" style="width:0%"></div>
     </div>
-    <p style="text-align:center; color:#7f8c8d; font-size:0.9em;" id="level-info"></p>
+    <p style="text-align:center; color:var(--ink2); font-size:0.9em;" id="level-info"></p>
     <div class="problem-area" id="problem-area"></div>
   </div>
 </div>
@@ -1491,9 +1552,9 @@ function renderStagedHint(stages) {
     html += `<div class="solution-step">${stages[i]}</div>`;
   }
   if (hintLevel < stages.length) {
-    html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">עוד לא הבנת? לחץ שוב על "רמז" ואני אסביר עוד צעד.</div>`;
+    html += `<div class="solution-step" style="color:var(--ink2); font-style:italic;">עוד לא הבנת? לחץ שוב על "רמז" ואני אסביר עוד צעד.</div>`;
   } else {
-    html += `<div class="solution-step" style="color:#7f8c8d; font-style:italic;">נסה עכשיו לפתור לבד - אתה יכול!</div>`;
+    html += `<div class="solution-step" style="color:var(--ink2); font-style:italic;">נסה עכשיו לפתור לבד - אתה יכול!</div>`;
     showVideoButtonInAnswerSection();
   }
   fb.innerHTML = html;
@@ -1989,7 +2050,7 @@ function openParentDashboard(uid, name) {
   document.getElementById('dashboard-detail-container').innerHTML = '';
   if (!firebaseDb) {
     document.getElementById('dashboard-submissions').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">אין חיבור לאינטרנט.</p>';
+      '<p style="text-align:center; color:var(--red-d);">אין חיבור לאינטרנט.</p>';
     return;
   }
 
@@ -2014,7 +2075,7 @@ function openParentDashboard(uid, name) {
   }, err => {
     console.warn(err);
     document.getElementById('dashboard-submissions').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+      '<p style="text-align:center; color:var(--red-d);">שגיאה בטעינה: ' + (err.message || err) + '</p>';
   });
 
   if (dashboardLessonsRef) dashboardLessonsRef.off();
@@ -2044,7 +2105,7 @@ function exitParentDashboard() {
 function renderDashboardPuzzle(uid, data) {
   const container = document.getElementById('dashboard-puzzle');
   if (!data || !Array.isArray(data.lessons)) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין נתונים. השיעורים יופיעו כאן כשהתלמיד יתחיל לתרגל.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין אין נתונים. השיעורים יופיעו כאן כשהתלמיד יתחיל לתרגל.</p>';
     return;
   }
   applyPuzzleGridLayout(container, data.lessons.length);
@@ -2069,7 +2130,7 @@ function renderDashboardStatus(arr) {
   const last = arr[0];
   const el = document.getElementById('dashboard-status');
   if (!last) {
-    el.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין נתונים.</p>';
+    el.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין אין נתונים.</p>';
     return;
   }
   const when = last.timestamp ? new Date(last.timestamp).toLocaleString('he-IL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '';
@@ -2111,7 +2172,7 @@ function renderDashboardGaps(arr) {
   const gaps = computeKnowledgeGaps(arr);
   const container = document.getElementById('dashboard-gaps');
   if (!gaps.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">אין עדיין מספיק נתונים לניתוח.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">אין עדיין מספיק נתונים לניתוח.</p>';
     return;
   }
   container.innerHTML = gaps.map(g => `
@@ -2119,7 +2180,7 @@ function renderDashboardGaps(arr) {
       <div class="name">${(g.avgPct < 70 || g.stuck) ? '🔴 ' : '🟢 '}${escapeHtml(trackLabelHebrew(g.track))}</div>
       <div class="meta">ממוצע 3 אחרונים: ${g.avgPct}%</div>
       <div class="meta">שלב אחרון: ${escapeHtml(g.lastSheet || '')}</div>
-      ${g.stuck ? '<div class="meta" style="color:#dc3545;">נראה תקוע באותו שלב</div>' : ''}
+      ${g.stuck ? '<div class="meta" style="color:var(--red-d);">נראה תקוע באותו שלב</div>' : ''}
     </div>
   `).join('');
 }
@@ -2167,7 +2228,7 @@ function renderDashboardDeepAnalysis(arr) {
   const container = document.getElementById('dashboard-deep');
   const sheetSubs = arr.filter(s => s.type === 'sheet' && s.summary);
   if (!sheetSubs.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">אין עדיין מספיק נתונים.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">אין עדיין מספיק נתונים.</p>';
     return;
   }
   const problemsFlat = flattenProblems(sheetSubs);
@@ -2196,7 +2257,7 @@ function renderDashboardDeepAnalysis(arr) {
       </div>
     `).join('');
   } else {
-    html += '<p style="text-align:center; color:#95a5a6;">אין עדיין מספיק חזרות על אותה עובדה לזיהוי דפוס.</p>';
+    html += '<p style="text-align:center; color:var(--ink2);">אין עדיין מספיק חזרות על אותה עובדה לזיהוי דפוס.</p>';
   }
 
   const trend = sheetSubs.slice().sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0)).slice(-12);
@@ -2208,10 +2269,10 @@ function renderDashboardDeepAnalysis(arr) {
       const t = (s.summary && s.summary.avgTimeMs) || 0;
       const h = Math.max(4, Math.round((t / maxAvg) * 56));
       const title = `${trackLabelHebrew(s.track)} ${s.sheet || ''} · ${(t / 1000).toFixed(1)} שנ'`;
-      return `<div title="${escapeAttr(title)}" style="flex:1; background:#4a90d9; border-radius:3px 3px 0 0; height:${h}px;"></div>`;
+      return `<div title="${escapeAttr(title)}" style="flex:1; background:var(--blue); border-radius:3px 3px 0 0; height:${h}px;"></div>`;
     }).join('');
     html += '</div>';
-    html += '<p style="text-align:center; color:#95a5a6; font-size:0.85em;">כל עמודה = דף אחד · גובה = זמן ממוצע לתרגיל באותו דף (עמודה נמוכה = פתרון מהיר יותר)</p>';
+    html += '<p style="text-align:center; color:var(--ink2); font-size:0.85em;">כל עמודה = דף אחד · גובה = זמן ממוצע לתרגיל באותו דף (עמודה נמוכה = פתרון מהיר יותר)</p>';
   }
 
   html += `<p style="text-align:center; margin-top:14px;"><button class="btn btn-secondary" onclick="handleExportRawData()">📥 ייצוא נתונים גולמיים (JSON)</button></p>`;
@@ -2241,7 +2302,7 @@ function handleExportRawData() {
 function renderDashboardSubmissions(arr) {
   const container = document.getElementById('dashboard-submissions');
   if (arr.length === 0) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין שליחות. תרגול שיוגש יופיע כאן בזמן אמת.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין אין שליחות. תרגול שיוגש יופיע כאן בזמן אמת.</p>';
     return;
   }
   container.innerHTML = arr.map(s => {
@@ -2293,7 +2354,7 @@ function showDashboardSubmissionDetail(id) {
         <h3 style="margin:0;">${escapeHtml(trackLabelHebrew(s.track))} ${escapeHtml(s.sheet || '')}</h3>
         <button class="btn btn-secondary" onclick="document.getElementById('dashboard-detail-container').innerHTML=''">סגור</button>
       </div>
-      <p style="color:#7f8c8d; font-size:0.9em; margin:4px 0;">${when}</p>
+      <p style="color:var(--ink2); font-size:0.9em; margin:4px 0;">${when}</p>
       <div class="teacher-summary">
         <div class="stat"><div class="stat-num">${sum.correct || 0}/${sum.total || 0}</div><div class="stat-lbl">נכונות</div></div>
         <div class="stat"><div class="stat-num">${avg}</div><div class="stat-lbl">שניות לשאלה (ממוצע)</div></div>
@@ -2328,7 +2389,7 @@ function renderHistoryList() {
   const hist = loadHistory();
   const container = document.getElementById('history-list');
   if (!hist.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין אין תרגולים. תתחיל לתרגל ותרגיש את ההתקדמות שלך!</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין אין תרגולים. תתחיל לתרגל ותרגיש את ההתקדמות שלך!</p>';
     return;
   }
   container.innerHTML = hist.map((s, idx) => {
@@ -2372,7 +2433,7 @@ function showHistoryDetail(idx) {
         <h3 style="margin:0;">${escapeHtml(trackLabelHebrew(s.track))} ${escapeHtml(s.sheet || '')}</h3>
         <button class="btn btn-secondary" onclick="document.getElementById('history-detail-container').innerHTML=''">סגור</button>
       </div>
-      <p style="color:#7f8c8d; font-size:0.9em; margin:4px 0;">${when}</p>
+      <p style="color:var(--ink2); font-size:0.9em; margin:4px 0;">${when}</p>
       <div class="teacher-summary">
         <div class="stat"><div class="stat-num">${sum.correct || 0}/${sum.total || 0}</div><div class="stat-lbl">נכונות</div></div>
         <div class="stat"><div class="stat-num">${avg}</div><div class="stat-lbl">שניות לשאלה (ממוצע)</div></div>
@@ -4304,7 +4365,7 @@ function renderTopic1() {
       rootsDiv.innerHTML = `
         <label>שורש קטן:</label> <input type="text" id="root-1" placeholder="לדוגמה: -2"><br>
         <label>שורש גדול:</label> <input type="text" id="root-2" placeholder="לדוגמה: 3">
-        <p style="font-size:0.85em; color:#7f8c8d;">בשורשים אי-רציונליים: רשום ערך עשרוני מעוגל לשתי ספרות (לדוגמה: 1.45)</p>
+        <p style="font-size:0.85em; color:var(--ink2);">בשורשים אי-רציונליים: רשום ערך עשרוני מעוגל לשתי ספרות (לדוגמה: 1.45)</p>
       `;
     } else {
       rootsDiv.innerHTML = '';
@@ -4426,7 +4487,7 @@ function renderTopic2() {
   if (currentLevel === 3) {
     extraQ = `<label>מהו ערך הקיצון של הפונקציה?</label>
       <input type="text" id="extremum-value" placeholder="ערך y של הקודקוד">
-      <p style="font-size:0.85em; color:#7f8c8d;">זהו ערך ה-y של הקודקוד</p>`;
+      <p style="font-size:0.85em; color:var(--ink2);">זהו ערך ה-y של הקודקוד</p>`;
   }
 
   area.innerHTML = `
@@ -4614,7 +4675,7 @@ function drawTrapezoid(canvasId, opts) {
   }
 
   // ציור
-  ctx.strokeStyle = '#2980b9';
+  ctx.strokeStyle = '#2B43D6';
   ctx.lineWidth = 2;
   ctx.fillStyle = 'rgba(52, 152, 219, 0.1)';
   ctx.beginPath();
@@ -4627,7 +4688,7 @@ function drawTrapezoid(canvasId, opts) {
   ctx.stroke();
 
   // תוויות
-  ctx.fillStyle = '#2c3e50';
+  ctx.fillStyle = '#1B1B2F';
   ctx.font = 'bold 14px Arial';
   ctx.textAlign = 'center';
   // קודקודים (חזרה לכיוון מתמטי - לפי כיוון השעון: A שמאל-תחתון, B ימין-תחתון, C ימין-עליון, D שמאל-עליון)
@@ -4638,7 +4699,7 @@ function drawTrapezoid(canvasId, opts) {
 
   // צלעות
   ctx.font = '13px Arial';
-  ctx.fillStyle = '#c0392b';
+  ctx.fillStyle = '#D32F2F';
   if (opts.labels) {
     if (opts.labels.AB) ctx.fillText(opts.labels.AB, (ax+bx)/2, baseY + 22);
     if (opts.labels.CD) ctx.fillText(opts.labels.CD, (cx2+dx)/2, topY - 8);
@@ -4658,7 +4719,7 @@ function drawTrapezoid(canvasId, opts) {
 
   // סימן זווית ישרה (לטרפז ישר-זווית)
   if (opts.type === 'right') {
-    ctx.strokeStyle = '#27ae60';
+    ctx.strokeStyle = '#14B88A';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.rect(ax, baseY - 12, 12, 12);
@@ -4670,7 +4731,7 @@ function drawTrapezoid(canvasId, opts) {
 
   // גובה (אם מצויין)
   if (opts.showHeight) {
-    ctx.strokeStyle = '#27ae60';
+    ctx.strokeStyle = '#14B88A';
     ctx.setLineDash([4, 4]);
     ctx.lineWidth = 1.5;
     const hX = opts.type === 'right' ? dx : (dx);
@@ -4679,7 +4740,7 @@ function drawTrapezoid(canvasId, opts) {
     ctx.lineTo(hX, topY);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#27ae60';
+    ctx.fillStyle = '#14B88A';
     ctx.fillText('h = ' + opts.h, hX - 25, (baseY+topY)/2);
   }
 }
@@ -4932,7 +4993,7 @@ function drawGraph(canvasId, problem) {
   const sy = (y) => H - padding - (y - yMin) / (yMax - yMin) * (H - 2*padding);
 
   // רשת
-  ctx.strokeStyle = '#ecf0f1';
+  ctx.strokeStyle = '#E4E7F2';
   ctx.lineWidth = 1;
   for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
     ctx.beginPath();
@@ -4948,7 +5009,7 @@ function drawGraph(canvasId, problem) {
   }
 
   // צירים
-  ctx.strokeStyle = '#2c3e50';
+  ctx.strokeStyle = '#1B1B2F';
   ctx.lineWidth = 2;
   if (yMin <= 0 && yMax >= 0) {
     ctx.beginPath();
@@ -4964,7 +5025,7 @@ function drawGraph(canvasId, problem) {
   }
 
   // תוויות צירים
-  ctx.fillStyle = '#2c3e50';
+  ctx.fillStyle = '#1B1B2F';
   ctx.font = '11px Arial';
   ctx.textAlign = 'center';
   for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
@@ -4979,7 +5040,7 @@ function drawGraph(canvasId, problem) {
   ctx.fillText('0', sx(0) - 5, sy(0) + 14);
 
   // ציור הפונקציה
-  ctx.strokeStyle = '#e74c3c';
+  ctx.strokeStyle = '#FF4D4D';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   let first = true;
@@ -5002,12 +5063,12 @@ function drawGraph(canvasId, problem) {
   // סימון נקודות חשובות
   if (problem.kind === 'parabola-features' || problem.kind === 'parabola-advanced') {
     // קודקוד
-    ctx.fillStyle = '#27ae60';
+    ctx.fillStyle = '#14B88A';
     ctx.beginPath();
     ctx.arc(sx(problem.vx), sy(problem.vy), 5, 0, 2*Math.PI);
     ctx.fill();
     // שורשים
-    ctx.fillStyle = '#3498db';
+    ctx.fillStyle = '#3D5AFE';
     [problem.r1, problem.r2].forEach(r => {
       ctx.beginPath();
       ctx.arc(sx(r), sy(0), 5, 0, 2*Math.PI);
@@ -5315,11 +5376,11 @@ function notebookHTML() {
     <details class="notebook">
       <summary>📝 מחברת ציור</summary>
       <div class="notebook-tools">
-        <button type="button" data-tool="pen" data-size="2"><span class="dot" style="width:4px;height:4px;color:#222"></span> דק</button>
-        <button type="button" data-tool="pen" data-size="4" class="active"><span class="dot" style="width:8px;height:8px;color:#222"></span> בינוני</button>
-        <button type="button" data-tool="pen" data-size="8"><span class="dot" style="width:14px;height:14px;color:#222"></span> עבה</button>
-        <button type="button" data-tool="pen" data-size="3" data-color="#e74c3c"><span class="dot" style="width:8px;height:8px;color:#e74c3c"></span> אדום</button>
-        <button type="button" data-tool="pen" data-size="3" data-color="#2980b9"><span class="dot" style="width:8px;height:8px;color:#2980b9"></span> כחול</button>
+        <button type="button" data-tool="pen" data-size="2"><span class="dot" style="width:4px;height:4px;color:#1B1B2F"></span> דק</button>
+        <button type="button" data-tool="pen" data-size="4" class="active"><span class="dot" style="width:8px;height:8px;color:#1B1B2F"></span> בינוני</button>
+        <button type="button" data-tool="pen" data-size="8"><span class="dot" style="width:14px;height:14px;color:#1B1B2F"></span> עבה</button>
+        <button type="button" data-tool="pen" data-size="3" data-color="#FF4D4D"><span class="dot" style="width:8px;height:8px;color:#FF4D4D"></span> אדום</button>
+        <button type="button" data-tool="pen" data-size="3" data-color="#2B43D6"><span class="dot" style="width:8px;height:8px;color:#2B43D6"></span> כחול</button>
         <button type="button" data-tool="eraser">🧽 מחק</button>
         <button type="button" data-action="undo">↶ ביטול</button>
         <button type="button" data-action="clear">🗑 נקה</button>
@@ -5338,7 +5399,7 @@ function initNotebook() {
   let drawing = false;
   let tool = 'pen';
   let size = 4;
-  let color = '#222';
+  let color = '#1B1B2F';
   const history = [];
 
   function resizeCanvas() {
@@ -5439,7 +5500,7 @@ function initNotebook() {
       tool = btn.dataset.tool;
       if (btn.dataset.size) size = parseInt(btn.dataset.size);
       if (btn.dataset.color) color = btn.dataset.color;
-      else if (tool === 'pen' && !btn.dataset.color) color = '#222';
+      else if (tool === 'pen' && !btn.dataset.color) color = '#1B1B2F';
       tools.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
@@ -5552,13 +5613,13 @@ function renderAdminHome() {
   }, err => {
     console.warn(err);
     document.getElementById('admin-parents-list').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+      '<p style="text-align:center; color:var(--red-d);">שגיאה בטעינה: ' + (err.message || err) + '</p>';
   });
 }
 function renderAdminParentsList(arr) {
   const container = document.getElementById('admin-parents-list');
   if (!arr.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין לא נוצרו חשבונות הורה.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין לא נוצרו חשבונות הורה.</p>';
     return;
   }
   container.innerHTML = arr.map(p => `
@@ -5620,13 +5681,13 @@ function renderParentStudentsView() {
   }, err => {
     console.warn(err);
     document.getElementById('parent-students-list').innerHTML =
-      '<p style="text-align:center; color:#dc3545;">שגיאה בטעינה: ' + (err.message || err) + '</p>';
+      '<p style="text-align:center; color:var(--red-d);">שגיאה בטעינה: ' + (err.message || err) + '</p>';
   });
 }
 function renderParentStudentsList(arr) {
   const container = document.getElementById('parent-students-list');
   if (!arr.length) {
-    container.innerHTML = '<p style="text-align:center; color:#95a5a6;">עדיין לא נוצרו חשבונות תלמיד.</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין לא נוצרו חשבונות תלמיד.</p>';
     return;
   }
   container.innerHTML = arr.map(s => `
