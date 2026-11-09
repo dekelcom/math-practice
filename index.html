@@ -4486,9 +4486,11 @@ function basicsHasHints(track) { return typeof BASICS_HINTS[track] === 'function
 function openBasicsHint() {
   const p = basicsProblems[basicsCurrent];
   if (!basicsHint) basicsHint = { levels: BASICS_HINTS[basicsTrack](p), level: 0, mode: 0, used: 1 };
-  document.getElementById('qs-answer').hidden = true;
-  document.getElementById('qs-hint').hidden = false;
+  // הרמז נפתח מעל אזור התשובה – המקלדת/האפשרויות נשארות זמינות מתחתיו
+  const box = document.getElementById('qs-hint');
+  box.hidden = false;
   renderBasicsHint();
+  box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 function renderBasicsHint() {
   const h = basicsHint, lv = h.levels[h.level];
@@ -4519,7 +4521,6 @@ function basicsHintMore() {
 function basicsHintOther() { basicsHint.mode++; renderBasicsHint(); }
 function closeBasicsHint() {
   document.getElementById('qs-hint').hidden = true;
-  document.getElementById('qs-answer').hidden = false;
 }
 
 function basicsTypable(p) { return /^-?\d+(\.\d+)?$/.test(String(p.answer)); }
