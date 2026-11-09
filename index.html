@@ -1257,6 +1257,31 @@
   .chip-eq { color: var(--ink2); padding: 0 4px; }
   .dq-label { font-size: .92em; line-height: 1.45; }
   .dq-math { font-family: var(--display); font-weight: 700; font-size: 1.25em; margin-top: 2px; }
+
+  /* ===== רמז ===== */
+  .hint-card { background: white; border: 1.5px solid var(--sun); border-radius: var(--r-lg); padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--drop); }
+  .hint-head { display: flex; align-items: center; gap: 10px; }
+  .hint-bulb { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--sun-l); color: var(--sun-d); display: inline-flex; align-items: center; justify-content: center; }
+  .hint-titles { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .hint-titles b { font-family: var(--display); font-size: 1.1em; }
+  .hint-titles small { color: var(--ink2); }
+  .hint-pips { display: inline-flex; gap: 4px; direction: ltr; }
+  .hint-pips i { width: 20px; height: 6px; border-radius: 999px; background: var(--line); }
+  .hint-pips i.on { background: var(--sun); }
+  .hint-x { width: 38px; height: 38px; }
+  .hint-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hint-tabs button { border: 0; border-radius: 999px; padding: 7px 14px; background: var(--paper); color: var(--ink2); font: 600 .9em var(--body); cursor: pointer; }
+  .hint-tabs button.on { background: var(--ink); color: white; }
+  .hint-body { font-size: 1.05em; line-height: 1.75; color: var(--ink); background: var(--paper); border-radius: var(--r-md); padding: 12px 14px; }
+  .hm { font-family: var(--display); font-weight: 700; white-space: normal; }
+  .hint-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hint-actions button { border: 0; border-radius: 14px; padding: 12px 16px; font: 700 .95em var(--body); cursor: pointer; }
+  .hint-more { background: var(--blue); color: white; box-shadow: 0 3px 0 var(--blue-d); }
+  .hint-more:disabled { background: var(--line); color: var(--ink3); box-shadow: none; cursor: default; }
+  .hint-other, .hint-back { background: var(--paper); color: var(--ink); }
+  .hint-other:disabled { color: var(--ink3); cursor: default; }
+  .hint-back { flex-basis: 100%; }
+  #qs-answer[hidden], #qs-hint[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -4256,6 +4281,247 @@ function qProgressHtml(current, total, correct) {
   </div>`;
 }
 
+// ============================================================
+// רמזים למסלולי היסודות: 3 רמות (כיוון / הכלל / צעד ראשון), כל אחת בכמה דרכי הסבר
+// ============================================================
+const M = t => `<bdi dir="ltr" class="hm">${String(t).replace(/-/g, '−').replace(/x/g, '<i class="mx">x</i>')}</bdi>`;
+const qNums = p => (plainText(p.displayQ || `${p.a} ${p.op} ${p.b}`).replace(/,/g, '').match(/−?\d+(\.\d+)?/g) || []).map(n => Number(n.replace('−', '-')));
+function hintLevels(L1, L2, L3) {
+  return [
+    { title: 'כיוון', sub: 'מה לחפש', modes: L1 },
+    { title: 'הכלל', sub: 'איך עושים את זה', modes: L2 },
+    { title: 'צעד ראשון', sub: 'מתחילים יחד', modes: L3 }
+  ];
+}
+const HINT_MODE_LABELS = { words: 'במילים', example: 'בדוגמה', life: 'מהחיים' };
+
+const BASICS_HINTS = {
+  addition(p) {
+    const [a, b] = [p.a, p.b], big = Math.max(a, b), small = Math.min(a, b);
+    return hintLevels(
+      { words: `חיבור זה "כמה יש ביחד". מתחילים מהמספר הגדול, ${M(big)}, וסופרים קדימה.`,
+        life: `יש לך ${M(a)} מדבקות וקיבלת עוד ${M(b)}. כמה מדבקות יש לך עכשיו?` },
+      { words: `כשהחיבור עובר את 10, משלימים קודם ל-10 ואז מוסיפים את מה שנשאר.`,
+        example: `${M('8 + 5')}: קודם ${M('8 + 2 = 10')}, נשארו עוד 3, אז ${M('10 + 3 = 13')}.` },
+      { words: small === 0 ? `חיבור של 0 לא משנה את המספר.` :
+          `התחילו ב-${M(big)} וספרו ${M(small)} צעדים קדימה: ${M(big + 1)}${small > 1 ? `, ${M(big + 2)}` : ''}…`,
+        example: big < 10 && big + small > 10 ? `כמה חסר ל-${M(big)} כדי להגיע ל-10? כמה נשאר מה-${M(small)} אחרי זה?` :
+          `ספרו על האצבעות: ${M(big)} בראש, ואז ${M(small)} אצבעות.` });
+  },
+  subtraction(p) {
+    const [a, b] = [p.a, p.b];
+    return hintLevels(
+      { words: `חיסור זה "כמה נשאר" – או "כמה חסר כדי להגיע".`,
+        life: `היו ${M(a)} עוגיות בצנצנת ואכלו ${M(b)}. כמה נשארו?` },
+      { words: `אפשר לספור קדימה מהמספר הקטן לגדול: כמה צעדים יש בין ${M(b)} ל-${M(a)}?`,
+        example: `${M('12 − 7')}: מ-7 עד 10 זה 3 צעדים, ומ-10 עד 12 עוד 2. סך הכל 5.` },
+      { words: b < 10 && a > 10 ? `התחילו ב-${M(b)}: כמה צריך להוסיף כדי להגיע ל-10? ואז כמה עוד עד ${M(a)}?` :
+          `התחילו ב-${M(a)} וספרו ${M(b)} צעדים אחורה: ${M(a - 1)}${b > 1 ? `, ${M(a - 2)}` : ''}…`,
+        example: `שאלו: ${M(b)} ועוד כמה שווה ${M(a)}?` });
+  },
+  multiplication(p) {
+    const [a, b] = [p.a, p.b];
+    return hintLevels(
+      { words: `כפל זה חיבור חוזר: ${M(`${a} × ${b}`)} זה ${M(a)} קבוצות של ${M(b)}.`,
+        life: `יש ${M(a)} שקיות ובכל אחת ${M(b)} סוכריות. כמה סוכריות בסך הכל?` },
+      { words: `אם לא זוכרים, מפרקים למשהו שכן זוכרים: למשל כפל ב-5 ועוד הכפל בשאר.`,
+        example: `${M('6 × 7 = 6 × 5 + 6 × 2 = 30 + 12 = 42')}.` },
+      { words: `ספרו בקפיצות של ${M(b)}: ${M(b)}, ${M(2 * b)}, ${M(3 * b)}… עד שיש ${M(a)} קפיצות.`,
+        example: a > 1 ? `${M(`${a} × ${b} = ${a - 1} × ${b} + ${b}`)}. כמה זה ${M(`${a - 1} × ${b}`)}?` : `כל מספר כפול 1 נשאר אותו מספר.` });
+  },
+  division(p) {
+    const [a, b] = [p.a, p.b];
+    return hintLevels(
+      { words: `חילוק שואל: כמה פעמים ${M(b)} נכנס ב-${M(a)}?`,
+        life: `מחלקים ${M(a)} סוכריות שווה בשווה בין ${M(b)} ילדים. כמה מקבל כל אחד?` },
+      { words: `חילוק הוא ההפך של כפל: מחפשים מספר שכשכופלים אותו ב-${M(b)} מקבלים ${M(a)}.`,
+        example: `${M('24 ÷ 6')}: ${M('6 × 4 = 24')}, אז התשובה 4.` },
+      { words: `שאלו את עצמכם: ${M(`${b} × ? = ${a}`)}. נסו: ${M(`${b} × 2 = ${2 * b}`)}, ${M(`${b} × 3 = ${3 * b}`)}…` });
+  },
+  multiAdd(p) {
+    const [x, y] = qNums(p);
+    return hintLevels(
+      { words: `מחברים עמודה עמודה, מימין לשמאל: אחדות, עשרות, מאות.` },
+      { words: `אם בעמודה יוצא 10 או יותר, כותבים את האחדות ומעבירים 1 לעמודה הבאה (נשיאה).`,
+        example: `${M('47 + 38')}: ${M('7 + 8 = 15')} – כותבים 5 ומעבירים 1. ${M('4 + 3 + 1 = 8')}. יוצא 85.` },
+      { words: `עמודת האחדות: ${M(`${x % 10} + ${y % 10} = ${x % 10 + y % 10}`)}.${x % 10 + y % 10 >= 10 ? ' עבר את 10 – זוכרים להעביר 1!' : ''}` });
+  },
+  multiSub(p) {
+    const [x, y] = qNums(p);
+    const borrow = x % 10 < y % 10;
+    return hintLevels(
+      { words: `מחסרים עמודה עמודה, מימין לשמאל: אחדות, עשרות, מאות.` },
+      { words: `אם הספרה למעלה קטנה מהספרה למטה, "לווים" 1 מהעמודה שמשמאל – והספרה למעלה מקבלת עוד 10.`,
+        example: `${M('52 − 27')}: 2 קטן מ-7, לווים: ${M('12 − 7 = 5')}. בעשרות נשאר ${M('4 − 2 = 2')}. יוצא 25.` },
+      { words: borrow ? `באחדות: ${M(x % 10)} קטן מ-${M(y % 10)}, אז לווים: ${M(`${x % 10 + 10} − ${y % 10} = ${x % 10 + 10 - y % 10}`)}. אל תשכחו שבעשרות ירד 1.`
+          : `באחדות: ${M(`${x % 10} − ${y % 10} = ${x % 10 - y % 10}`)}. עכשיו לעשרות.` });
+  },
+  longMul(p) {
+    const [x, y] = qNums(p);
+    const tens = y - y % 10, ones = y % 10;
+    return hintLevels(
+      { words: `מפרקים את המספר השני לחלקים נוחים, וכופלים כל חלק בנפרד.` },
+      { words: `${M(`${x} × ${y}`)} = ${M(`${x} × ${tens || y}`)}${ones && tens ? ` + ${M(`${x} × ${ones}`)}` : ''}. בסוף מחברים.`,
+        example: `${M('23 × 14 = 23 × 10 + 23 × 4 = 230 + 92 = 322')}.` },
+      { words: ones && tens ? `חשבו קודם ${M(`${x} × ${ones}`)} – האחדות של ${M(y)}.` : `פרקו את ${M(x)} למאות, עשרות ואחדות, וכפלו כל אחד ב-${M(y)}.` });
+  },
+  longDiv(p) {
+    const [x, y] = qNums(p);
+    const lead = String(x).split('').reduce((acc, d) => acc >= y ? acc : acc * 10 + Number(d), 0);
+    return hintLevels(
+      { words: `מחלקים משמאל לימין: בכל פעם שואלים כמה פעמים ${M(y)} נכנס בחלק הראשון של המספר.` },
+      { words: `מחלקים, כופלים, מחסרים, מורידים את הספרה הבאה – וחוזר חלילה.`,
+        example: `${M('96 ÷ 4')}: 9 חלקי 4 זה 2 (שארית 1). מורידים את ה-6: 16 חלקי 4 זה 4. יוצא 24.` },
+      { words: `התחילו מ-${M(lead)}: כמה פעמים ${M(y)} נכנס ב-${M(lead)}?` });
+  },
+  negatives() {
+    return hintLevels(
+      { words: `חשבו על ציר המספרים: ימינה המספרים גדלים, שמאלה הם קטנים.`,
+        life: `טמפרטורה של ${M('-3')} מעלות שעולה ב-5 מעלות מגיעה ל-${M(2)}.` },
+      { words: `שני סימנים צמודים: מינוס ומינוס הופכים לפלוס, פלוס ומינוס נשארים מינוס.`,
+        example: `${M('(-3) - (-5) = -3 + 5 = 2')}. ${M('4 + (-6) = 4 - 6 = -2')}.` },
+      { words: `כתבו מחדש את התרגיל בלי סוגריים, לפי הכלל של שני הסימנים, ורק אז חשבו על ציר המספרים.` });
+  },
+  orderops(p) {
+    const q = plainText(p.displayQ);
+    const inner = q.match(/\(([^()]+)\)/);
+    const md = q.match(/\d+\s*[×÷]\s*\d+/);
+    return hintLevels(
+      { words: `לא תמיד מחשבים משמאל לימין – יש סדר קבוע לפעולות.` },
+      { words: `קודם סוגריים, אחר כך כפל וחילוק, ובסוף חיבור וחיסור.`,
+        example: `${M('2 + 3 × 4 = 2 + 12 = 14')} (ולא 20!).` },
+      { words: inner ? `קודם מה שבתוך הסוגריים: ${M(inner[1].trim())}.` : md ? `קודם הכפל או החילוק: ${M(md[0])}.` : `אין כאן סוגריים או כפל – מחשבים משמאל לימין.` });
+  },
+  fractions() {
+    return hintLevels(
+      { words: `המכנה (למטה) אומר לכמה חלקים חתכו, והמונה (למעלה) כמה חלקים לקחנו.`,
+        life: `פיצה שחתכו ל-8 משולשים ולקחת 3 – לקחת ${M('3/8')} מהפיצה.` },
+      { words: `באותו מכנה מחברים או מחסרים רק את המונים – המכנה לא משתנה. כדי לצמצם או להרחיב, מחלקים או כופלים את המונה ואת המכנה באותו מספר.`,
+        example: `${M('3/8 + 2/8 = 5/8')}. ${M('6/9 = 2/3')} (חילקנו את שניהם ב-3).` },
+      { words: `בדקו קודם: האם המכנים שווים? אם לא – הביאו אותם למכנה משותף לפני שמחברים.` });
+  },
+  fractionsAdv() {
+    return hintLevels(
+      { words: `לכל פעולה בשברים יש כלל משלה – בדקו קודם איזו פעולה כתובה.` },
+      { words: `כפל: מונה כפול מונה ומכנה כפול מכנה. חילוק: כופלים בהופכי. ההופכי מחליף בין המונה למכנה.`,
+        example: `${M('2/3 × 4/5 = 8/15')}. ${M('2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12')}.` },
+      { words: `אם יש מספר מעורב, הפכו אותו קודם לשבר: ${M('2 1/3 = 7/3')} (כי ${M('2 × 3 + 1 = 7')}).` });
+  },
+  decimals(p) {
+    const q = plainText(p.displayQ);
+    return hintLevels(
+      { words: `הנקודה העשרונית מפרידה בין השלמים לחלקים. ספרה אחת אחרי הנקודה = עשיריות.`,
+        life: `${M('3.50')} שקלים זה 3 שקלים ו-50 אגורות.` },
+      { words: `כפל ב-10 או 100 מזיז את הנקודה ימינה מקום אחד או שניים. חילוק ב-10 או 100 מזיז אותה שמאלה. בחיבור ובחיסור מיישרים את הנקודות זו מתחת לזו.`,
+        example: `${M('3.4 × 10 = 34')}. ${M('89 ÷ 100 = 0.89')}. ${M('2.5 + 1.25 = 3.75')}.` },
+      { words: /[×÷]\s*10/.test(q) ? `ספרו כמה אפסים יש: כל אפס מזיז את הנקודה מקום אחד.` : `כתבו את המספרים זה מתחת לזה, נקודה מתחת לנקודה, והשלימו באפסים אם צריך.` });
+  },
+  simplify() {
+    return hintLevels(
+      { words: `איברים דומים הם איברים עם אותו משתנה: ${M('x')} עם ${M('x')}, ומספרים עם מספרים.` },
+      { words: `אם יש סוגריים עם מספר לפניהם, פותחים קודם בפילוג: כופלים את המספר בכל אחד מהאיברים שבסוגריים.`,
+        example: `${M('2(x + 3) + x = 2x + 6 + x = 3x + 6')}.` },
+      { words: `פתחו קודם את הסוגריים, ואז קבצו את כל איברי ה-${M('x')} יחד ואת כל המספרים יחד.` });
+  },
+  solveLinear(p) {
+    const q = plainText(p.displayQ);
+    const m = q.match(/^(\d*)x\s*([+−-])\s*(\d+)\s*=\s*(−?-?\d+)$/);
+    let step = `מה "מפריע" ל-${M('x')} להיות לבד? בטלו אותו בפעולה ההפוכה, בשני האגפים.`;
+    if (m) {
+      const k = Number(m[3]), rhs = Number(m[4].replace('−', '-'));
+      const sub = m[2] === '+';
+      step = `${sub ? `החסירו ${M(k)} משני האגפים` : `הוסיפו ${M(k)} לשני האגפים`}: ${M(`${m[1]}x = ${sub ? rhs - k : rhs + k}`)}. ${m[1] && m[1] !== '1' ? `עכשיו נשאר רק לחלק ב-${M(m[1])}.` : ''}`;
+    }
+    return hintLevels(
+      { words: `המטרה: ${M('x')} לבד בצד אחד של השוויון.`,
+        life: `כמו מאזניים: כל מה שעושים לצד אחד, עושים גם לצד השני – כדי שיישאר מאוזן.` },
+      { words: `מבטלים כל מה שמפריע ל-${M('x')} בפעולה ההפוכה: קודם חיבור וחיסור, ואז כפל וחילוק.`,
+        example: `${M('3x + 4 = 19')}: מחסירים 4 ומקבלים ${M('3x = 15')}, ואז מחלקים ב-3: ${M('x = 5')}.` },
+      { words: step });
+  },
+  factorize(p) {
+    const q = plainText(p.displayQ);
+    const m = q.match(/x²\s*([+−-])\s*(\d*)x\s*([+−-])\s*(\d+)/);
+    const sign = c => c === '+' ? 1 : -1;
+    return hintLevels(
+      { words: `פירוק לגורמים הוא ההפך מפתיחת סוגריים: מחפשים מה אפשר "להוציא החוצה".` },
+      { words: `אם לכל האיברים יש גורם משותף – מוציאים אותו לפני הסוגריים. בטרינום ${M('x² + bx + c')} מחפשים שני מספרים שמכפלתם ${M('c')} וסכומם ${M('b')}.`,
+        example: `${M('6x + 9 = 3(2x + 3)')}. ${M('x² + 5x + 6 = (x + 2)(x + 3)')}, כי ${M('2 × 3 = 6')} ו-${M('2 + 3 = 5')}.` },
+      { words: m ? `חפשו שני מספרים שמכפלתם ${M(sign(m[3]) * Number(m[4]))} וסכומם ${M(sign(m[1]) * Number(m[2] || 1))}.` : `מה המספר הגדול ביותר שמחלק את כל המקדמים?` });
+  },
+  inequalities(p) {
+    const q = plainText(p.displayQ);
+    const m = q.match(/^(\d*)x\s*([+−-])\s*(\d+)\s*([<>])\s*(−?-?\d+)$/);
+    return hintLevels(
+      { words: `פותרים אי-שוויון כמעט בדיוק כמו משוואה: מבודדים את ${M('x')}.` },
+      { words: `יש הבדל אחד: כשכופלים או מחלקים במספר שלילי – הופכים את כיוון הסימן.`,
+        example: `${M('2x + 1 > 7 → 2x > 6 → x > 3')}. אבל ${M('-2x > 6 → x < -3')}.` },
+      { words: m ? `${m[2] === '+' ? 'החסירו' : 'הוסיפו'} ${M(m[3])} משני הצדדים: ${M(`${m[1]}x ${m[4]} ${m[2] === '+' ? Number(m[5].replace('−', '-')) - Number(m[3]) : Number(m[5].replace('−', '-')) + Number(m[3])}`)}.` : `בטלו קודם את המספר שמחובר ל-${M('x')}.` });
+  },
+  simultaneous() {
+    return hintLevels(
+      { words: `יש שני נעלמים ושתי משוואות. המטרה: להיפטר מאחד הנעלמים.` },
+      { words: `אם לאותו נעלם יש אותו מקדם בשתי המשוואות – מחסרים את המשוואות זו מזו והוא נעלם.`,
+        example: `${M('x + y = 10')} ו-${M('x - y = 4')}: מחברים ומקבלים ${M('2x = 14')}, כלומר ${M('x = 7')}, ואז ${M('y = 3')}.` },
+      { words: `השוו את המקדמים של ${M('y')} בשתי המשוואות. אם הם שווים – חסרו את המשוואה השנייה מהראשונה.` });
+  },
+  placeValue() {
+    return hintLevels(
+      { words: `כל ספרה שווה לפי המקום שלה: אחדות, עשרות, מאות, אלפים…` },
+      { words: `קוראים את המקומות מימין: אחדות, עשרות, מאות, אלפים, עשרות אלפים, מאות אלפים, מיליונים.`,
+        example: `במספר ${M('4,326')} הספרה 3 נמצאת במקום המאות, אז הערך שלה 300. בצורה מורחבת: ${M('4000 + 300 + 20 + 6')}.` },
+      { words: `ספרו את המקומות מהספרה הימנית ביותר עד המקום שנשאל עליו, וכתבו את הספרה עם אפסים במקום כל השאר.` });
+  },
+  properties() {
+    return hintLevels(
+      { words: `השוו בין שני הצדדים של השוויון: מה השתנה?` },
+      { words: `חילופיות – מחליפים את הסדר. קיבוציות – מזיזים את הסוגריים. פילוג – כפל שמתפזר על חיבור. איבר נייטרלי – 0 בחיבור, 1 בכפל.`,
+        example: `${M('3 + 5 = 5 + 3')} חילופיות. ${M('(2 + 3) + 4 = 2 + (3 + 4)')} קיבוציות. ${M('2(3 + 4) = 2×3 + 2×4')} פילוג.` },
+      { words: `אם אותם מספרים בסדר אחר – חילופיות. אם הסוגריים זזו – קיבוציות. אם מספר "נכנס" לסוגריים – פילוג.` });
+  }
+};
+
+let basicsHint = null;
+function basicsHasHints(track) { return typeof BASICS_HINTS[track] === 'function'; }
+function openBasicsHint() {
+  const p = basicsProblems[basicsCurrent];
+  if (!basicsHint) basicsHint = { levels: BASICS_HINTS[basicsTrack](p), level: 0, mode: 0, used: 1 };
+  document.getElementById('qs-answer').hidden = true;
+  document.getElementById('qs-hint').hidden = false;
+  renderBasicsHint();
+}
+function renderBasicsHint() {
+  const h = basicsHint, lv = h.levels[h.level];
+  const modes = Object.keys(lv.modes);
+  const mode = modes[h.mode % modes.length];
+  const last = h.level === h.levels.length - 1;
+  document.getElementById('qs-hint').innerHTML = `
+    <div class="hint-card">
+      <div class="hint-head">
+        <span class="hint-bulb">${draftIcon('bulb', 22)}</span>
+        <span class="hint-titles"><b>רמז ${h.level + 1}: ${lv.title}</b><small>${lv.sub}</small></span>
+        <span class="hint-pips" aria-label="רמז ${h.level + 1} מתוך ${h.levels.length}">${h.levels.map((_, i) => `<i class="${i <= h.level ? 'on' : ''}"></i>`).join('')}</span>
+        <button type="button" class="q-close hint-x" onclick="closeBasicsHint()" aria-label="סגירת הרמז">${draftIcon('close', 18)}</button>
+      </div>
+      ${modes.length > 1 ? `<div class="hint-tabs">${modes.map((m, i) => `<button type="button" class="${m === mode ? 'on' : ''}" onclick="basicsHint.mode=${i}; renderBasicsHint()">${HINT_MODE_LABELS[m]}</button>`).join('')}</div>` : ''}
+      <div class="hint-body">${lv.modes[mode]}</div>
+      <div class="hint-actions">
+        <button type="button" class="hint-more" onclick="basicsHintMore()" ${last ? 'disabled' : ''}>${last ? 'זה הרמז האחרון' : 'עוד רמז'}</button>
+        <button type="button" class="hint-other" onclick="basicsHintOther()" ${modes.length < 2 ? 'disabled' : ''}>תסבירו אחרת</button>
+        <button type="button" class="hint-back" onclick="closeBasicsHint()">הבנתי, חוזרים לשאלה</button>
+      </div>
+    </div>`;
+}
+function basicsHintMore() {
+  if (basicsHint.level < basicsHint.levels.length - 1) { basicsHint.level++; basicsHint.mode = 0; basicsHint.used = basicsHint.level + 1; }
+  renderBasicsHint();
+}
+function basicsHintOther() { basicsHint.mode++; renderBasicsHint(); }
+function closeBasicsHint() {
+  document.getElementById('qs-hint').hidden = true;
+  document.getElementById('qs-answer').hidden = false;
+}
+
 function basicsTypable(p) { return /^-?\d+(\.\d+)?$/.test(String(p.answer)); }
 function plainText(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent.replace(/\s+/g, ' ').trim(); }
 
@@ -4281,6 +4547,7 @@ function renderBasicsProblem() {
   const labelText = p.questionLabel || (isEquation ? 'פתרו את המשוואה:' : '');
   const labelHtml = labelText ? `<div class="basics-question-label">${escapeHtml(labelText)}</div>` : '';
   qsInput = '';
+  basicsHint = null;
   let answerHtml;
   if (basicsTypable(p)) {
     const prefix = /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml)) ? '<i class="mx">x</i> =' : '';
@@ -4305,8 +4572,11 @@ function renderBasicsProblem() {
   container.innerHTML = `
     ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
     <div class="qs-question">${labelHtml}<div class="basics-equation">${questionLine}</div></div>
-    ${qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()')}
-    ${answerHtml}
+    <div id="qs-hint" hidden></div>
+    <div id="qs-answer">
+      ${qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()', basicsHasHints(basicsTrack) ? 'openBasicsHint()' : '')}
+      ${answerHtml}
+    </div>
   `;
   basicsProblemStart = Date.now();
 }
@@ -4400,7 +4670,8 @@ function recordBasicsAnswer(value, correct) {
   basicsSessionLog.push({
     track: basicsTrack, sheetIdx: basicsSheetIndex,
     question: (p.questionLabel ? p.questionLabel + ' ' : '') + (p.displayQ || `${p.a} ${p.op} ${p.b}`),
-    chosen: value, correct, expected: p.answer, timeMs
+    chosen: value, correct, expected: p.answer, timeMs,
+    ...(basicsHint ? { hintsUsed: basicsHint.used } : {})
   });
   if (correct) basicsCorrect++;
   setTimeout(() => {
