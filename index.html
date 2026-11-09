@@ -1150,6 +1150,107 @@
   .auth-title { margin: 0 0 4px; font-family: var(--display); font-weight: 700; font-size: 1.35em; }
   .auth-card .cta-big { margin-top: 16px; }
   .auth-form input[type="text"], .auth-form input[type="password"] { background: var(--paper); }
+
+  /* ===== מסך שאלה בהקלדה ===== */
+  .student-mode #basics-session-view .basics-session { display: flex; flex-direction: column; min-height: calc(100dvh - 140px); }
+  .qs-question { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; padding: 18px 0; }
+  .qs-question .basics-equation { margin: 0; }
+  .student-mode #basics-session-view .basics-equation { margin: 0; }
+  .qs-tools { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); padding-top: 6px; margin-bottom: 8px; }
+  .qs-tools button {
+    border: 0; background: none; cursor: pointer; color: var(--ink2); font: 600 .95em var(--body);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; border-radius: 10px;
+  }
+  .qs-tools button:hover { background: white; color: var(--ink); }
+  .qs-tools button:first-child svg { color: var(--sun-d); }
+  .qs-field {
+    display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 0 18px; margin-bottom: 4px;
+    background: white; border: 2px solid var(--blue); border-radius: var(--r-md);
+    font-family: var(--display); font-weight: 700; font-size: 1.6em; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .qs-prefix { color: var(--ink2); font-size: .8em; }
+  .mx { color: var(--blue); font-style: italic; font-family: var(--display); font-weight: 700; }
+  .caret { display: inline-block; width: 2.5px; height: 1.05em; background: var(--blue); border-radius: 2px; animation: caret-blink 1s steps(1) infinite; }
+  @keyframes caret-blink { 50% { opacity: 0; } }
+  .qs-field.correct { border-color: var(--mint-d); background: var(--mint-l); color: var(--mint-d); }
+  .qs-field.incorrect { border-color: var(--red-d); background: var(--red-l); color: var(--red-d); animation: ba-shake .35s; }
+  .qs-field.correct .caret, .qs-field.incorrect .caret { display: none; }
+  .qs-reveal { min-height: 1.6em; text-align: center; color: var(--ink2); font-weight: 600; margin-bottom: 6px; }
+  .qs-reveal b { color: var(--mint-d); font-family: var(--display); font-size: 1.15em; }
+
+  .qs-keypad, .draft-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .qs-keypad button, .draft-keys button {
+    min-height: 56px; border: 0; border-radius: 14px; cursor: pointer; background: white; color: var(--ink);
+    font: 700 1.35em var(--display); box-shadow: 0 0 0 1.5px var(--line), 0 3px 0 var(--neutral-d);
+    display: inline-flex; align-items: center; justify-content: center; transition: transform .06s, box-shadow .06s;
+  }
+  .qs-keypad button:active:not(:disabled), .draft-keys button:active { transform: translateY(3px); box-shadow: 0 0 0 1.5px var(--line); }
+  .qs-keypad .k-soft, .draft-keys .k-soft { background: var(--paper); color: var(--ink2); }
+  .qs-keypad .k-wide, .draft-keys .k-wide { grid-column: span 2; }
+  .qs-keypad .k-go, .draft-keys .k-go { background: var(--blue); color: white; font-family: var(--body); font-size: 1.1em; box-shadow: 0 3px 0 var(--blue-d); }
+  .qs-keypad .k-go:disabled { background: #AEB9FF; box-shadow: none; cursor: default; }
+  .qs-keypad.locked button { opacity: .55; }
+  .student-mode #basics-session-view .basics-options { margin-top: 0; }
+
+  /* ===== טיוטה ===== */
+  .draft-panel {
+    position: fixed; z-index: 2500; inset: 0; background: white; display: flex; flex-direction: column;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 1000px) {
+    .draft-panel { inset: 24px auto 24px 24px; width: min(560px, calc(100vw - 620px)); border-radius: var(--r-lg); box-shadow: var(--drop); }
+    body.draft-open.student-mode #app-container { margin-right: max(24px, calc(50vw - 560px)); margin-left: auto; }
+  }
+  .draft-head { display: flex; align-items: center; gap: 10px; background: var(--paper); border-radius: var(--r-md); padding: 8px; }
+  .draft-question { flex: 1; min-width: 0; font-weight: 700; color: var(--ink); line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
+  .draft-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--paper); border-radius: var(--r-md); padding: 4px; margin: 10px 0; }
+  .draft-tabs button {
+    border: 0; background: none; border-radius: 12px; padding: 10px 4px; cursor: pointer; color: var(--ink2);
+    font: 600 .95em var(--body); display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .draft-tabs button[aria-selected="true"] { background: white; color: var(--ink); box-shadow: var(--ring); }
+  .draft-pane { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+  .draft-pane.hidden { display: none; }
+
+  .draw-tools { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .draw-colors { display: inline-flex; align-items: center; gap: 8px; }
+  .swatch { width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; background: var(--sw); box-shadow: 0 0 0 1.5px var(--line); cursor: pointer; }
+  .swatch.active { box-shadow: 0 0 0 2.5px var(--ink); }
+  .tool-btn { width: 40px; height: 40px; border-radius: 12px; border: 0; background: var(--paper); color: var(--ink2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .tool-btn.active { background: var(--ink); color: white; }
+  .draw-board {
+    position: relative; flex: 1; min-height: 240px; border-radius: var(--r-md); box-shadow: var(--ring); overflow: hidden;
+    background-color: white; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 22px 22px;
+  }
+  #draw-canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; background: transparent; border: 0; border-radius: 0; margin: 0; max-width: none; }
+  .draw-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; color: var(--ink3); pointer-events: none; }
+  .draw-empty.hidden { display: none; }
+
+  .steps-list { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .steps-list li { display: flex; align-items: center; gap: 8px; }
+  .step-n { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--paper); color: var(--ink3); font-size: .8em; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .step-line { flex: 1; background: var(--blue-l); border-radius: var(--r-sm); padding: 10px 14px; font-family: var(--display); font-weight: 700; font-size: 1.3em; color: var(--ink); text-align: left; overflow-wrap: anywhere; }
+  .steps-empty { color: var(--ink3); justify-content: center; padding: 30px 0; }
+  .steps-bottom { display: flex; flex-direction: column; gap: 8px; }
+  .both-sides { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ink2); font-size: .9em; }
+  .both-btns { display: inline-flex; gap: 6px; }
+  .both-btns button { width: 44px; height: 40px; border: 0; border-radius: 12px; background: var(--orange-l); color: var(--orange-d); font: 700 1.2em var(--display); cursor: pointer; }
+  .draft-field {
+    display: flex; align-items: center; gap: 2px; min-height: 52px; padding: 0 14px; border: 2px solid var(--blue); border-radius: var(--r-md);
+    font-family: var(--display); font-weight: 700; font-size: 1.25em; color: var(--ink); overflow-x: auto; white-space: nowrap;
+  }
+  .draft-field.shake { animation: ba-shake .35s; border-color: var(--red-d); }
+  .field-ph { color: var(--ink3); font: 400 .78em var(--body); }
+  .draft-keys { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .draft-keys button { min-height: 46px; font-size: 1.1em; }
+  .draft-keys .k-x { color: var(--blue); font-style: italic; }
+  .draft-keys .k-small { font: 600 .72em var(--body); line-height: 1.15; }
+  .draft-keys .k-eq { background: var(--ink); color: white; box-shadow: 0 3px 0 #000; }
+  .calc-keys { grid-template-columns: repeat(5, 1fr); }
+  .calc-log { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; justify-content: flex-end; }
+  .calc-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; background: var(--paper); border-radius: var(--r-sm); font-family: var(--display); font-weight: 600; color: var(--ink2); }
+  .calc-row b { color: var(--ink); }
+  .calc-empty { margin: auto; text-align: center; color: var(--ink3); line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -1918,6 +2019,7 @@ function switchHomeTab(tab) {
 })();
 
 function backToMenu() {
+  closeDraft();
   document.getElementById('main-menu').classList.remove('hidden');
   document.getElementById('topic-view').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.add('hidden');
@@ -3799,6 +3901,324 @@ function renderOptionDisplay(v) {
   if (m) return fracHtml(m[1], m[2]);
   return s;
 }
+// ============================================================
+// טיוטה: שרבוט / צעדים / חישוב צד - חלון משותף לכל מסכי השאלות
+// ============================================================
+const DRAFT_ICON = {
+  pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z M14 7l3 3"/>',
+  steps: '<path d="M4 7h16M4 12h11M4 17h7"/>',
+  calc: '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8 7h8M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 18h.01M12 18h.01M15.5 18h.01"/>',
+  close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  undo: '<path d="M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  eraser: '<path d="M14 4l6 6-9 9H6l-3-3z M9 19h12"/>',
+  bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  back: '<path d="M21 6H9l-6 6 6 6h12z M17 9l-6 6M11 9l6 6"/>'
+};
+function draftIcon(name, size = 18) {
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${DRAFT_ICON[name]}</svg>`;
+}
+
+const draft = { tab: 'steps', question: '', strokes: [], color: '#1B1B2F', eraser: false, lines: [], stepInput: '', calcInput: '', calcLog: [] };
+
+function ensureDraftPanel() {
+  if (document.getElementById('draft-panel')) return;
+  const el = document.createElement('aside');
+  el.id = 'draft-panel';
+  el.className = 'draft-panel hidden';
+  el.setAttribute('aria-label', 'טיוטה');
+  el.innerHTML = `
+    <div class="draft-head">
+      <button type="button" class="q-close" onclick="closeDraft()" aria-label="סגירת הטיוטה">${draftIcon('close', 22)}</button>
+      <div class="draft-question" id="draft-question"></div>
+    </div>
+    <div class="draft-tabs" role="tablist">
+      <button type="button" role="tab" data-tab="draw" onclick="draftTab('draw')">${draftIcon('pencil')} שרבוט</button>
+      <button type="button" role="tab" data-tab="steps" onclick="draftTab('steps')">${draftIcon('steps')} צעדים</button>
+      <button type="button" role="tab" data-tab="calc" onclick="draftTab('calc')">${draftIcon('calc')} חישוב צד</button>
+    </div>
+    <section class="draft-pane" data-pane="draw">
+      <div class="draw-tools">
+        <span class="draw-colors">
+          <button type="button" class="swatch active" style="--sw:#1B1B2F" onclick="drawColor(this,'#1B1B2F')" aria-label="שחור"></button>
+          <button type="button" class="swatch" style="--sw:#3D5AFE" onclick="drawColor(this,'#3D5AFE')" aria-label="כחול"></button>
+          <button type="button" class="swatch" style="--sw:#FF6B3D" onclick="drawColor(this,'#FF6B3D')" aria-label="כתום"></button>
+          <button type="button" class="tool-btn" id="draw-eraser" onclick="drawEraser()" aria-label="מחק">${draftIcon('eraser')}</button>
+        </span>
+        <span class="draw-colors">
+          <button type="button" class="tool-btn" onclick="drawUndo()" aria-label="ביטול">${draftIcon('undo')}</button>
+          <button type="button" class="tool-btn" onclick="drawClear()" aria-label="ניקוי">${draftIcon('trash')}</button>
+        </span>
+      </div>
+      <div class="draw-board">
+        <canvas id="draw-canvas"></canvas>
+        <p class="draw-empty" id="draw-empty">כתבו או ציירו כאן, באצבע או בעכבר</p>
+      </div>
+    </section>
+    <section class="draft-pane" data-pane="steps">
+      <ol class="steps-list" id="steps-list"></ol>
+      <div class="steps-bottom">
+        <div class="both-sides">
+          <span>לשני האגפים:</span>
+          <span class="both-btns" dir="ltr">
+            <button type="button" onclick="stepsOp('−')">−</button>
+            <button type="button" onclick="stepsOp('+')">+</button>
+            <button type="button" onclick="stepsOp('×')">×</button>
+            <button type="button" onclick="stepsOp('÷')">÷</button>
+          </span>
+        </div>
+        <div class="draft-field" id="steps-field" dir="ltr"></div>
+        <div class="draft-keys steps-keys" dir="ltr">
+          ${['7','8','9','(',')'].map(k => `<button type="button" onclick="stepsKey('${k}')">${k}</button>`).join('')}
+          <button type="button" class="k-soft" onclick="stepsBack()" aria-label="מחיקה">${draftIcon('back')}</button>
+          ${['4','5','6'].map(k => `<button type="button" onclick="stepsKey('${k}')">${k}</button>`).join('')}
+          <button type="button" class="k-soft k-x" onclick="stepsKey('x')">x</button>
+          <button type="button" class="k-soft" onclick="stepsKey('=')">=</button>
+          <button type="button" class="k-soft" onclick="stepsKey('−')">−</button>
+          ${['1','2','3'].map(k => `<button type="button" onclick="stepsKey('${k}')">${k}</button>`).join('')}
+          <button type="button" class="k-soft" onclick="stepsKey('+')">+</button>
+          <button type="button" class="k-soft" onclick="stepsKey('×')">×</button>
+          <button type="button" class="k-soft" onclick="stepsKey('÷')">÷</button>
+          <button type="button" onclick="stepsKey('0')">0</button>
+          <button type="button" onclick="stepsKey('.')">.</button>
+          <button type="button" class="k-soft" onclick="stepsKey('²')">²</button>
+          <button type="button" class="k-soft k-small" onclick="stepsCopyLast()">העתקה לעריכה</button>
+          <button type="button" class="k-go k-wide" onclick="stepsAdd()">הוספת שורה</button>
+        </div>
+      </div>
+    </section>
+    <section class="draft-pane" data-pane="calc">
+      <div class="calc-log" id="calc-log"></div>
+      <div class="draft-field calc-field" id="calc-field" dir="ltr"></div>
+      <div class="draft-keys calc-keys" dir="ltr">
+        ${['7','8','9'].map(k => `<button type="button" onclick="calcKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="calcKey('÷')">÷</button>
+        <button type="button" class="k-soft" onclick="calcBack()" aria-label="מחיקה">${draftIcon('back')}</button>
+        ${['4','5','6'].map(k => `<button type="button" onclick="calcKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="calcKey('×')">×</button>
+        <button type="button" class="k-soft" onclick="calcKey('√')">√</button>
+        ${['1','2','3'].map(k => `<button type="button" onclick="calcKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="calcKey('−')">−</button>
+        <button type="button" class="k-soft" onclick="calcKey('(')">(</button>
+        <button type="button" onclick="calcKey('0')">0</button>
+        <button type="button" onclick="calcKey('.')">.</button>
+        <button type="button" class="k-soft" onclick="calcKey('%')">%</button>
+        <button type="button" class="k-soft" onclick="calcKey('+')">+</button>
+        <button type="button" class="k-soft" onclick="calcKey(')')">)</button>
+        <button type="button" class="k-soft" onclick="calcKey('²')">²</button>
+        <button type="button" class="k-soft" onclick="calcClear()">C</button>
+        <button type="button" class="k-soft k-x" onclick="calcToSteps()" title="משוואה עם x? עוברים לצעדים">x</button>
+        <button type="button" class="k-eq k-wide" onclick="calcEquals()">=</button>
+      </div>
+    </section>`;
+  document.body.appendChild(el);
+  initDrawCanvas();
+}
+
+// question: plain text shown in the header; seed: an equation to start the steps list with
+function openDraft(question, seed) {
+  ensureDraftPanel();
+  const fresh = draft.question !== question;
+  if (fresh) {
+    draft.question = question;
+    draft.strokes = [];
+    draft.lines = seed ? [seed] : [];
+    draft.stepInput = '';
+    draft.calcInput = '';
+    draft.calcLog = [];
+    draft.tab = seed ? 'steps' : 'draw';
+  }
+  document.getElementById('draft-question').textContent = question;
+  document.getElementById('draft-panel').classList.remove('hidden');
+  document.body.classList.add('draft-open');
+  draftTab(draft.tab);
+}
+function closeDraft() {
+  const el = document.getElementById('draft-panel');
+  if (el) el.classList.add('hidden');
+  document.body.classList.remove('draft-open');
+}
+function draftIsOpen() {
+  const el = document.getElementById('draft-panel');
+  return !!el && !el.classList.contains('hidden');
+}
+function draftTab(tab) {
+  draft.tab = tab;
+  const el = document.getElementById('draft-panel');
+  el.querySelectorAll('.draft-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  el.querySelectorAll('.draft-pane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== tab));
+  if (tab === 'draw') sizeDrawCanvas();
+  if (tab === 'steps') renderSteps();
+  if (tab === 'calc') renderCalc();
+}
+
+// --- שרבוט ---
+let drawCtx = null, drawCur = null;
+function initDrawCanvas() {
+  const c = document.getElementById('draw-canvas');
+  drawCtx = c.getContext('2d');
+  const pt = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  c.addEventListener('pointerdown', e => {
+    c.setPointerCapture(e.pointerId);
+    drawCur = { color: draft.color, eraser: draft.eraser, pts: [pt(e)] };
+    draft.strokes.push(drawCur);
+    redrawCanvas();
+  });
+  c.addEventListener('pointermove', e => { if (drawCur) { drawCur.pts.push(pt(e)); redrawCanvas(); } });
+  const end = () => { drawCur = null; };
+  c.addEventListener('pointerup', end);
+  c.addEventListener('pointercancel', end);
+  window.addEventListener('resize', () => { if (draftIsOpen() && draft.tab === 'draw') sizeDrawCanvas(); });
+}
+function sizeDrawCanvas() {
+  const c = document.getElementById('draw-canvas');
+  const r = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  c.width = Math.max(1, r.width * dpr); c.height = Math.max(1, r.height * dpr);
+  c.style.width = r.width + 'px'; c.style.height = r.height + 'px';
+  drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  redrawCanvas();
+}
+function redrawCanvas() {
+  const c = document.getElementById('draw-canvas');
+  drawCtx.clearRect(0, 0, c.width, c.height);
+  drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
+  for (const st of draft.strokes) {
+    drawCtx.globalCompositeOperation = st.eraser ? 'destination-out' : 'source-over';
+    drawCtx.strokeStyle = st.color; drawCtx.lineWidth = st.eraser ? 22 : 3.2;
+    drawCtx.beginPath();
+    st.pts.forEach(([x, y], i) => i ? drawCtx.lineTo(x, y) : drawCtx.moveTo(x, y + 0.01));
+    if (st.pts.length === 1) drawCtx.lineTo(st.pts[0][0] + 0.01, st.pts[0][1]);
+    drawCtx.stroke();
+  }
+  drawCtx.globalCompositeOperation = 'source-over';
+  document.getElementById('draw-empty').classList.toggle('hidden', draft.strokes.length > 0);
+}
+function drawColor(btn, color) {
+  draft.color = color; draft.eraser = false;
+  document.querySelectorAll('.draw-tools .swatch').forEach(b => b.classList.toggle('active', b === btn));
+  document.getElementById('draw-eraser').classList.remove('active');
+}
+function drawEraser() {
+  draft.eraser = !draft.eraser;
+  document.getElementById('draw-eraser').classList.toggle('active', draft.eraser);
+}
+function drawUndo() { draft.strokes.pop(); redrawCanvas(); }
+function drawClear() { draft.strokes = []; redrawCanvas(); }
+
+// --- צעדים ---
+function mathHtml(text) {
+  return escapeHtml(text).replace(/x/g, '<i class="mx">x</i>');
+}
+function renderSteps() {
+  const list = document.getElementById('steps-list');
+  list.innerHTML = draft.lines.length
+    ? draft.lines.map((l, i) => `<li><span class="step-n">${i + 1}</span><span class="step-line" dir="ltr">${mathHtml(l)}</span></li>`).join('')
+    : '<li class="steps-empty">כתבו כאן את החישוב, שורה אחרי שורה</li>';
+  const f = document.getElementById('steps-field');
+  f.innerHTML = draft.stepInput ? mathHtml(draft.stepInput) + '<span class="caret"></span>'
+    : '<span class="field-ph" dir="rtl">השורה הבאה, או פעולה ומספר לשני האגפים</span>';
+  list.scrollTop = list.scrollHeight;
+}
+function stepsKey(k) {
+  const spaced = '=+−×÷'.includes(k) ? ` ${k} ` : k;
+  draft.stepInput = (draft.stepInput + spaced).replace(/\s+/g, ' ').replace(/^\s/, '');
+  renderSteps();
+}
+function stepsBack() {
+  draft.stepInput = draft.stepInput.replace(/\s+$/, '').slice(0, -1).replace(/\s+$/, '');
+  if (/[=+−×÷]$/.test(draft.stepInput)) draft.stepInput += ' ';
+  renderSteps();
+}
+function stepsOp(op) { draft.stepInput = op + ' '; renderSteps(); }
+function stepsCopyLast() {
+  if (draft.lines.length) draft.stepInput = draft.lines[draft.lines.length - 1];
+  renderSteps();
+}
+function stepsAdd() {
+  const inp = draft.stepInput.trim();
+  if (!inp) return;
+  const m = inp.match(/^([+−×÷])\s*(.+)$/);
+  const last = draft.lines[draft.lines.length - 1];
+  if (m && last && last.includes('=')) {
+    const [op, val] = [m[1], m[2].trim()];
+    const wrap = side => (/[×÷]/.test(op) && /\s[+−]\s/.test(side.trim())) ? `(${side.trim()})` : side.trim();
+    const sides = last.split('=');
+    draft.lines.push(sides.map(sd => `${wrap(sd)} ${op} ${val}`).join(' = '));
+  } else {
+    draft.lines.push(inp);
+  }
+  draft.stepInput = '';
+  renderSteps();
+}
+
+// --- חישוב צד: מחשבון עם מפענח ביטויים משלו (בלי eval) ---
+function calcEvaluate(src) {
+  const toks = src.replace(/\s+/g, '').match(/\d*\.?\d+|[+−×÷()√%²]/g) || [];
+  if (toks.join('') !== src.replace(/\s+/g, '')) throw new Error('bad');
+  let i = 0;
+  const peek = () => toks[i], take = () => toks[i++];
+  const expr = () => { let v = term(); while (peek() === '+' || peek() === '−') v = take() === '+' ? v + term() : v - term(); return v; };
+  const term = () => { let v = unary(); while (peek() === '×' || peek() === '÷') v = take() === '×' ? v * unary() : v / unary(); return v; };
+  const unary = () => { if (peek() === '−') { take(); return -unary(); } if (peek() === '√') { take(); return Math.sqrt(unary()); } return postfix(); };
+  const postfix = () => { let v = primary(); while (peek() === '²' || peek() === '%') v = take() === '²' ? v * v : v / 100; return v; };
+  const primary = () => {
+    const t = take();
+    if (t === '(') { const v = expr(); if (take() !== ')') throw new Error('paren'); return v; }
+    if (t !== undefined && /^\d*\.?\d+$/.test(t)) return parseFloat(t);
+    throw new Error('bad');
+  };
+  const v = expr();
+  if (i !== toks.length || !isFinite(v)) throw new Error('bad');
+  return Math.round(v * 1e9) / 1e9;
+}
+function renderCalc() {
+  const log = document.getElementById('calc-log');
+  log.innerHTML = draft.calcLog.length
+    ? draft.calcLog.map(r => `<div class="calc-row" dir="ltr"><span>${escapeHtml(r.expr)} =</span><b>${escapeHtml(String(r.val))}</b></div>`).join('')
+    : `<p class="calc-empty">חישובים קטנים בצד, למשל 80 × 15%.<br>משוואה עם <i class="mx">x</i>? לחצו על <i class="mx">x</i> ועברו ל"צעדים".</p>`;
+  log.scrollTop = log.scrollHeight;
+  document.getElementById('calc-field').innerHTML = draft.calcInput ? escapeHtml(draft.calcInput) + '<span class="caret"></span>' : '<span class="field-ph">0</span>';
+}
+function calcKey(k) { draft.calcInput += k; renderCalc(); }
+function calcBack() { draft.calcInput = draft.calcInput.slice(0, -1); renderCalc(); }
+function calcClear() { draft.calcInput = ''; renderCalc(); }
+function calcEquals() {
+  if (!draft.calcInput) return;
+  try {
+    const val = calcEvaluate(draft.calcInput);
+    draft.calcLog.push({ expr: draft.calcInput, val });
+    draft.calcInput = String(val).replace('-', '−');
+  } catch (e) {
+    const f = document.getElementById('calc-field');
+    f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+    return;
+  }
+  renderCalc();
+}
+function calcToSteps() {
+  draft.stepInput = (draft.calcInput ? draft.calcInput + ' ' : '') + 'x';
+  draftTab('steps');
+}
+
+document.addEventListener('keydown', e => {
+  if (!draftIsOpen()) return;
+  if (e.key === 'Escape') { closeDraft(); return; }
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const map = { '-': '−', '*': '×', '/': '÷' };
+  const k = map[e.key] || e.key;
+  if (draft.tab === 'steps') {
+    if (/^[0-9.()=+−×÷x]$/.test(k)) { e.preventDefault(); stepsKey(k); }
+    else if (e.key === 'Backspace') { e.preventDefault(); stepsBack(); }
+    else if (e.key === 'Enter') { e.preventDefault(); stepsAdd(); }
+  } else if (draft.tab === 'calc') {
+    if (/^[0-9.()+−×÷%]$/.test(k)) { e.preventDefault(); calcKey(k); }
+    else if (e.key === 'Backspace') { e.preventDefault(); calcBack(); }
+    else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calcEquals(); }
+  }
+}, true);
+
 function qProgressHtml(current, total, correct) {
   const segs = Array.from({ length: total }, (_, i) =>
     `<i class="${i < current ? 'done' : i === current ? 'now' : ''}"></i>`).join('');
@@ -3808,31 +4228,126 @@ function qProgressHtml(current, total, correct) {
   </div>`;
 }
 
+function basicsTypable(p) { return /^-?\d+(\.\d+)?$/.test(String(p.answer)); }
+function plainText(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent.replace(/\s+/g, ' ').trim(); }
+
+function qsToolsHtml(onDraft, onDontKnow, onHint) {
+  return `<div class="qs-tools">
+      ${onHint ? `<button type="button" onclick="${onHint}">${draftIcon('bulb')} רמז</button>` : '<span></span>'}
+      <button type="button" onclick="${onDraft}">${draftIcon('pencil')} טיוטה</button>
+      ${onDontKnow ? `<button type="button" onclick="${onDontKnow}">לא יודע/ת</button>` : '<span></span>'}
+    </div>`;
+}
+
+let qsInput = '';
 function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
+  closeDraft();
   if (p && p.breakApart) { renderBreakApartProblem(); return; }
   if (p && p.guided === 'oneStep') { renderGuidedOneStep(); return; }
   if (p && p.guided === 'multiStep') { renderGuidedMultiStep(); return; }
   const container = document.getElementById('basics-session');
-  const optionsHtml = p.options.map(v =>
-    `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="checkBasicsAnswer(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
-  ).join('');
   const eqHtml = p.displayQ || `${p.a} ${p.op} ${p.b}`;
-  const questionLine = p.questionLabel ? eqHtml : `${eqHtml} = ?`;
-  const labelHtml = p.questionLabel ? `<div class="basics-question-label">${escapeHtml(p.questionLabel)}</div>` : '';
+  const isEquation = !p.questionLabel && /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml));
+  const questionLine = (p.questionLabel || isEquation) ? eqHtml : `${eqHtml} = ?`;
+  const labelText = p.questionLabel || (isEquation ? 'פתרו את המשוואה:' : '');
+  const labelHtml = labelText ? `<div class="basics-question-label">${escapeHtml(labelText)}</div>` : '';
+  qsInput = '';
+  let answerHtml;
+  if (basicsTypable(p)) {
+    const prefix = /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml)) ? '<i class="mx">x</i> =' : '';
+    answerHtml = `
+      <div class="qs-field" id="qs-field" dir="ltr">${prefix ? `<span class="qs-prefix">${prefix}</span>` : ''}<span id="qs-value"></span><span class="caret"></span></div>
+      <div class="qs-reveal" id="qs-reveal" aria-live="polite"></div>
+      <div class="qs-keypad" id="qs-keypad" dir="ltr">
+        ${['7','8','9'].map(k => `<button type="button" onclick="qsKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="qsBack()" aria-label="מחיקה">${draftIcon('back', 22)}</button>
+        ${['4','5','6'].map(k => `<button type="button" onclick="qsKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="qsKey('−')" aria-label="מינוס">−</button>
+        ${['1','2','3'].map(k => `<button type="button" onclick="qsKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="qsKey('.')" aria-label="נקודה עשרונית">.</button>
+        <button type="button" class="k-wide" onclick="qsKey('0')">0</button>
+        <button type="button" class="k-go k-wide" id="qs-submit" onclick="qsSubmit()" disabled>בדיקה</button>
+      </div>`;
+  } else {
+    answerHtml = `<div class="basics-options">${p.options.map(v =>
+      `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="checkBasicsAnswer(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
+    ).join('')}</div>`;
+  }
   container.innerHTML = `
     ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
-    ${labelHtml}
-    <div class="basics-equation">${questionLine}</div>
-    <div class="basics-options">${optionsHtml}</div>
+    <div class="qs-question">${labelHtml}<div class="basics-equation">${questionLine}</div></div>
+    ${qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()')}
+    ${answerHtml}
   `;
   basicsProblemStart = Date.now();
 }
 
+function openBasicsDraft() {
+  const p = basicsProblems[basicsCurrent];
+  const eq = plainText(p.displayQ || `${p.a} ${p.op} ${p.b}`);
+  const isEquation = /x/.test(eq) && /=/.test(eq);
+  const q = p.questionLabel ? `${p.questionLabel} ${eq}` : (isEquation ? `פתרו את המשוואה: ${eq}` : `${eq} = ?`);
+  openDraft(q, isEquation ? eq.replace(/-/g, '−') : '');
+}
+
+function qsRender() {
+  const v = document.getElementById('qs-value');
+  if (!v) return;
+  v.textContent = qsInput;
+  document.getElementById('qs-submit').disabled = !/\d/.test(qsInput);
+}
+function qsLocked() { const k = document.getElementById('qs-keypad'); return !k || k.classList.contains('locked'); }
+function qsKey(k) {
+  if (qsLocked()) return;
+  if (k === '−') qsInput = qsInput.startsWith('−') ? qsInput.slice(1) : '−' + qsInput;
+  else if (k === '.') { if (!qsInput.includes('.')) qsInput += (/\d$/.test(qsInput) ? '' : '0') + '.'; }
+  else if (qsInput.replace(/[−.]/g, '').length < 9) qsInput += k;
+  qsRender();
+}
+function qsBack() { if (qsLocked()) return; qsInput = qsInput.slice(0, -1); qsRender(); }
+function qsShowResult(correct, answer) {
+  document.getElementById('qs-keypad').classList.add('locked');
+  document.querySelectorAll('#qs-keypad button').forEach(b => b.disabled = true);
+  const f = document.getElementById('qs-field');
+  f.classList.add(correct ? 'correct' : 'incorrect');
+  if (!correct) document.getElementById('qs-reveal').innerHTML = `התשובה: <b dir="ltr">${escapeHtml(String(answer).replace('-', '−'))}</b>`;
+}
+function qsSubmit() {
+  if (qsLocked() || !/\d/.test(qsInput)) return;
+  const p = basicsProblems[basicsCurrent];
+  const value = qsInput.replace('−', '-');
+  const correct = Number(value) === Number(p.answer);
+  qsShowResult(correct, p.answer);
+  recordBasicsAnswer(value, correct);
+}
+function basicsDontKnow() {
+  const p = basicsProblems[basicsCurrent];
+  if (document.getElementById('qs-keypad')) {
+    if (qsLocked()) return;
+    qsShowResult(false, p.answer);
+  } else {
+    const btns = document.querySelectorAll('.basics-option');
+    if (!btns.length || btns[0].disabled) return;
+    btns.forEach(b => { b.disabled = true; if (b.dataset.val === String(p.answer)) b.classList.add('correct'); });
+  }
+  recordBasicsAnswer('לא יודע/ת', false);
+}
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('qs-keypad') || draftIsOpen()) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (/^[0-9]$/.test(e.key)) { e.preventDefault(); qsKey(e.key); }
+  else if (e.key === '-') { e.preventDefault(); qsKey('−'); }
+  else if (e.key === '.') { e.preventDefault(); qsKey('.'); }
+  else if (e.key === 'Backspace') { e.preventDefault(); qsBack(); }
+  else if (e.key === 'Enter') { e.preventDefault(); qsSubmit(); }
+});
+
 function checkBasicsAnswer(value, btnEl) {
   const p = basicsProblems[basicsCurrent];
   const correct = String(value) === String(p.answer);
-  const timeMs = Date.now() - basicsProblemStart;
   const allBtns = document.querySelectorAll('.basics-option');
   allBtns.forEach(b => b.disabled = true);
   if (correct) btnEl.classList.add('correct');
@@ -3842,9 +4357,15 @@ function checkBasicsAnswer(value, btnEl) {
       if (b.dataset.val === String(p.answer)) b.classList.add('correct');
     });
   }
+  recordBasicsAnswer(value, correct);
+}
+
+function recordBasicsAnswer(value, correct) {
+  const p = basicsProblems[basicsCurrent];
+  const timeMs = Date.now() - basicsProblemStart;
   if (basicsRetryIdx !== null) {
     if (correct) basicsSessionLog[basicsRetryIdx].retryOk = true;
-    setTimeout(() => { basicsRetryIdx = null; renderSheetReview(); }, correct ? 700 : 1400);
+    setTimeout(() => { basicsRetryIdx = null; renderSheetReview(); }, correct ? 700 : 1600);
     return;
   }
   basicsSessionLog.push({
@@ -3857,7 +4378,7 @@ function checkBasicsAnswer(value, btnEl) {
     basicsCurrent++;
     if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
     else renderBasicsProblem();
-  }, correct ? 500 : 1400);
+  }, correct ? 600 : 1800);
 }
 
 // ============================================================
@@ -4497,6 +5018,7 @@ function retryProblemFromReview(idx) {
 }
 
 function exitBasicsSession() {
+  closeDraft();
   document.getElementById('basics-session-view').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.remove('hidden');
   renderBasicsLadder();
@@ -5719,6 +6241,7 @@ const TOPICS = {
 };
 
 function newProblem() {
+  closeDraft();
   helpUsedForProblem = false;
   hintLevel = 0;
   wrongAttemptsForProblem = 0;
@@ -5730,22 +6253,14 @@ function newProblem() {
 // מחברת ציור (Pointer Events - תומך באצבע, סטיילוס ועכבר)
 // ============================================================
 function notebookHTML() {
-  return `
-    <details class="notebook">
-      <summary>📝 מחברת ציור</summary>
-      <div class="notebook-tools">
-        <button type="button" data-tool="pen" data-size="2"><span class="dot" style="width:4px;height:4px;color:#1B1B2F"></span> דק</button>
-        <button type="button" data-tool="pen" data-size="4" class="active"><span class="dot" style="width:8px;height:8px;color:#1B1B2F"></span> בינוני</button>
-        <button type="button" data-tool="pen" data-size="8"><span class="dot" style="width:14px;height:14px;color:#1B1B2F"></span> עבה</button>
-        <button type="button" data-tool="pen" data-size="3" data-color="#FF4D4D"><span class="dot" style="width:8px;height:8px;color:#FF4D4D"></span> אדום</button>
-        <button type="button" data-tool="pen" data-size="3" data-color="#2B43D6"><span class="dot" style="width:8px;height:8px;color:#2B43D6"></span> כחול</button>
-        <button type="button" data-tool="eraser">🧽 מחק</button>
-        <button type="button" data-action="undo">↶ ביטול</button>
-        <button type="button" data-action="clear">🗑 נקה</button>
-      </div>
-      <canvas class="notebook-canvas"></canvas>
-    </details>
-  `;
+  return qsToolsHtml('openTopicDraft()', '', '');
+}
+function openTopicDraft() {
+  const area = document.getElementById('problem-area');
+  const text = [...area.querySelectorAll('.problem-text, .equation')].map(e => e.textContent.replace(/\s+/g, ' ').trim()).join('  ');
+  const eq = area.querySelector('.equation');
+  const seed = eq && /x/.test(eq.textContent) && /=/.test(eq.textContent) ? eq.textContent.replace(/\s+/g, ' ').trim() : '';
+  openDraft(text, seed);
 }
 
 function initNotebook() {
