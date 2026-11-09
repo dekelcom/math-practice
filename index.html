@@ -957,6 +957,148 @@
     .review-table { font-size: 0.85em; }
     .review-table th, .review-table td { padding: 6px 6px; }
   }
+
+  /* ===== מעטפת אפליקציה לתלמיד: דף משבצות, עמודה צרה, סרגל עליון, טאבים ===== */
+  body {
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  .student-mode #app-container {
+    max-width: 560px; background: transparent; box-shadow: none;
+    padding: 8px 4px calc(110px + env(safe-area-inset-bottom, 0px));
+  }
+  .student-mode #app-container > h1 { display: none; }
+
+  .app-topbar { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+  .app-topbar-spacer { flex: 1; }
+  .app-avatar {
+    width: 46px; height: 46px; border-radius: 50%; background: white; display: inline-flex;
+    align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--blue-l), var(--lift);
+  }
+  .app-avatar svg { width: 34px; height: 34px; }
+  .app-pill {
+    display: inline-flex; align-items: center; gap: 6px; background: white; border-radius: 999px;
+    padding: 7px 14px; font-family: var(--display); font-weight: 700; font-size: 1.05em;
+    color: var(--ink); box-shadow: var(--ring); font-variant-numeric: tabular-nums;
+  }
+
+  .home-hero { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 26px; }
+  .home-hero-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .home-greet { margin: 6px 0 0; font-family: var(--display); font-weight: 700; font-size: 1.45em; color: var(--ink); text-wrap: balance; }
+  .cta-big {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    min-height: 58px; border: 0; border-radius: var(--r-md); cursor: pointer;
+    background: var(--orange); color: var(--ink); font: 700 1.15em var(--body);
+    box-shadow: 0 5px 0 var(--orange-d); transition: transform .08s, box-shadow .08s;
+  }
+  .cta-big:active { transform: translateY(5px); box-shadow: none; }
+  .lesson-ticket {
+    flex: none; width: 104px; background: white; border-radius: var(--r-sm); overflow: hidden;
+    text-align: center; transform: rotate(4deg); box-shadow: var(--drop);
+  }
+  .lesson-ticket-head { background: var(--orange-d); color: white; font-weight: 700; font-size: .85em; padding: 5px 0; }
+  .lesson-ticket-num { font-family: var(--display); font-weight: 700; font-size: 2.6em; line-height: 1.15; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .lesson-ticket-sub { color: var(--ink2); font-size: .85em; padding-bottom: 8px; }
+
+  .path-heading { font-family: var(--display); font-weight: 700; font-size: 1.35em; color: var(--ink); margin: 0 0 6px; }
+
+  .journey { position: relative; width: 100%; }
+  .journey-path { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
+  .journey-path path { fill: none; stroke: var(--neutral-d); stroke-width: 4; stroke-dasharray: 0.1 12; stroke-linecap: round; }
+  .journey-banner {
+    position: absolute; left: 50%; transform: translateX(-50%); margin-top: 14px;
+    padding: 8px 18px; border-radius: 999px; white-space: nowrap;
+    font-family: var(--display); font-weight: 700; font-size: 1.02em;
+    background: var(--cl); color: var(--cd);
+  }
+  .c-blue   { --c: var(--blue);    --cd: var(--blue-d);   --cl: var(--blue-l); }
+  .c-mint   { --c: var(--mint-d);  --cd: #086B51;          --cl: var(--mint-l); }
+  .c-orange { --c: var(--orange-d);--cd: #A6350F;          --cl: var(--orange-l); }
+  .c-purple { --c: var(--purple);  --cd: var(--purple-d); --cl: #EFE8FF; }
+  .c-pink   { --c: var(--pink-d);  --cd: #9E2760;          --cl: var(--pink-l); }
+  .c-ink    { --c: var(--ink);     --cd: #000;             --cl: var(--line); }
+  .journey-node {
+    position: absolute; width: 84px; padding: 0; border: 0; background: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; font-family: var(--body);
+  }
+  .journey-disc {
+    position: relative; width: 84px; height: 84px; border-radius: 50%; background: var(--c); color: white;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 9px color-mix(in srgb, var(--c) 16%, white), 0 6px 0 9px color-mix(in srgb, var(--c) 10%, white);
+    transition: transform .08s;
+  }
+  .journey-node:active .journey-disc { transform: translateY(4px); }
+  .journey-node:focus-visible { outline: none; }
+  .journey-node:focus-visible .journey-disc { outline: 3px solid var(--ink); outline-offset: 12px; }
+  .journey-check {
+    position: absolute; top: -6px; left: -6px; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--mint-d); color: white; font-weight: 800; font-size: 15px; line-height: 28px;
+    box-shadow: 0 0 0 3px white;
+  }
+  .journey-name {
+    margin-top: 16px; width: 160px; text-align: center; font-weight: 700; font-size: .98em; color: var(--ink);
+    line-height: 1.25; text-wrap: balance;
+  }
+  .journey-sub { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: .78em; color: var(--ink2); }
+  .journey-dots { display: inline-flex; gap: 3px; }
+  .journey-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--neutral-d); }
+  .journey-dots i.on { background: var(--c); }
+  .journey-lvl { color: var(--cd); font-weight: 600; }
+
+  .tabbar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1500;
+    width: min(560px, 100%); display: grid; grid-template-columns: repeat(4, 1fr);
+    background: white; box-shadow: 0 -1px 0 var(--line), 0 -10px 30px -20px rgba(27,27,47,.3);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .tabbar .tab {
+    border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; color: var(--ink3); font: 600 .78em var(--body); padding: 2px 0;
+  }
+  .tabbar .tab svg { padding: 4px 16px; border-radius: 999px; box-sizing: content-box; }
+  .tabbar .tab.active { color: var(--blue); }
+  .tabbar .tab.active svg { background: var(--blue-l); }
+  .tabbar .tab:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 10px; }
+
+  #panel-progress .progress-actions { display: flex; flex-direction: column; gap: 4px; max-width: 360px; margin: 0 auto; }
+
+  /* ===== מסך שאלה ===== */
+  .q-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .q-close {
+    width: 44px; height: 44px; border-radius: 14px; border: 0; background: white; color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--ring);
+  }
+  .q-chip {
+    background: var(--blue); color: white; border-radius: 999px; padding: 7px 14px;
+    font-weight: 700; font-size: .92em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .q-progress { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; direction: ltr; }
+  .q-segs { flex: 1; display: flex; gap: 4px; flex-direction: row-reverse; }
+  .q-segs i { flex: 1; height: 8px; border-radius: 999px; background: var(--line); }
+  .q-segs i.done { background: var(--mint); }
+  .q-segs i.now { background: var(--blue); }
+  .q-score { font-family: var(--display); font-weight: 700; color: var(--sun-d); background: white; border-radius: 999px; padding: 3px 10px; box-shadow: var(--ring); }
+
+  .student-mode .basics-session { padding: 6px 0 20px; }
+  .basics-equation { font-family: var(--display); }
+  .basics-option, .ba-key, .geq-op-btn {
+    background: white; color: var(--ink); border: 0;
+    box-shadow: 0 0 0 1.5px var(--line), 0 4px 0 var(--neutral-d);
+  }
+  .basics-option:hover:not(:disabled), .ba-key:hover:not(:disabled), .geq-op-btn:hover:not(:disabled) { background: var(--blue-l); }
+  .basics-option:active:not(:disabled), .geq-op-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 1.5px var(--line); }
+  .basics-option.correct, .geq-op-btn.correct { background: var(--mint-d); color: white; box-shadow: 0 4px 0 #086B51; }
+  .basics-option.incorrect, .geq-op-btn.incorrect { background: var(--red-d); color: white; box-shadow: 0 4px 0 #9E1F1F; }
+  .ba-key.submit { background: var(--blue); color: white; box-shadow: 0 4px 0 var(--blue-d); }
+  .ba-key.submit:hover:not(:disabled) { background: var(--blue-d); }
+  .ba-key.backspace { color: var(--red-d); }
+
+  .student-mode #basics-session-view .basics-session { display: flex; flex-direction: column; min-height: calc(100dvh - 150px); }
+  .student-mode #basics-session-view .basics-equation { margin: auto 0; }
+  .student-mode #basics-session-view .basics-options { margin-top: auto; width: 100%; max-width: none; }
+  .student-mode .geq-container, .student-mode .ba-container { max-width: none; }
+  .student-mode .geq-op-grid, .student-mode .geq-compute-row, .student-mode .geq-check-box, .student-mode .geq-hint { max-width: none; }
 </style>
 </head>
 <body>
@@ -1042,113 +1184,77 @@ try {
   <h1>מערכת תרגול חשבון ומתמטיקה בהשראת Kumon</h1>
 
   <div id="main-menu" class="hidden">
-    <div class="topic-view-header">
-      <span>👋 שלום, <b id="student-username-label"></b></span>
-      <span>
-        <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
-        <button class="back-btn" onclick="handleLogout()">התנתק</button>
+    <div class="app-topbar">
+      <span class="app-avatar" id="app-avatar" aria-hidden="true"></span>
+      <span class="app-pill coin-pill" id="coins-stat" title="מטבעות">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="var(--sun)" stroke="var(--sun-d)" stroke-width="2"/><path d="M12 7.5v9M9.5 9.5h4a1.8 1.8 0 0 1 0 3.5h-3a1.8 1.8 0 0 0 0 3.5h4" fill="none" stroke="var(--sun-d)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span class="coin-count">0</span>
       </span>
+      <span class="app-pill streak-pill" title="רצף תשובות נכונות">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2.5c.6 3.2 4.5 5.2 4.5 10a4.5 4.5 0 0 1-9 0c0-2.2 1-3.5 2-4.6.2 1.6 1 2.6 2 2.9-.6-2.8-.2-5.8.5-8.3z" fill="var(--orange)"/></svg>
+        <span id="current-streak">0</span>
+      </span>
+      <span class="app-topbar-spacer"></span>
     </div>
 
-    <div class="section-title">🎓 שיעורים (12 × שעה וחצי)</div>
-    <p style="text-align:center; font-size:0.9em; color:var(--ink2);">השעון סופר רק זמן פתרון בפועל. אחרי דקה בלי פעילות הוא נעצר.</p>
-    <div style="text-align:center; margin-bottom: 10px;">
-      <button class="btn btn-primary" onclick="openLessonsView()">📖 פתח את מסך השיעורים</button>
-    </div>
-
-    <div class="section-title">🌱 חשבון בסיסי</div>
-    <p style="text-align:center; font-size:0.9em; color:var(--ink2);">9 נכון מתוך 10 = נפתח השלב הבא</p>
-    <div class="basics-menu">
-      <button class="basics-track-card addition" onclick="openBasicsTrack('addition')">➕ חיבור<br><small style="opacity:0.9">+1, +2, +3... מעורב</small></button>
-      <button class="basics-track-card subtraction" onclick="openBasicsTrack('subtraction')">➖ חיסור<br><small style="opacity:0.9">-1, -2, -3... מעורב</small></button>
-      <button class="basics-track-card multiplication" onclick="openBasicsTrack('multiplication')">✕ כפל<br><small style="opacity:0.9">×1, ×2, ×3... מעורב</small></button>
-      <button class="basics-track-card division" onclick="openBasicsTrack('division')">➗ חילוק<br><small style="opacity:0.9">÷1, ÷2, ÷3... מעורב</small></button>
-    </div>
-
-    <div class="section-title">📘 יחידה 1 - הרחבות</div>
-    <div class="basics-menu">
-      <button class="basics-track-card placeValue" onclick="openBasicsTrack('placeValue')">🔢 ערך מקום<br><small style="opacity:0.9">צורה מורחבת, מקום ספרה</small></button>
-      <button class="basics-track-card properties" onclick="openBasicsTrack('properties')">⚖️ תכונות וביטויים<br><small style="opacity:0.9">חילופיות, קיבוציות, פילוג</small></button>
-      <button class="basics-track-card oneStepEq" onclick="openBasicsTrack('oneStepEq')">🎯 משוואות חד-שלביות<br><small style="opacity:0.9">x + a = b וכדומה</small></button>
-      <button class="basics-track-card multiStepEq" onclick="openBasicsTrack('multiStepEq')">🧮 משוואות עם איסוף איברים<br><small style="opacity:0.9">משתנה משני הצדדים</small></button>
-    </div>
-
-    <div class="section-title">🔢 חישוב מורכב</div>
-    <div class="basics-menu">
-      <button class="basics-track-card additionBreakApart" onclick="openBasicsTrack('additionBreakApart')">🧩 חיבור עם פירוק<br><small style="opacity:0.9">שיטת "פרק וחבר" · דו-ספרתי</small></button>
-      <button class="basics-track-card multiAdd" onclick="openBasicsTrack('multiAdd')">🔢 חיבור רב-ספרתי<br><small style="opacity:0.9">עם נשיאה</small></button>
-      <button class="basics-track-card multiSub" onclick="openBasicsTrack('multiSub')">🔢 חיסור רב-ספרתי<br><small style="opacity:0.9">עם שאילה</small></button>
-      <button class="basics-track-card longMul" onclick="openBasicsTrack('longMul')">✖ כפל ארוך<br><small style="opacity:0.9">2 ספרות × 2 ספרות</small></button>
-      <button class="basics-track-card longDiv" onclick="openBasicsTrack('longDiv')">➗ חילוק ארוך<br><small style="opacity:0.9">לפני אלגברה</small></button>
-    </div>
-
-    <div class="section-title">📐 לקראת אלגברה</div>
-    <div class="basics-menu">
-      <button class="basics-track-card negatives" onclick="openBasicsTrack('negatives')">± מספרים שליליים<br><small style="opacity:0.9">חיבור וחיסור עם שלילי</small></button>
-      <button class="basics-track-card orderops" onclick="openBasicsTrack('orderops')">🧮 סדר פעולות<br><small style="opacity:0.9">סוגריים, כפל לפני חיבור</small></button>
-      <button class="basics-track-card fractions" onclick="openBasicsTrack('fractions')">½ שברים<br><small style="opacity:0.9">שווי-ערך, צמצום, חיבור</small></button>
-      <button class="basics-track-card fractionsAdv" onclick="openBasicsTrack('fractionsAdv')">⅔ שברים מתקדם<br><small style="opacity:0.9">כפל, חילוק, מספר מעורב</small></button>
-      <button class="basics-track-card decimals" onclick="openBasicsTrack('decimals')">·5 עשרוניים<br><small style="opacity:0.9">חיבור, כפל, המרה לשבר</small></button>
-    </div>
-
-    <div class="section-title">🅰️ אלגברה</div>
-    <div class="basics-menu">
-      <button class="basics-track-card simplify" onclick="openBasicsTrack('simplify')">🅰️ פישוט ביטויים<br><small style="opacity:0.9">איסוף איברים, פילוג</small></button>
-      <button class="basics-track-card solveLinear" onclick="openBasicsTrack('solveLinear')">🟰 פתרון משוואה לינארית<br><small style="opacity:0.9">ax + b = c</small></button>
-      <button class="basics-track-card factorize" onclick="openBasicsTrack('factorize')">✂ פירוק לגורמים<br><small style="opacity:0.9">x² + bx + c</small></button>
-      <button class="basics-track-card inequalities" onclick="openBasicsTrack('inequalities')">&lt; אי-שוויונים<br><small style="opacity:0.9">פתרון x &gt; N</small></button>
-      <button class="basics-track-card simultaneous" onclick="openBasicsTrack('simultaneous')">⊞ שתי משוואות<br><small style="opacity:0.9">2 משוואות, 2 נעלמים</small></button>
-    </div>
-
-    <div style="text-align:center; margin: 18px 0 20px;">
-      <button class="btn btn-warning" onclick="startDiagnostic()">🎯 בדיקת רמה (פותח שלבים אוטומטית)</button>
-      <button class="btn btn-secondary" onclick="showHistory()">📜 ההיסטוריה שלי</button>
-    </div>
-
-    <div class="section-title">📚 נושאי הבגרות</div>
-    <p style="text-align:center; font-size:0.95em; color:var(--ink2);">בחר נושא לתרגול. רמת הקושי תעלה ככל שתצליח!</p>
-    <div class="topics-menu">
-      <button class="topic-card topic-5" onclick="openTopic(5)">
-        📉 משוואת קו ישר<br>
-        <small style="opacity:0.9">שיפוע ונקודת חיתוך</small>
-      </button>
-      <button class="topic-card topic-1" onclick="openTopic(1)">
-        📐 פתרון משוואה ריבועית<br>
-        <small style="opacity:0.9">נוסחת השורשים</small>
-      </button>
-      <button class="topic-card topic-2" onclick="openTopic(2)">
-        📈 חקירת פונקציה ריבועית<br>
-        <small style="opacity:0.9">סוג + קודקוד</small>
-      </button>
-      <button class="topic-card topic-3" onclick="openTopic(3)">
-        📏 גיאומטריה - טרפז<br>
-        <small style="opacity:0.9">+ משולב עם פיתגורס</small>
-      </button>
-      <button class="topic-card topic-4" onclick="openTopic(4)">
-        📊 קריאת גרפים<br>
-        <small style="opacity:0.9">פונקציות וערכים</small>
-      </button>
-    </div>
-
-    <div class="stats" id="overall-stats">
-      <div class="stat-item">
-        <div class="stat-value" id="total-correct">0</div>
-        <div class="stat-label">תשובות נכונות</div>
+    <section id="panel-journey" class="app-panel">
+      <div class="home-hero">
+        <div class="home-hero-text">
+          <h2 class="home-greet">היי <b id="student-username-label"></b>, ממשיכים?</h2>
+          <button class="cta-big" onclick="openLessonsView()">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+            השיעור של היום
+          </button>
+        </div>
+        <div class="lesson-ticket" aria-label="שיעורים שהושלמו">
+          <div class="lesson-ticket-head">שיעורים</div>
+          <div class="lesson-ticket-num" id="home-lessons-done">0</div>
+          <div class="lesson-ticket-sub">מתוך <span id="home-lessons-total">12</span></div>
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value" id="total-attempts">0</div>
-        <div class="stat-label">סה"כ ניסיונות</div>
+
+      <h3 class="path-heading">המסלול שלך</h3>
+      <div id="journey" class="journey"></div>
+    </section>
+
+    <section id="panel-progress" class="app-panel hidden">
+      <h3 class="path-heading">ההתקדמות שלי</h3>
+      <div class="stats" id="overall-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="total-correct">0</div>
+          <div class="stat-label">תשובות נכונות</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="total-attempts">0</div>
+          <div class="stat-label">סה"כ ניסיונות</div>
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value" id="current-streak">0</div>
-        <div class="stat-label">רצף נכון 🔥</div>
+      <div class="progress-actions">
+        <button class="btn btn-primary" onclick="showHistory()">ההיסטוריה שלי</button>
+        <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
+        <button class="btn btn-secondary" onclick="handleLogout()">התנתק</button>
+        <button class="btn btn-secondary" onclick="resetStats()">איפוס סטטיסטיקה</button>
       </div>
-      <div class="stat-item" id="coins-stat">
-        <div class="stat-value coin-count">0</div>
-        <div class="stat-label">מטבעות 🪙</div>
-      </div>
-    </div>
-    <button class="btn btn-secondary" onclick="resetStats()" style="display:block; margin: 10px auto;">איפוס סטטיסטיקה</button>
+    </section>
+
+    <nav class="tabbar" aria-label="ניווט ראשי">
+      <button class="tab active" data-tab="journey" onclick="switchHomeTab('journey')">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z M9 4v13.5 M15 6.5V20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <span>מסע</span>
+      </button>
+      <button class="tab" onclick="openLessonsView()">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4.5l3 2M9.5 2.5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>שיעורים</span>
+      </button>
+      <button class="tab" onclick="startDiagnostic()">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <span>בדיקת רמה</span>
+      </button>
+      <button class="tab" data-tab="progress" onclick="switchHomeTab('progress')">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 20h16 M7 16v-5 M12 16V6 M17 16v-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>התקדמות</span>
+      </button>
+    </nav>
   </div>
 
   <div id="change-password-view" class="hidden">
@@ -1299,14 +1405,22 @@ try {
   </div>
 
   <div id="basics-session-view" class="hidden">
-    <button class="back-btn" onclick="exitBasicsSession()">← חזרה לסולם</button>
-    <h2 id="basics-session-title" style="text-align:center;"></h2>
+    <div class="q-topbar">
+      <button class="q-close" onclick="exitBasicsSession()" aria-label="חזרה לסולם">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <span class="q-chip" id="basics-session-title"></span>
+    </div>
     <div id="basics-session" class="basics-session"></div>
   </div>
 
   <div id="diagnostic-view" class="hidden">
-    <button class="back-btn" onclick="exitDiagnostic()">← חזרה לתפריט</button>
-    <h2 style="text-align:center;">🎯 בדיקת רמה</h2>
+    <div class="q-topbar">
+      <button class="q-close" onclick="exitDiagnostic()" aria-label="חזרה לתפריט">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <span class="q-chip">בדיקת רמה</span>
+    </div>
     <p style="text-align:center; color:var(--ink2);">15 שאלות קצרות. לפי התוצאות נפתח עבורך את הרמה המתאימה בכל מסלול.</p>
     <div id="diagnostic-session" class="basics-session"></div>
   </div>
@@ -1571,6 +1685,163 @@ function openTopic(topicNum) {
   renderLevelSelector();
   newProblem();
 }
+
+// ============================================================
+// מסך הבית של התלמיד - מפת "מסע" של כל המסלולים
+// ============================================================
+const JOURNEY_ICONS = {
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  times: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  divide: '<path d="M5 12h14"/><circle cx="12" cy="6.5" r="1.6" fill="currentColor"/><circle cx="12" cy="17.5" r="1.6" fill="currentColor"/>',
+  place: '<rect x="3" y="8" width="5.5" height="8" rx="1.5"/><rect x="9.25" y="8" width="5.5" height="8" rx="1.5"/><rect x="15.5" y="8" width="5.5" height="8" rx="1.5"/>',
+  balance: '<path d="M12 4v16M8 20h8M5 8h14M5 8l-2.5 6h5zM19 8l-2.5 6h5z"/>',
+  xeq: '<path d="M4 8l6 8M10 8l-6 8M14 10h6M14 14h6"/>',
+  xx: '<path d="M3 9l4 6M7 9l-4 6M10 12h4M12 10v4M17 9l4 6M21 9l-4 6"/>',
+  puzzle: '<path d="M5 9h3.2a2 2 0 1 1 3.6 0H15v3.2a2 2 0 1 0 0 3.6V19H5z"/>',
+  stack: '<path d="M8 5h10M8 10h10M4 10h2M5 9v2M4 15h16M8 19h10"/>',
+  longmul: '<path d="M6 4h12M8.5 7.5l7 7M15.5 7.5l-7 7M4 18h16"/>',
+  longdiv: '<path d="M7 7v12M7 7c3 0 4 2 4 6M7 7h13M12 17h6"/>',
+  pm: '<path d="M12 4v8M8 8h8M8 18h8"/>',
+  paren: '<path d="M8 4c-3 4-3 12 0 16M16 4c3 4 3 12 0 16M10.5 12h3"/>',
+  frac: '<path d="M6 12h12M12 5v3M12 16v3"/>',
+  frac2: '<path d="M4 12h9M8.5 5v3M8.5 16v3M16 6l4 12"/>',
+  decimal: '<circle cx="6" cy="17" r="1.8" fill="currentColor"/><ellipse cx="15" cy="12" rx="3.5" ry="6"/>',
+  simplify: '<path d="M3 18l4-12 4 12M4.5 14h5M14 12h7M17.5 8.5v7"/>',
+  eq: '<path d="M5 9h14M5 15h14"/>',
+  factor: '<path d="M6 5c-2.5 4-2.5 10 0 14M10 5c2.5 4 2.5 10 0 14M14 5c-2.5 4-2.5 10 0 14M18 5c2.5 4 2.5 10 0 14"/>',
+  ineq: '<path d="M17 5 7 12l10 7"/>',
+  system: '<path d="M4 18 20 6M4 8l16 10"/>',
+  line: '<path d="M4 4v16h16M7 16l10-9"/>',
+  parabola: '<path d="M4 4v16h16M6.5 6c2 9 9 9 11 0"/>',
+  vertex: '<path d="M6 7c2 9 10 9 12 0"/><circle cx="12" cy="13.8" r="2" fill="currentColor"/>',
+  trapezoid: '<path d="M3.5 18h17l-4.5-11h-8z"/>',
+  chart: '<path d="M4 20h16M7 17v-6M12 17V7M17 17v-4"/>'
+};
+
+const JOURNEY = [
+  { title: 'חשבון בסיסי', color: 'blue', nodes: [
+    { track: 'addition', name: 'חיבור', icon: 'plus' },
+    { track: 'subtraction', name: 'חיסור', icon: 'minus' },
+    { track: 'multiplication', name: 'כפל', icon: 'times' },
+    { track: 'division', name: 'חילוק', icon: 'divide' } ] },
+  { title: 'יחידה 1 - הרחבות', color: 'mint', nodes: [
+    { track: 'placeValue', name: 'ערך מקום', icon: 'place' },
+    { track: 'properties', name: 'תכונות וביטויים', icon: 'balance' },
+    { track: 'oneStepEq', name: 'משוואות חד-שלביות', icon: 'xeq' },
+    { track: 'multiStepEq', name: 'איסוף איברים', icon: 'xx' } ] },
+  { title: 'חישוב מורכב', color: 'orange', nodes: [
+    { track: 'additionBreakApart', name: 'חיבור עם פירוק', icon: 'puzzle' },
+    { track: 'multiAdd', name: 'חיבור רב-ספרתי', icon: 'stack' },
+    { track: 'multiSub', name: 'חיסור רב-ספרתי', icon: 'stack' },
+    { track: 'longMul', name: 'כפל ארוך', icon: 'longmul' },
+    { track: 'longDiv', name: 'חילוק ארוך', icon: 'longdiv' } ] },
+  { title: 'לקראת אלגברה', color: 'purple', nodes: [
+    { track: 'negatives', name: 'מספרים שליליים', icon: 'pm' },
+    { track: 'orderops', name: 'סדר פעולות', icon: 'paren' },
+    { track: 'fractions', name: 'שברים', icon: 'frac' },
+    { track: 'fractionsAdv', name: 'שברים מתקדם', icon: 'frac2' },
+    { track: 'decimals', name: 'עשרוניים', icon: 'decimal' } ] },
+  { title: 'אלגברה', color: 'pink', nodes: [
+    { track: 'simplify', name: 'פישוט ביטויים', icon: 'simplify' },
+    { track: 'solveLinear', name: 'משוואה לינארית', icon: 'eq' },
+    { track: 'factorize', name: 'פירוק לגורמים', icon: 'factor' },
+    { track: 'inequalities', name: 'אי-שוויונים', icon: 'ineq' },
+    { track: 'simultaneous', name: 'שתי משוואות', icon: 'system' } ] },
+  { title: 'נושאי הבגרות', color: 'ink', nodes: [
+    { topic: 5, name: 'משוואת קו ישר', icon: 'line' },
+    { topic: 1, name: 'משוואה ריבועית', icon: 'parabola' },
+    { topic: 2, name: 'חקירת פונקציה ריבועית', icon: 'vertex' },
+    { topic: 3, name: 'גיאומטריה - טרפז', icon: 'trapezoid' },
+    { topic: 4, name: 'קריאת גרפים', icon: 'chart' } ] }
+];
+
+function journeyIcon(name) {
+  return `<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${JOURNEY_ICONS[name] || ''}</svg>`;
+}
+
+const MASCOT_SVG = '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="6" width="30" height="28" rx="10" fill="var(--sun)"/><circle cx="15" cy="18" r="4" fill="#fff"/><circle cx="25" cy="18" r="4" fill="#fff"/><circle cx="15.8" cy="18.6" r="2" fill="var(--ink)"/><circle cx="25.8" cy="18.6" r="2" fill="var(--ink)"/><path d="M16 25.5q4 3 8 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></svg>';
+
+function renderJourney() {
+  const wrap = document.getElementById('journey');
+  if (!wrap) return;
+  const avatar = document.getElementById('app-avatar');
+  if (avatar && !avatar.innerHTML) avatar.innerHTML = MASCOT_SVG;
+  if (typeof lessons !== 'undefined' && Array.isArray(lessons)) {
+    document.getElementById('home-lessons-done').textContent = lessons.filter(l => l.completed).length;
+    document.getElementById('home-lessons-total').textContent = lessons.length;
+  }
+
+  const W = wrap.clientWidth || 360;
+  const ROW = 150, BANNER = 76, NODE = 84;
+  const swing = Math.min(110, W * 0.26);
+  const pattern = [0, 1, 0, -1];
+  let y = 0, k = 0;
+  let html = '';
+  const segments = [];
+  JOURNEY.forEach(section => {
+    html += `<div class="journey-banner c-${section.color}" style="top:${y}px">${escapeHtml(section.title)}</div>`;
+    y += BANNER;
+    const pts = [];
+    section.nodes.forEach(n => {
+      const cx = W / 2 + pattern[k % 4] * swing;
+      k++;
+      const cy = y + NODE / 2 + 8;
+      pts.push([cx, cy]);
+      let sub = '', done = false;
+      if (n.track) {
+        const lvl = basicsProgress[n.track] || 0;
+        done = lvl >= 10;
+        const filled = Math.round(lvl / 2);
+        const dots = Array.from({ length: 5 }, (_, i) => `<i class="${i < filled ? 'on' : ''}"></i>`).join('');
+        sub = `<span class="journey-dots">${dots}</span><span class="journey-lvl">${done ? 'הושלם' : 'שלב ' + (lvl + 1)}</span>`;
+      } else {
+        sub = '<span class="journey-lvl">3 רמות</span>';
+      }
+      const action = n.track ? `openBasicsTrack('${n.track}')` : `openTopic(${n.topic})`;
+      html += `<button type="button" class="journey-node c-${section.color}${done ? ' done' : ''}" style="left:${cx - NODE / 2}px; top:${cy - NODE / 2}px" onclick="${action}" aria-label="${escapeAttr(n.name)}">
+          <span class="journey-disc">${journeyIcon(n.icon)}${done ? '<span class="journey-check">✓</span>' : ''}</span>
+          <span class="journey-name">${escapeHtml(n.name)}</span>
+          <span class="journey-sub">${sub}</span>
+        </button>`;
+      y += ROW;
+    });
+    segments.push(pts);
+  });
+
+  const paths = segments.map(pts => {
+    let d = '';
+    pts.forEach((p, i) => {
+      if (i === 0) { d += `M${p[0]} ${p[1]}`; return; }
+      const prev = pts[i - 1];
+      const my = (prev[1] + p[1]) / 2;
+      d += ` C${prev[0]} ${my} ${p[0]} ${my} ${p[0]} ${p[1]}`;
+    });
+    return `<path d="${d}"/>`;
+  }).join('');
+  wrap.style.height = y + 'px';
+  wrap.innerHTML = `<svg class="journey-path" width="${W}" height="${y}" aria-hidden="true">${paths}</svg>` + html;
+}
+
+function switchHomeTab(tab) {
+  document.getElementById('panel-journey').classList.toggle('hidden', tab !== 'journey');
+  document.getElementById('panel-progress').classList.toggle('hidden', tab !== 'progress');
+  document.querySelectorAll('.tabbar .tab[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  if (tab === 'journey') renderJourney();
+}
+
+(function watchMainMenu() {
+  const menu = document.getElementById('main-menu');
+  if (!menu) return;
+  new MutationObserver(() => {
+    if (!menu.classList.contains('hidden')) renderJourney();
+  }).observe(menu, { attributes: true, attributeFilter: ['class'] });
+  let rt;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { if (!menu.classList.contains('hidden')) renderJourney(); }, 120);
+  });
+})();
 
 function backToMenu() {
   document.getElementById('main-menu').classList.remove('hidden');
@@ -1964,7 +2235,7 @@ function renderDiagnosticQuestion() {
   const questionLine = p.questionLabel ? eqHtml : `${eqHtml} = ?`;
   const labelHtml = p.questionLabel ? `<div class="basics-question-label">${escapeHtml(p.questionLabel)}</div>` : '';
   container.innerHTML = `
-    <div class="basics-progress">שאלה ${diagnosticCurrent + 1} מתוך ${diagnosticQuestions.length} · נכונים עד כה: ${diagnosticCorrect}</div>
+    ${qProgressHtml(diagnosticCurrent, diagnosticQuestions.length, diagnosticCorrect)}
     ${labelHtml}
     <div class="basics-equation">${questionLine}</div>
     <div class="basics-options">${optionsHtml}</div>
@@ -3352,7 +3623,7 @@ function genMultiStepEqProblem(sheetIdx) {
     k2 = B * sol + k1;
     tries++;
   } while ((k2 < 1 || k2 > 250) && tries < 60);
-  const lhsX = `${a1 === 1 ? 'x' : a1 + 'x'} + ${a2}x`;
+  const lhsX = `${a1 === 1 ? 'x' : a1 + 'x'} + ${a2 === 1 ? 'x' : a2 + 'x'}`;
   const rhsX = a3 === 1 ? 'x' : `${a3}x`;
   const displayQ = `${lhsX} + ${k1} = ${k2} + ${rhsX}`;
   return { guided: 'multiStep', a1, a2, a3, k1, k2, B, sol, answer: String(sol), displayQ };
@@ -3450,6 +3721,15 @@ function renderOptionDisplay(v) {
   if (m) return fracHtml(m[1], m[2]);
   return s;
 }
+function qProgressHtml(current, total, correct) {
+  const segs = Array.from({ length: total }, (_, i) =>
+    `<i class="${i < current ? 'done' : i === current ? 'now' : ''}"></i>`).join('');
+  return `<div class="q-progress" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${current}" aria-label="תרגיל ${current + 1} מתוך ${total}">
+    <div class="q-segs">${segs}</div>
+    <span class="q-score" title="נכונים עד כה">★ ${correct}</span>
+  </div>`;
+}
+
 function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
   if (p && p.breakApart) { renderBreakApartProblem(); return; }
@@ -3463,7 +3743,7 @@ function renderBasicsProblem() {
   const questionLine = p.questionLabel ? eqHtml : `${eqHtml} = ?`;
   const labelHtml = p.questionLabel ? `<div class="basics-question-label">${escapeHtml(p.questionLabel)}</div>` : '';
   container.innerHTML = `
-    <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
     ${labelHtml}
     <div class="basics-equation">${questionLine}</div>
     <div class="basics-options">${optionsHtml}</div>
@@ -3521,7 +3801,7 @@ function renderBreakApartProblem() {
   baLocked = false;
   const container = document.getElementById('basics-session');
   container.innerHTML = `
-    <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
     <div class="ba-container">
       <div class="ba-headline">${p.a} + ${p.b} = ?</div>
       <div class="ba-decompose">
@@ -3679,7 +3959,7 @@ let geq = null; // מצב התרגיל המודרך הנוכחי
 
 function geqRenderShell(bodyHtml) {
   document.getElementById('basics-session').innerHTML = `
-    <div class="basics-progress">תרגיל ${basicsCurrent + 1} מתוך ${BASICS_SHEET_SIZE} · נכונים עד כה: ${basicsCorrect}</div>
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
     <div class="geq-container">${bodyHtml}</div>
   `;
 }
@@ -3698,12 +3978,12 @@ function geqShowOpChoices(notebookHtml, calloutHtml, question, choices, correctL
   geq.correctLabel = correctLabel;
   const shuffled = choices.slice().sort(() => Math.random() - 0.5);
   const btnsHtml = shuffled.map((label, i) =>
-    `<button type="button" class="geq-op-btn" data-label="${escapeAttr(label)}" onclick="geqHandleOpChoice(this)">${escapeHtml(label)}</button>`
+    `<button type="button" class="geq-op-btn" dir="${/[\u0590-\u05FF]/.test(label) ? 'rtl' : 'ltr'}" data-label="${escapeAttr(label)}" onclick="geqHandleOpChoice(this)">${escapeHtml(label)}</button>`
   ).join('');
   geqRenderShell(`
     ${notebookHtml}
     ${calloutHtml || ''}
-    <div class="geq-question">${escapeHtml(question)}</div>
+    <div class="geq-question">${question}</div>
     <div class="geq-op-grid">${btnsHtml}</div>
     <div class="geq-hint" id="geq-hint">רמז: חושבים על הפעולה שמבטלת את מה שכתוב - ומבצעים אותה משני צדי המשוואה.</div>
   `);
@@ -3863,7 +4143,7 @@ function geqOneStepPhase1() {
   const prob = geq.prob;
   const nb = geqNotebookHtml([{ html: geqOneStepLine(prob) }]);
   const targetTerm = prob.kind === 'mul' ? `${prob.a}x` : (prob.kind === 'div' ? `÷ ${prob.a}` : `${prob.kind === 'add' ? '+' : '−'} ${prob.a}`);
-  const question = `איזו פעולה מבטלת את ה-"${targetTerm}"?`;
+  const question = `איזו פעולה מבטלת את ה-<bdi dir="ltr">${targetTerm}</bdi>?`;
   geqShowOpChoices(nb, '', question, geqOneStepDistractors(prob), geqOneStepInverseLabel(prob), geqOneStepPhase2);
 }
 
@@ -3937,14 +4217,14 @@ function renderGuidedMultiStep() {
 function geqMultiStepPhase1() {
   const prob = geq.prob;
   const a1hl = `<span class="geq-hl-amber">${prob.a1 === 1 ? 'x' : prob.a1 + 'x'}</span>`;
-  const a2hl = `<span class="geq-hl-amber">${prob.a2}x</span>`;
+  const a2hl = `<span class="geq-hl-amber">${prob.a2 === 1 ? 'x' : prob.a2 + 'x'}</span>`;
   const rhsX = prob.a3 === 1 ? 'x' : `${prob.a3}x`;
   const nb = geqNotebookHtml([{ html: `${a1hl} + ${a2hl} + ${prob.k1} = ${prob.k2} + ${rhsX}` }]);
   const combined = prob.a1 + prob.a2;
   const correct = `${combined}x`;
-  const wrong = [`${prob.a1 * prob.a2}x²`, `${combined}x²`, `${Math.max(1, Math.abs(prob.a1 - prob.a2))}x`];
+  const wrong = [`${prob.a1 * prob.a2}x²`, `${combined}x²`, `${Math.max(1, Math.abs(prob.a1 - prob.a2))}x`, `${combined + 1}x`, `${prob.a1 * prob.a2}x`];
   const options = genStringOptions(correct, wrong);
-  geqShowOpChoices(nb, '', `מה שווה ${prob.a1 === 1 ? 'x' : prob.a1 + 'x'} + ${prob.a2}x?`, options, correct, geqMultiStepPhase2);
+  geqShowOpChoices(nb, '', `מה שווה <bdi dir="ltr">${prob.a1 === 1 ? 'x' : prob.a1 + 'x'} + ${prob.a2 === 1 ? 'x' : prob.a2 + 'x'}</bdi>?`, options, correct, geqMultiStepPhase2);
 }
 
 function geqMultiStepPhase2() {
@@ -3958,7 +4238,7 @@ function geqMultiStepPhase2() {
   ]);
   const term = prob.a3 === 1 ? 'x' : `${prob.a3}x`;
   const choices = [`מחסרים ${term}`, `מוסיפים ${term}`, `מכפילים ב-${term}`, `מחלקים ב-${term}`];
-  geqShowOpChoices(nb, '', `כדי לבטל את ה-"${term}" המסומן, מה עושים משני הצדדים?`, choices, `מחסרים ${term}`, geqMultiStepPhase3);
+  geqShowOpChoices(nb, '', `כדי לבטל את ה-<bdi dir="ltr">${term}</bdi> המסומן, מה עושים משני הצדדים?`, choices, `מחסרים ${term}`, geqMultiStepPhase3);
 }
 
 function geqMultiStepPhase3() {
@@ -3984,7 +4264,7 @@ function geqMultiStepPhase4() {
   const prob = geq.prob;
   const nb = geqNotebookHtml(geq.lines);
   const choices = [`− ${prob.k1}`, `+ ${prob.k1}`, `× ${prob.k1}`, `÷ ${prob.k1}`];
-  geqShowOpChoices(nb, '', `איזו פעולה מבטלת את ה-"+ ${prob.k1}"?`, choices, `− ${prob.k1}`, geqMultiStepPhase5);
+  geqShowOpChoices(nb, '', `איזו פעולה מבטלת את ה-<bdi dir="ltr">+ ${prob.k1}</bdi>?`, choices, `− ${prob.k1}`, geqMultiStepPhase5);
 }
 
 function geqMultiStepPhase5() {
@@ -4004,7 +4284,7 @@ function geqMultiStepPhase6() {
   const prob = geq.prob;
   const nb = geqNotebookHtml(geq.lines);
   const choices = [`÷ ${prob.B}`, `× ${prob.B}`, `+ ${prob.B}`, `− ${prob.B}`];
-  geqShowOpChoices(nb, '', `איזו פעולה מבטלת את המקדם ${prob.B}?`, choices, `÷ ${prob.B}`, geqMultiStepPhase7);
+  geqShowOpChoices(nb, '', `איזו פעולה מבטלת את המקדם <bdi dir="ltr">${prob.B}</bdi>?`, choices, `÷ ${prob.B}`, geqMultiStepPhase7);
 }
 
 function geqMultiStepPhase7() {
@@ -5522,6 +5802,7 @@ function usernameToEmail(username) {
 }
 
 function showAuthView(viewId) {
+  document.body.classList.remove('student-mode');
   document.getElementById('app-container').classList.add('hidden');
   document.getElementById('auth-container').classList.remove('hidden');
   ['auth-loading', 'bootstrap-view', 'login-view', 'force-password-view'].forEach(id => {
@@ -5540,6 +5821,7 @@ function showAppView(viewId) {
 }
 
 async function routeByRole(role) {
+  document.body.classList.toggle('student-mode', role !== 'admin' && role !== 'parent');
   if (role === 'admin') {
     document.getElementById('admin-username-label').textContent = currentUser.username;
     showAppView('admin-home-view');
@@ -5557,6 +5839,7 @@ async function routeByRole(role) {
     restoreLessonsFromCloudIfNeeded();
     initStudentCoinsSync();
     await initStudentBasicsProgressSync();
+    renderJourney();
   }
 }
 
