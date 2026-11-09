@@ -1251,6 +1251,12 @@
   .calc-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; background: var(--paper); border-radius: var(--r-sm); font-family: var(--display); font-weight: 600; color: var(--ink2); }
   .calc-row b { color: var(--ink); }
   .calc-empty { margin: auto; text-align: center; color: var(--ink3); line-height: 1.6; }
+
+  .step-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; }
+  .chip { background: white; border-radius: 10px; padding: 3px 10px; box-shadow: 0 1px 0 var(--neutral-d); white-space: nowrap; }
+  .chip-eq { color: var(--ink2); padding: 0 4px; }
+  .dq-label { font-size: .92em; line-height: 1.45; }
+  .dq-math { font-family: var(--display); font-weight: 700; font-size: 1.25em; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -4016,8 +4022,9 @@ function ensureDraftPanel() {
 }
 
 // question: plain text shown in the header; seed: an equation to start the steps list with
-function openDraft(question, seed) {
+function openDraft(header, seed) {
   ensureDraftPanel();
+  const question = JSON.stringify(header);
   const fresh = draft.question !== question;
   if (fresh) {
     draft.question = question;
@@ -4028,10 +4035,15 @@ function openDraft(question, seed) {
     draft.calcLog = [];
     draft.tab = seed ? 'steps' : 'draw';
   }
-  document.getElementById('draft-question').textContent = question;
+  document.getElementById('draft-question').innerHTML = draftHeaderHtml(header);
   document.getElementById('draft-panel').classList.remove('hidden');
   document.body.classList.add('draft-open');
   draftTab(draft.tab);
+}
+// header: { labelHtml, math } - Hebrew line on top, math isolated LTR on its own line
+function draftHeaderHtml(h) {
+  return (h.labelHtml ? `<div class="dq-label">${h.labelHtml}</div>` : '') +
+    (h.math ? `<div class="dq-math" dir="ltr">${mathHtml(h.math)}</div>` : '');
 }
 function closeDraft() {
   const el = document.getElementById('draft-panel');
@@ -4113,12 +4125,28 @@ function mathHtml(text) {
 function renderSteps() {
   const list = document.getElementById('steps-list');
   list.innerHTML = draft.lines.length
-    ? draft.lines.map((l, i) => `<li><span class="step-n">${i + 1}</span><span class="step-line" dir="ltr">${mathHtml(l)}</span></li>`).join('')
+    ? draft.lines.map((l, i) => `<li><span class="step-n">${i + 1}</span><span class="step-line" dir="ltr">${stepChipsHtml(l)}</span></li>`).join('')
     : '<li class="steps-empty">כתבו כאן את החישוב, שורה אחרי שורה</li>';
   const f = document.getElementById('steps-field');
   f.innerHTML = draft.stepInput ? mathHtml(draft.stepInput) + '<span class="caret"></span>'
     : '<span class="field-ph" dir="rtl">השורה הבאה, או פעולה ומספר לשני האגפים</span>';
   list.scrollTop = list.scrollHeight;
+}
+// מפרק שורה לאיברים: כל איבר (עם הסימן שלפניו) הוא שבב נפרד, וסימן השוויון בין הצדדים
+function stepChipsHtml(line) {
+  return line.split(' = ').map(side => {
+    const terms = []; let cur = '', depth = 0;
+    const t = side.trim();
+    for (let i = 0; i < t.length; i++) {
+      const ch = t[i];
+      if (ch === '(') depth++;
+      if (ch === ')') depth--;
+      if (depth === 0 && (ch === '+' || ch === '−') && t[i - 1] === ' ' && cur.trim()) { terms.push(cur.trim()); cur = ''; }
+      cur += ch;
+    }
+    if (cur.trim()) terms.push(cur.trim());
+    return terms.map(term => `<span class="chip">${mathHtml(term)}</span>`).join('');
+  }).join('<span class="chip-eq">=</span>');
 }
 function stepsKey(k) {
   const spaced = '=+−×÷'.includes(k) ? ` ${k} ` : k;
@@ -4286,9 +4314,10 @@ function renderBasicsProblem() {
 function openBasicsDraft() {
   const p = basicsProblems[basicsCurrent];
   const eq = plainText(p.displayQ || `${p.a} ${p.op} ${p.b}`);
-  const isEquation = /x/.test(eq) && /=/.test(eq);
-  const q = p.questionLabel ? `${p.questionLabel} ${eq}` : (isEquation ? `פתרו את המשוואה: ${eq}` : `${eq} = ?`);
-  openDraft(q, isEquation ? eq.replace(/-/g, '−') : '');
+  const isEquation = !p.questionLabel && /x/.test(eq) && /=/.test(eq);
+  const label = p.questionLabel || (isEquation ? 'פתרו את המשוואה:' : '');
+  openDraft({ labelHtml: escapeHtml(label), math: (p.questionLabel || isEquation) ? eq : `${eq} = ?` },
+    eq.replace(/-/g, '−').replace(/\s*=\s*\?$/, ''));
 }
 
 function qsRender() {
@@ -6257,10 +6286,10 @@ function notebookHTML() {
 }
 function openTopicDraft() {
   const area = document.getElementById('problem-area');
-  const text = [...area.querySelectorAll('.problem-text, .equation')].map(e => e.textContent.replace(/\s+/g, ' ').trim()).join('  ');
+  const textEl = area.querySelector('.problem-text');
   const eq = area.querySelector('.equation');
-  const seed = eq && /x/.test(eq.textContent) && /=/.test(eq.textContent) ? eq.textContent.replace(/\s+/g, ' ').trim() : '';
-  openDraft(text, seed);
+  const math = eq ? eq.textContent.replace(/\s+/g, ' ').trim().replace(/-/g, '−') : '';
+  openDraft({ labelHtml: textEl ? textEl.innerHTML : '', math }, math);
 }
 
 function initNotebook() {
