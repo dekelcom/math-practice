@@ -1099,6 +1099,57 @@
   .student-mode #basics-session-view .basics-options { margin-top: auto; width: 100%; max-width: none; }
   .student-mode .geq-container, .student-mode .ba-container { max-width: none; }
   .student-mode .geq-op-grid, .student-mode .geq-compute-row, .student-mode .geq-check-box, .student-mode .geq-hint { max-width: none; }
+
+  /* ===== שלב 2: כותרות מסכים, סולם שלבים, מסך התחברות ===== */
+  .screen-title { flex: 1; min-width: 0; margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.3em; color: var(--ink); text-wrap: balance; }
+  .screen-sub { color: var(--ink2); margin: 0 0 16px; line-height: 1.5; }
+  .q-topbar .coin-badge { flex: none; }
+
+  .ladder { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .ladder-cell {
+    display: flex; align-items: center; gap: 12px; text-align: right; padding: 12px 14px;
+    background: white; color: var(--ink); border: 0; border-radius: var(--r-md);
+    box-shadow: 0 0 0 1.5px var(--line), 0 4px 0 var(--neutral-d); font-size: 1em;
+  }
+  .ladder-cell:hover:not(.locked) { background: white; transform: none; }
+  .ladder-cell:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 1.5px var(--line); }
+  .step-disc {
+    flex: none; width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; font-size: 1.15em; background: var(--cl); color: var(--cd);
+  }
+  .step-text { min-width: 0; display: flex; flex-direction: column; }
+  .step-label { font-weight: 700; font-size: .95em; line-height: 1.25; }
+  .ladder-cell small { display: block; font-size: .78em; font-weight: 600; opacity: 1; margin-top: 2px; color: var(--ink2); }
+  .ladder-cell.mastered { background: white; border-color: transparent; color: var(--ink); }
+  .ladder-cell.mastered .step-disc { background: var(--mint-d); color: white; }
+  .ladder-cell.current { background: white; color: var(--ink); box-shadow: 0 0 0 2.5px var(--c), 0 4px 0 var(--cd); }
+  .ladder-cell.current .step-disc { background: var(--c); color: white; }
+  .ladder-cell.current small { color: var(--cd); }
+  .ladder-cell.locked { background: color-mix(in srgb, white 60%, transparent); color: var(--ink3); box-shadow: 0 0 0 1.5px var(--line); }
+  .ladder-cell.locked .step-disc { background: var(--line); color: var(--ink3); }
+  .ladder-cell.locked small { color: var(--ink3); }
+
+  #auth-container { max-width: 480px; background: transparent; box-shadow: none; padding: 0; }
+  .auth-hero {
+    position: relative; overflow: hidden; background: var(--blue); color: white;
+    border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 130px 22px 64px; margin: 0 8px;
+  }
+  .hero-chip {
+    position: absolute; background: rgba(255,255,255,.16); color: white; border-radius: 12px;
+    padding: 5px 11px; font-family: var(--display); font-weight: 700; font-size: .95em; direction: ltr; white-space: nowrap;
+  }
+  .auth-hero-body { display: flex; align-items: center; gap: 16px; }
+  .auth-mascot {
+    flex: none; width: 92px; height: 92px; border-radius: 50%; background: white;
+    display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 var(--blue-d);
+  }
+  .auth-mascot svg { width: 66px; height: 66px; }
+  .auth-hero-title { font-family: var(--display); font-weight: 700; font-size: 1.6em; line-height: 1.15; text-wrap: balance; }
+  .auth-hero-sub { opacity: .92; margin-top: 4px; }
+  .auth-card { position: relative; background: white; border-radius: var(--r-lg); padding: 22px 22px 26px; margin-top: -36px; box-shadow: var(--drop); }
+  .auth-title { margin: 0 0 4px; font-family: var(--display); font-weight: 700; font-size: 1.35em; }
+  .auth-card .cta-big { margin-top: 16px; }
+  .auth-form input[type="text"], .auth-form input[type="password"] { background: var(--paper); }
 </style>
 </head>
 <body>
@@ -1134,11 +1185,25 @@ try {
   <span id="lesson-timer-label"></span>
 </div>
 <div id="auth-container" class="container">
+  <div class="auth-hero" aria-hidden="true">
+    <span class="hero-chip" style="top:14px; right:8%; transform:rotate(-6deg)">x + 3 = 7</span>
+    <span class="hero-chip" style="top:20px; left:10%; transform:rotate(5deg)">½ + ¼</span>
+    <span class="hero-chip" style="top:70px; right:34%; transform:rotate(3deg)">a² + b² = c²</span>
+    <span class="hero-chip" style="top:84px; left:6%; transform:rotate(-4deg)">7 × 8</span>
+    <div class="auth-hero-body">
+      <span class="auth-mascot"></span>
+      <div>
+        <div class="auth-hero-title">מתרגלים חשבון ומתמטיקה</div>
+        <div class="auth-hero-sub">שלב אחרי שלב, בשיטת Kumon</div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-card">
   <div id="auth-loading" class="hidden">
     <p style="text-align:center; color:var(--ink2);">טוען...</p>
   </div>
   <div id="bootstrap-view" class="hidden">
-    <h2 style="text-align:center;">🔧 הגדרה ראשונית</h2>
+    <h2 class="auth-title">הגדרה ראשונית</h2>
     <p style="text-align:center; color:var(--ink2);">לא נמצא חשבון מנהל במערכת. הגדר סיסמה זמנית עבור המנהל (<b>DekelCom</b>) — מיד לאחר מכן תתבקש להחליף אותה לסיסמה קבועה.</p>
     <form class="auth-form" onsubmit="event.preventDefault(); handleBootstrap();">
       <label>סיסמה זמנית</label>
@@ -1150,7 +1215,7 @@ try {
     </form>
   </div>
   <div id="login-view" class="hidden">
-    <h2 style="text-align:center;">🔐 התחברות</h2>
+    <h2 class="auth-title">התחברות</h2>
     <form class="auth-form" onsubmit="event.preventDefault(); handleLogin();">
       <label>שם משתמש</label>
       <input type="text" id="login-username" autocomplete="username">
@@ -1160,12 +1225,12 @@ try {
         <input type="checkbox" id="login-remember" checked style="width:auto;">
         שמור אותי מחובר במחשב הזה
       </label>
-      <button type="submit" class="btn btn-primary" style="width:100%;">התחבר</button>
+      <button type="submit" class="cta-big">יוצאים לדרך</button>
       <div class="auth-error" id="login-error"></div>
     </form>
   </div>
   <div id="force-password-view" class="hidden">
-    <h2 style="text-align:center;">🔑 יש להחליף סיסמה</h2>
+    <h2 class="auth-title">יש להחליף סיסמה</h2>
     <p style="text-align:center; color:var(--ink2);">זו הכניסה הראשונה שלך. הקלד את הסיסמה הזמנית ובחר סיסמה קבועה חדשה.</p>
     <form class="auth-form" onsubmit="event.preventDefault(); handleForcePasswordChange();">
       <label>סיסמה נוכחית (זמנית)</label>
@@ -1177,6 +1242,7 @@ try {
       <button type="submit" class="btn btn-primary" style="width:100%;">שמור והמשך</button>
       <div class="auth-error" id="force-password-error"></div>
     </form>
+  </div>
   </div>
 </div>
 
@@ -1258,8 +1324,10 @@ try {
   </div>
 
   <div id="change-password-view" class="hidden">
-    <button class="back-btn" onclick="closeChangePassword()">← ביטול</button>
-    <h2 style="text-align:center;">🔑 החלפת סיסמה</h2>
+    <div class="q-topbar">
+      <button class="q-close" onclick="closeChangePassword()" aria-label="חזרה"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h2 class="screen-title">החלפת סיסמה</h2>
+    </div>
     <form class="auth-form" onsubmit="event.preventDefault(); handleChangePassword();">
       <label>סיסמה נוכחית</label>
       <input type="password" id="change-current-password" autocomplete="current-password">
@@ -1388,16 +1456,20 @@ try {
   </div>
 
   <div id="basics-ladder-view" class="hidden">
-    <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
-    <h2 id="basics-ladder-title" style="text-align:center;"></h2>
-    <p style="text-align:center; color:var(--ink2);">לחץ על שלב שנפתח. השלב הבא נפתח לאחר 9/10 נכון בשלב הנוכחי.</p>
+    <div class="q-topbar">
+      <button class="q-close" onclick="backToMenu()" aria-label="חזרה"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h2 class="screen-title" id="basics-ladder-title"></h2>
+    </div>
+    <p class="screen-sub">9 נכונים מתוך 10 פותחים את השלב הבא.</p>
     <div id="basics-ladder" class="ladder"></div>
   </div>
 
   <div id="lessons-view" class="hidden">
-    <button class="back-btn" onclick="exitLessonsView()">← חזרה לתפריט</button>
-    <h2 style="text-align:center;">🎓 שיעורים (12 × שעה וחצי)</h2>
-    <p style="text-align:center; color:var(--ink2);">לחץ על חלק בפאזל כדי להתחיל או להמשיך שיעור. כל שיעור שמושלם חושף עוד חלק מהתמונה! (ואם לא מושלם עד סוף היום - הוא מתאפס למחרת)</p>
+    <div class="q-topbar">
+      <button class="q-close" onclick="exitLessonsView()" aria-label="חזרה"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h2 class="screen-title">שיעורים</h2>
+    </div>
+    <p class="screen-sub">לחץ על חלק בפאזל כדי להתחיל או להמשיך שיעור. כל שיעור שמושלם חושף עוד חלק מהתמונה! (ואם לא מושלם עד סוף היום - הוא מתאפס למחרת)</p>
     <div class="puzzle-wrap">
       <div class="puzzle-image"></div>
       <div id="lessons-list" class="puzzle-grid"></div>
@@ -1426,19 +1498,21 @@ try {
   </div>
 
   <div id="history-view" class="hidden">
-    <button class="back-btn" onclick="exitHistory()">← חזרה לתפריט</button>
-    <h2 style="text-align:center;">📜 ההיסטוריה שלי</h2>
-    <p style="text-align:center; color:var(--ink2);">כל התרגולים שעשית במכשיר הזה. לחץ על שורה לפירוט.</p>
+    <div class="q-topbar">
+      <button class="q-close" onclick="exitHistory()" aria-label="חזרה"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h2 class="screen-title">ההיסטוריה שלי</h2>
+    </div>
+    <p class="screen-sub">כל התרגולים שעשית במכשיר הזה. לחץ על שורה לפירוט.</p>
     <div id="history-list" class="teacher-list"></div>
     <div id="history-detail-container"></div>
   </div>
 
   <div id="topic-view" class="hidden">
-    <div class="topic-view-header">
-      <button class="back-btn" onclick="backToMenu()">← חזרה לתפריט</button>
+    <div class="q-topbar">
+      <button class="q-close" onclick="backToMenu()" aria-label="חזרה"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h2 class="screen-title" id="topic-title"></h2>
       <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
     </div>
-    <h2 id="topic-title"></h2>
     <div class="level-selector" id="level-selector"></div>
     <div class="progress-bar">
       <div class="progress-fill" id="level-progress" style="width:0%"></div>
@@ -2806,16 +2880,20 @@ function openBasicsTrack(track) {
 function renderBasicsLadder() {
   const unlocked = basicsProgress[basicsTrack] || 0;
   const ladder = document.getElementById('basics-ladder');
+  const section = JOURNEY.find(sec => sec.nodes.some(n => n.track === basicsTrack));
+  ladder.className = 'ladder c-' + (section ? section.color : 'blue');
   let html = '';
   for (let i = 0; i < 10; i++) {
-    let cls = 'ladder-cell';
-    let onclick = `openBasicsSheet(${i})`;
-    if (i < unlocked) cls += ' mastered';
-    else if (i === unlocked) cls += ' current';
-    else { cls += ' locked'; onclick = ''; }
+    const state = i < unlocked ? 'mastered' : (i === unlocked ? 'current' : 'locked');
     const label = sheetLabelFor(basicsTrack, i);
-    const sub = i < unlocked ? '✓ שלט' : (i === unlocked ? 'תור שלך' : '🔒');
-    html += `<button type="button" class="${cls}" ${onclick ? `onclick="${onclick}"` : ''}>${label}<small>${sub}</small></button>`;
+    const disc = state === 'mastered' ? '✓' : state === 'locked'
+      ? '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>'
+      : String(i + 1);
+    const sub = state === 'mastered' ? 'הושלם' : (state === 'current' ? 'התור שלך' : 'נעול');
+    html += `<button type="button" class="ladder-cell ${state}" ${state === 'locked' ? 'disabled' : `onclick="openBasicsSheet(${i})"`}>
+        <span class="step-disc">${disc}</span>
+        <span class="step-text"><span class="step-label">${label}</span><small>${sub}</small></span>
+      </button>`;
   }
   ladder.innerHTML = html;
 }
@@ -5543,29 +5621,29 @@ function renderTopic5() {
     </div>`;
 
   if (p.kind === 'identify') {
-    problemText = 'נתונה משוואת הקו הישר. מצא את השיפוע (m) ואת נקודת החיתוך עם ציר y (b):';
+    problemText = 'נתונה משוואת הקו הישר. מצא את השיפוע <bdi dir="ltr">(m)</bdi> ואת נקודת החיתוך עם ציר <bdi dir="ltr">y (b)</bdi>:';
     extraTop = `<div class="equation">y = ${fmtCoef(p.m, 'x', true)}${fmtCoef(p.b, '') || ' + 0'}</div>`;
     inputHtml = `
-      <label>שיפוע (m):</label><input type="text" id="ans-m" placeholder="לדוגמה: 2"><br>
-      <label>חיתוך עם ציר y (b):</label><input type="text" id="ans-b" placeholder="לדוגמה: -3">`;
+      <label>שיפוע <bdi dir="ltr">(m)</bdi>:</label><input type="text" id="ans-m" placeholder="לדוגמה: 2"><br>
+      <label>חיתוך עם ציר <bdi dir="ltr">y (b)</bdi>:</label><input type="text" id="ans-b" placeholder="לדוגמה: -3">`;
   } else if (p.kind === 'slope-from-points') {
-    problemText = `הקו הישר עובר דרך הנקודות (${p.x1}, ${p.y1}) ו-(${p.x2}, ${p.y2}).<br>חשב את <b>השיפוע</b> של הקו.`;
+    problemText = `הקו הישר עובר דרך הנקודות <bdi dir="ltr">(${p.x1}, ${p.y1})</bdi> ו-<bdi dir="ltr">(${p.x2}, ${p.y2})</bdi>.<br>חשב את <b>השיפוע</b> של הקו.`;
     formulaBox = `
       <div class="formula-box">
         <span class="label">נוסחת השיפוע:</span>
         <span class="math">m = (y₂ − y₁) / (x₂ − x₁)</span>
       </div>`;
-    inputHtml = `<label>שיפוע (m):</label><input type="text" id="ans-m" placeholder="לדוגמה: 2 או 1/2">`;
+    inputHtml = `<label>שיפוע <bdi dir="ltr">(m)</bdi>:</label><input type="text" id="ans-m" placeholder="לדוגמה: 2 או 1/2">`;
   } else {
-    problemText = `הקו הישר עובר דרך הנקודות (${p.x1}, ${p.y1}) ו-(${p.x2}, ${p.y2}).<br>מצא את <b>משוואת הקו</b>: את השיפוע (m) ואת נקודת החיתוך עם ציר y (b).`;
+    problemText = `הקו הישר עובר דרך הנקודות <bdi dir="ltr">(${p.x1}, ${p.y1})</bdi> ו-<bdi dir="ltr">(${p.x2}, ${p.y2})</bdi>.<br>מצא את <b>משוואת הקו</b>: את השיפוע <bdi dir="ltr">(m)</bdi> ואת נקודת החיתוך עם ציר <bdi dir="ltr">y (b)</bdi>.`;
     formulaBox = `
       <div class="formula-box">
         <span class="label">נוסחת השיפוע:</span>
         <span class="math">m = (y₂ − y₁) / (x₂ − x₁)</span>
       </div>`;
     inputHtml = `
-      <label>שיפוע (m):</label><input type="text" id="ans-m" placeholder="לדוגמה: 2"><br>
-      <label>חיתוך עם ציר y (b):</label><input type="text" id="ans-b" placeholder="לדוגמה: -3">`;
+      <label>שיפוע <bdi dir="ltr">(m)</bdi>:</label><input type="text" id="ans-m" placeholder="לדוגמה: 2"><br>
+      <label>חיתוך עם ציר <bdi dir="ltr">y (b)</bdi>:</label><input type="text" id="ans-b" placeholder="לדוגמה: -3">`;
   }
 
   area.innerHTML = `
@@ -5610,8 +5688,8 @@ function showHintTopic5() {
   if (p.kind === 'identify') {
     stages = [
       'המשוואה בנויה תמיד בצורה y = mx + b. נסה לזהות מי המספר שצמוד ל-x ומי המספר שעומד לבד.',
-      'המספר שצמוד ל-x הוא השיפוע (m).',
-      'המספר שעומד לבד, בלי x, הוא נקודת החיתוך עם ציר y (b). אם אין מספר כזה - אז b שווה 0.'
+      'המספר שצמוד ל-x הוא השיפוע <bdi dir="ltr">(m)</bdi>.',
+      'המספר שעומד לבד, בלי x, הוא נקודת החיתוך עם ציר <bdi dir="ltr">y (b)</bdi>. אם אין מספר כזה - אז b שווה 0.'
     ];
   } else if (p.kind === 'slope-from-points') {
     stages = [
@@ -5621,7 +5699,7 @@ function showHintTopic5() {
     ];
   } else {
     stages = [
-      'כדי למצוא משוואת קו צריך שני דברים: שיפוע (m) ונקודת חיתוך (b).',
+      'כדי למצוא משוואת קו צריך שני דברים: שיפוע <bdi dir="ltr">(m)</bdi> ונקודת חיתוך (b).',
       'קודם מצא את השיפוע: בכמה ה-y השתנה בין הנקודות, חלקי בכמה ה-x השתנה.',
       'עכשיו קח נקודה אחת, הצב את ה-x, ה-y והשיפוע במשוואה y = mx + b, ופתור כדי למצוא את b.'
     ];
@@ -5802,6 +5880,7 @@ function usernameToEmail(username) {
 }
 
 function showAuthView(viewId) {
+  const m = document.querySelector('.auth-mascot'); if (m && !m.innerHTML) m.innerHTML = MASCOT_SVG;
   document.body.classList.remove('student-mode');
   document.getElementById('app-container').classList.add('hidden');
   document.getElementById('auth-container').classList.remove('hidden');
