@@ -242,10 +242,7 @@
     font-weight: 600;
     animation: slideIn 0.3s ease-out;
   }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } }
   .feedback.correct {
     background: var(--mint-l);
     color: var(--mint-d);
@@ -1173,7 +1170,7 @@
   .caret { display: inline-block; width: 2.5px; height: 1.05em; background: var(--blue); border-radius: 2px; animation: caret-blink 1s steps(1) infinite; }
   @keyframes caret-blink { 50% { opacity: 0; } }
   .qs-field.correct { border-color: var(--mint-d); background: var(--mint-l); color: var(--mint-d); }
-  .qs-field.incorrect { border-color: var(--red-d); background: var(--red-l); color: var(--red-d); animation: ba-shake .35s; }
+  .qs-field.incorrect { border-color: var(--red-d); background: var(--red-l); color: var(--red-d); animation: shake .3s; }
   .qs-field.correct .caret, .qs-field.incorrect .caret { display: none; }
   .qs-reveal { min-height: 1.6em; text-align: center; color: var(--ink2); font-weight: 600; margin-bottom: 6px; }
   .qs-reveal b { color: var(--mint-d); font-family: var(--display); font-size: 1.15em; }
@@ -1239,7 +1236,7 @@
     display: flex; align-items: center; gap: 2px; min-height: 52px; padding: 0 14px; border: 2px solid var(--blue); border-radius: var(--r-md);
     font-family: var(--display); font-weight: 700; font-size: 1.25em; color: var(--ink); overflow-x: auto; white-space: nowrap;
   }
-  .draft-field.shake { animation: ba-shake .35s; border-color: var(--red-d); }
+  .draft-field.shake { animation: shake .3s; border-color: var(--red-d); }
   .field-ph { color: var(--ink3); font: 400 .78em var(--body); }
   .draft-keys { grid-template-columns: repeat(6, 1fr); gap: 6px; }
   .draft-keys button { min-height: 46px; font-size: 1.1em; }
@@ -1282,6 +1279,112 @@
   .hint-other:disabled { color: var(--ink3); cursor: default; }
   .hint-back { flex-basis: 100%; }
   #qs-answer[hidden], #qs-hint[hidden] { display: none; }
+  .hint-lead { margin: 0; font-weight: 700; color: var(--sand-d); }
+
+  /* ===== תנועה – אותן אנימציות כמו באתר ההשראה (שמות, משכים ועקומות) ===== */
+  @keyframes drift { from { transform: translateY(0) rotate(var(--r, 0deg)); } to { transform: translateY(-14px) rotate(calc(var(--r, 0deg) * -1)); } }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(-3deg); } }
+  @keyframes pulse { 50% { transform: scale(1.08); } }
+  @keyframes nodeIn { from { opacity: 0; transform: scale(.4); } }
+  @keyframes fadeQ { from { opacity: 0; transform: translateY(6px); } }
+  @keyframes tilt { from { transform: rotate(-4deg); } to { transform: rotate(0); } }
+  @keyframes lift { 0%, 40% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes stamp { from { transform: scale(0) rotate(-30deg); } }
+  @keyframes slap { from { opacity: 0; transform: scale(1.8) rotate(-18deg); } }
+  @keyframes fall { to { transform: translate(var(--dx), 105dvh) rotate(var(--rot)); opacity: .9; } }
+  @keyframes termPop { from { transform: scale(.4) translateY(-10px); } }
+  @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+  .hero-chip { animation: drift 7s ease-in-out infinite alternate; }
+  .auth-mascot svg, .review-mascot svg { animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 80%; }
+  .journey.intro .journey-node { animation: nodeIn .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+  .journey-tag {
+    position: absolute; top: -14px; right: 50%; transform-origin: center; translate: 50% 0; z-index: 2;
+    background: var(--orange-d); color: white; font: 700 .72em var(--body); padding: 3px 10px; border-radius: 999px;
+    white-space: nowrap; box-shadow: 0 2px 0 #A6350F; animation: pulse 1.8s ease-in-out infinite;
+  }
+  .qs-question, #qs-answer { animation: fadeQ .25s ease-out; }
+  .hint-card { animation: slideIn .25s ease-out; }
+  .hpic .tilt { animation: tilt 3.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+  .hpic .lift { animation: lift 3.2s ease-in-out infinite alternate; }
+  .caret { animation-name: blink; }
+  .step-new .chip { animation: termPop .45s cubic-bezier(.34,1.8,.64,1); }
+  .shake { animation: shake .3s; }
+  .q-segs i { transition: background .3s; }
+  .q-segs i.ok { background: var(--mint); }
+  .q-segs i.no { background: var(--sun); }
+  .q-score { display: inline-block; }
+  .q-score.bump { animation: pulse .35s ease-out; }
+  .qs-keypad button { transition: transform .06s, box-shadow .06s; }
+  .basics-option { transition: transform .08s, background .2s, opacity .2s; }
+  .basics-option.no { opacity: .4; text-decoration: line-through; background: white; color: var(--ink); border-color: var(--line); }
+
+  /* פס "נסו שוב" אחרי טעות ראשונה */
+  .qs-miss { background: var(--sand); color: var(--ink); border-radius: var(--r-md); padding: 10px 14px; margin-bottom: 10px; line-height: 1.6; }
+  .qs-miss.qs-miss-in { animation: slideIn .25s ease-out; }
+  .qs-miss b { color: var(--sand-d); }
+
+  /* ===== גיליון משוב (נפתח מלמטה) ===== */
+  .fb-scrim { position: fixed; inset: 0; z-index: 2900; background: rgba(27,27,47,.18); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .fb-scrim.open { opacity: 1; pointer-events: auto; }
+  .fb-sheet {
+    position: fixed; left: 50%; bottom: 0; z-index: 3000; width: min(560px, 100%); max-height: 85dvh; overflow: auto;
+    border-radius: 28px 28px 0 0; padding: 20px 20px calc(18px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 105%); transition: transform .22s cubic-bezier(.2,.8,.3,1);
+    background: var(--mint-l); box-shadow: 0 -12px 40px -20px rgba(27,27,47,.4); display: flex; flex-direction: column; gap: 12px;
+  }
+  .fb-sheet.open { transform: translate(-50%, 0); }
+  .fb-sheet.no { background: var(--sand); }
+  .fb-head { display: flex; align-items: center; gap: 12px; }
+  .fb-stamp {
+    flex: none; width: 52px; height: 52px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font: 700 1.7em var(--display); color: white; background: var(--mint-d); box-shadow: 0 4px 0 #086B51;
+    animation: stamp .4s cubic-bezier(.34,1.8,.64,1);
+  }
+  .fb-sheet.no .fb-stamp { background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 var(--sun-d); }
+  .fb-title { font: 700 1.45em var(--display); color: var(--mint-d); flex: 1; }
+  .fb-sheet.no .fb-title { color: var(--ink); font-size: 1.25em; }
+  .fb-pill { font: 700 1.05em var(--display); background: white; color: var(--sun-d); border-radius: 999px; padding: 4px 12px; box-shadow: var(--ring); }
+  .fb-fly { position: fixed; z-index: 3100; pointer-events: none; margin: 0; }
+  .fb-cmp { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .fb-cmp s { color: var(--ink2); font: 600 1.1em var(--display); }
+  .fb-ans { background: white; border-radius: 12px; padding: 4px 14px; font: 700 1.25em var(--display); box-shadow: var(--ring); }
+  .fb-trap, .fb-note { margin: 0; line-height: 1.6; }
+  .fb-trap b { color: var(--sand-d); }
+  .fb-note { color: var(--ink2); font-size: .95em; }
+  .fb-level { align-self: flex-start; background: var(--blue); color: white; border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: .9em; animation: stamp .45s cubic-bezier(.34,1.8,.64,1); }
+  .fb-steps { margin: 0; padding: 12px 14px; background: white; border-radius: var(--r-md); list-style: none; counter-reset: st; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--ring); }
+  .fb-steps li { counter-increment: st; display: flex; gap: 10px; line-height: 1.7; }
+  .fb-steps li::before { content: counter(st); flex: none; width: 24px; height: 24px; margin-top: 3px; border-radius: 50%; background: var(--blue-l); color: var(--blue-d); font: 700 .8em/24px var(--display); text-align: center; }
+  .fb-steps li[hidden] { display: none; }
+  .fb-steps li.show { animation: slideIn .25s ease-out; }
+  .fb-next-step { align-self: flex-start; border: 0; background: white; color: var(--blue-d); border-radius: 12px; padding: 8px 14px; font: 700 .95em var(--body); cursor: pointer; box-shadow: var(--ring); }
+  .fb-go { border: 0; border-radius: var(--r-md); min-height: 56px; font: 700 1.15em var(--body); cursor: pointer; color: white; background: var(--mint-d); box-shadow: 0 5px 0 #086B51; transition: transform .08s, box-shadow .08s; }
+  .fb-sheet.no .fb-go { background: var(--blue); box-shadow: 0 5px 0 var(--blue-d); }
+  .fb-go:active { transform: translateY(3px); box-shadow: 0 2px 0 #086B51; }
+  .fb-sheet.no .fb-go:active { box-shadow: 0 2px 0 var(--blue-d); }
+
+  /* ===== סיכום דף ===== */
+  .review-mascot { display: inline-flex; width: 74px; height: 74px; border-radius: 50%; background: white; align-items: center; justify-content: center; box-shadow: var(--ring); margin-bottom: 6px; }
+  .review-mascot svg { width: 54px; height: 54px; }
+  .basics-result .review-pct { font-variant-numeric: tabular-nums; }
+  .unlock-badge { display: inline-flex; align-items: center; gap: 6px; margin: 10px auto 0; background: var(--sun); color: var(--ink); font: 700 1em var(--display); padding: 6px 14px; border-radius: 999px; box-shadow: 0 3px 0 var(--sun-d); animation: slap .45s cubic-bezier(.34,1.7,.64,1) both; animation-delay: .5s; }
+  .review-second { color: var(--mint-d); font-size: .85em; }
+
+  /* קונפטי והודעה קופצת */
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 3200; overflow: hidden; }
+  .confetti i { position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px; animation: fall 1.4s cubic-bezier(.3,.6,.6,1) forwards; }
+  .toast {
+    position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 50%; z-index: 3300; background: var(--ink); color: white;
+    padding: 10px 18px; border-radius: 999px; font-weight: 600; transform: translate(-50%, -80px);
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
 </style>
 </head>
 <body>
@@ -1318,10 +1421,10 @@ try {
 </div>
 <div id="auth-container" class="container">
   <div class="auth-hero" aria-hidden="true">
-    <span class="hero-chip" style="top:14px; right:8%; transform:rotate(-6deg)">x + 3 = 7</span>
-    <span class="hero-chip" style="top:20px; left:10%; transform:rotate(5deg)">½ + ¼</span>
-    <span class="hero-chip" style="top:70px; right:34%; transform:rotate(3deg)">a² + b² = c²</span>
-    <span class="hero-chip" style="top:84px; left:6%; transform:rotate(-4deg)">7 × 8</span>
+    <span class="hero-chip" style="top:14px; right:8%; --r:-6deg; animation-delay:0s">x + 3 = 7</span>
+    <span class="hero-chip" style="top:20px; left:10%; --r:5deg; animation-delay:-1.8s">½ + ¼</span>
+    <span class="hero-chip" style="top:70px; right:34%; --r:3deg; animation-delay:-3.5s">a² + b² = c²</span>
+    <span class="hero-chip" style="top:84px; left:6%; --r:-4deg; animation-delay:-5.2s">7 × 8</span>
     <div class="auth-hero-body">
       <span class="auth-mascot"></span>
       <div>
@@ -1985,6 +2088,9 @@ function renderJourney() {
   let y = 0, k = 0;
   let html = '';
   const segments = [];
+  // התחנה שממשיכים ממנה: המסלול הראשון שעוד לא הושלם
+  let nextTrack = null;
+  JOURNEY.forEach(sec => sec.nodes.forEach(n => { if (!nextTrack && n.track && (basicsProgress[n.track] || 0) < 10) nextTrack = n.track; }));
   JOURNEY.forEach(section => {
     html += `<div class="journey-banner c-${section.color}" style="top:${y}px">${escapeHtml(section.title)}</div>`;
     y += BANNER;
@@ -2005,8 +2111,8 @@ function renderJourney() {
         sub = '<span class="journey-lvl">3 רמות</span>';
       }
       const action = n.track ? `openBasicsTrack('${n.track}')` : `openTopic(${n.topic})`;
-      html += `<button type="button" class="journey-node c-${section.color}${done ? ' done' : ''}" style="left:${cx - NODE / 2}px; top:${cy - NODE / 2}px" onclick="${action}" aria-label="${escapeAttr(n.name)}">
-          <span class="journey-disc">${journeyIcon(n.icon)}${done ? '<span class="journey-check">✓</span>' : ''}</span>
+      html += `<button type="button" class="journey-node c-${section.color}${done ? ' done' : ''}" style="left:${cx - NODE / 2}px; top:${cy - NODE / 2}px; --i:${k - 1}" onclick="${action}" aria-label="${escapeAttr(n.name)}">
+          <span class="journey-disc">${journeyIcon(n.icon)}${done ? '<span class="journey-check">✓</span>' : ''}${n.track && n.track === nextTrack ? '<span class="journey-tag">ממשיכים כאן</span>' : ''}</span>
           <span class="journey-name">${escapeHtml(n.name)}</span>
           <span class="journey-sub">${sub}</span>
         </button>`;
@@ -2027,6 +2133,12 @@ function renderJourney() {
   }).join('');
   wrap.style.height = y + 'px';
   wrap.innerHTML = `<svg class="journey-path" width="${W}" height="${y}" aria-hidden="true">${paths}</svg>` + html;
+  // כניסה מדורגת של התחנות – פעם אחת בכל טעינת עמוד
+  if (!renderJourney.played && wrap.offsetParent) {
+    renderJourney.played = true;
+    wrap.classList.add('intro');
+    setTimeout(() => wrap.classList.remove('intro'), 600 + k * 90);
+  }
 }
 
 function switchHomeTab(tab) {
@@ -3669,14 +3781,14 @@ function genInequalityProblem(s) {
   const fmt = (op, n) => `x ${op} ${n}`;
   if (s === 0) { const x = p(1, 10), a = p(1, 9); return { displayQ: `x + ${a} > ${x + a - 1}`, answer: fmt('>', x - 1), options: [fmt('>', x - 1), fmt('>', x), fmt('<', x - 1), fmt('<', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
   if (s === 1) { const x = p(2, 10), a = p(1, 5); return { displayQ: `x − ${a} < ${x - a + 1}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('<', x), fmt('>', x + 1), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
-  if (s === 2) { const a = p(2, 5), x = p(2, 8); return { displayQ: `${a}x > ${a * x - 1}`, answer: fmt('>', x - 0.5 < x ? x : x), options: [fmt('>', x), fmt('>', x + 1), fmt('<', x), fmt('<', x + 1)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 2) { const a = p(2, 5), x = p(2, 8); return { displayQ: `${a}x > ${a * x}`, answer: fmt('>', x), options: [fmt('>', x), fmt('>', x + 1), fmt('<', x), fmt('<', x + 1)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
   if (s === 3) { const a = p(2, 5), x = p(2, 8); return { displayQ: `${a}x < ${a * x + a}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('<', x), fmt('>', x + 1), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
   if (s === 4) {
     // negative coefficient → flip
     const a = p(2, 5), x = p(2, 6), rhs = -a * x - a;
     return { displayQ: `−${a}x > ${rhs}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('>', x + 1), fmt('<', x), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) };
   }
-  if (s === 5) { const a = p(2, 5), x = p(1, 6), b = p(1, 5); return { displayQ: `${a}x + ${b} > ${a * x + b - 1}`, answer: fmt('>', x - 1), options: [fmt('>', x - 1), fmt('>', x), fmt('<', x - 1), fmt('<', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
+  if (s === 5) { const a = p(2, 5), x = p(1, 6), b = p(1, 5); return { displayQ: `${a}x + ${b} > ${a * x + b}`, answer: fmt('>', x), options: [fmt('>', x), fmt('>', x - 1), fmt('<', x), fmt('<', x - 1)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
   if (s === 6) { const a = p(2, 5), x = p(2, 8), b = p(1, 5); return { displayQ: `${a}x − ${b} < ${a * x - b + a}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('<', x), fmt('>', x + 1), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
   if (s === 7) { const a = p(2, 8), x = p(1, a - 1); return { displayQ: `${a} − x > ${a - x - 1}`, answer: fmt('<', x + 1), options: [fmt('<', x + 1), fmt('>', x + 1), fmt('<', x), fmt('>', x)].slice(0, 4).sort(() => Math.random() - 0.5) }; }
   // s 8-9
@@ -4150,12 +4262,13 @@ function mathHtml(text) {
 function renderSteps() {
   const list = document.getElementById('steps-list');
   list.innerHTML = draft.lines.length
-    ? draft.lines.map((l, i) => `<li><span class="step-n">${i + 1}</span><span class="step-line" dir="ltr">${stepChipsHtml(l)}</span></li>`).join('')
+    ? draft.lines.map((l, i) => `<li${draft.justAdded && i === draft.lines.length - 1 ? ' class="step-new"' : ''}><span class="step-n">${i + 1}</span><span class="step-line" dir="ltr">${stepChipsHtml(l)}</span></li>`).join('')
     : '<li class="steps-empty">כתבו כאן את החישוב, שורה אחרי שורה</li>';
   const f = document.getElementById('steps-field');
   f.innerHTML = draft.stepInput ? mathHtml(draft.stepInput) + '<span class="caret"></span>'
     : '<span class="field-ph" dir="rtl">השורה הבאה, או פעולה ומספר לשני האגפים</span>';
   list.scrollTop = list.scrollHeight;
+  draft.justAdded = false;
 }
 // מפרק שורה לאיברים: כל איבר (עם הסימן שלפניו) הוא שבב נפרד, וסימן השוויון בין הצדדים
 function stepChipsHtml(line) {
@@ -4193,6 +4306,12 @@ function stepsAdd() {
   if (!inp) return;
   const m = inp.match(/^([+−×÷])\s*(.+)$/);
   const last = draft.lines[draft.lines.length - 1];
+  if (m && !(last && last.includes('='))) {
+    // אין עדיין משוואה שאפשר לעשות עליה פעולה בשני האגפים
+    const f = document.getElementById('steps-field');
+    f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+    return;
+  }
   if (m && last && last.includes('=')) {
     const [op, val] = [m[1], m[2].trim()];
     const wrap = side => (/[×÷]/.test(op) && /\s[+−]\s/.test(side.trim())) ? `(${side.trim()})` : side.trim();
@@ -4202,6 +4321,7 @@ function stepsAdd() {
     draft.lines.push(inp);
   }
   draft.stepInput = '';
+  draft.justAdded = true;
   renderSteps();
 }
 
@@ -4272,9 +4392,9 @@ document.addEventListener('keydown', e => {
   }
 }, true);
 
-function qProgressHtml(current, total, correct) {
+function qProgressHtml(current, total, correct, log) {
   const segs = Array.from({ length: total }, (_, i) =>
-    `<i class="${i < current ? 'done' : i === current ? 'now' : ''}"></i>`).join('');
+    `<i class="${i === current ? 'now' : log && log[i] ? (log[i].correct ? 'ok' : 'no') : i < current ? 'done' : ''}"></i>`).join('');
   return `<div class="q-progress" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${current}" aria-label="תרגיל ${current + 1} מתוך ${total}">
     <div class="q-segs">${segs}</div>
     <span class="q-score" title="נכונים עד כה">★ ${correct}</span>
@@ -4284,7 +4404,7 @@ function qProgressHtml(current, total, correct) {
 // ============================================================
 // רמזים למסלולי היסודות: 3 רמות (כיוון / הכלל / צעד ראשון), כל אחת בכמה דרכי הסבר
 // ============================================================
-const M = t => `<bdi dir="ltr" class="hm">${String(t).replace(/-/g, '−').replace(/x/g, '<i class="mx">x</i>')}</bdi>`;
+const M = t => `<bdi dir="ltr" class="hm">${String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/-/g, '−').replace(/x/g, '<i class="mx">x</i>')}</bdi>`;
 const qNums = p => (plainText(p.displayQ || `${p.a} ${p.op} ${p.b}`).replace(/,/g, '').match(/−?\d+(\.\d+)?/g) || []).map(n => Number(n.replace('−', '-')));
 function hintLevels(L1, L2, L3) {
   return [
@@ -4481,6 +4601,434 @@ const BASICS_HINTS = {
   }
 };
 
+// ============================================================
+// פתרון צעד-אחר-צעד ומלכודות (טעויות נפוצות) לכל מסלול
+// ============================================================
+const gcdN = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+const PLACE_IN = ['באחדות', 'בעשרות', 'במאות', 'באלפים', 'בעשרות האלפים', 'במאות האלפים', 'במיליונים', 'בעשרות המיליונים', 'במאות המיליונים'];
+const PLACE_KEYS = { 'אחדות': 0, 'עשרות': 1, 'מאות': 2, 'אלפים': 3, 'עשרות אלפים': 4, 'מאות אלפים': 5, 'מיליונים': 6, 'עשרות מיליונים': 7, 'מאות מיליונים': 8 };
+const PLACE_NAME = ['אחדות', 'עשרות', 'מאות', 'אלפים', 'עשרות אלפים', 'מאות אלפים', 'מיליונים', 'עשרות מיליונים', 'מאות מיליונים'];
+const coefTxt = c => c === 1 ? '' : c === -1 ? '−' : String(c);
+const signed = n => n < 0 ? `− ${-n}` : `+ ${n}`;
+// השאלה כטקסט: שברים הופכים ל-a/b (ומספר מעורב ל-"w a/b")
+function qText(p) {
+  const raw = (p.displayQ || `${p.a} ${p.op} ${p.b}`)
+    .replace(/<span class="frac"><span class="num">(\d+)<\/span><span class="den">(\d+)<\/span><\/span>/g, ' $1/$2 ')
+    .replace(/<br\s*\/?>/g, ' ; ');
+  return plainText(raw).replace(/−/g, '-').replace(/\s+/g, ' ').trim();
+}
+function fracList(t) {
+  const out = []; const re = /(?:(\d+)\s+)?(\d+)\/(\d+)/g; let m;
+  while ((m = re.exec(t))) out.push({ w: m[1] ? +m[1] : 0, n: +m[2], d: +m[3] });
+  return out;
+}
+const improper = f => ({ n: f.w * f.d + f.n, d: f.d });
+const fr = (n, d) => `${n}/${d}`;
+const stepsTxt = n => n === 1 ? 'צעד אחד' : `${M(n)} צעדים`;
+// חישוב לפי סדר פעולות, שלב אחרי שלב (מחזיר את הביטויים בדרך)
+function opsChain(expr) {
+  let s = expr.replace(/\s+/g, '').replace(/-/g, '−');
+  const lines = [];
+  const fmt = t => t.replace(/([+×÷])/g, ' $1 ').replace(/(\d|\))−/g, '$1 − ').replace(/\s+/g, ' ').trim();
+  for (let guard = 0; guard < 12 && !/^−?\d+(\.\d+)?$/.test(s); guard++) {
+    const pm = s.match(/\(([^()]+)\)/);
+    const seg = pm ? pm[1] : s, base = pm ? pm.index + 1 : 0;
+    const m = seg.match(/((?<![\d)])−?\d+(?:\.\d+)?)([×÷])(\d+(?:\.\d+)?)/) || seg.match(/((?<![\d)])−?\d+(?:\.\d+)?)([+−])(\d+(?:\.\d+)?)/);
+    if (!m) break;
+    const a = Number(m[1].replace('−', '-')), b = Number(m[3]);
+    const v = m[2] === '×' ? a * b : m[2] === '÷' ? a / b : m[2] === '+' ? a + b : a - b;
+    const at = base + m.index;
+    s = s.slice(0, at) + String(Math.round(v * 1e9) / 1e9).replace('-', '−') + s.slice(at + m[0].length);
+    s = s.replace(/\((−?\d+(?:\.\d+)?)\)/g, '$1');
+    lines.push(fmt(s));
+  }
+  return lines;
+}
+// אותו ביטוי, אבל משמאל לימין בלי סדר פעולות (הטעות הנפוצה)
+function evalLTR(expr) {
+  let s = expr.replace(/\s+/g, '').replace(/-/g, '−');
+  const flat = t => { const tk = t.match(/(?<![\d)])−?\d+(?:\.\d+)?|[+−×÷]/g) || []; let v = Number(tk[0].replace('−', '-'));
+    for (let i = 1; i < tk.length; i += 2) { const b = Number(tk[i + 1]); v = tk[i] === '+' ? v + b : tk[i] === '−' ? v - b : tk[i] === '×' ? v * b : v / b; } return v; };
+  for (let g = 0; g < 8 && /\(/.test(s); g++) s = s.replace(/\(([^()]+)\)/, (_, x) => String(flat(x)).replace('-', '−'));
+  return flat(s);
+}
+function linSide(str) {
+  const s = str.replace(/−/g, '-').replace(/\s+/g, '').replace(/\+-/g, '-').replace(/--/g, '+');
+  let p = 0, q = 0;
+  for (const t of (s.match(/[+-]?[^+-]+/g) || [])) {
+    if (t.includes('x')) { const c = t.replace('x', ''); p += c === '' || c === '+' ? 1 : c === '-' ? -1 : Number(c); }
+    else q += Number(t);
+  }
+  return { p, q };
+}
+function linearSteps(t, rel, answerTxt) {
+  const parts = t.split(/\s*([=<>])\s*/);
+  if (parts.length !== 3) return null;
+  const div = parts[0].match(/^x\s*÷\s*(\d+)$/);
+  if (div) return [`כופלים את שני האגפים ב-${M(div[1])}:`, M(`x ${parts[1]} ${parts[2]} × ${div[1]} = ${answerTxt}`)];
+  const L = linSide(parts[0]), R = linSide(parts[2]);
+  if ([L.p, L.q, R.p, R.q].some(Number.isNaN)) return null;
+  let op = parts[1];
+  const P = L.p - R.p, Q = R.q - L.q, out = [];
+  if (R.p !== 0) out.push(`מעבירים את איברי ה-${M('x')} לאגף אחד ואת המספרים לאגף השני, וכל איבר שעובר אגף מחליף סימן: ${M(`${coefTxt(P)}x ${op} ${Q}`)}`);
+  else if (L.q !== 0) out.push(`${L.q > 0 ? `מחסירים ${M(L.q)} משני האגפים` : `מוסיפים ${M(-L.q)} לשני האגפים`}: ${M(`${coefTxt(P)}x ${op} ${Q}`)}`);
+  if (P !== 1) {
+    const flip = P < 0 && op !== '=';
+    if (flip) op = op === '<' ? '>' : '<';
+    out.push(`מחלקים את שני האגפים ב-${M(P)}${flip ? ' – מספר שלילי, ולכן הופכים את כיוון הסימן' : ''}: ${M(`x ${op} ${Q} ÷ ${P < 0 ? `(${P})` : P}`)}`);
+  }
+  if (P !== 1 || !out.length) out.push(M(rel ? answerTxt : `x = ${answerTxt}`));
+  return out;
+}
+
+const BASICS_STEPS = {
+  addition(p) {
+    const big = Math.max(p.a, p.b), small = Math.min(p.a, p.b), ans = p.a + p.b;
+    if (big < 10 && ans > 10) return [`משלימים ל-10: ${M(`${big} + ${10 - big} = 10`)}`, `מה-${M(small)} נשארו עוד ${M(small - (10 - big))}: ${M(`10 + ${small - (10 - big)} = ${ans}`)}`];
+    return [`מתחילים מהמספר הגדול, ${M(big)}, וסופרים ${stepsTxt(small)} קדימה.`, M(`${p.a} + ${p.b} = ${ans}`)];
+  },
+  subtraction(p) {
+    const { a, b } = p, ans = a - b;
+    if (b < 10 && a > 10) return [`מ-${M(b)} עד 10: ${stepsTxt(10 - b)}.`, `מ-10 עד ${M(a)}: עוד ${stepsTxt(a - 10)}.`, `ביחד: ${M(`${10 - b} + ${a - 10} = ${ans}`)}`];
+    return [`מתחילים ב-${M(a)} וסופרים ${stepsTxt(b)} אחורה.`, M(`${a} − ${b} = ${ans}`)];
+  },
+  multiplication(p) {
+    const { a, b } = p, ans = a * b;
+    if (a === 0 || b === 0) return [`כל מספר כפול 0 שווה 0.`, M(`${a} × ${b} = 0`)];
+    if (b >= 6 && a >= 2) return [`מפרקים את ${M(b)} ל-${M(`5 + ${b - 5}`)}:`, M(`${a} × ${b} = ${a} × 5 + ${a} × ${b - 5} = ${5 * a} + ${a * (b - 5)} = ${ans}`)];
+    return [`${M(a)} קבוצות של ${M(b)}: ${M(Array.from({ length: Math.min(a, 6) }, (_, i) => b * (i + 1)).join(', ') + (a > 6 ? ', …' : ''))}`, M(`${a} × ${b} = ${ans}`)];
+  },
+  division(p) {
+    const { a, b } = p, ans = a / b;
+    return [`מחפשים מספר שכופלים אותו ב-${M(b)} ומקבלים ${M(a)}: ${M(`${b} × ? = ${a}`)}`, M(`${b} × ${ans} = ${a}`), `לכן ${M(`${a} ÷ ${b} = ${ans}`)}`];
+  },
+  multiAdd(p) {
+    const [x, y] = qNums(p), out = []; let carry = 0;
+    const A = String(x).split('').reverse(), B = String(y).split('').reverse();
+    for (let i = 0; i < Math.max(A.length, B.length); i++) {
+      const d1 = +(A[i] || 0), d2 = +(B[i] || 0), s = d1 + d2 + carry;
+      out.push(`${PLACE_IN[i]}: ${M(`${d1} + ${d2}${carry ? ' + 1' : ''} = ${s}`)}${s >= 10 ? ` – כותבים ${M(s % 10)} ומעבירים 1` : ''}`);
+      carry = s >= 10 ? 1 : 0;
+    }
+    if (carry) out.push(`את ה-1 האחרון כותבים בעמודה החדשה משמאל.`);
+    out.push(M(`${x} + ${y} = ${x + y}`));
+    return out;
+  },
+  multiSub(p) {
+    const [x, y] = qNums(p), out = []; let borrow = 0;
+    const A = String(x).split('').reverse(), B = String(y).split('').reverse();
+    for (let i = 0; i < A.length; i++) {
+      const top = +A[i] - borrow, d2 = +(B[i] || 0);
+      if (i >= B.length && !borrow) break;
+      const was = borrow ? ` (אחרי שלווינו נשאר ${M(top)})` : '';
+      if (top < d2) { out.push(`${PLACE_IN[i]}${was}: ${M(top)} קטן מ-${M(d2)}, לווים 1: ${M(`${top + 10} − ${d2} = ${top + 10 - d2}`)}`); borrow = 1; }
+      else { out.push(`${PLACE_IN[i]}${was}: ${M(`${top} − ${d2} = ${top - d2}`)}`); borrow = 0; }
+    }
+    out.push(M(`${x} − ${y} = ${x - y}`));
+    return out;
+  },
+  longMul(p) {
+    const [x, y] = qNums(p), ans = x * y;
+    if (y < 10) {
+      const parts = String(x).split('').map((d, i, arr) => +d * 10 ** (arr.length - 1 - i)).filter(Boolean);
+      if (parts.length === 1) return [`${M(x)} זה ${M(x / 10 ** (String(x).length - 1))} עם ${String(x).length - 1 === 1 ? 'אפס אחד' : `${String(x).length - 1} אפסים`}: ${M(`${x / 10 ** (String(x).length - 1)} × ${y} = ${x / 10 ** (String(x).length - 1) * y}`)}, ומוסיפים את האפסים.`, M(`${x} × ${y} = ${ans}`)];
+      return [`מפרקים את ${M(x)} לפי מקומות: ${M(parts.join(' + '))}`, M(`${parts.map(v => `${v} × ${y}`).join(' + ')} = ${parts.map(v => v * y).join(' + ')}`), M(`= ${ans}`)];
+    }
+    const tens = y - y % 10, ones = y % 10;
+    if (!ones) return [`כופלים ב-${M(tens / 10)} ומוסיפים אפס: ${M(`${x} × ${tens / 10} = ${x * tens / 10}`)}`, M(`${x} × ${y} = ${ans}`)];
+    return [`מפרקים את ${M(y)} ל-${M(`${tens} + ${ones}`)}:`, M(`${x} × ${ones} = ${x * ones}`), M(`${x} × ${tens} = ${x * tens}`), `מחברים: ${M(`${x * ones} + ${x * tens} = ${ans}`)}`];
+  },
+  longDiv(p) {
+    const [x, y] = qNums(p), out = []; let cur = 0, started = false;
+    const ds = String(x).split('');
+    ds.forEach((d, i) => {
+      cur = cur * 10 + +d;
+      if (!started && cur < y && i < ds.length - 1) return;
+      started = true;
+      const k = Math.floor(cur / y), r = cur - k * y;
+      if (out.length < 5) out.push(`${M(`${cur} ÷ ${y}`)} = ${M(k)}${r ? ` (שארית ${M(r)}${i < ds.length - 1 ? ', מורידים את הספרה הבאה' : ''})` : ''}`);
+      cur = r;
+    });
+    if (!(out.length === 1 && plainText(out[0]).startsWith(`${x} ÷`))) out.push(M(`${x} ÷ ${y} = ${x / y}`));
+    return out;
+  },
+  negatives(p) {
+    const m = qText(p).match(/^\(?(-?\d+)\)?\s*([+-])\s*\(?(-?\d+)\)?$/);
+    if (!m) return null;
+    const a = +m[1], b = +m[3], eff = m[2] === '+' ? b : -b, ans = a + eff, out = [];
+    if (b < 0) out.push(`שני סימנים צמודים: ${m[2] === '+' ? 'פלוס ומינוס נותנים מינוס' : 'מינוס ומינוס נותנים פלוס'}: ${M(`${a} ${eff < 0 ? '−' : '+'} ${Math.abs(eff)}`)}`);
+    out.push(`על ציר המספרים: מתחילים ב-${M(a)} וזזים ${stepsTxt(Math.abs(eff))} ${eff < 0 ? 'שמאלה' : 'ימינה'}.`);
+    out.push(M(`${a} ${eff < 0 ? '−' : '+'} ${Math.abs(eff)} = ${ans}`));
+    return out;
+  },
+  orderops(p) {
+    const t = qText(p).replace(/-/g, '−');
+    const chain = opsChain(t);
+    return [`קודם סוגריים, אחר כך כפל וחילוק, ובסוף חיבור וחיסור:`, M(t), ...chain.map(l => M(`= ${l}`))];
+  },
+  fractions(p) {
+    const t = qText(p), f = fracList(t), ans = String(p.answer);
+    if (/שווה ל/.test(t) && f[0]) {
+      const [an, ad] = ans.split('/').map(Number), k = ad / f[0].d;
+      return [`כופלים את המונה ואת המכנה באותו מספר, ${M(k)}:`, M(`(${f[0].n} × ${k})/(${f[0].d} × ${k}) = ${an}/${ad}`)];
+    }
+    if (/צמצם/.test(t) && f[0]) {
+      const g = gcdN(f[0].n, f[0].d);
+      return [`המספר הגדול ביותר שמחלק גם את ${M(f[0].n)} וגם את ${M(f[0].d)} הוא ${M(g)}.`, `מחלקים את המונה ואת המכנה ב-${M(g)}: ${M(`(${f[0].n} ÷ ${g})/(${f[0].d} ÷ ${g}) = ${ans}`)}`];
+    }
+    if (/גדול/.test(t) && f.length === 2) {
+      const [A, B] = f, D = A.d * B.d;
+      return [`מביאים למכנה משותף ${M(D)}:`, M(`${fr(A.n, A.d)} = ${fr(A.n * B.d, D)}`), M(`${fr(B.n, B.d)} = ${fr(B.n * A.d, D)}`), `באותו מכנה, גדול יותר השבר עם המונה הגדול: ${M(ans)}`];
+    }
+    const op = (t.match(/\d\s*([+-])\s*\d/) || [])[1];
+    if (op && f.length === 2) {
+      const [A, B] = f;
+      if (A.d === B.d) return [`המכנים שווים – ${op === '+' ? 'מחברים' : 'מחסרים'} רק את המונים:`, M(`${fr(A.n, A.d)} ${op === '+' ? '+' : '−'} ${fr(B.n, B.d)} = ${fr(op === '+' ? A.n + B.n : A.n - B.n, A.d)}`), ...(fr(op === '+' ? A.n + B.n : A.n - B.n, A.d) !== ans ? [`מצמצמים: ${M(ans)}`] : [])];
+      const D = A.d * B.d / gcdN(A.d, B.d), n1 = A.n * D / A.d, n2 = B.n * D / B.d, N = op === '+' ? n1 + n2 : n1 - n2;
+      return [`מכנה משותף: ${M(D)}`, M(`${fr(A.n, A.d)} = ${fr(n1, D)}`), M(`${fr(B.n, B.d)} = ${fr(n2, D)}`),
+        M(`${fr(n1, D)} ${op === '+' ? '+' : '−'} ${fr(n2, D)} = ${fr(N, D)}`), ...(fr(N, D) !== ans ? [`מצמצמים: ${M(ans)}`] : [])];
+    }
+    return null;
+  },
+  fractionsAdv(p) {
+    const t = qText(p), f = fracList(t), ans = String(p.answer);
+    if (/הופכי/.test(t) && f[0]) return [`ההופכי מחליף בין המונה למכנה: ${M(`${fr(f[0].n, f[0].d)} → ${fr(f[0].d, f[0].n)}`)}`, `בדיקה: ${M(`${fr(f[0].n, f[0].d)} × ${fr(f[0].d, f[0].n)} = 1`)}`];
+    const wm = t.match(/^(\d+)\s*×\s*(\d+)\/(\d+)$/);
+    if (wm) { const [w, n, d] = wm.slice(1).map(Number); return [`מספר שלם כפול שבר: כופלים רק את המונה: ${M(`(${w} × ${n})/${d} = ${fr(w * n, d)}`)}`, ...(fr(w * n, d) !== ans ? [`מצמצמים: ${M(ans)}`] : [])]; }
+    if (/המר/.test(t) && f[0]) { const im = improper(f[0]); return [`כופלים את השלם במכנה ומוסיפים את המונה: ${M(`${f[0].w} × ${f[0].d} + ${f[0].n} = ${im.n}`)}`, `המכנה נשאר ${M(f[0].d)}: ${M(fr(im.n, im.d))}`]; }
+    const op = t.includes('÷') ? '÷' : t.includes('×') ? '×' : null;
+    if (!op || f.length !== 2) return null;
+    const out = [];
+    let [A, B] = f.map(improper);
+    f.forEach((x, i) => { if (x.w) out.push(`מספר מעורב לשבר: ${M(`${x.w} ${fr(x.n, x.d)} = ${fr((i ? B : A).n, x.d)}`)}`); });
+    if (op === '÷') { out.push(`חילוק = כפל בהופכי: ${M(`${fr(A.n, A.d)} × ${fr(B.d, B.n)}`)}`); B = { n: B.d, d: B.n }; }
+    out.push(`מונה כפול מונה, מכנה כפול מכנה: ${M(`(${A.n} × ${B.n})/(${A.d} × ${B.d}) = ${fr(A.n * B.n, A.d * B.d)}`)}`);
+    if (fr(A.n * B.n, A.d * B.d) !== ans) out.push(`מצמצמים: ${M(ans)}`);
+    return out;
+  },
+  decimals(p) {
+    const t = qText(p), ans = String(p.answer);
+    const dm = t.match(/^(\d*\.(\d+))\s*=\s*\?$/);
+    if (dm) { const k = dm[2].length, n = Math.round(Number(dm[1]) * 10 ** k), d = 10 ** k, g = gcdN(n, d);
+      return [`${k === 1 ? 'ספרה אחת' : `${k} ספרות`} אחרי הנקודה = ${k === 1 ? 'עשיריות' : 'מאיות'}: ${M(`${dm[1]} = ${fr(n, d)}`)}`, ...(g > 1 ? [`מצמצמים ב-${M(g)}: ${M(fr(n / g, d / g))}`] : [])]; }
+    const m = t.match(/^([\d.]+)\s*([+\-×÷])\s*([\d.]+)$/);
+    if (!m) return null;
+    if ((m[2] === '×' || m[2] === '÷') && /^10+$/.test(m[3])) {
+      const k = m[3].length - 1;
+      return [`${m[2] === '×' ? 'כפל' : 'חילוק'} ב-${M(m[3])}: מזיזים את הנקודה ${k === 1 ? 'מקום אחד' : `${k} מקומות`} ${m[2] === '×' ? 'ימינה' : 'שמאלה'}.`, M(`${m[1]} ${m[2]} ${m[3]} = ${ans}`)];
+    }
+    return [`כותבים את המספרים זה מתחת לזה, נקודה מתחת לנקודה, ו${m[2] === '+' ? 'מחברים' : m[2] === '-' ? 'מחסרים' : 'מחשבים'} עמודה עמודה.`, M(`${m[1]} ${m[2] === '-' ? '−' : m[2]} ${m[3]} = ${ans}`)];
+  },
+  simplify(p) {
+    const t = qText(p), ans = String(p.answer);
+    let m = t.match(/^\(x\s*([+-])\s*(\d+)\)\s*\(x\s*([+-])\s*(\d+)\)$/);
+    if (m) {
+      const a = (m[1] === '+' ? 1 : -1) * m[2], b = (m[3] === '+' ? 1 : -1) * m[4];
+      return [`כל איבר בסוגריים הראשונים כפול כל איבר בשניים:`, M(`x·x ${signed(b).replace(/(\d+)/, '$1x')} ${signed(a).replace(/(\d+)/, '$1x')} ${signed(a * b)}`), `מכנסים את איברי ה-${M('x')}: ${M(ans)}`];
+    }
+    m = t.match(/^(\d+)\((\d*)x\s*([+-])\s*(\d+)\)$/);
+    if (m) {
+      const k = +m[1], c = m[2] ? +m[2] : 1;
+      return [`כופלים את ${M(k)} בכל אחד מהאיברים שבסוגריים:`, M(`${k} × ${c === 1 ? '' : c}x ${m[3] === '+' ? '+' : '−'} ${k} × ${m[4]}`), M(`= ${ans}`)];
+    }
+    m = t.match(/^(\d*)x\s*([+-])\s*(\d*)x$/);
+    if (m) return [`אותו משתנה – מחברים רק את המקדמים: ${M(`${m[1] || 1} ${m[2] === '+' ? '+' : '−'} ${m[3] || 1}`)}`, M(ans)];
+    return [`פותחים סוגריים (אם יש) ומכנסים איברים דומים.`, M(ans)];
+  },
+  solveLinear(p) {
+    const t = qText(p), bm = t.match(/^(\d+)\(x\s*([+-])\s*(\d+)\)\s*=\s*(-?\d+)$/);
+    if (bm) { const [k, a, c] = [+bm[1], +bm[3], +bm[4]];
+      return [`מחלקים את שני האגפים ב-${M(k)}: ${M(`x ${bm[2] === '+' ? '+' : '−'} ${a} = ${c / k}`)}`, `${bm[2] === '+' ? `מחסירים ${M(a)} משני האגפים` : `מוסיפים ${M(a)} לשני האגפים`}: ${M(`x = ${p.answer}`)}`]; }
+    return linearSteps(t, false, String(p.answer));
+  },
+  inequalities(p) { return linearSteps(qText(p), true, String(p.answer)); },
+  factorize(p) {
+    const t = qText(p), ans = String(p.answer), an = ans.replace(/−/g, '-');
+    const ds = t.match(/^x²\s*-\s*(\d+)$/);
+    if (ds) { const r = Math.sqrt(+ds[1]); return [`${M(ds[1])} הוא ${M(`${r}²`)}, אז זה הפרש ריבועים: ${M(`x² − ${r}²`)}`, `הנוסחה: ${M('a² − b² = (a − b)(a + b)')}`, M(`${t} = ${ans}`)]; }
+    const gx = an.match(/^(\d*x)\(/);
+    if (gx) return [`בכל האיברים יש ${M(gx[1])} – מוציאים אותו אל מחוץ לסוגריים.`, M(`${t} = ${ans}`)];
+    let m = ans.match(/^(\d+)\(/);
+    if (m && !/x²/.test(t)) return [`מוציאים את ${M(m[1])} אל מחוץ לסוגריים: מחלקים כל איבר ב-${M(m[1])}.`, M(`${t} = ${ans}`)];
+    m = t.match(/x²\s*([+-])\s*(\d*)x\s*([+-])\s*(\d+)/);
+    const r = an.match(/\(x\s*([+-])\s*(\d+)\)\s*\(x\s*([+-])\s*(\d+)\)/);
+    if (m && r) {
+      const b = (m[1] === '+' ? 1 : -1) * (m[2] ? +m[2] : 1), c = (m[3] === '+' ? 1 : -1) * +m[4];
+      const u = (r[1] === '+' ? 1 : -1) * r[2], v = (r[3] === '+' ? 1 : -1) * r[4];
+      return [`מחפשים שני מספרים שמכפלתם ${M(c)} וסכומם ${M(b)}: ${M(u)} ו-${M(v)}.`, `בדיקה: ${M(`${u} × ${v} = ${u * v}`)}, ${M(`${u} + ${v} = ${u + v}`)}`, M(`${t} = ${ans}`)];
+    }
+    return null;
+  },
+  simultaneous(p) {
+    const eqs = qText(p).split(';').map(s => s.match(/(\d*)x\s*\+\s*(\d*)y\s*=\s*(-?\d+)/)).filter(Boolean);
+    const sol = String(p.answer).match(/\((-?\d+),\s*(-?\d+)\)/);
+    if (eqs.length !== 2 || !sol) return null;
+    const [[, a1, b1, c1], [, a2, b2, c2]] = eqs.map(m => m.map(v => v === '' ? 1 : v).map(Number));
+    const X = +sol[1], Y = +sol[2], out = [];
+    const sg = (u, w) => (u < 0 ? [-u, -w] : [u, w]);
+    if (b1 === b2) { const [u, w] = sg(a1 - a2, c1 - c2); out.push(`ל-${M('y')} אותו מקדם בשתי המשוואות – מחסרים אותן: ${M(`${u}x = ${w}`)}`, M(`x = ${X}`)); }
+    else if (a1 === a2) { const [u, w] = sg(b1 - b2, c1 - c2); out.push(`ל-${M('x')} אותו מקדם בשתי המשוואות – מחסרים אותן: ${M(`${u}y = ${w}`)}`, M(`y = ${Y}`)); }
+    else {
+      out.push(`כופלים את המשוואה הראשונה ב-${M(b2)} ואת השנייה ב-${M(b1)}, כדי שלמקדם של ${M('y')} יהיה אותו ערך:`);
+      out.push(M(`${a1 * b2}x + ${b1 * b2}y = ${c1 * b2}`), M(`${a2 * b1}x + ${b1 * b2}y = ${c2 * b1}`));
+      const [u, w] = sg(a1 * b2 - a2 * b1, c1 * b2 - c2 * b1);
+      out.push(`מחסרים את המשוואות: ${M(`${u}x = ${w}`)}, ולכן ${M(`x = ${X}`)}`);
+    }
+    if (a1 === a2 && b1 !== b2) out.push(`מציבים ${M(`y = ${Y}`)} במשוואה הראשונה: ${M(`${a1}x + ${b1 * Y} = ${c1}`)}, ולכן ${M(`x = ${X}`)}`);
+    else out.push(`מציבים ${M(`x = ${X}`)} במשוואה הראשונה: ${M(`${a1 * X} + ${b1}y = ${c1}`)}, ולכן ${M(`y = ${Y}`)}`);
+    out.push(`הפתרון: ${M(`(${X},${Y})`)}`);
+    return out;
+  },
+  placeValue(p) {
+    const label = p.questionLabel || '', digits = String(p.displayQ).replace(/\D/g, '');
+    const m = label.match(/ה"([^"]+)"/);
+    if (m && PLACE_KEYS[m[1]] !== undefined) {
+      const k = PLACE_KEYS[m[1]], rev = digits.split('').reverse();
+      const walk = rev.slice(0, k + 1).map((d, i) => `${PLACE_NAME[i]}: ${M(d)}`).join(' · ');
+      const out = [`סופרים מקומות מימין: ${walk}`];
+      if (/ערך/.test(label)) out.push(`הערך הוא הספרה עם אפס לכל מקום שאחריה: ${M(String(p.answer))}`);
+      else out.push(`הספרה במקום ה${m[1]}: ${M(String(p.answer))}`);
+      return out;
+    }
+    return [`כל ספרה כפול הערך של המקום שלה, ומחברים:`, M(String(p.answer))];
+  },
+  properties(p) {
+    const label = p.questionLabel || '';
+    const sub = label.match(/([a-z])\s*=\s*(-?\d+)/);
+    if (sub) {
+      const [, v, val] = sub, expr = String(p.displayQ);
+      const placed = expr.replace(new RegExp(`(\\d)${v}`, 'g'), `$1 × ${val}`).replace(new RegExp(v, 'g'), val);
+      return [`מציבים ${M(val)} במקום ${M(v)}:`, M(placed), ...opsChain(placed).map(l => M(`= ${l}`))];
+    }
+    const a = String(p.answer);
+    const why = /חילופיות/.test(a) ? 'אותם מספרים בסדר אחר, והתוצאה לא השתנתה.'
+      : /קיבוציות/.test(a) ? 'אותם מספרים באותו סדר – רק הסוגריים זזו.'
+      : /פילוג/.test(a) ? 'המספר שמחוץ לסוגריים נכפל בכל אחד מהמספרים שבפנים.'
+      : /נייטרלי/.test(a) ? 'הוספת 0 (או כפל ב-1) לא משנה את המספר.'
+      : /אפס/.test(a) ? 'כל מספר כפול 0 שווה 0.' : '';
+    return [why, `לכן זו ${a}.`].filter(Boolean);
+  }
+};
+
+// מלכודות: לכל מסלול – תשובות שגויות צפויות, וההסבר מה קרה
+const trap = (v, why) => ({ v, why });
+const BASICS_TRAPS = {
+  addition: p => [trap(p.a - p.b, 'חיסרתם במקום לחבר. בחיבור התוצאה גדלה.'), trap(Math.abs(p.a - p.b), 'חיסרתם במקום לחבר. בחיבור התוצאה גדלה.'),
+    trap(p.a + p.b + 1, 'ספרתם צעד אחד יותר מדי. מתחילים לספור מהמספר שאחרי.'), trap(p.a + p.b - 1, 'ספרתם צעד אחד פחות מדי.')],
+  subtraction: p => [trap(p.a + p.b, 'חיברתם במקום לחסר. בחיסור התוצאה קטנה.'), trap(p.a - p.b + 1, 'ספרתם צעד אחד פחות מדי.'), trap(p.a - p.b - 1, 'ספרתם צעד אחד יותר מדי.')],
+  multiplication: p => [trap(p.a + p.b, `חיברתם במקום לכפול. ${p.a} × ${p.b} זה ${p.a} קבוצות של ${p.b}.`), trap(p.a * p.b + p.b, 'קפצתם קפיצה אחת יותר מדי.'), trap(p.a * p.b - p.b, 'קפצתם קפיצה אחת פחות מדי.')],
+  division: p => [trap(p.a * p.b, 'כפלתם במקום לחלק.'), trap(p.a - p.b, 'חיסרתם במקום לחלק. חילוק שואל כמה פעמים המספר נכנס.')],
+  multiAdd(p) {
+    const [x, y] = qNums(p);
+    const noCarry = Number(String(x).padStart(12, '0').split('').map((d, i) => (+d + +String(y).padStart(12, '0')[i]) % 10).join(''));
+    return [trap(noCarry, 'שכחתם להעביר 1 לעמודה הבאה כשהעמודה עברה את 10.'), trap(x - y, 'חיסרתם במקום לחבר.')];
+  },
+  multiSub(p) {
+    const [x, y] = qNums(p);
+    const X = String(x), Y = String(y).padStart(X.length, '0');
+    const flip = Number(X.split('').map((d, i) => Math.abs(+d - +Y[i])).join(''));
+    let b = 0, s = '';
+    for (let i = X.length - 1; i >= 0; i--) { let top = +X[i]; if (top < +Y[i]) { s = (top + 10 - +Y[i]) + s; b++; } else s = (top - +Y[i]) + s; }
+    return [trap(flip, 'הורדתם את הספרה הקטנה מהגדולה, גם כשהגדולה הייתה למטה. במקרה כזה לווים מהעמודה שמשמאל.'),
+      trap(Number(s), 'לוויתם, אבל שכחתם להוריד 1 מהעמודה שממנה לוויתם.'), trap(x + y, 'חיברתם במקום לחסר.')];
+  },
+  longMul(p) {
+    const [x, y] = qNums(p);
+    const out = [trap(x * (y % 10), `כפלתם רק באחדות של ${y}. צריך לכפול גם בעשרות ולחבר.`)];
+    if (y >= 10) out.push(trap(x * Math.floor(y / 10) + x * (y % 10), 'כשכופלים בעשרות צריך להוסיף 0 בסוף התוצאה.'));
+    out.push(trap(x + y, 'חיברתם במקום לכפול.'));
+    return out;
+  },
+  longDiv(p) {
+    const [x, y] = qNums(p), q = x / y;
+    return [trap(q * 10, 'יש בתשובה אפס מיותר. בדקו: כמה פעמים המחלק נכנס?'), trap(q / 10, `חסר אפס בתשובה: כשהמספר שמורידים קטן מ-${y}, כותבים 0 בתוצאה.`), trap(x - y, 'חיסרתם במקום לחלק.')];
+  },
+  negatives(p) {
+    const m = qText(p).match(/^\(?(-?\d+)\)?\s*([+-])\s*\(?(-?\d+)\)?$/);
+    if (!m) return [];
+    const a = +m[1], b = +m[3], ans = m[2] === '+' ? a + b : a - b;
+    return [trap(-ans, 'הסימן של התשובה הפוך. בדקו על ציר המספרים לאיזה כיוון זזים.'),
+      trap(m[2] === '+' ? a - b : a + b, 'שני סימנים צמודים: פלוס ומינוס נותנים מינוס, מינוס ומינוס נותנים פלוס.'),
+      trap(Math.abs(a) + Math.abs(b), 'התעלמתם מהסימנים. מספר שלילי מקטין, לא מגדיל.')];
+  },
+  orderops: p => [trap(evalLTR(qText(p)), 'חישבתם משמאל לימין. קודם כפל וחילוק, ורק אחר כך חיבור וחיסור.')],
+  fractions(p) {
+    const t = qText(p), f = fracList(t), op = (t.match(/\d\s*([+-])\s*\d/) || [])[1];
+    if (op && f.length === 2) return [trap(fr(op === '+' ? f[0].n + f[1].n : f[0].n - f[1].n, op === '+' ? f[0].d + f[1].d : f[0].d - f[1].d), 'חיברתם גם את המכנים. המכנה אומר לכמה חלקים חתכו – הוא לא מתחבר.')];
+    if (/שווה ל/.test(t) && f[0]) { const [, ad] = String(p.answer).split('/').map(Number); return [trap(fr(f[0].n, ad), 'כפלתם רק את המכנה. צריך לכפול את המונה ואת המכנה באותו מספר.')]; }
+    if (/צמצם/.test(t) && f[0]) { const g = gcdN(f[0].n, f[0].d); return [trap(fr(f[0].n / g, f[0].d), 'חילקתם רק את המונה. מחלקים את המונה ואת המכנה באותו מספר.')]; }
+    return [];
+  },
+  fractionsAdv(p) {
+    const t = qText(p), f = fracList(t);
+    if (/המר/.test(t) && f[0]) return [trap(fr(f[0].w + f[0].n, f[0].d), 'חיברתם את השלם למונה. קודם כופלים את השלם במכנה.'), trap(fr(f[0].w * f[0].n, f[0].d), 'כפלתם את השלם במונה במקום במכנה.')];
+    if (t.includes('÷') && f.length === 2) { const [A, B] = f.map(improper); const n = A.n * B.n, d = A.d * B.d, g = gcdN(n, d); return [trap(fr(n, d), 'כפלתם בלי להפוך את השבר השני. חילוק = כפל בהופכי.'), trap(fr(n / g, d / g), 'כפלתם בלי להפוך את השבר השני. חילוק = כפל בהופכי.')]; }
+    return [];
+  },
+  decimals(p) {
+    const m = qText(p).match(/^([\d.]+)\s*([×÷])\s*(10+)$/);
+    if (!m) return [];
+    const a = +m[1], k = +m[3], wrong = m[2] === '×' ? a / k : a * k;
+    return [trap(Math.round(wrong * 1e6) / 1e6, `הזזתם את הנקודה לכיוון הלא נכון. ${m[2] === '×' ? 'בכפל המספר גדל – הנקודה זזה ימינה.' : 'בחילוק המספר קטן – הנקודה זזה שמאלה.'}`)];
+  },
+  simplify(p) {
+    const t = qText(p);
+    let m = t.match(/^\(x\s*([+-])\s*(\d+)\)\s*\(x\s*([+-])\s*(\d+)\)$/);
+    if (m) { const ab = (m[1] === '+' ? 1 : -1) * m[2] * (m[3] === '+' ? 1 : -1) * m[4]; return [trap(`x² ${ab < 0 ? '−' : '+'} ${Math.abs(ab)}`, 'שכחתם את האיברים האמצעיים: גם x כפול המספר שבסוגריים השניים, וגם המספר כפול x.')]; }
+    m = t.match(/^(\d+)\((\d*)x\s*([+-])\s*(\d+)\)$/);
+    if (m) { const c = (m[2] ? +m[2] : 1) * +m[1]; return [trap(`${c}x ${m[3] === '+' ? '+' : '−'} ${m[4]}`, `כפלתם רק את האיבר הראשון. ה-${m[1]} נכפל בכל האיברים שבסוגריים.`)]; }
+    return [];
+  },
+  solveLinear(p) {
+    const t = qText(p), m = t.match(/^(\d*)x\s*([+-])\s*(\d+)\s*=\s*(-?\d+)$/);
+    if (!m) return [];
+    const a = m[1] ? +m[1] : 1, k = +m[3], c = +m[4];
+    const wrongSide = m[2] === '+' ? c + k : c - k;
+    const out = [trap(a === 1 ? wrongSide : wrongSide / a, `${m[2] === '+' ? 'הוספתם' : 'החסרתם'} ${k} במקום ${m[2] === '+' ? 'להחסיר' : 'להוסיף'}. מבטלים פעולה בפעולה ההפוכה.`)];
+    if (a !== 1) out.push(trap(m[2] === '+' ? c - k : c + k, `שכחתם לחלק ב-${a} בסוף.`));
+    return out;
+  },
+  inequalities(p) {
+    const ans = String(p.answer);
+    return [trap(ans.includes('<') ? ans.replace('<', '>') : ans.replace('>', '<'), 'כיוון הסימן הפוך. הופכים אותו רק כשמחלקים או כופלים במספר שלילי.')];
+  },
+  simultaneous(p) {
+    const m = String(p.answer).match(/\((-?\d+),\s*(-?\d+)\)/);
+    return m ? [trap(`(${m[2]},${m[1]})`, 'החלפתם בין x ל-y. בזוג סדור כותבים קודם את x ואחריו את y.')] : [];
+  },
+  placeValue(p) {
+    const label = p.questionLabel || '', m = label.match(/ה"([^"]+)"/);
+    if (!m || PLACE_KEYS[m[1]] === undefined) return [];
+    const k = PLACE_KEYS[m[1]], digits = String(p.displayQ).replace(/\D/g, ''), d = digits[digits.length - 1 - k];
+    return /ערך/.test(label) ? [trap(d, 'שאלו על הערך של הספרה – הספרה עם האפסים שאחריה, לא רק הספרה.')]
+      : [trap(String(+d * 10 ** k), 'שאלו רק על הספרה עצמה, בלי האפסים.'), trap(digits[k], 'ספרתם את המקומות משמאל. סופרים מימין: אחדות, עשרות, מאות…')];
+  },
+  properties(p) {
+    const label = p.questionLabel || '', sub = label.match(/([a-z])\s*=\s*(-?\d+)/);
+    if (!sub) return [];
+    const m = String(p.displayQ).match(new RegExp(`^(\\d+)${sub[1]}$`));
+    return m ? [trap(m[1] + sub[2], `${m[1]}${sub[1]} פירושו ${m[1]} כפול ${sub[1]}, לא לכתוב את הספרות זו ליד זו.`)] : [];
+  }
+};
+
+const normAns = v => String(v).replace(/−/g, '-').replace(/\s+/g, '').toLowerCase();
+function findBasicsTrap(p, value) {
+  if (value == null || value === 'לא יודע/ת') return null;
+  let list = [];
+  try { list = (BASICS_TRAPS[basicsTrack] ? BASICS_TRAPS[basicsTrack](p) : []) || []; } catch (e) { list = []; }
+  const v = normAns(value), num = Number(v);
+  return list.find(t => {
+    if (t.v == null || normAns(t.v) === normAns(p.answer)) return false;
+    if (typeof t.v === 'number') return Number.isFinite(t.v) && v !== '' && !Number.isNaN(num) && Math.abs(num - t.v) < 1e-9;
+    return normAns(t.v) === v;
+  }) || null;
+}
+function basicsStepsFor(p) {
+  let steps = null;
+  try { steps = BASICS_STEPS[basicsTrack] ? BASICS_STEPS[basicsTrack](p) : null; } catch (e) { steps = null; }
+  return Array.isArray(steps) && steps.length ? steps : null;
+}
+
 let basicsHint = null;
 function basicsHasHints(track) { return typeof BASICS_HINTS[track] === 'function'; }
 function openBasicsHint() {
@@ -4505,6 +5053,7 @@ function renderBasicsHint() {
         <span class="hint-pips" aria-label="רמז ${h.level + 1} מתוך ${h.levels.length}">${h.levels.map((_, i) => `<i class="${i <= h.level ? 'on' : ''}"></i>`).join('')}</span>
         <button type="button" class="q-close hint-x" onclick="closeBasicsHint()" aria-label="סגירת הרמז">${draftIcon('close', 18)}</button>
       </div>
+      ${h.lead ? `<p class="hint-lead">${h.lead}</p>` : ''}
       ${modes.length > 1 ? `<div class="hint-tabs">${modes.map((m, i) => `<button type="button" class="${m === mode ? 'on' : ''}" onclick="basicsHint.mode=${i}; renderBasicsHint()">${HINT_MODE_LABELS[m]}</button>`).join('')}</div>` : ''}
       <div class="hint-body">${lv.modes[mode]}</div>
       <div class="hint-actions">
@@ -4516,9 +5065,19 @@ function renderBasicsHint() {
 }
 function basicsHintMore() {
   if (basicsHint.level < basicsHint.levels.length - 1) { basicsHint.level++; basicsHint.mode = 0; basicsHint.used = basicsHint.level + 1; }
+  basicsHint.lead = '';
   renderBasicsHint();
 }
-function basicsHintOther() { basicsHint.mode++; renderBasicsHint(); }
+function basicsHintOther() { basicsHint.mode++; basicsHint.lead = ''; renderBasicsHint(); }
+// אחרי טעות ראשונה: הרמז הבא נפתח מעצמו, עם פתיח
+function basicsHintAuto() {
+  const first = !basicsHint;
+  if (first) openBasicsHint();
+  else { basicsHintMore(); document.getElementById('qs-hint').hidden = false; }
+  basicsHint.lead = first ? 'כמעט. הנה רמז:' : 'כמעט. ננסה הסבר נוסף:';
+  renderBasicsHint();
+  document.getElementById('qs-hint').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
 function closeBasicsHint() {
   document.getElementById('qs-hint').hidden = true;
 }
@@ -4549,6 +5108,7 @@ function renderBasicsProblem() {
   const labelHtml = labelText ? `<div class="basics-question-label">${escapeHtml(labelText)}</div>` : '';
   qsInput = '';
   basicsHint = null;
+  basicsAttempt = { tries: 0, missed: false, first: null, trap: null, done: false };
   let answerHtml;
   if (basicsTypable(p)) {
     const prefix = /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml)) ? '<i class="mx">x</i> =' : '';
@@ -4571,10 +5131,11 @@ function renderBasicsProblem() {
     ).join('')}</div>`;
   }
   container.innerHTML = `
-    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsSessionLog)}
     <div class="qs-question">${labelHtml}<div class="basics-equation">${questionLine}</div></div>
     <div id="qs-hint" hidden></div>
     <div id="qs-answer">
+      <div class="qs-miss" id="qs-miss" role="status" hidden></div>
       ${qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()', basicsHasHints(basicsTrack) ? 'openBasicsHint()' : '')}
       ${answerHtml}
     </div>
@@ -4606,35 +5167,61 @@ function qsKey(k) {
   qsRender();
 }
 function qsBack() { if (qsLocked()) return; qsInput = qsInput.slice(0, -1); qsRender(); }
-function qsShowResult(correct, answer) {
+function qsShowResult(correct) {
   document.getElementById('qs-keypad').classList.add('locked');
   document.querySelectorAll('#qs-keypad button').forEach(b => b.disabled = true);
-  const f = document.getElementById('qs-field');
-  f.classList.add(correct ? 'correct' : 'incorrect');
-  if (!correct) document.getElementById('qs-reveal').innerHTML = `התשובה: <b dir="ltr">${escapeHtml(String(answer).replace('-', '−'))}</b>`;
+  document.getElementById('qs-field').classList.add(correct ? 'correct' : 'incorrect');
 }
 function qsSubmit() {
   if (qsLocked() || !/\d/.test(qsInput)) return;
   const p = basicsProblems[basicsCurrent];
   const value = qsInput.replace('−', '-');
-  const correct = Number(value) === Number(p.answer);
-  qsShowResult(correct, p.answer);
-  recordBasicsAnswer(value, correct);
+  basicsAnswer(value, Number(value) === Number(p.answer));
 }
 function basicsDontKnow() {
-  const p = basicsProblems[basicsCurrent];
-  if (document.getElementById('qs-keypad')) {
-    if (qsLocked()) return;
-    qsShowResult(false, p.answer);
-  } else {
-    const btns = document.querySelectorAll('.basics-option');
-    if (!btns.length || btns[0].disabled) return;
-    btns.forEach(b => { b.disabled = true; if (b.dataset.val === String(p.answer)) b.classList.add('correct'); });
-  }
-  recordBasicsAnswer('לא יודע/ת', false);
+  if (basicsAttempt.done) return;
+  basicsAnswer('לא יודע/ת', false, true);
 }
 
+// ============================================================
+// לולאת שאלה: נכון → גיליון ירוק. טעות ראשונה → מלכודת או רמז, וניסיון נוסף.
+// טעות שנייה או "לא יודע/ת" → גיליון עם התשובה הנכונה ופתרון צעד אחר צעד.
+// ============================================================
+let basicsAttempt = { tries: 0, missed: false, first: null, trap: null, done: false };
+function basicsAnswer(value, correct, gaveUp) {
+  if (basicsAttempt.done) return;
+  const p = basicsProblems[basicsCurrent];
+  const btn = document.querySelector(`.basics-option[data-val="${CSS.escape(String(value))}"]`);
+  if (!correct && !gaveUp && basicsAttempt.tries === 0) { basicsFirstMiss(p, value, btn); return; }
+  basicsAttempt.done = true;
+  const trapHit = correct ? null : (findBasicsTrap(p, value) || basicsAttempt.trap);
+  // סימון על המסך
+  if (document.getElementById('qs-keypad')) qsShowResult(correct);
+  else document.querySelectorAll('.basics-option').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === String(p.answer)) b.classList.add('correct');
+    else if (b === btn && !correct) b.classList.add('incorrect');
+  });
+  const miss = document.getElementById('qs-miss'); if (miss) miss.hidden = true;
+  recordBasicsAnswer(value, correct, trapHit);
+}
+function basicsFirstMiss(p, value, btn) {
+  basicsAttempt.tries = 1; basicsAttempt.missed = true; basicsAttempt.first = value;
+  if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+  if (btn) { btn.disabled = true; btn.classList.add('no'); restartAnim(btn, 'shake'); }
+  const f = document.getElementById('qs-field');
+  if (f) { restartAnim(f, 'shake'); qsInput = ''; qsRender(); }
+  const t = findBasicsTrap(p, value);
+  basicsAttempt.trap = t;
+  const miss = document.getElementById('qs-miss');
+  if (t) { miss.innerHTML = `<b>מצאתי מה קרה:</b> ${escapeHtml(t.why)} נסו שוב.`; miss.hidden = false; restartAnim(miss, 'qs-miss-in'); }
+  else if (basicsHasHints(basicsTrack) && basicsRetryIdx === null) { miss.hidden = true; basicsHintAuto(); }
+  else { miss.innerHTML = '<b>כמעט.</b> נסו שוב.'; miss.hidden = false; restartAnim(miss, 'qs-miss-in'); }
+}
+function restartAnim(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
 document.addEventListener('keydown', e => {
+  if (fbIsOpen()) { if (e.key === 'Enter') { e.preventDefault(); fbContinue(); } return; }
   if (!document.getElementById('qs-keypad') || draftIsOpen()) return;
   const tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
@@ -4647,39 +5234,147 @@ document.addEventListener('keydown', e => {
 
 function checkBasicsAnswer(value, btnEl) {
   const p = basicsProblems[basicsCurrent];
-  const correct = String(value) === String(p.answer);
-  const allBtns = document.querySelectorAll('.basics-option');
-  allBtns.forEach(b => b.disabled = true);
-  if (correct) btnEl.classList.add('correct');
-  else {
-    btnEl.classList.add('incorrect');
-    allBtns.forEach(b => {
-      if (b.dataset.val === String(p.answer)) b.classList.add('correct');
-    });
-  }
-  recordBasicsAnswer(value, correct);
+  basicsAnswer(value, String(value) === String(p.answer));
 }
 
-function recordBasicsAnswer(value, correct) {
+function recordBasicsAnswer(value, correct, trapHit) {
   const p = basicsProblems[basicsCurrent];
   const timeMs = Date.now() - basicsProblemStart;
+  const helped = !!basicsHint || basicsAttempt.missed;
   if (basicsRetryIdx !== null) {
     if (correct) basicsSessionLog[basicsRetryIdx].retryOk = true;
-    setTimeout(() => { basicsRetryIdx = null; renderSheetReview(); }, correct ? 700 : 1600);
+    showBasicsFeedback({ p, value, correct, trapHit, retry: true });
     return;
   }
   basicsSessionLog.push({
     track: basicsTrack, sheetIdx: basicsSheetIndex,
     question: (p.questionLabel ? p.questionLabel + ' ' : '') + (p.displayQ || `${p.a} ${p.op} ${p.b}`),
     chosen: value, correct, expected: p.answer, timeMs,
-    ...(basicsHint ? { hintsUsed: basicsHint.used } : {})
+    solvedAlone: correct && !helped,
+    ...(basicsAttempt.missed ? { firstTry: basicsAttempt.first } : {}),
+    ...(basicsHint ? { hintsUsed: basicsHint.used } : {}),
+    ...(trapHit ? { mistake: trapHit.why } : basicsAttempt.trap ? { mistake: basicsAttempt.trap.why } : {})
   });
   if (correct) basicsCorrect++;
-  setTimeout(() => {
-    basicsCurrent++;
-    if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet();
-    else renderBasicsProblem();
-  }, correct ? 600 : 1800);
+  updateProgressSegs();
+  showBasicsFeedback({ p, value, correct, trapHit });
+}
+function updateProgressSegs() {
+  const segs = document.querySelectorAll('#basics-session .q-segs i');
+  basicsSessionLog.forEach((r, i) => { if (segs[i]) { segs[i].className = r.correct ? 'ok' : 'no'; } });
+}
+
+// ===== גיליון המשוב =====
+const PRAISE = ['בול!', 'מעולה!', 'יפה מאוד!', 'בדיוק ככה!', 'מושלם!', 'איזה ראש!'];
+let fbNext = null;
+function fbIsOpen() { const s = document.getElementById('fb-sheet'); return !!s && s.classList.contains('open'); }
+function ensureFbSheet() {
+  if (document.getElementById('fb-sheet')) return;
+  const scrim = document.createElement('div'); scrim.id = 'fb-scrim'; scrim.className = 'fb-scrim';
+  const sheet = document.createElement('div'); sheet.id = 'fb-sheet'; sheet.className = 'fb-sheet';
+  sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-live', 'polite'); sheet.setAttribute('aria-label', 'משוב');
+  document.body.append(scrim, sheet);
+}
+function answerChip(p, v) {
+  const s = String(v);
+  if (!basicsTypable(p) && typeof renderOptionDisplay === 'function' && p.options && p.options.map(String).includes(s)) return renderOptionDisplay(s);
+  return /[֐-׿]/.test(s) ? escapeHtml(s) : M(s);
+}
+function showBasicsFeedback({ p, value, correct, trapHit, retry }) {
+  ensureFbSheet();
+  const sheet = document.getElementById('fb-sheet');
+  const helped = !!basicsHint || basicsAttempt.missed;
+  const steps = (!correct || helped) ? basicsStepsFor(p) : null;
+  const isLast = !retry && basicsCurrent >= BASICS_SHEET_SIZE - 1;
+  let note = '';
+  if (correct && basicsHint) note = `נפתר עם רמז ${basicsHint.used}.`;
+  else if (correct && basicsAttempt.missed) note = 'נכון בניסיון השני.';
+  const gaveUp = value === 'לא יודע/ת';
+  sheet.className = 'fb-sheet ' + (correct ? 'ok' : 'no');
+  sheet.innerHTML = `
+    <div class="fb-head">
+      <span class="fb-stamp" aria-hidden="true">${correct ? '✓' : '?'}</span>
+      <span class="fb-title">${correct ? PRAISE[Math.floor(Math.random() * PRAISE.length)] : 'כמעט. ככה פותרים:'}</span>
+      ${correct && !retry ? '<span class="fb-pill" id="fb-pill" dir="ltr">+1 ★</span>' : ''}
+    </div>
+    ${correct ? '' : `<div class="fb-cmp">${gaveUp ? '' : `<s dir="auto">${answerChip(p, value)}</s>`}<span>התשובה הנכונה:</span><span class="fb-ans">${answerChip(p, p.answer)}</span></div>`}
+    ${!correct && trapHit ? `<p class="fb-trap"><b>מה קרה:</b> ${escapeHtml(trapHit.why)}</p>` : ''}
+    ${note ? `<p class="fb-note">${note}</p>` : ''}
+    ${steps ? `<ol class="fb-steps" id="fb-steps">${steps.map((st, i) => `<li ${i ? 'hidden' : 'class="show"'}><span>${st}</span></li>`).join('')}</ol>
+      ${steps.length > 1 ? '<button type="button" class="fb-next-step" id="fb-next-step" onclick="fbRevealStep()">הצעד הבא</button>' : ''}` : ''}
+    <button type="button" class="fb-go" id="fb-go" onclick="fbContinue()">${retry ? 'חזרה לסיכום' : isLast ? 'לסיכום' : 'להמשיך'}</button>`;
+  fbNext = retry ? () => { basicsRetryIdx = null; renderSheetReview(); }
+    : () => { basicsCurrent++; if (basicsCurrent >= BASICS_SHEET_SIZE) finishBasicsSheet(); else renderBasicsProblem(); };
+  document.getElementById('fb-scrim').classList.add('open');
+  requestAnimationFrame(() => { sheet.classList.add('open'); });
+  setTimeout(() => { const g = document.getElementById('fb-go'); if (g) g.focus({ preventScroll: true }); }, 60);
+  if (correct && !retry) setTimeout(flyStarToScore, 260);
+}
+function fbRevealStep() {
+  const hidden = document.querySelector('#fb-steps li[hidden]');
+  if (hidden) { hidden.hidden = false; hidden.classList.add('show'); }
+  if (!document.querySelector('#fb-steps li[hidden]')) { const b = document.getElementById('fb-next-step'); if (b) b.remove(); }
+}
+function fbContinue() {
+  if (!fbIsOpen()) return;
+  document.getElementById('fb-sheet').classList.remove('open');
+  document.getElementById('fb-scrim').classList.remove('open');
+  const go = fbNext; fbNext = null;
+  if (go) go();
+}
+// הכוכב "עף" מהגיליון למונה למעלה (כמו נקודות ה-XP באתר ההשראה)
+function flyStarToScore() {
+  const pill = document.getElementById('fb-pill');
+  const target = document.querySelector('#basics-session .q-score');
+  const bump = () => { if (target) { target.textContent = `★ ${basicsCorrect}`; restartAnim(target, 'bump'); } };
+  if (!pill || !target || prefersReducedMotion()) { bump(); return; }
+  const a = pill.getBoundingClientRect(), b = target.getBoundingClientRect();
+  const fly = pill.cloneNode(true); fly.removeAttribute('id'); fly.classList.add('fb-fly');
+  fly.style.left = a.left + 'px'; fly.style.top = a.top + 'px';
+  document.body.appendChild(fly);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const anim = fly.animate([
+    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+    { transform: `translate(${dx * .5}px, ${dy * .5 - 60}px) scale(1.1)`, opacity: 1, offset: .5 },
+    { transform: `translate(${dx}px, ${dy}px) scale(.5)`, opacity: .2 }
+  ], { duration: 650, easing: 'cubic-bezier(.5,0,.5,1)' });
+  anim.onfinish = () => { fly.remove(); bump(); };
+}
+function prefersReducedMotion() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+function confettiBurst(n) {
+  if (prefersReducedMotion()) return;
+  const colors = ['#3D5AFE', '#FF6B3D', '#14B88A', '#FFC93C', '#F2559B', '#8B5CF6'];
+  const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i');
+    c.style.left = (Math.random() * 100) + 'vw';
+    c.style.background = colors[i % colors.length];
+    c.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+    c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    c.style.animationDelay = (Math.random() * .35) + 's';
+    box.appendChild(c);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 2000);
+}
+function showToast(msg) {
+  let t = document.getElementById('app-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'app-toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg;
+  requestAnimationFrame(() => t.classList.add('show'));
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function countUp(el, to, suffix) {
+  if (!el) return;
+  if (prefersReducedMotion()) { el.textContent = to + suffix; return; }
+  const t0 = performance.now();
+  const tick = now => {
+    const k = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(to * e) + suffix;
+    if (k < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 // ============================================================
@@ -4701,7 +5396,7 @@ function renderBreakApartProblem() {
   baLocked = false;
   const container = document.getElementById('basics-session');
   container.innerHTML = `
-    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsSessionLog)}
     <div class="ba-container">
       <div class="ba-headline">${p.a} + ${p.b} = ?</div>
       <div class="ba-decompose">
@@ -4859,7 +5554,7 @@ let geq = null; // מצב התרגיל המודרך הנוכחי
 
 function geqRenderShell(bodyHtml) {
   document.getElementById('basics-session').innerHTML = `
-    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect)}
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsSessionLog)}
     <div class="geq-container">${bodyHtml}</div>
   `;
 }
@@ -5238,6 +5933,9 @@ function finishBasicsSheet() {
   }
   autoSaveSession('sheet', basicsTrack, sheetLabelFor(basicsTrack, basicsSheetIndex));
   renderSheetReview();
+  countUp(document.getElementById('review-pct'), Math.round(100 * basicsCorrect / BASICS_SHEET_SIZE), '%');
+  if (basicsSheetPassed) confettiBurst(basicsSheetUnlocked ? 90 : 60);
+  if (basicsSheetUnlocked && basicsSheetIndex < 9) setTimeout(() => showToast('נפתח שלב חדש בסולם!'), 700);
 }
 
 function renderSheetReview() {
@@ -5260,7 +5958,7 @@ function renderSheetReview() {
     const rowCls = p.correct ? '' : (p.retryOk ? 'row-fixed' : 'row-wrong');
     let statusCell;
     if (p.correct) {
-      statusCell = `<span class="q-correct">✓ ${escapeHtml(String(p.chosen ?? ''))}</span>`;
+      statusCell = `<span class="q-correct">✓ ${escapeHtml(String(p.chosen ?? ''))}</span>${p.firstTry !== undefined || p.hintsUsed ? `<br><small class="review-second">${p.hintsUsed ? `עם רמז ${p.hintsUsed}` : 'בניסיון השני'}</small>` : ''}`;
     } else {
       statusCell = `<span class="q-wrong">✗ ${escapeHtml(String(p.chosen ?? '—'))}</span>`;
     }
@@ -5279,11 +5977,15 @@ function renderSheetReview() {
         <td>${action}</td>
       </tr>`;
   }).join('');
+  const unlockBadge = basicsSheetPassed && basicsSheetUnlocked && basicsSheetIndex < 9
+    ? `<div class="unlock-badge">🔓 נפתח שלב ${sheetLabelFor(basicsTrack, basicsSheetIndex + 1)}</div>` : '';
   container.innerHTML = `
     <div class="basics-result ${cls}">
+      <span class="review-mascot" aria-hidden="true">${MASCOT_SVG}</span>
       ${headline}
       <span class="score">${basicsCorrect} / ${BASICS_SHEET_SIZE}</span>
-      <div class="review-pct">${pct}%</div>
+      <div class="review-pct" id="review-pct">${pct}%</div>
+      ${unlockBadge}
     </div>
     <div class="submission-banner sent">✓ נשמר בהיסטוריה ונשלח למורה</div>
     <div class="review-table-wrap">
@@ -5318,8 +6020,14 @@ function retryProblemFromReview(idx) {
   container.insertBefore(back, container.firstChild);
 }
 
+function fbClose() {
+  const sh = document.getElementById('fb-sheet');
+  if (sh) { sh.classList.remove('open'); document.getElementById('fb-scrim').classList.remove('open'); }
+  fbNext = null;
+}
 function exitBasicsSession() {
   closeDraft();
+  fbClose();
   document.getElementById('basics-session-view').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.remove('hidden');
   renderBasicsLadder();
