@@ -1280,6 +1280,50 @@
   .hint-back { flex-basis: 100%; }
   #qs-answer[hidden], #qs-hint[hidden] { display: none; }
   .hint-lead { margin: 0; font-weight: 700; color: var(--sand-d); }
+  /* ציורי רמז, בדיקה קטנה, פס מכווץ, שיעור של דקה */
+  .hpic { display: block; width: 100%; max-height: 170px; margin: 2px auto; direction: ltr; font-family: var(--body); }
+  .hpic .tilt { transform-origin: 150px 40px; }
+  .hint-body.is-pic { background: white; box-shadow: var(--ring); padding: 8px; }
+  .hint-tabs button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
+  .hint-best { font-size: .72em; background: var(--sun); color: var(--ink); border-radius: 999px; padding: 1px 7px; font-weight: 700; }
+  .hcheck { background: var(--blue-l); border-radius: var(--r-md); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .hcheck-q { font-weight: 600; line-height: 1.8; }
+  .hcheck-tag { display: inline-block; font-size: .75em; background: var(--blue); color: white; border-radius: 999px; padding: 1px 9px; vertical-align: 2px; }
+  .hcheck-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hcheck-opts button { border: 0; background: white; border-radius: 12px; padding: 9px 14px; min-height: 44px; font: 600 1em var(--body); cursor: pointer; box-shadow: 0 0 0 1px var(--line), 0 2px 0 var(--line); transition: transform .08s, opacity .2s; }
+  .hcheck-opts button:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 1px var(--line); }
+  .hcheck-opts button.ok { background: var(--mint-d); color: white; box-shadow: 0 2px 0 #086B51; }
+  .hcheck-opts button.ok .mx { color: white; }
+  .hcheck-opts button.no { opacity: .45; text-decoration: line-through; cursor: default; }
+  .hcheck-opts button:disabled:not(.ok):not(.no) { cursor: default; }
+  .hcheck-fb { line-height: 1.6; }
+  .hcheck-fb:empty { display: none; }
+  .hint-lesson { background: var(--sand); color: var(--sand-d); }
+  .hmini { display: flex; align-items: flex-start; gap: 10px; background: var(--sand); border-radius: var(--r-md); padding: 10px 12px; animation: slideIn .25s ease-out; }
+  .hmini .hint-bulb { width: 32px; height: 32px; background: white; }
+  .hmini-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .hmini-body b { font-family: var(--display); }
+  .hmini-content { font-size: .95em; line-height: 1.6; }
+  .hmini .hpic { max-height: 90px; }
+  .hreopen { flex: none; border: 0; background: white; border-radius: 10px; padding: 7px 12px; font: 700 .9em var(--body); color: var(--sand-d); cursor: pointer; }
+  #qs-hint-btn[hidden] { display: none; }
+  .lesson-wrap { position: fixed; inset: 0; z-index: 3050; background: rgba(27,27,47,.35); display: grid; place-items: end center; }
+  .lesson { background: white; width: min(520px, 100%); max-height: 92dvh; overflow: auto; border-radius: 26px 26px 0 0; padding: 16px 18px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; animation: slideIn .25s ease-out; }
+  .lesson-top { display: flex; align-items: center; justify-content: space-between; }
+  .lesson-kicker { font-weight: 700; color: var(--sand-d); background: var(--sand); border-radius: 999px; padding: 3px 12px; font-size: .9em; }
+  .lesson h3 { margin: 0; font: 700 1.4em var(--display); }
+  .lesson p { margin: 0; font-size: 1.05em; line-height: 1.75; }
+  .lesson-pic { background: var(--paper); border-radius: var(--r-md); padding: 8px; }
+  .lesson-dots { display: flex; justify-content: center; gap: 6px; }
+  .lesson-dots i { width: 8px; height: 8px; border-radius: 999px; background: var(--line); transition: width .2s; }
+  .lesson-dots i.on { width: 22px; background: var(--blue); }
+  .lesson-actions { display: flex; gap: 10px; }
+  .lesson-actions button { flex: 1; border: 0; border-radius: var(--r-md); min-height: 52px; font: 700 1.05em var(--body); cursor: pointer; }
+  .lesson-prev { background: var(--paper); color: var(--ink); }
+  .lesson-prev:disabled { color: var(--ink3); cursor: default; }
+  .lesson-next { background: var(--blue); color: white; box-shadow: 0 4px 0 var(--blue-d); }
+  .lesson-next:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--blue-d); }
+  @media (min-width: 700px) { .lesson-wrap { place-items: center; } .lesson { border-radius: 26px; } }
 
   /* ===== תנועה – אותן אנימציות כמו באתר ההשראה (שמות, משכים ועקומות) ===== */
   @keyframes drift { from { transform: translateY(0) rotate(var(--r, 0deg)); } to { transform: translateY(-14px) rotate(calc(var(--r, 0deg) * -1)); } }
@@ -4413,7 +4457,7 @@ function hintLevels(L1, L2, L3) {
     { title: 'צעד ראשון', sub: 'מתחילים יחד', modes: L3 }
   ];
 }
-const HINT_MODE_LABELS = { words: 'במילים', example: 'בדוגמה', life: 'מהחיים' };
+const HINT_MODE_LABELS = { pic: 'בציור', words: 'במילים', example: 'בדוגמה', life: 'מהחיים' };
 
 const BASICS_HINTS = {
   addition(p) {
@@ -5029,24 +5073,527 @@ function basicsStepsFor(p) {
   return Array.isArray(steps) && steps.length ? steps : null;
 }
 
+// ============================================================
+// רמזים – שלב ב: ציורים (מותאמים למספרים של השאלה), "בדיקה קטנה", ו"שיעור של דקה"
+// ============================================================
+const HC = { ink: '#1B1B2F', ink2: '#5B6080', blue: '#3D5AFE', blueD: '#2B43D6', blueL: '#E8ECFF', or: '#FF6B3D', orD: '#C23F17', orL: '#FFE3D6', mint: '#14B88A', mintD: '#0B7058', mintL: '#E2F7EF', sun: '#FFC93C', sandD: '#8F5A12', line: '#9AA0BC' };
+const svEsc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const vxs = t => svEsc(String(t).replace(/-/g, '−')).replace(/x/g, '<tspan font-style="italic" fill="' + HC.blue + '">x</tspan>');
+const sv = (w, h, body) => `<svg class="hpic" viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false">${body}</svg>`;
+const tx = (x, y, t, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || 'middle'}" font-size="${o.s || 16}" font-weight="${o.w || 600}" fill="${o.f || HC.ink}"${o.rtl ? ' direction="rtl" unicode-bidi="embed"' : ' direction="ltr"'}${o.cls ? ` class="${o.cls}"` : ''}>${o.raw ? t : o.rtl ? svEsc(t) : vxs(t)}</text>`;
+const ARROWS = `<defs><marker id="hArO" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="${HC.or}"/></marker><marker id="hArB" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="${HC.blue}"/></marker></defs>`;
+const capRtl = (y, t) => tx(150, y, t, { s: 13, f: HC.ink2, w: 400, rtl: 1 });
+
+// מאזניים: מה שעושים לכף אחת עושים גם לשנייה
+function scalePic(L, R, op, ineq) {
+  return sv(300, 150, `<path d="M150 140V40M110 140h80" stroke="${HC.ink}" stroke-width="4" stroke-linecap="round"/>
+  <g class="tilt"><path d="M40 40H260" stroke="${HC.ink}" stroke-width="4" stroke-linecap="round"/>
+  <path d="M40 40l-28 40h56z" fill="${HC.blueL}" stroke="${HC.blue}" stroke-width="2"/><path d="M260 40l-28 40h56z" fill="${HC.orL}" stroke="${HC.or}" stroke-width="2"/>
+  ${tx(40, 104, L)}${tx(260, 104, R)}
+  ${op ? `<g class="lift">${tx(40, 126, op, { s: 15, f: HC.orD })}${tx(260, 126, op, { s: 15, f: HC.orD })}</g>` : ''}</g>
+  ${capRtl(18, ineq ? 'מה שעושים לצד אחד, עושים גם לשני' : 'מה שעושים לכף אחת, עושים גם לשנייה')}`);
+}
+// ציר מספרים עם קפיצות. נקודת הסיום מסומנת "?" – הילד סופר בעצמו
+function numberLinePic(start, delta, opts = {}) {
+  const end = start + delta, via = opts.via10 ? 10 : null;
+  let lo = Math.min(start, end, via ?? start), hi = Math.max(start, end, via ?? start);
+  lo -= 1; hi += 1; if (hi - lo < 8) hi = lo + 8;
+  const x0 = 18, x1 = 282, X = v => x0 + (v - lo) * (x1 - x0) / (hi - lo);
+  let s = ARROWS + `<path d="M${x0 - 6} 96H${x1 + 6}" stroke="${HC.ink}" stroke-width="2.5" stroke-linecap="round"/>`;
+  const every = hi - lo > 26 ? 5 : hi - lo > 14 ? 2 : 1;
+  for (let v = lo; v <= hi; v++) {
+    const big = v % (every === 1 ? 5 : every * 5) === 0 || v === 0;
+    s += `<path d="M${X(v)} ${big ? 89 : 92}V${big ? 103 : 100}" stroke="${HC.ink2}" stroke-width="${big ? 2 : 1.3}"/>`;
+    if ((big && v !== end) || v === start) s += tx(X(v), 120, v, { s: 12, f: v === start ? HC.blueD : HC.ink2, w: v === start ? 700 : 500 });
+  }
+  const hops = via !== null ? [[start, via], [via, end]] : Math.abs(delta) <= 10 && delta !== 0 ? Array.from({ length: Math.abs(delta) }, (_, i) => [start + Math.sign(delta) * i, start + Math.sign(delta) * (i + 1)]) : [[start, end]];
+  hops.forEach(([a, b]) => {
+    const h = Math.min(46, 14 + Math.abs(X(b) - X(a)) * 0.35), col = b > a ? HC.blue : HC.or;
+    s += `<path d="M${X(a)} 90Q${(X(a) + X(b)) / 2} ${90 - h} ${X(b)} 90" fill="none" stroke="${col}" stroke-width="2.4" marker-end="url(#${b > a ? 'hArB' : 'hArO'})"/>`;
+    if (hops.length <= 2) s += tx((X(a) + X(b)) / 2, 90 - h - 6, `${b > a ? '+' : '−'}${Math.abs(b - a)}`, { s: 14, f: col });
+  });
+  s += `<circle cx="${X(start)}" cy="96" r="6" fill="${HC.blue}"/><circle cx="${X(end)}" cy="96" r="7" fill="white" stroke="${HC.or}" stroke-width="3"/>`;
+  s += tx(X(end), 140, '?', { s: 16, f: HC.orD, w: 700 });
+  return sv(300, 150, s + capRtl(18, opts.caption || ''));
+}
+// מערך נקודות: a שורות של b (כפל), עם חלוקה אופציונלית אחרי עמודה 5
+function dotsPic(a, b, split) {
+  a = Math.min(a, 10); b = Math.min(b, 10);
+  const g = 15, w = b * g, h = a * g, ox = (300 - w) / 2, oy = 38;
+  let s = '';
+  for (let r = 0; r < a; r++) for (let c = 0; c < b; c++) s += `<circle cx="${ox + c * g + g / 2}" cy="${oy + r * g + g / 2}" r="5" fill="${split && c >= 5 ? HC.or : HC.blue}"/>`;
+  if (split && b > 5) s += `<path d="M${ox + 5 * g} ${oy - 6}V${oy + h + 6}" stroke="${HC.ink2}" stroke-width="2" stroke-dasharray="4 4"/>` + tx(ox + 2.5 * g, oy + h + 22, `${a} × 5`, { s: 14, f: HC.blueD }) + tx(ox + 5 * g + (b - 5) * g / 2, oy + h + 22, `${a} × ${b - 5}`, { s: 14, f: HC.orD });
+  return sv(300, oy + h + (split ? 34 : 14), s + capRtl(20, split ? 'מפרקים לשני חלקים קלים' : `${a} שורות, בכל שורה ${b}`));
+}
+// חלוקה שווה: total פריטים ל-groups קבוצות
+function sharePic(total, groups) {
+  if (total > 48 || groups > 8 || groups < 1) return null;
+  const per = 12, cols = Math.min(total, per), rows = Math.ceil(total / per);
+  let s = '';
+  for (let i = 0; i < total; i++) s += `<circle cx="${150 - (cols - 1) * 7 + (i % per) * 14}" cy="${40 + Math.floor(i / per) * 14}" r="5" fill="${HC.blue}"/>`;
+  const bw = Math.min(56, (280 - (groups - 1) * 8) / groups), gx = 150 - (groups * bw + (groups - 1) * 8) / 2, gy = 52 + rows * 14;
+  for (let k = 0; k < groups; k++) s += `<rect x="${gx + k * (bw + 8)}" y="${gy}" width="${bw}" height="38" rx="10" fill="${HC.orL}" stroke="${HC.or}" stroke-width="1.5"/>` + tx(gx + k * (bw + 8) + bw / 2, gy + 25, '?', { s: 16, f: HC.orD, w: 700 });
+  return sv(300, gy + 50, s + capRtl(18, `מחלקים ${total} שווה בשווה ל-${groups} קבוצות`));
+}
+// עמודות: חיבור/חיסור במאונך, עם סימון של העמודות שבהן יש נשיאה/השאלה
+function columnsPic(x, y, op) {
+  const X = String(x), Y = String(y), n = Math.max(X.length, Y.length), cw = Math.min(40, 240 / (n + 1)), right = 150 + (n * cw) / 2;
+  const marks = []; let carry = 0, borrow = 0;
+  for (let i = 0; i < n; i++) {
+    const d1 = +(X[X.length - 1 - i] || 0), d2 = +(Y[Y.length - 1 - i] || 0);
+    if (op === '+') { carry = d1 + d2 + carry >= 10 ? 1 : 0; if (carry) marks.push(i + 1); }
+    else { const top = d1 - borrow; borrow = top < d2 ? 1 : 0; if (borrow) marks.push(i); }
+  }
+  let s = '';
+  const names = ['אח׳', 'עש׳', 'מא׳', 'אל׳', 'ע״א', 'מ״א'];
+  for (let i = 0; i < n; i++) {
+    const cx = right - i * cw - cw / 2;
+    s += tx(cx, 34, names[i] || '', { s: 11, f: HC.ink2, w: 500, rtl: 1 });
+    if (marks.includes(i)) s += `<rect x="${cx - 9}" y="40" width="18" height="16" rx="4" fill="${HC.sun}"/>` + tx(cx, 53, op === '+' ? '1' : '10', { s: op === '+' ? 12 : 9, f: HC.ink, w: 700 });
+    s += tx(cx, 80, X[X.length - 1 - i] || '', { s: 22 }) + tx(cx, 110, Y[Y.length - 1 - i] || '', { s: 22 });
+    s += `<rect x="${cx - cw / 2 + 4}" y="128" width="${cw - 8}" height="26" rx="6" fill="white" stroke="${HC.line}" stroke-dasharray="3 3"/>`;
+  }
+  s += tx(right - n * cw - 14, 110, op === '+' ? '+' : '−', { s: 22, f: HC.orD });
+  s += `<path d="M${right - n * cw - 24} 120H${right + 4}" stroke="${HC.ink}" stroke-width="2.5"/>`;
+  return sv(300, 166, s + capRtl(16, marks.length ? (op === '+' ? 'בעמודות המסומנות יש נשיאה' : 'בעמודות המסומנות צריך ללוות') : 'עמודה עמודה, מימין לשמאל'));
+}
+// מודל שטח לכפל ארוך
+function areaMulPic(x, y) {
+  let parts, side;
+  if (y >= 10 && y % 10) { parts = [y - y % 10, y % 10]; side = x; }
+  else if (y < 10 && x >= 10) { parts = String(x).split('').map((d, i, a) => +d * 10 ** (a.length - 1 - i)).filter(Boolean); side = y; }
+  else return null;
+  if (parts.length < 2) return null;
+  const tot = parts.reduce((a, b) => a + b, 0), W = 230, ox = 50;
+  let s = '', cx = ox;
+  parts.forEach((v, i) => {
+    const w = Math.max(56, W * v / tot);
+    s += `<rect x="${cx}" y="44" width="${w}" height="70" rx="6" fill="${i ? HC.orL : HC.blueL}" stroke="${i ? HC.or : HC.blue}" stroke-width="1.5"/>`;
+    s += tx(cx + w / 2, 36, v, { s: 15, f: i ? HC.orD : HC.blueD }) + tx(cx + w / 2, 85, `${side}×${v}`, { s: 14 });
+    cx += w;
+  });
+  s += tx(ox - 12, 85, side, { s: 15, a: 'end' });
+  return sv(Math.max(300, cx + 10), 142, s + capRtl(134, 'כופלים כל חלק בנפרד, ובסוף מחברים'));
+}
+// פסי שברים
+function fracBarsPic(list) {
+  const bars = [];
+  list.forEach(f => { if (f.d > 24 || f.d < 1) return; let n = f.n; do { bars.push({ lab: bars.length && bars[bars.length - 1].src === f ? '' : `${f.n}/${f.d}`, d: f.d, k: Math.min(n, f.d), src: f, col: list.indexOf(f) ? HC.or : HC.blue }); n -= f.d; } while (n > 0 && bars.length < 5); });
+  if (!bars.length) return null;
+  const W = 220, ox = 64;
+  let s = '';
+  bars.slice(0, 5).forEach((b, i) => {
+    const y = 34 + i * 34, cw = W / b.d;
+    for (let j = 0; j < b.d; j++) s += `<rect x="${ox + j * cw}" y="${y}" width="${cw}" height="24" fill="${j < b.k ? b.col : 'white'}" fill-opacity="${j < b.k ? .85 : 1}" stroke="${HC.ink2}" stroke-width="1"/>`;
+    if (b.lab) s += tx(ox - 10, y + 18, b.lab, { s: 15, a: 'end' });
+  });
+  return sv(300, 34 + Math.min(bars.length, 5) * 34 + 6, s + capRtl(20, 'המכנה = לכמה חלקים חתכו, המונה = כמה צבועים'));
+}
+// טבלת מקומות
+function placePic(numStr, idx) {
+  const d = String(numStr).replace(/\D/g, '');
+  if (d.length > 9) return null;
+  const n = d.length, cw = Math.min(36, 270 / n), right = 150 + n * cw / 2;
+  const short = ['אחד׳', 'עשר׳', 'מאות', 'אלפים', 'ע׳ אל׳', 'מ׳ אל׳', 'מיל׳', 'ע׳ מיל׳', 'מ׳ מיל׳'];
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    const x = right - (i + 1) * cw, on = i === idx;
+    s += `<rect x="${x + 1}" y="40" width="${cw - 2}" height="40" rx="6" fill="${on ? HC.sun : 'white'}" stroke="${on ? HC.sandD : HC.line}" stroke-width="${on ? 2 : 1}"/>`;
+    s += tx(x + cw / 2, 68, on ? '?' : d[n - 1 - i], { s: 18, f: on ? HC.ink : HC.ink2 });
+    s += tx(x + cw / 2, 98, short[i], { s: 9.5, f: HC.ink2, w: 500, rtl: 1 });
+  }
+  return sv(300, 110, s + capRtl(20, 'סופרים מקומות מימין'));
+}
+// סדר פעולות: מספר עיגול מעל כל פעולה לפי הסדר
+function opsOrderPic(expr) {
+  const toks = expr.replace(/-/g, '−').match(/\d+(?:\.\d+)?|[+−×÷()]/g);
+  if (!toks || toks.length > 15) return null;
+  let depth = 0; const ops = [];
+  toks.forEach((t, i) => { if (t === '(') depth++; else if (t === ')') depth--; else if ('+−×÷'.includes(t)) ops.push({ i, rank: depth * 10 + ('×÷'.includes(t) ? 1 : 0) }); });
+  const order = [...ops].sort((a, b) => b.rank - a.rank || a.i - b.i).map(o => o.i);
+  const cw = Math.min(26, 280 / toks.length), ox = 150 - toks.length * cw / 2;
+  let s = '';
+  toks.forEach((t, i) => {
+    const x = ox + i * cw + cw / 2, k = order.indexOf(i);
+    s += tx(x, 92, t, { s: 22, f: k >= 0 ? HC.orD : HC.ink });
+    if (k >= 0) s += `<circle cx="${x}" cy="56" r="12" fill="${k === 0 ? HC.sun : HC.blueL}" stroke="${k === 0 ? HC.sandD : HC.blue}"/>` + tx(x, 61, k + 1, { s: 13, w: 700 });
+  });
+  return sv(300, 112, s + capRtl(22, 'המספר שמעל כל פעולה = מתי מחשבים אותה'));
+}
+// הזזת הנקודה העשרונית
+function decimalShiftPic(num, k, right) {
+  const t = String(num);
+  if (t.length > 8) return null;
+  const digits = t.replace('.', ''), dot = t.includes('.') ? t.indexOf('.') : t.length;
+  const cw = 26, n = digits.length + k + 1, ox = 150 - n * cw / 2 + (right ? 0 : k * cw / 2);
+  let s = ARROWS;
+  const start = right ? 0 : k;
+  digits.split('').forEach((c, i) => { s += `<rect x="${ox + (start + i) * cw}" y="50" width="${cw - 4}" height="34" rx="6" fill="white" stroke="${HC.line}"/>` + tx(ox + (start + i) * cw + cw / 2 - 2, 74, c, { s: 18 }); });
+  const dx = p => ox + (start + p) * cw - 2;
+  s += `<circle cx="${dx(dot)}" cy="88" r="4" fill="${HC.blue}"/>`;
+  const to = right ? dot + k : dot - k;
+  s += `<path d="M${dx(dot)} 98Q${(dx(dot) + dx(to)) / 2} 124 ${dx(to)} 98" fill="none" stroke="${HC.or}" stroke-width="2.4" stroke-dasharray="5 4" marker-end="url(#hArO)"/>`;
+  return sv(300, 132, s + capRtl(22, `הנקודה זזה ${k === 1 ? 'מקום אחד' : `${k} מקומות`} ${right ? 'ימינה' : 'שמאלה'}`));
+}
+// מלבן שטח לביטוי (x + m)(x + n)
+function areaXPic(m, n, hide) {
+  const s0 = 120, sm = Math.max(30, Math.min(70, 12 * Math.abs(m))), sn = Math.max(30, Math.min(70, 12 * Math.abs(n))), ox = 70, oy = 36;
+  const cell = (x, y, w, h, t, f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" stroke="${HC.ink2}" stroke-width="1.2"/>` + tx(x + w / 2, y + h / 2 + 6, t, { s: 14 });
+  const sg = v => (v < 0 ? '− ' : '+ ') + Math.abs(v);
+  let s = cell(ox, oy, s0, s0 * .6, 'x²', HC.blueL) + cell(ox + s0, oy, sm, s0 * .6, hide ? '?' : `${m}x`, HC.orL)
+    + cell(ox, oy + s0 * .6, s0, sn, hide ? '?' : `${n}x`, HC.orL) + cell(ox + s0, oy + s0 * .6, sm, sn, hide ? '?' : m * n, HC.sun);
+  s += tx(ox + s0 / 2, oy - 8, 'x', { s: 15 }) + tx(ox + s0 + sm / 2, oy - 8, hide ? '?' : sg(m), { s: 14, f: HC.orD });
+  s += tx(ox - 8, oy + s0 * .3 + 5, 'x', { s: 15, a: 'end' }) + tx(ox - 8, oy + s0 * .6 + sn / 2 + 5, hide ? '?' : sg(n), { s: 14, f: HC.orD, a: 'end' });
+  return sv(300, oy + s0 * .6 + sn + 30, s + capRtl(oy + s0 * .6 + sn + 22, hide ? 'שני מספרים: מכפלתם בפינה, וסכומם במקדם של x' : 'כל איבר כפול כל איבר – ארבעה חלקים'));
+}
+
+// ---- בדיקה קטנה: התשובה הנכונה תמיד ראשונה בנתונים, ומעורבבת בתצוגה ----
+const chk = (q, right, ...wrong) => ({ q, opts: [{ t: String(right) }, ...wrong.map(([t, why]) => ({ t: String(t), why }))] });
+const firstOpOf = expr => { const t = expr.replace(/-/g, '−'); const inner = t.match(/\(([^()]+)\)/); const seg = inner ? inner[1] : t; const md = seg.match(/\d+\s*[×÷]\s*\d+/); return (md ? md[0] : (seg.match(/\d+\s*[+−]\s*\d+/) || [''])[0]).replace(/\s+/g, ' ').trim(); };
+const leftOpOf = expr => (expr.replace(/-/g, '−').replace(/[()]/g, '').match(/\d+\s*[+−×÷]\s*\d+/) || [''])[0].replace(/\s+/g, ' ').trim();
+function linOp(t) {
+  const bm = t.match(/^(\d+)\(x/); if (bm) return `÷ ${bm[1]}`;
+  const dv = t.match(/^x\s*÷\s*(\d+)/); if (dv) return `× ${dv[1]}`;
+  const parts = t.split(/\s*[=<>]\s*/); if (parts.length !== 2) return '';
+  const L = linSide(parts[0]), R = linSide(parts[1]);
+  if (R.p) return `${R.p > 0 ? '−' : '+'} ${coefTxt(Math.abs(R.p))}x`;
+  if (L.q) return `${L.q > 0 ? '−' : '+'} ${Math.abs(L.q)}`;
+  if (L.p !== 1) return `÷ ${L.p < 0 ? `(${L.p})` : L.p}`;
+  return '';
+}
+
+const BASICS_EXTRA = {
+  addition(p) {
+    const big = Math.max(p.a, p.b), small = Math.min(p.a, p.b), cross = big < 10 && p.a + p.b > 10;
+    return {
+      pics: [numberLinePic(big, small, { caption: `מתחילים ב-${big} וקופצים ${small} קדימה` }), cross ? numberLinePic(big, small, { via10: true, caption: 'קודם עד 10, ואז את השאר' }) : null],
+      checks: [p.a !== p.b && small > 0
+        ? chk(`${p.a} + ${p.b}: מאיזה מספר הכי נוח להתחיל לספור?`, big, [small, `אפשר, אבל זה ארוך יותר. מתחילים מהגדול (${big}) וסופרים רק ${small} צעדים.`])
+        : chk('בחיבור, מה קורה לתוצאה?', 'גדלה (או נשארת, אם מוסיפים 0)', ['קטנה', 'בחיבור מוסיפים, אז התוצאה לא יכולה לקטון.']),
+        chk('8 + 5: כמה חסר ל-8 כדי להגיע ל-10?', 2, [5, '5 זה המספר שמוסיפים. מ-8 עד 10 יש רק 2 צעדים.'], [3, '3 זה מה שנשאר מה-5 אחרי ההשלמה. קודם: מ-8 עד 10 יש 2.'])]
+    };
+  },
+  subtraction(p) {
+    return {
+      pics: [numberLinePic(p.a, -p.b, { caption: `מתחילים ב-${p.a} וקופצים ${p.b} אחורה` }), p.b < 10 && p.a > 10 ? numberLinePic(p.b, p.a - p.b, { via10: true, caption: `סופרים מ-${p.b} עד ${p.a}: קודם עד 10` }) : null],
+      checks: [p.b > 0
+        ? chk(`${p.a} − ${p.b}: התוצאה תהיה…`, `קטנה מ-${p.a}`, [`גדולה מ-${p.a}`, 'בחיסור מורידים, ולכן התוצאה קטנה מהמספר שהתחלנו ממנו.'])
+        : chk('מה זה 9 − 0?', 9, [0, 'מורידים 0 – כלומר לא מורידים כלום. נשאר 9.']),
+        chk('12 − 7: מ-7 עד 10 יש כמה צעדים?', 3, [5, '5 היא התשובה הסופית. כאן שואלים רק כמה צעדים מ-7 עד 10.'], [2, '2 זה מ-10 עד 12. מ-7 עד 10 יש 3.'])]
+    };
+  },
+  multiplication(p) {
+    return {
+      pics: [p.a && p.b ? dotsPic(p.a, p.b) : null, p.b > 5 && p.a ? dotsPic(p.a, p.b, true) : null],
+      checks: [p.a !== p.b
+        ? chk(`${p.a} × ${p.b} זה…`, `${p.a} קבוצות של ${p.b}`, [`${p.a} ועוד ${p.b}`, 'זה חיבור. כפל זה חיבור חוזר של אותו מספר.'])
+        : chk(`${p.a} × ${p.a} זה…`, `${p.a} קבוצות של ${p.a}`, [`${p.a} ועוד ${p.a}`, 'זה חיבור. כפל זה חיבור חוזר של אותו מספר.']),
+        chk('6 × 7 = 6 × 5 + 6 × ?', 2, [7, 'פירקנו את 7 ל-5 ועוד משהו. כמה חסר מ-5 עד 7?'], [5, 'את ה-5 כבר כפלנו. נשאר החלק השני של ה-7.'])]
+    };
+  },
+  division(p) {
+    return {
+      pics: [sharePic(p.a, p.b), null],
+      checks: [chk(`${p.a} ÷ ${p.b} שואל:`, `כמה פעמים ${p.b} נכנס ב-${p.a}`, [`כמה זה ${p.a} פחות ${p.b}`, 'זה חיסור. חילוק שואל כמה פעמים המספר נכנס.']),
+        chk('24 ÷ 6 = ?. איזה תרגיל כפל עוזר?', '6 × 4 = 24', ['6 + 18 = 24', 'זה חיבור. מחפשים כפל: 6 כפול כמה שווה 24?'], ['24 × 6', 'זה כופל את 24 עוד יותר. מחפשים: 6 כפול מה נותן 24.'])]
+    };
+  },
+  multiAdd(p) {
+    const [x, y] = qNums(p);
+    return {
+      pics: [columnsPic(x, y, '+'), null],
+      checks: [chk('מאיזו עמודה מתחילים?', 'האחדות (מימין)', ['הספרה הגדולה (משמאל)', 'מתחילים מימין, כדי שהנשיאה תעבור לעמודה הבאה.']),
+        chk('בעמודת האחדות יצא 7 + 8 = 15. מה כותבים?', 'כותבים 5 ומעבירים 1', ['כותבים 15', 'בכל עמודה יש מקום לספרה אחת. ה-1 עובר לעשרות.'], ['כותבים 1 ומעבירים 5', 'הפוך: האחדות (5) נשארות, העשרת (1) עוברת.'])]
+    };
+  },
+  multiSub(p) {
+    const [x, y] = qNums(p);
+    return {
+      pics: [columnsPic(x, y, '-'), null],
+      checks: [chk('מאיזו עמודה מתחילים?', 'האחדות (מימין)', ['הספרה הגדולה (משמאל)', 'מתחילים מימין, כי אולי נצטרך ללוות מהעמודה שמשמאל.']),
+        chk('52 − 27: באחדות, 2 קטן מ-7. מה עושים?', 'לווים 1 מהעשרות: 12 − 7', ['מחשבים 7 − 2', 'תמיד מורידים את הספרה התחתונה מהעליונה. כשהעליונה קטנה – לווים.'], ['כותבים 0', 'לא כותבים 0 – לווים 1 מהעשרות והופכים את 2 ל-12.'])]
+    };
+  },
+  longMul(p) {
+    const [x, y] = qNums(p), tens = y - y % 10, ones = y % 10;
+    return {
+      pics: [areaMulPic(x, y), null],
+      checks: [y >= 10 && ones
+        ? chk(`${x} × ${y}: איך מפרקים את ${y}?`, `${tens} + ${ones}`, [`${tens} × ${ones}`, 'מפרקים לחיבור: כל חלק נכפל בנפרד, ואז מחברים.'])
+        : chk('23 × 4: איך מפרקים את 23?', '20 + 3', ['2 × 3', 'מפרקים לפי ערך המקום: 23 זה 20 ועוד 3.']),
+        chk('23 × 10 = ?', 230, [33, 'כפל ב-10 זה לא חיבור של 10 – מוסיפים 0 בסוף.'], [2310, 'מוסיפים אפס אחד בסוף, לא מדביקים 10.'])]
+    };
+  },
+  longDiv(p) {
+    const [x, y] = qNums(p);
+    return {
+      pics: [null, null],
+      checks: [chk(`${x} ÷ ${y}: מאיזה צד מתחילים?`, 'משמאל (מהספרה הגדולה)', ['מימין (מהאחדות)', 'בחילוק ארוך מתחילים משמאל – הפוך מחיבור.']),
+        chk('96 ÷ 4: קודם 9 ÷ 4 = 2. כמה נשאר (שארית)?', 1, [2, '2 זו התוצאה. השארית: 9 − 2 × 4 = 1.'], [3, 'בדקו: 2 × 4 = 8, ו-9 − 8 = 1.'])]
+    };
+  },
+  negatives(p) {
+    const m = qText(p).match(/^\(?(-?\d+)\)?\s*([+-])\s*\(?(-?\d+)\)?$/);
+    const eff = m ? (m[2] === '+' ? +m[3] : -m[3]) : 0;
+    return {
+      pics: [m && Math.abs(eff) <= 20 && Math.abs(+m[1]) <= 20 ? numberLinePic(+m[1], eff, { caption: eff < 0 ? 'מינוס = זזים שמאלה' : 'פלוס = זזים ימינה' }) : null, null],
+      checks: [chk('על ציר המספרים, איפה נמצא −3?', 'משמאל ל-0', ['מימין ל-0', 'מימין ל-0 נמצאים המספרים החיוביים. השליליים משמאל.']),
+        chk('5 − (−2) = ?', 7, [3, 'מינוס ומינוס נותנים פלוס: 5 + 2.'], [-7, 'הסימן של התוצאה חיובי: 5 + 2 = 7.'])]
+    };
+  },
+  orderops(p) {
+    const t = qText(p), first = firstOpOf(t), left = leftOpOf(t);
+    return {
+      pics: [opsOrderPic(t), null],
+      checks: [first && left && first !== left
+        ? chk(`${t.replace(/-/g, '−')}: מה מחשבים קודם?`, first, [left, 'זה הכי שמאלי, אבל לא הראשון: קודם סוגריים, ואז כפל וחילוק.'])
+        : chk('2 + 3 × 4: מה מחשבים קודם?', '3 × 4', ['2 + 3', 'זה הכי שמאלי, אבל כפל קודם לחיבור.']),
+        chk('2 + 3 × 4 = ?', 14, [20, 'חישבתם משמאל לימין. קודם 3 × 4 = 12, ואז 2 + 12.'])]
+    };
+  },
+  fractions(p) {
+    const f = fracList(qText(p));
+    return {
+      pics: [fracBarsPic(f.slice(0, 2)), null],
+      checks: [chk('בשבר 3/8, מה אומר ה-8?', 'לכמה חלקים חתכו', ['כמה חלקים לקחנו', 'את זה אומר המונה (3). המכנה (8) אומר לכמה חלקים חתכו.']),
+        chk('1/4 + 2/4 = ?', '3/4', ['3/8', 'המכנה לא מתחבר: החלקים באותו גודל – רק סופרים כמה יש.'])]
+    };
+  },
+  fractionsAdv(p) {
+    const t = qText(p), f = fracList(t).map(improper);
+    return {
+      pics: [fracBarsPic(f.slice(0, 2)), null],
+      checks: [t.includes('÷')
+        ? chk('בחילוק שברים, מה עושים?', 'כופלים בהופכי של השבר השני', ['הופכים את השבר הראשון', 'הופכים רק את השבר השני – זה שמחלקים בו.'])
+        : chk('בכפל שברים, מה עושים עם המכנים?', 'כופלים אותם', ['מביאים למכנה משותף', 'מכנה משותף צריך רק בחיבור ובחיסור. בכפל: מכנה כפול מכנה.']),
+        chk('2 1/3 = ?/3', 7, [3, 'השלם (2) שווה 6 שלישים. 6 + 1 = 7.'], [5, 'כופלים את השלם במכנה: 2 × 3 = 6, ועוד 1 = 7.'])]
+    };
+  },
+  decimals(p) {
+    const m = qText(p).match(/^([\d.]+)\s*([×÷])\s*(10+)$/);
+    return {
+      pics: [m ? decimalShiftPic(m[1], m[3].length - 1, m[2] === '×') : null, null],
+      checks: [chk('0.7 – כמה זה?', '7 עשיריות', ['7 מאיות', 'ספרה אחת אחרי הנקודה = עשיריות. מאיות זה שתי ספרות.'], ['7 שלמים', 'הספרה אחרי הנקודה היא חלק משלם, לא שלמים.']),
+        chk('3.4 × 10 = ?', 34, [0.34, 'בכפל המספר גדל – הנקודה זזה ימינה, לא שמאלה.'], ['3.40', 'הוספת 0 בסוף לא משנה מספר עשרוני. מזיזים את הנקודה.'])]
+    };
+  },
+  simplify(p) {
+    const t = qText(p), m = t.match(/^\(x\s*([+-])\s*(\d+)\)\s*\(x\s*([+-])\s*(\d+)\)$/);
+    return {
+      pics: [null, m ? areaXPic((m[1] === '+' ? 1 : -1) * m[2], (m[3] === '+' ? 1 : -1) * m[4]) : null],
+      checks: [chk('אילו איברים אפשר לחבר?', '3x ו-5x', ['3x ו-5', 'מספר בלי x הוא לא איבר דומה ל-3x.'], ['3x ו-x²', 'x² ו-x הם איברים שונים.']),
+        chk('2(x + 3) = ?', '2x + 6', ['2x + 3', 'ה-2 נכפל בכל מה שבסוגריים – גם ב-3.'])]
+    };
+  },
+  solveLinear(p) {
+    const t = qText(p), parts = t.split(/\s*=\s*/), op = linOp(t);
+    return {
+      pics: [parts.length === 2 ? scalePic(parts[0], parts[1], op) : null, null],
+      checks: [op && /^[−+] \d+$/.test(op)
+        ? chk(`מה מבטל את ${op[0] === '−' ? '+' : '−'} ${op.slice(2)} שליד ה-x?`, `${op} בשני האגפים`, [`${op.startsWith('−') ? '+' : '−'} ${op.slice(2)} בשני האגפים`, 'זו אותה פעולה, לא הפעולה ההפוכה.'], [`${op} רק באגף שמאל`, 'מה שעושים לאגף אחד עושים גם לשני – אחרת השוויון נשבר.'])
+        : chk('מה מבטל "+ 5"?', '− 5 בשני האגפים', ['+ 5 בשני האגפים', 'זו אותה פעולה, לא הפעולה ההפוכה.'], ['− 5 רק באגף שמאל', 'מה שעושים לאגף אחד עושים גם לשני.']),
+        chk('3x = 12. כמה זה x?', 4, [9, 'חיסרתם 3. אבל 3x זה 3 כפול x – מחלקים ב-3.'], [36, 'כפלתם. ההפך מכפל הוא חילוק: 12 ÷ 3.'])]
+    };
+  },
+  inequalities(p) {
+    const t = qText(p), parts = t.split(/\s*[<>]\s*/), op = linOp(t);
+    return {
+      pics: [parts.length === 2 ? scalePic(parts[0], parts[1], op, true) : null, null],
+      checks: [chk('x + 5 > 9. מה עושים?', 'מחסירים 5 משני הצדדים', ['מוסיפים 5 לשני הצדדים', 'זו אותה פעולה. כדי לבטל + 5 מחסירים 5.']),
+        chk('−2x > 6. מה התשובה?', 'x < −3', ['x > −3', 'חילקנו במספר שלילי (−2), ולכן הופכים את כיוון הסימן.'])]
+    };
+  },
+  factorize(p) {
+    const an = String(p.answer).replace(/−/g, '-'), r = an.match(/\(x\s*([+-])\s*(\d+)\)\s*\(x\s*([+-])\s*(\d+)\)/);
+    return {
+      pics: [null, r ? areaXPic((r[1] === '+' ? 1 : -1) * r[2], (r[3] === '+' ? 1 : -1) * r[4], true) : null],
+      checks: [chk('מה הגורם המשותף הגדול של 6x ו-9?', 3, [6, '6 לא מחלק את 9.'], ['x', 'ב-9 אין x, ולכן x לא משותף.']),
+        chk('x² + 5x + 6: אילו שני מספרים?', '2 ו-3', ['1 ו-6', 'המכפלה 6 נכונה, אבל הסכום 7 – צריך 5.'], ['5 ו-1', 'הסכום 6 והמכפלה 5 – הפוך ממה שצריך.'])]
+    };
+  },
+  simultaneous() {
+    return {
+      pics: [null, null],
+      checks: [chk('x + y = 10 ו-x − y = 4. איך מעלימים את y?', 'מחברים את המשוואות', ['מחסרים את המשוואות', 'בחיסור y − (−y) = 2y, כלומר y לא נעלם. בחיבור y + (−y) = 0.']),
+        chk('2x = 14. כמה זה x?', 7, [12, 'חיסרתם 2. 2x זה 2 כפול x – מחלקים ב-2.'], [28, 'כפלתם. ההפך מכפל הוא חילוק.'])]
+    };
+  },
+  placeValue(p) {
+    const label = p.questionLabel || '', m = label.match(/ה"([^"]+)"/);
+    return {
+      pics: [m && PLACE_KEYS[m[1]] !== undefined ? placePic(p.displayQ, PLACE_KEYS[m[1]]) : null, null],
+      checks: [chk('במספר 4,326, באיזה מקום נמצאת הספרה 3?', 'מאות', ['עשרות', 'מימין: 6 אחדות, 2 עשרות, 3 מאות.'], ['אלפים', 'האלפים הם הספרה 4. סופרים מימין.']),
+        chk('מה הערך של הספרה 3 במספר 4,326?', 300, [3, 'זו הספרה. הערך שלה לפי המקום – מאות – הוא 300.'], [30, '30 היה נכון אם 3 היה בעשרות.'])]
+    };
+  },
+  properties() {
+    return {
+      pics: [null, null],
+      checks: [chk('3 + 5 = 5 + 3. מה השתנה בין הצדדים?', 'הסדר', ['הסוגריים', 'אין כאן סוגריים בכלל.'], ['התוצאה', 'התוצאה בשני הצדדים זהה: 8.']),
+        chk('2 × (3 + 4) = 2 × 3 + 2 × 4. איזו תכונה?', 'פילוג', ['חילופיות', 'בחילופיות רק מחליפים סדר.'], ['קיבוציות', 'בקיבוציות רק מזיזים סוגריים, בלי לפתוח אותם.'])]
+    };
+  }
+};
+
+// ---- שיעור של דקה: 3 כרטיסים ----
+const BASICS_LESSONS = {
+  count: [
+    { t: 'חיבור = כמה יש ביחד', b: 'מתחילים מהמספר הגדול וסופרים קדימה את הקטן. כך יש פחות לספור.', pic: () => numberLinePic(6, 3, { caption: '6 + 3: מתחילים ב-6, שלוש קפיצות' }) },
+    { t: 'משלימים ל-10', b: 'כשעוברים את 10, קודם מגיעים בדיוק ל-10, ואז מוסיפים את מה שנשאר. 8 + 5 = 8 + 2 + 3 = 13.', pic: () => numberLinePic(8, 5, { via10: true, caption: '8 + 5: עד 10, ואז עוד 3' }) },
+    { t: 'חיסור = כמה חסר', b: 'אפשר לחסר בספירה אחורה, או לשאול "כמה חסר מהקטן עד הגדול?". 12 − 7: מ-7 עד 12 יש 5 צעדים.', pic: () => numberLinePic(7, 5, { via10: true, caption: 'מ-7 עד 12: 3 עד 10, ועוד 2' }) }
+  ],
+  mult: [
+    { t: 'כפל = קבוצות שוות', b: '3 × 4 זה 3 קבוצות, ובכל אחת 4. סופרים בקפיצות: 4, 8, 12.', pic: () => dotsPic(3, 4) },
+    { t: 'מפרקים מה שלא זוכרים', b: 'לא זוכרים 6 × 7? מפרקים את 7 ל-5 + 2: 6 × 5 = 30, 6 × 2 = 12, ביחד 42.', pic: () => dotsPic(6, 7, true) },
+    { t: 'חילוק = כפל הפוך', b: '24 ÷ 6 שואל: 6 כפול כמה שווה 24? כי 6 × 4 = 24, התשובה היא 4.', pic: () => sharePic(24, 6) }
+  ],
+  column: [
+    { t: 'עמודה מתחת לעמודה', b: 'כותבים את המספרים זה מתחת לזה, כך שהאחדות מתחת לאחדות, העשרות מתחת לעשרות.' },
+    { t: 'נשיאה בחיבור', b: 'אם בעמודה יוצא 10 או יותר, כותבים רק את האחדות ומעבירים 1 לעמודה הבאה.', pic: () => columnsPic(47, 38, '+') },
+    { t: 'שאילה בחיסור', b: 'אם הספרה למעלה קטנה מהספרה למטה, לווים 1 מהעמודה שמשמאל: הספרה למעלה מקבלת עוד 10, ובעמודה שמשמאל יורד 1.', pic: () => columnsPic(52, 27, '-') }
+  ],
+  long: [
+    { t: 'כפל ארוך = כמה כפלים קטנים', b: 'מפרקים את אחד המספרים לפי מקומות (עשרות ואחדות), כופלים כל חלק, ומחברים.', pic: () => areaMulPic(23, 14) },
+    { t: 'כפל בעשרות', b: 'כשכופלים ב-20, אפשר לכפול ב-2 ולהוסיף 0 בסוף: 23 × 20 = 46 → 460.' },
+    { t: 'חילוק ארוך', b: 'מחלקים משמאל לימין: כמה פעמים נכנס? כותבים, כופלים, מחסרים, ומורידים את הספרה הבאה. חוזרים עד הסוף.' }
+  ],
+  negatives: [
+    { t: 'ציר המספרים', b: 'משמאל ל-0 נמצאים המספרים השליליים. ככל שהולכים שמאלה – המספר קטן יותר.', pic: () => numberLinePic(2, -5, { caption: '2 − 5: חמש קפיצות שמאלה' }) },
+    { t: 'פלוס וחיסור', b: 'הוספה = זזים ימינה. חיסור = זזים שמאלה.' },
+    { t: 'שני סימנים צמודים', b: 'שני סימנים שווים (− −) נותנים פלוס. סימנים שונים (+ −) נותנים מינוס. 5 − (−2) = 5 + 2 = 7.' }
+  ],
+  orderops: [
+    { t: 'לא תמיד משמאל לימין', b: 'בתרגיל עם כמה פעולות יש סדר קבוע, כדי שכולם יקבלו אותה תשובה.' },
+    { t: 'הסדר', b: 'קודם סוגריים, אחר כך כפל וחילוק, ובסוף חיבור וחיסור.', pic: () => opsOrderPic('(2 + 3) × 4 − 6 ÷ 2') },
+    { t: 'שלב אחרי שלב', b: 'בכל שורה מחשבים פעולה אחת ומעתיקים את כל השאר: 2 + 3 × 4 = 2 + 12 = 14.' }
+  ],
+  fractions: [
+    { t: 'מה זה שבר?', b: 'המכנה (למטה) אומר לכמה חלקים שווים חתכו. המונה (למעלה) – כמה חלקים לקחנו.', pic: () => fracBarsPic([{ w: 0, n: 3, d: 8 }]) },
+    { t: 'חיבור וחיסור', b: 'אם המכנים שווים – מחברים רק את המונים. אם לא – קודם מביאים למכנה משותף.' },
+    { t: 'כפל וחילוק', b: 'כפל: מונה כפול מונה, מכנה כפול מכנה. חילוק: הופכים את השבר השני וכופלים.' }
+  ],
+  decimals: [
+    { t: 'מה אחרי הנקודה?', b: 'הספרה הראשונה אחרי הנקודה = עשיריות, השנייה = מאיות. 0.25 = 25 מאיות = 1/4.' },
+    { t: 'כפל וחילוק ב-10', b: 'כפל ב-10, 100, 1000 מזיז את הנקודה ימינה מקום אחד לכל אפס. חילוק – שמאלה.', pic: () => decimalShiftPic('3.45', 2, true) },
+    { t: 'חיבור וחיסור', b: 'כותבים נקודה מתחת לנקודה, משלימים באפסים, ומחשבים כמו מספרים רגילים.' }
+  ],
+  algebra: [
+    { t: 'איברים דומים', b: 'אפשר לחבר רק איברים עם אותו משתנה באותה חזקה: 3x + 5x = 8x, אבל 3x + 5 נשאר כמו שהוא.' },
+    { t: 'פתיחת סוגריים', b: 'המספר שלפני הסוגריים נכפל בכל איבר בפנים: 2(x + 3) = 2x + 6.', pic: () => areaXPic(2, 3) },
+    { t: 'פירוק לגורמים', b: 'ההפך מפתיחת סוגריים: מוציאים גורם משותף, או מחפשים שני מספרים שמכפלתם המספר החופשי וסכומם המקדם של x.' }
+  ],
+  equations: [
+    { t: 'משוואה = מאזניים', b: 'שני האגפים שווים. מה שעושים לאחד – עושים גם לשני, והם נשארים מאוזנים.', pic: () => scalePic('x + 5', '12', '− 5') },
+    { t: 'פעולה הפוכה', b: 'כדי שה-x יישאר לבד מבטלים כל פעולה בפעולה ההפוכה: חיבור ↔ חיסור, כפל ↔ חילוק.' },
+    { t: 'סדר הביטול', b: 'קודם מבטלים חיבור וחיסור, ורק אז כפל וחילוק. באי-שוויון: מחלקים במספר שלילי → הופכים את הסימן.' }
+  ],
+  place: [
+    { t: 'ערך המקום', b: 'כל ספרה שווה לפי המקום שלה: אחדות, עשרות, מאות, אלפים… כל מקום שווה פי 10 מהמקום שמימינו.', pic: () => placePic('4326', 2) },
+    { t: 'ספרה וערך', b: 'הספרה היא רק הסימן (3). הערך הוא הספרה כפול המקום (300).' },
+    { t: 'תכונות של פעולות', b: 'חילופיות – מחליפים סדר. קיבוציות – מזיזים סוגריים. פילוג – כפל שמתפזר על חיבור.' }
+  ]
+};
+const TRACK_LESSON = { addition: 'count', subtraction: 'count', multiplication: 'mult', division: 'mult', multiAdd: 'column', multiSub: 'column', longMul: 'long', longDiv: 'long',
+  negatives: 'negatives', orderops: 'orderops', fractions: 'fractions', fractionsAdv: 'fractions', decimals: 'decimals', simplify: 'algebra', factorize: 'algebra',
+  solveLinear: 'equations', inequalities: 'equations', simultaneous: 'equations', placeValue: 'place', properties: 'place' };
+
+// ---- מודל לומד: איזו דרך הסבר עובדת לתלמיד הזה ----
+const HSTYLE_ORDER = ['pic', 'words', 'example', 'life'];
+const hsKey = () => 'hintStyles:' + (typeof studentUid !== 'undefined' && studentUid ? studentUid : 'local');
+function hsLoad() { try { return JSON.parse(localStorage.getItem(hsKey())) || {}; } catch (e) { return {}; } }
+function hsSave(o) { try { localStorage.setItem(hsKey(), JSON.stringify(o)); } catch (e) {} }
+const hsScore = (o, s) => { const v = o[s] || { n: 0, s: 0 }; return (v.s + 0.5) / (v.n + 1); };
+function hsBump(style, dn, ds) { if (!style) return; const o = hsLoad(); const v = o[style] || { n: 0, s: 0 }; v.n += dn; v.s += ds; o[style] = v; hsSave(o); }
+function hsRank(avail) { const o = hsLoad(); return [...avail].sort((a, b) => hsScore(o, b) - hsScore(o, a) || HSTYLE_ORDER.indexOf(a) - HSTYLE_ORDER.indexOf(b)); }
+function hsPick(avail) { const r = hsRank(avail); return r.length > 1 && Math.random() < 0.2 ? r[1 + Math.floor(Math.random() * (r.length - 1))] : r[0]; }
+function hsBest(avail) { const o = hsLoad(); const used = avail.filter(s => o[s] && o[s].s > 0); return used.length ? hsRank(used)[0] : null; }
+
 let basicsHint = null;
 function basicsHasHints(track) { return typeof BASICS_HINTS[track] === 'function'; }
+// טקסט מעורב: קטעי מתמטיקה מבודדים משמאל לימין, השאר עברית רגילה
+function mixHtml(t) {
+  const re = /[0-9x(+−×÷][0-9x\s+\-−×÷=().,/²<>]*(?:= \?(?:\/\d+)?|× \?|[0-9x)²])|[0-9x]/g;
+  let out = '', last = 0, m;
+  const s = String(t);
+  while ((m = re.exec(s))) { out += escapeHtml(s.slice(last, m.index)) + M(m[0]); last = m.index + m[0].length; }
+  return out + escapeHtml(s.slice(last));
+}
+const optHtml = t => /[֐-׿]/.test(t) ? mixHtml(t) : M(t);
+function buildBasicsHint(p) {
+  const levels = BASICS_HINTS[basicsTrack](p);
+  let extra = {};
+  try { extra = BASICS_EXTRA[basicsTrack] ? BASICS_EXTRA[basicsTrack](p) : {}; } catch (e) { extra = {}; }
+  levels.forEach((lv, i) => {
+    const pic = extra.pics && extra.pics[i];
+    if (pic) lv.modes = { pic, ...lv.modes };
+    lv.check = (extra.checks && extra.checks[i]) || null;
+    if (lv.check) lv.order = lv.check.opts.map((_, k) => k).sort(() => Math.random() - 0.5);
+  });
+  return { levels, level: 0, mode: null, used: 1, lead: '', checked: [], wrong: [[], [], []], collapsed: false, open: false, lesson: false, passStyle: null };
+}
+const hintAvail = lv => HSTYLE_ORDER.filter(m => lv.modes[m]);
+// יציאה מדרך הסבר בלי לעבור את הבדיקה הקטנה = ניסיון שלא הצליח (למודל הלומד)
+function hintLeaveStyle() {
+  const h = basicsHint; if (!h || !h.open) return;
+  const lv = h.levels[h.level];
+  if (lv.check && !h.checked[h.level] && h.mode) hsBump(h.mode, 1, 0);
+}
+function hintGoLevel(k) {
+  const h = basicsHint;
+  h.level = k; h.used = Math.max(h.used, k + 1); h.lead = '';
+  h.mode = hsPick(hintAvail(h.levels[k]));
+}
 function openBasicsHint() {
   const p = basicsProblems[basicsCurrent];
-  if (!basicsHint) basicsHint = { levels: BASICS_HINTS[basicsTrack](p), level: 0, mode: 0, used: 1 };
-  // הרמז נפתח מעל אזור התשובה – המקלדת/האפשרויות נשארות זמינות מתחתיו
-  const box = document.getElementById('qs-hint');
+  if (!basicsHint) { basicsHint = buildBasicsHint(p); hintGoLevel(0); }
+  else if (!basicsHint.open || basicsHint.collapsed) {
+    // כפתור הרמז מתקדם: רמז 2 → רמז 3 → שיעור של דקה
+    if (basicsHint.level < basicsHint.levels.length - 1) { hintLeaveStyle(); hintGoLevel(basicsHint.level + 1); }
+    else { openBasicsLesson(); return; }
+  }
+  showHintBox();
+}
+function showHintBox() {
+  const h = basicsHint, box = document.getElementById('qs-hint');
+  h.open = true; h.collapsed = false;
   box.hidden = false;
   renderBasicsHint();
   box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
+function updateHintBtn() {
+  const btn = document.getElementById('qs-hint-btn'); if (!btn) return;
+  const h = basicsHint, label = btn.querySelector('.qs-hint-label');
+  if (!h) { btn.hidden = false; label.textContent = 'רמז'; return; }
+  btn.hidden = h.open && !h.collapsed;
+  label.textContent = h.level < h.levels.length - 1 ? `רמז ${h.level + 2}` : 'שיעור של דקה';
+}
 function renderBasicsHint() {
-  const h = basicsHint, lv = h.levels[h.level];
-  const modes = Object.keys(lv.modes);
-  const mode = modes[h.mode % modes.length];
+  const h = basicsHint, lv = h.levels[h.level], box = document.getElementById('qs-hint');
+  const avail = hintAvail(lv);
+  if (!lv.modes[h.mode]) h.mode = avail[0];
+  updateHintBtn();
+  if (h.collapsed) {
+    box.innerHTML = `<div class="hmini" role="region" aria-label="רמז פתוח">
+        <span class="hint-bulb">${draftIcon('bulb', 18)}</span>
+        <div class="hmini-body"><b>רמז ${h.level + 1}: ${lv.title}</b><div class="hmini-content">${lv.modes[h.mode]}</div></div>
+        <button type="button" class="hreopen" onclick="basicsHintReopen()">פתיחה</button>
+      </div>`;
+    return;
+  }
   const last = h.level === h.levels.length - 1;
-  document.getElementById('qs-hint').innerHTML = `
-    <div class="hint-card">
+  const best = avail.length > 1 ? hsBest(avail) : null;
+  let checkHtml = '';
+  if (lv.check) {
+    const done = h.checked[h.level], wrong = h.wrong[h.level], lastWrong = wrong[wrong.length - 1];
+    const fb = done ? '<b>בדיוק.</b> עכשיו נסו את השאלה.' : lastWrong !== undefined ? `${mixHtml(lv.check.opts[lastWrong].why || 'לא בדיוק.')} <b>אפשר לבקש הסבר אחר.</b>` : '';
+    checkHtml = `<div class="hcheck" id="hcheck">
+        <div class="hcheck-q"><span class="hcheck-tag">בדיקה קטנה</span> ${mixHtml(lv.check.q)}</div>
+        <div class="hcheck-opts">${lv.order.map(k => `<button type="button" class="${done && k === 0 ? 'ok' : wrong.includes(k) ? 'no' : ''}" ${done || wrong.includes(k) ? 'disabled' : ''} onclick="basicsHintCheck(${k})">${optHtml(lv.check.opts[k].t)}</button>`).join('')}</div>
+        <div class="hcheck-fb" aria-live="polite">${fb}</div>
+      </div>`;
+  }
+  box.innerHTML = `
+    <div class="hint-card" role="region" aria-label="רמז ${h.level + 1}">
       <div class="hint-head">
         <span class="hint-bulb">${draftIcon('bulb', 22)}</span>
         <span class="hint-titles"><b>רמז ${h.level + 1}: ${lv.title}</b><small>${lv.sub}</small></span>
@@ -5054,40 +5601,134 @@ function renderBasicsHint() {
         <button type="button" class="q-close hint-x" onclick="closeBasicsHint()" aria-label="סגירת הרמז">${draftIcon('close', 18)}</button>
       </div>
       ${h.lead ? `<p class="hint-lead">${h.lead}</p>` : ''}
-      ${modes.length > 1 ? `<div class="hint-tabs">${modes.map((m, i) => `<button type="button" class="${m === mode ? 'on' : ''}" onclick="basicsHint.mode=${i}; renderBasicsHint()">${HINT_MODE_LABELS[m]}</button>`).join('')}</div>` : ''}
-      <div class="hint-body">${lv.modes[mode]}</div>
+      ${avail.length > 1 ? `<div class="hint-tabs" role="tablist">${avail.map(m => `<button type="button" role="tab" aria-selected="${m === h.mode}" class="${m === h.mode ? 'on' : ''}" onclick="setHintMode('${m}')">${HINT_MODE_LABELS[m]}${m === best ? '<span class="hint-best">עובד לך</span>' : ''}</button>`).join('')}</div>` : ''}
+      <div class="hint-body${h.mode === 'pic' ? ' is-pic' : ''}">${lv.modes[h.mode]}</div>
+      ${checkHtml}
       <div class="hint-actions">
-        <button type="button" class="hint-more" onclick="basicsHintMore()" ${last ? 'disabled' : ''}>${last ? 'זה הרמז האחרון' : 'עוד רמז'}</button>
-        <button type="button" class="hint-other" onclick="basicsHintOther()" ${modes.length < 2 ? 'disabled' : ''}>תסבירו אחרת</button>
-        <button type="button" class="hint-back" onclick="closeBasicsHint()">הבנתי, חוזרים לשאלה</button>
+        ${last ? '<button type="button" class="hint-lesson" onclick="openBasicsLesson()">לא ברור? שיעור של דקה</button>'
+               : '<button type="button" class="hint-more" onclick="basicsHintMore()">עוד רמז</button>'}
+        <button type="button" class="hint-other" onclick="basicsHintOther()" ${avail.length < 2 ? 'disabled' : ''}>תסבירו אחרת</button>
+        <button type="button" class="hint-back" onclick="basicsHintUnderstood()">הבנתי, חוזרים לשאלה</button>
       </div>
     </div>`;
 }
-function basicsHintMore() {
-  if (basicsHint.level < basicsHint.levels.length - 1) { basicsHint.level++; basicsHint.mode = 0; basicsHint.used = basicsHint.level + 1; }
-  basicsHint.lead = '';
+function setHintMode(m) {
+  if (m !== basicsHint.mode) { hintLeaveStyle(); basicsHint.mode = m; basicsHint.lead = ''; }
   renderBasicsHint();
 }
-function basicsHintOther() { basicsHint.mode++; basicsHint.lead = ''; renderBasicsHint(); }
-// אחרי טעות ראשונה: הרמז הבא נפתח מעצמו, עם פתיח
-function basicsHintAuto() {
-  const first = !basicsHint;
-  if (first) openBasicsHint();
-  else { basicsHintMore(); document.getElementById('qs-hint').hidden = false; }
-  basicsHint.lead = first ? 'כמעט. הנה רמז:' : 'כמעט. ננסה הסבר נוסף:';
+function basicsHintMore() {
+  const h = basicsHint;
+  if (h.level < h.levels.length - 1) { hintLeaveStyle(); hintGoLevel(h.level + 1); }
   renderBasicsHint();
   document.getElementById('qs-hint').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
-function closeBasicsHint() {
-  document.getElementById('qs-hint').hidden = true;
+// "תסבירו אחרת": עוברים לדרך ההסבר הבאה בדירוג של התלמיד
+function basicsHintOther() {
+  const h = basicsHint, others = hintAvail(h.levels[h.level]).filter(m => m !== h.mode);
+  if (!others.length) return;
+  hintLeaveStyle();
+  h.mode = hsRank(others)[0]; h.lead = '';
+  renderBasicsHint();
 }
+function basicsHintCheck(k) {
+  const h = basicsHint, lv = h.levels[h.level];
+  if (!lv.check || h.checked[h.level]) return;
+  if (k === 0) {
+    const slip = h.wrong[h.level].length > 0;
+    h.checked[h.level] = slip ? 'slip' : 'ok';
+    hsBump(h.mode, 1, slip ? 0.3 : 0.6);
+    h.passStyle = h.mode;
+  } else {
+    h.wrong[h.level].push(k);
+    if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+  }
+  renderBasicsHint();
+  if (k !== 0) { const c = document.getElementById('hcheck'); if (c) restartAnim(c.querySelector('.hcheck-opts'), 'shake'); }
+}
+// "הבנתי": רק אחרי הבדיקה הקטנה. אז הרמז מתכווץ לפס קטן
+function basicsHintUnderstood() {
+  const h = basicsHint, lv = h.levels[h.level];
+  if (lv.check && !h.checked[h.level]) {
+    showToast('קודם הבדיקה הקטנה, זה לוקח שנייה');
+    const c = document.getElementById('hcheck'); if (c) restartAnim(c, 'shake');
+    return;
+  }
+  h.collapsed = true;
+  renderBasicsHint();
+}
+function basicsHintReopen() { basicsHint.collapsed = false; renderBasicsHint(); }
+// אחרי טעות ראשונה: הרמז הבא נפתח מעצמו, עם פתיח
+function basicsHintAuto() {
+  const first = !basicsHint;
+  if (first) { basicsHint = buildBasicsHint(basicsProblems[basicsCurrent]); hintGoLevel(0); }
+  else if (basicsHint.level < basicsHint.levels.length - 1) { hintLeaveStyle(); hintGoLevel(basicsHint.level + 1); }
+  showHintBox();
+  basicsHint.lead = first ? 'כמעט. הנה רמז:' : 'כמעט. ננסה הסבר נוסף:';
+  renderBasicsHint();
+}
+function closeBasicsHint() {
+  hintLeaveStyle();
+  if (basicsHint) { basicsHint.open = false; basicsHint.collapsed = false; }
+  document.getElementById('qs-hint').hidden = true;
+  updateHintBtn();
+}
+
+// ===== שיעור של דקה =====
+let lessonIdx = 0, lessonReturnFocus = null;
+function basicsLessonCards() { return BASICS_LESSONS[TRACK_LESSON[basicsTrack]] || null; }
+function openBasicsLesson() {
+  const cards = basicsLessonCards(); if (!cards) return;
+  if (basicsHint) { basicsHint.lesson = true; basicsHint.used = basicsHint.levels.length; updateHintBtn(); }
+  lessonIdx = 0; lessonReturnFocus = document.activeElement;
+  let wrap = document.getElementById('lesson-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div'); wrap.id = 'lesson-wrap'; wrap.className = 'lesson-wrap';
+    wrap.addEventListener('click', e => { if (e.target === wrap) closeBasicsLesson(); });
+    document.body.appendChild(wrap);
+  }
+  renderBasicsLesson();
+  const first = wrap.querySelector('.lesson-next'); if (first) first.focus({ preventScroll: true });
+}
+function renderBasicsLesson() {
+  const cards = basicsLessonCards(), c = cards[lessonIdx], last = lessonIdx === cards.length - 1;
+  let pic = ''; try { pic = c.pic ? (c.pic() || '') : ''; } catch (e) { pic = ''; }
+  document.getElementById('lesson-wrap').innerHTML = `
+    <div class="lesson" role="dialog" aria-modal="true" aria-labelledby="lesson-title">
+      <div class="lesson-top"><span class="lesson-kicker">שיעור של דקה · ${lessonIdx + 1}/${cards.length}</span>
+        <button type="button" class="q-close hint-x" onclick="closeBasicsLesson()" aria-label="סגירת השיעור">${draftIcon('close', 18)}</button></div>
+      <h3 id="lesson-title">${escapeHtml(c.t)}</h3>
+      <p>${mixHtml(c.b)}</p>
+      ${pic ? `<div class="lesson-pic">${pic}</div>` : ''}
+      <div class="lesson-dots" aria-hidden="true">${cards.map((_, i) => `<i class="${i === lessonIdx ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="lesson-actions">
+        <button type="button" class="lesson-prev" onclick="lessonStep(-1)" ${lessonIdx ? '' : 'disabled'}>הקודם</button>
+        <button type="button" class="lesson-next" onclick="${last ? 'closeBasicsLesson()' : 'lessonStep(1)'}">${last ? 'חזרה לשאלה' : 'הבא'}</button>
+      </div>
+    </div>`;
+}
+function lessonStep(d) {
+  lessonIdx = Math.max(0, Math.min(basicsLessonCards().length - 1, lessonIdx + d));
+  renderBasicsLesson();
+  const n = document.querySelector('#lesson-wrap .lesson-next'); if (n) n.focus({ preventScroll: true });
+}
+function lessonIsOpen() { return !!document.getElementById('lesson-wrap'); }
+function closeBasicsLesson() {
+  const w = document.getElementById('lesson-wrap'); if (w) w.remove();
+  if (lessonReturnFocus && lessonReturnFocus.focus) try { lessonReturnFocus.focus({ preventScroll: true }); } catch (e) {}
+}
+document.addEventListener('keydown', e => {
+  if (!lessonIsOpen()) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeBasicsLesson(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); lessonStep(1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); lessonStep(-1); }
+}, true);
 
 function basicsTypable(p) { return /^-?\d+(\.\d+)?$/.test(String(p.answer)); }
 function plainText(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent.replace(/\s+/g, ' ').trim(); }
 
 function qsToolsHtml(onDraft, onDontKnow, onHint) {
   return `<div class="qs-tools">
-      ${onHint ? `<button type="button" onclick="${onHint}">${draftIcon('bulb')} רמז</button>` : '<span></span>'}
+      ${onHint ? `<button type="button" id="qs-hint-btn" onclick="${onHint}">${draftIcon('bulb')} <span class="qs-hint-label">רמז</span></button>` : '<span></span>'}
       <button type="button" onclick="${onDraft}">${draftIcon('pencil')} טיוטה</button>
       ${onDontKnow ? `<button type="button" onclick="${onDontKnow}">לא יודע/ת</button>` : '<span></span>'}
     </div>`;
@@ -5108,6 +5749,7 @@ function renderBasicsProblem() {
   const labelHtml = labelText ? `<div class="basics-question-label">${escapeHtml(labelText)}</div>` : '';
   qsInput = '';
   basicsHint = null;
+  if (lessonIsOpen()) closeBasicsLesson();
   basicsAttempt = { tries: 0, missed: false, first: null, trap: null, done: false };
   let answerHtml;
   if (basicsTypable(p)) {
@@ -5222,7 +5864,7 @@ function restartAnim(el, cls) { el.classList.remove(cls); void el.offsetWidth; e
 
 document.addEventListener('keydown', e => {
   if (fbIsOpen()) { if (e.key === 'Enter') { e.preventDefault(); fbContinue(); } return; }
-  if (!document.getElementById('qs-keypad') || draftIsOpen()) return;
+  if (!document.getElementById('qs-keypad') || draftIsOpen() || lessonIsOpen()) return;
   const tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (/^[0-9]$/.test(e.key)) { e.preventDefault(); qsKey(e.key); }
@@ -5252,10 +5894,11 @@ function recordBasicsAnswer(value, correct, trapHit) {
     chosen: value, correct, expected: p.answer, timeMs,
     solvedAlone: correct && !helped,
     ...(basicsAttempt.missed ? { firstTry: basicsAttempt.first } : {}),
-    ...(basicsHint ? { hintsUsed: basicsHint.used } : {}),
+    ...(basicsHint ? { hintsUsed: basicsHint.used, hintChecked: !!basicsHint.checked[basicsHint.level], ...(basicsHint.lesson ? { lesson: true } : {}), ...(basicsHint.passStyle ? { hintStyle: basicsHint.passStyle } : {}) } : {}),
     ...(trapHit ? { mistake: trapHit.why } : basicsAttempt.trap ? { mistake: basicsAttempt.trap.why } : {})
   });
   if (correct) basicsCorrect++;
+  if (correct && basicsHint && basicsHint.passStyle) hsBump(basicsHint.passStyle, 0, 0.4);
   updateProgressSegs();
   showBasicsFeedback({ p, value, correct, trapHit });
 }
@@ -5287,7 +5930,8 @@ function showBasicsFeedback({ p, value, correct, trapHit, retry }) {
   const steps = (!correct || helped) ? basicsStepsFor(p) : null;
   const isLast = !retry && basicsCurrent >= BASICS_SHEET_SIZE - 1;
   let note = '';
-  if (correct && basicsHint) note = `נפתר עם רמז ${basicsHint.used}.`;
+  if (correct && basicsHint) note = basicsHint.lesson ? 'נפתר אחרי שיעור של דקה.'
+    : basicsHint.used === 1 && basicsHint.checked[0] ? 'נפתר עם רמז 1 שהבנת.' : `נפתר עם רמז ${basicsHint.used}.`;
   else if (correct && basicsAttempt.missed) note = 'נכון בניסיון השני.';
   const gaveUp = value === 'לא יודע/ת';
   sheet.className = 'fb-sheet ' + (correct ? 'ok' : 'no');
@@ -6028,6 +6672,7 @@ function fbClose() {
 function exitBasicsSession() {
   closeDraft();
   fbClose();
+  if (lessonIsOpen()) closeBasicsLesson();
   document.getElementById('basics-session-view').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.remove('hidden');
   renderBasicsLadder();
