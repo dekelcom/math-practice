@@ -1772,6 +1772,7 @@
   .mcp-check input { width: 20px !important; height: 20px; margin: 0; accent-color: var(--blue); flex: none; }
   #app-container:has(#teacher-home-view:not(.hidden)) { max-width: 1220px; }
   .pd-teacher { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink2); }
+  .pd-tstatus { font-size: .85em; font-weight: 600; } .pd-tstatus.ok { color: var(--mint-d); } .pd-tstatus.err { color: var(--red-d); }
   .pd-teacher select { min-height: 44px; border-radius: 12px; border: 1.5px solid var(--line); padding: 0 10px; font: inherit; color: var(--ink); background: white; }
   .tc-table tbody tr { cursor: pointer; } .tc-table tbody tr:hover, .tc-table tbody tr:focus { background: var(--blue-l); outline: none; }
   .tc-alert { display: inline-block; border-radius: 10px; padding: 3px 9px; font-size: .82em; font-weight: 600; margin: 2px 0; }
@@ -2253,7 +2254,7 @@ try {
           <h2>ההתקדמות של <span id="dashboard-student-name"></span></h2>
           <p id="pd-sub"></p>
         </div>
-        <label class="pd-teacher hidden" id="pd-teacher-wrap">מורה: <select id="pd-teacher" onchange="adAssignTeacher(this.value)"></select></label>
+        <label class="pd-teacher hidden" id="pd-teacher-wrap">מורה: <select id="pd-teacher" onchange="adAssignTeacher(this.value)"></select><span class="pd-tstatus" id="pd-teacher-status" aria-live="polite"></span></label>
         <button type="button" class="ad-del pd-reset hidden" id="pd-reset" onclick="adResetStudent()">איפוס התקדמות</button>
         <div class="pd-ranges" role="group" aria-label="טווח זמן">
           <button type="button" data-range="week" class="on" onclick="pdSetRange('week')">השבוע</button>
@@ -10666,14 +10667,25 @@ function adOpenStudent(uid) {
   const teachers = Object.keys(ad.users).filter(k => ad.users[k].role === 'teacher');
   document.getElementById('pd-teacher').innerHTML = '<option value="">ללא מורה</option>' + teachers.map(k => `<option value="${k}"${u.teacherUid === k ? ' selected' : ''}>${escapeHtml(ad.users[k].displayName || ad.users[k].username)}</option>`).join('');
   document.getElementById('pd-teacher-wrap').classList.remove('hidden');
+  document.getElementById('pd-teacher-status').textContent = '';
 }
 async function adAssignTeacher(tuid) {
-  const uid = dashboardStudentUid, upd = {};
-  Object.keys(ad.users || {}).filter(k => ad.users[k].role === 'teacher').forEach(k => { upd['users/' + k + '/students/' + uid] = null; });
-  upd['users/' + uid + '/teacherUid'] = tuid || null;
-  if (tuid) upd['users/' + tuid + '/students/' + uid] = true;
-  try { await firebaseDb.ref().update(upd); showToast(tuid ? 'התלמיד שויך למורה' : 'השיוך למורה הוסר'); }
-  catch (e) { alert('השמירה נכשלה: ' + (e.message || e)); }
+  const uid = dashboardStudentUid, st = document.getElementById('pd-teacher-status');
+  st.textContent = 'שומר...'; st.className = 'pd-tstatus';
+  try {
+    // 1. השדה אצל התלמיד
+    await firebaseDb.ref('users/' + uid + '/teacherUid').set(tuid || null);
+    // 2. הרשימה אצל המורים
+    const teachers = Object.keys(ad.users || {}).filter(k => ad.users[k].role === 'teacher');
+    for (const k of teachers) await firebaseDb.ref('users/' + k + '/students/' + uid).set(k === tuid ? true : null);
+    // 3. בדיקה שזה באמת נשמר
+    const back = (await firebaseDb.ref('users/' + uid + '/teacherUid').once('value')).val() || '';
+    if (back !== (tuid || '')) throw new Error('הערך לא נשמר בשרת');
+    st.textContent = '✓ נשמר'; st.className = 'pd-tstatus ok';
+  } catch (e) {
+    console.warn('assign teacher failed', e);
+    st.textContent = 'השמירה נכשלה: ' + (e.code || e.message || e); st.className = 'pd-tstatus err';
+  }
 }
 // איפוס התקדמות (למנהל): שלבים, נקודות ותגים, רצף, שאלון ובדיקת רמה, שיעורים ומטבעות. היסטוריית התרגולים נשמרת.
 async function adResetStudent() {
