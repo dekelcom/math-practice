@@ -1721,6 +1721,45 @@
   .pd-score { font: 700 1em var(--display); padding: 3px 10px; border-radius: 10px; }
   .pd-score.ok { background: var(--mint-l); color: var(--mint-d); } .pd-score.mid { background: var(--sun-l); color: var(--sun-d); } .pd-score.low { background: var(--orange-l); color: var(--orange-d); }
   #app-container:has(#admin-home-view:not(.hidden)) { max-width: 1220px; }
+  /* בית ההורה: כרטיס לכל ילד */
+  .ph-add { min-height: 44px; padding: 0 18px; }
+  .ph-forms .ph-form { max-width: 440px; width: 100%; margin: 0 auto; }
+  #ph-forms.hidden { display: none; }
+  .ph-kids { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; align-items: stretch; }
+  .ph-kids:has(> .ph-kid:only-child) { max-width: 600px; }
+  .ph-kids > .pd-empty, .ph-kids > .ph-empty { grid-column: 1 / -1; }
+  .ph-empty { align-items: flex-start; } .ph-empty h3 { margin: 0; font: 600 1.35em var(--display); } .ph-empty p { margin: 0; color: var(--ink2); max-width: 60ch; line-height: 1.6; } .ph-empty .pd-soft { padding: 0 18px; }
+  .ph-kid { gap: 14px; }
+  .ph-top { display: flex; align-items: center; gap: 12px; }
+  .ph-av { width: 46px; height: 46px; flex: none; border-radius: 16px; display: flex; align-items: center; justify-content: center; font: 700 1.35em var(--display); }
+  .ph-av.blue { background: var(--blue-l); color: var(--blue-d); } .ph-av.orange { background: var(--orange-l); color: var(--orange-d); } .ph-av.mint { background: var(--mint-l); color: var(--mint-d); } .ph-av.purple { background: #EFE8FF; color: var(--purple-d); } .ph-av.pink { background: var(--pink-l); color: var(--pink-d); }
+  .ph-name { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; } .ph-name h3 { margin: 0; font: 600 1.35em/1.2 var(--display); color: var(--ink); } .ph-name span { color: var(--ink2); font-size: .9em; }
+  .ph-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .ph-week div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ph-week i { width: 100%; height: 34px; border-radius: 10px; background: var(--paper); box-shadow: var(--ring); display: flex; align-items: center; justify-content: center; font: 600 .82em var(--display); font-style: normal; color: white; }
+  .ph-week .on i { background: var(--mint-d); box-shadow: none; }
+  .ph-week .today i { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .ph-week small { color: var(--ink2); font-size: .75em; } .ph-week .today small { color: var(--ink); font-weight: 600; }
+  .ph-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .ph-stats div { display: flex; flex-direction: column; } .ph-stats b { font: 700 1.4em/1.1 var(--display); color: var(--ink); } .ph-stats span { color: var(--ink2); font-size: .82em; }
+  .ph-note { margin: 0; border-radius: 12px; padding: 8px 12px; font-size: .9em; line-height: 1.5; }
+  .ph-note.wait { background: var(--orange-l); color: #8A3510; } .ph-note.weak { background: var(--sun-l); color: #6E5208; } .ph-note.good { background: var(--mint-l); color: var(--mint-d); }
+  .ph-act { margin-top: auto; display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap; }
+  .ph-go { padding: 0 18px; min-height: 44px; }
+  .ph-link { border: 0; background: none; padding: 10px 2px; min-height: 44px; font: 600 .92em var(--body); color: var(--blue-d); cursor: pointer; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--blue-d) 35%, transparent); text-underline-offset: 4px; }
+  .ph-link:hover { text-decoration-color: currentColor; }
+  .ph-coins { margin-inline-start: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; min-height: 36px; border: 0; border-radius: 12px; background: var(--sun-l); color: #6E5208; font: 500 .85em var(--body); padding: 0 10px; cursor: pointer; white-space: nowrap; }
+  .ph-coins em { font-style: normal; }
+  @media (max-width: 480px) { .ph-coins em { display: none; } }
+  .ph-coins b { font: 700 1.1em var(--display); color: var(--ink); }
+  .ph-coins span { width: 18px; height: 18px; border-radius: 6px; background: var(--sun); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+  .ph-coins:hover, .ph-coins[aria-expanded="true"] { background: var(--sun); }
+  .ph-gift { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--sun-l); border-radius: 14px; padding: 10px 12px; }
+  .ph-gift span { flex: 1 0 100%; font-size: .9em; color: #6E5208; font-weight: 600; }
+  .ph-gift button { min-height: 40px; min-width: 52px; border: 0; border-radius: 12px; background: white; color: var(--ink); font: 700 1em var(--display); cursor: pointer; box-shadow: 0 2px 0 var(--sun-d); }
+  .ph-gift button:hover { background: var(--sun); }
+  .ph-gift button.x { background: none; box-shadow: none; font: 600 .88em var(--body); color: var(--ink2); margin-inline-start: auto; }
+  #app-container:has(#parent-home-view:not(.hidden)) { max-width: 1220px; }
   /* לוח ניהול: שורות מיושרות בגובה, רשימות בעמודות */
   @media (min-width: 900px) {
     .ad .ad-row-a { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: stretch; }
@@ -2310,56 +2349,55 @@ try {
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
     </div>
-    <div style="text-align:center; margin: 24px 0;">
-      <button class="btn btn-primary" onclick="openParentStudentsView()">👨‍🎓 התלמידים שלי</button>
+    <div class="pd ph">
+      <header class="pd-head">
+        <div class="pd-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M17 11a3 3 0 1 0 0-6M22 21v-1a5 5 0 0 0-4-4.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="pd-title"><h2>הילדים שלי</h2><p id="ph-sub">טוען...</p></div>
+        <button type="button" class="pd-soft ph-add" onclick="openCreateStudentForm()">+ הוספת ילד/ה</button>
+      </header>
+      <section class="pd-card ph-forms hidden" id="ph-forms" aria-label="טופס">
+        <div id="create-student-form" class="auth-form ph-form hidden">
+        <h3 style="text-align:center;">חשבון חדש לילד/ה</h3>
+          <label>שם מלא</label>
+          <input type="text" id="new-student-displayname">
+          <label>שם משתמש</label>
+          <input type="text" id="new-student-username">
+          <label>סיסמה זמנית</label>
+          <input type="password" id="new-student-password">
+          <label>כיתה / גיל (אופציונלי)</label>
+          <input type="text" id="new-student-grade">
+          <label>הערות (אופציונלי)</label>
+          <input type="text" id="new-student-notes">
+          <label>שיוך התקדמות ישנה (שם קודם, אופציונלי)</label>
+          <input type="text" id="new-student-legacy-name" placeholder="לדוגמה: יונתן">
+          <label class="mcp-check"><input type="checkbox" id="new-student-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
+          <button class="btn btn-primary" onclick="handleCreateStudent()">צור תלמיד</button>
+          <button class="btn btn-secondary" onclick="closeCreateStudentForm()">ביטול</button>
+          <div class="auth-error" id="create-student-error"></div>
+        </div>
+        <div id="edit-program-form" class="auth-form ph-form hidden">
+          <h3 style="text-align:center;" id="edit-program-title"></h3>
+          <label>מספר שיעורים</label>
+          <input type="number" id="program-lesson-count" min="1" max="99">
+          <label>דקות נטו לכל שיעור</label>
+          <input type="number" id="program-minutes" min="1" max="600">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+            <input type="checkbox" id="program-reset-same-day" style="width:auto;">
+            לאפס שיעור שלא הושלם עד סוף היום
+          </label>
+          <button class="btn btn-primary" onclick="handleSaveProgram()">שמור</button>
+          <button class="btn btn-secondary" onclick="closeEditProgramForm()">ביטול</button>
+          <div class="auth-error" id="edit-program-error"></div>
+        </div>
+      </section>
+      <div id="parent-students-list" class="ph-kids"><p class="pd-empty">טוען...</p></div>
     </div>
   </div>
 
-  <div id="parent-students-view" class="hidden">
-    <button class="back-btn" onclick="exitParentStudentsView()">← חזרה</button>
-    <h2 style="text-align:center;">👨‍🎓 ניהול תלמידים</h2>
-    <div id="parent-students-list" class="teacher-list">
-      <p style="text-align:center; color:var(--ink2);">טוען...</p>
-    </div>
-    <div style="text-align:center; margin: 20px 0;">
-      <button class="btn btn-primary" onclick="openCreateStudentForm()">+ הוסף תלמיד</button>
-    </div>
-    <div id="create-student-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
-      <label>שם מלא</label>
-      <input type="text" id="new-student-displayname">
-      <label>שם משתמש</label>
-      <input type="text" id="new-student-username">
-      <label>סיסמה זמנית</label>
-      <input type="password" id="new-student-password">
-      <label>כיתה / גיל (אופציונלי)</label>
-      <input type="text" id="new-student-grade">
-      <label>הערות (אופציונלי)</label>
-      <input type="text" id="new-student-notes">
-      <label>שיוך התקדמות ישנה (שם קודם, אופציונלי)</label>
-      <input type="text" id="new-student-legacy-name" placeholder="לדוגמה: יונתן">
-      <label class="mcp-check"><input type="checkbox" id="new-student-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
-      <button class="btn btn-primary" onclick="handleCreateStudent()">צור תלמיד</button>
-      <button class="btn btn-secondary" onclick="closeCreateStudentForm()">ביטול</button>
-      <div class="auth-error" id="create-student-error"></div>
-    </div>
-    <div id="edit-program-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
-      <h3 style="text-align:center;" id="edit-program-title"></h3>
-      <label>מספר שיעורים</label>
-      <input type="number" id="program-lesson-count" min="1" max="99">
-      <label>דקות נטו לכל שיעור</label>
-      <input type="number" id="program-minutes" min="1" max="600">
-      <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
-        <input type="checkbox" id="program-reset-same-day" style="width:auto;">
-        לאפס שיעור שלא הושלם עד סוף היום
-      </label>
-      <button class="btn btn-primary" onclick="handleSaveProgram()">שמור</button>
-      <button class="btn btn-secondary" onclick="closeEditProgramForm()">ביטול</button>
-      <div class="auth-error" id="edit-program-error"></div>
-    </div>
-  </div>
+  <div id="parent-students-view" class="hidden"></div>
 
   <div id="parent-dashboard-view" class="hidden">
-    <button class="back-btn" onclick="exitParentDashboard()">← חזרה לרשימת תלמידים</button>
+    <button class="back-btn" onclick="exitParentDashboard()">← חזרה</button>
     <div class="pd">
       <header class="pd-head">
         <div class="pd-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
@@ -4037,13 +4075,13 @@ let dashboardLessonsRef = null;
 let dashboardCoinsRef = null;
 
 let dashboardMotRef = null;
-let dashboardReturnView = 'parent-students-view';
+let dashboardReturnView = 'parent-home-view';
 function openParentDashboard(uid, name) {
   dashboardStudentUid = uid;
   pd = { range: pd.range || 'week', lessons: null, program: null, mot: null };
   dashboardSubmissions = [];
   document.getElementById('dashboard-student-name').textContent = name;
-  document.getElementById('parent-students-view').classList.add('hidden');
+  document.getElementById('parent-home-view').classList.add('hidden');
   document.getElementById('parent-dashboard-view').classList.remove('hidden');
   document.getElementById('dashboard-detail-container').innerHTML = '';
   if (!firebaseDb) {
@@ -4100,7 +4138,7 @@ function exitParentDashboard() {
   dashboardStudentUid = null;
   document.getElementById('parent-dashboard-view').classList.add('hidden');
   document.getElementById(dashboardReturnView).classList.remove('hidden');
-  dashboardReturnView = 'parent-students-view';
+  dashboardReturnView = 'parent-home-view';
   document.getElementById('pd-reset').classList.add('hidden');
   document.getElementById('pd-teacher-wrap').classList.add('hidden');
 }
@@ -10508,6 +10546,7 @@ async function routeByRole(role) {
   } else if (role === 'parent') {
     document.getElementById('parent-username-label').textContent = currentUser.username;
     showAppView('parent-home-view');
+    renderParentStudentsView();
   } else {
     studentName = currentUser.displayName || currentUser.username;
     studentUid = currentUser.uid;
@@ -11025,45 +11064,73 @@ async function handleCreateParent() {
   }
 }
 
-function openParentStudentsView() {
-  document.getElementById('parent-home-view').classList.add('hidden');
-  document.getElementById('parent-students-view').classList.remove('hidden');
-  renderParentStudentsView();
-}
-function exitParentStudentsView() {
-  document.getElementById('parent-students-view').classList.add('hidden');
-  document.getElementById('parent-home-view').classList.remove('hidden');
-}
+function openParentStudentsView() { showAppView('parent-home-view'); renderParentStudentsView(); }
+function exitParentStudentsView() { showAppView('parent-home-view'); }
 let parentStudentsListenerStarted = false;
+const ph = { kids: null, subs: null, gift: null };
 function renderParentStudentsView() {
   if (parentStudentsListenerStarted) return;
   parentStudentsListenerStarted = true;
+  const fail = err => { console.warn(err); document.getElementById('parent-students-list').innerHTML = `<p class="pd-empty">שגיאה בטעינה: ${escapeHtml(err.message || String(err))}</p>`; };
   firebaseDb.ref('users').orderByChild('parentUid').equalTo(currentUser.uid).on('value', snap => {
-    const arr = [];
-    snap.forEach(child => arr.push({ uid: child.key, ...child.val() }));
-    renderParentStudentsList(arr);
-  }, err => {
-    console.warn(err);
-    document.getElementById('parent-students-list').innerHTML =
-      '<p style="text-align:center; color:var(--red-d);">שגיאה בטעינה: ' + (err.message || err) + '</p>';
-  });
+    const arr = []; snap.forEach(child => { arr.push({ uid: child.key, ...(child.val() || {}) }); });
+    ph.kids = arr; renderParentStudentsList();
+  }, fail);
+  firebaseDb.ref('submissions').limitToLast(500).on('value', snap => {
+    const arr = []; snap.forEach(c => { const v = c.val() || {}; if (v.studentUid && !isSampleSub(v)) arr.push(v); });
+    arr.sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0)); ph.subs = arr; renderParentStudentsList();
+  }, err => { console.warn('parent subs', err); ph.subs = []; renderParentStudentsList(); });
 }
-function renderParentStudentsList(arr) {
-  const container = document.getElementById('parent-students-list');
-  if (!arr.length) {
-    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין לא נוצרו חשבונות תלמיד.</p>';
+function phKidStats(k) {
+  const D = 864e5, now = new Date(), start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() - 6 * D;
+  const subs = (ph.subs || []).filter(x => x.studentUid === k.uid), wk = subs.filter(x => x.timestamp >= start);
+  const days = Array.from({ length: 7 }, (_, i) => { const t = start + i * D; return { t, min: pdMin(wk.filter(x => x.timestamp >= t && x.timestamp < t + D).reduce((a, x) => a + ((x.summary && x.summary.totalTimeMs) || 0), 0)), n: wk.filter(x => x.timestamp >= t && x.timestamp < t + D).length }; });
+  let ok = 0, tot = 0; const byTrack = {};
+  wk.forEach(x => { if (x.type === 'diagnostic') return; ok += (x.summary && x.summary.correct) || 0; tot += (x.summary && x.summary.total) || 0;
+    if (x.track && x.summary && x.summary.total) { const b = byTrack[x.track] || (byTrack[x.track] = { ok: 0, tot: 0 }); b.ok += x.summary.correct || 0; b.tot += x.summary.total; } });
+  const weak = Object.entries(byTrack).filter(([, b]) => b.tot >= 10).map(([t, b]) => ({ t, pct: Math.round(100 * b.ok / b.tot) })).sort((x, y) => x.pct - y.pct)[0];
+  return { days, mins: days.reduce((a, d) => a + d.min, 0), sheets: wk.filter(x => x.type !== 'diagnostic').length, pct: tot ? Math.round(100 * ok / tot) : null, last: subs[0] ? subs[0].timestamp : 0, weak: weak && weak.pct < 70 ? weak : null };
+}
+function renderParentStudentsList() {
+  const box = document.getElementById('parent-students-list'), sub = document.getElementById('ph-sub');
+  if (!box || !ph.kids) return;
+  const kids = ph.kids;
+  if (!kids.length) {
+    sub.textContent = 'עוד לא נוצרו חשבונות לילדים';
+    box.innerHTML = `<section class="pd-card ph-empty"><h3>מתחילים כאן</h3><p>יוצרים לכל ילד/ה חשבון משלו/ה, עם שם משתמש וסיסמה. מכאן תוכלו לראות כמה תרגלו, מה הולך טוב ומה כדאי לחזק.</p><button type="button" class="pd-soft" onclick="openCreateStudentForm()">+ יצירת חשבון ראשון</button></section>`;
     return;
   }
-  container.innerHTML = arr.map(s => `
-    <div class="teacher-row" onclick="openParentDashboard('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">
-      <div class="name">${escapeHtml(s.displayName || s.username)}</div>
-      <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
-      ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
-      <div class="meta">🪙 ${s.coins || 0}${s.motivation ? ` · 🔥 ${motShownStreak(s.motivation)} ימים ברצף · שלב ${motLevel(s.motivation.xp)} · ${Object.keys(s.motivation.badges || {}).length} תגים` : ''}</div>
-      <button class="btn btn-secondary" onclick="event.stopPropagation(); openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
-      <button class="btn btn-secondary" onclick="event.stopPropagation(); handleGiftCoins('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🎁 העניק מטבעות</button>
-    </div>
-  `).join('');
+  const st = kids.map(phKidStats), total = st.reduce((a, x) => a + x.mins, 0);
+  sub.textContent = `${kids.length} ${kids.length === 1 ? 'ילד/ה' : 'ילדים'} · ב-7 הימים האחרונים: ${total} דקות תרגול`;
+  const dn = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'], tones = ['blue', 'orange', 'mint', 'purple', 'pink'];
+  box.innerHTML = kids.map((k, i) => {
+    const s = st[i], m = k.motivation || {}, prof = m.profile || null, name = k.displayName || k.username, online = !!(k.activeSession && k.activeSession.online);
+    const grade = (prof && prof.grade) ? `כיתה ${escapeHtml(prof.grade)}` : (k.grade ? escapeHtml(k.grade) : '');
+    const when = online ? '<span class="ad-live">מחובר/ת עכשיו</span>' : (s.last ? `תרגל/ה ${adWhen(s.last)}` : 'עוד לא תרגל/ה');
+    const idle = s.last ? Math.floor((Date.now() - s.last) / 864e5) : null;
+    const notes = [];
+    if (!s.last) notes.push(['wait', 'עוד לא התחיל/ה לתרגל. כדאי לשבת יחד על השיעור הראשון.']);
+    else if (idle >= 3) notes.push(['wait', `לא תרגל/ה ${idle} ימים.`]);
+    if (s.weak) notes.push(['weak', `כדאי לחזק: ${escapeHtml(trackLabelHebrew(s.weak.t))} (${s.weak.pct}%)`]);
+    if (!notes.length && s.sheets) notes.push(['good', 'שבוע טוב: תרגול רציף בלי נקודות תורפה בולטות.']);
+    const gift = ph.gift === k.uid;
+    return `<article class="pd-card ph-kid">
+      <div class="ph-top"><span class="ph-av ${tones[i % tones.length]}" aria-hidden="true">${escapeHtml(name.trim().charAt(0))}</span>
+        <div class="ph-name"><h3>${online ? '<i class="ad-dot" title="מחובר/ת עכשיו"></i>' : ''}${escapeHtml(name)}</h3><span>${grade ? grade + ' · ' : ''}${when}</span></div>
+        <button type="button" class="ph-coins" aria-expanded="${gift}" onclick="phToggleGift('${k.uid}')" title="הענקת מטבעות"><b>${k.coins || 0}</b><em class="t">מטבעות</em><span aria-hidden="true">+</span></button></div>
+      <div class="ph-week" role="img" aria-label="ימי תרגול ב-7 הימים האחרונים">${s.days.map((d, j) => { const day = new Date(d.t).getDay(); return `<div class="${d.n ? 'on' : ''}${j === 6 ? ' today' : ''}" title="${d.min} דק׳"><i>${d.n ? d.min : ''}</i><small>${j === 6 ? 'היום' : dn[day]}</small></div>`; }).join('')}</div>
+      <div class="ph-stats"><div><b>${s.mins}</b><span>דקות</span></div><div><b>${s.sheets}</b><span>דפים</span></div><div><b dir="ltr">${s.pct == null ? '–' : s.pct + '%'}</b><span>הצלחה</span></div><div><b>${motShownStreak(m)}</b><span>ימי רצף</span></div></div>
+      ${notes.map(([c, t]) => `<p class="ph-note ${c}">${t}</p>`).join('')}
+      <div class="ph-act"><button type="button" class="pd-soft ph-go" onclick="openParentDashboard('${k.uid}', '${escapeAttr(name)}')">לדשבורד המלא</button>
+        <button type="button" class="ph-link" onclick="openEditProgramForm('${k.uid}', '${escapeAttr(name)}')">הגדרות שיעורים</button></div>
+      ${gift ? `<div class="ph-gift" role="group" aria-label="הענקת מטבעות"><span>להעניק ל${escapeHtml(name)}:</span>${[5, 10, 25, 50].map(n => `<button type="button" dir="ltr" onclick="phGiveCoins('${k.uid}', ${n})">+${n}</button>`).join('')}<button type="button" class="x" onclick="phToggleGift(null)">סגירה</button></div>` : ''}
+    </article>`;
+  }).join('');
+}
+function phToggleGift(uid) { ph.gift = ph.gift === uid ? null : uid; renderParentStudentsList(); }
+async function phGiveCoins(uid, n) {
+  try { await firebaseDb.ref('users/' + uid + '/coins').transaction(c => (c || 0) + n); ph.gift = null; renderParentStudentsList(); showToast(`הוענקו ${n} מטבעות`); }
+  catch (e) { showToast('שגיאה: ' + (e.message || e)); }
 }
 async function handleGiftCoins(uid, name) {
   const amountStr = prompt(`כמה מטבעות להעניק ל${name}?`);
@@ -11086,7 +11153,9 @@ async function openEditProgramForm(uid, name) {
   document.getElementById('program-lesson-count').value = LESSON_COUNT_DEFAULT;
   document.getElementById('program-minutes').value = LESSON_MINUTES_DEFAULT;
   document.getElementById('program-reset-same-day').checked = true;
+  document.getElementById('create-student-form').classList.add('hidden');
   document.getElementById('edit-program-form').classList.remove('hidden');
+  phSyncForms();
   try {
     const snap = await firebaseDb.ref('users/' + uid + '/program').once('value');
     const program = snap.val();
@@ -11099,8 +11168,15 @@ async function openEditProgramForm(uid, name) {
     console.warn('program fetch for edit failed', e);
   }
 }
+function phSyncForms() {
+  const c = document.getElementById('ph-forms'); if (!c) return;
+  const open = ['create-student-form', 'edit-program-form'].some(id => !document.getElementById(id).classList.contains('hidden'));
+  c.classList.toggle('hidden', !open);
+  if (open) c.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
 function closeEditProgramForm() {
   document.getElementById('edit-program-form').classList.add('hidden');
+  phSyncForms();
   editProgramStudentUid = null;
 }
 async function handleSaveProgram() {
@@ -11121,7 +11197,9 @@ async function handleSaveProgram() {
   }
 }
 function openCreateStudentForm() {
+  document.getElementById('edit-program-form').classList.add('hidden');
   document.getElementById('create-student-form').classList.remove('hidden');
+  phSyncForms();
   ['new-student-displayname', 'new-student-username', 'new-student-password',
    'new-student-grade', 'new-student-notes', 'new-student-legacy-name'].forEach(id => {
     document.getElementById(id).value = '';
@@ -11130,6 +11208,7 @@ function openCreateStudentForm() {
 }
 function closeCreateStudentForm() {
   document.getElementById('create-student-form').classList.add('hidden');
+  phSyncForms();
 }
 async function handleCreateStudent() {
   const displayName = document.getElementById('new-student-displayname').value.trim();
