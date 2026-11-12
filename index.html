@@ -1195,8 +1195,10 @@
     padding: calc(12px + env(safe-area-inset-top, 0px)) 14px calc(12px + env(safe-area-inset-bottom, 0px));
   }
   @media (min-width: 1000px) {
-    .draft-panel { inset: 24px auto 24px 24px; width: min(560px, calc(100vw - 620px)); border-radius: var(--r-lg); box-shadow: var(--drop); }
-    body.draft-open.student-mode #app-container { margin-right: max(24px, calc(50vw - 560px)); margin-left: auto; }
+    /* הטיוטה צמודה לתרגיל, ושניהם יחד ממורכזים במסך */
+    body.draft-open { --dw: min(720px, calc(100vw - 628px)); --pair-side: max(24px, calc((100vw - 580px - var(--dw)) / 2)); }
+    .draft-panel { top: 24px; bottom: 24px; right: auto; left: var(--pair-side, 24px); width: var(--dw, 560px); border-radius: var(--r-lg); box-shadow: var(--drop); }
+    body.draft-open.student-mode #app-container { margin-right: max(0px, calc(var(--pair-side) - 20px)); margin-left: auto; } /* 20px = ריפוד ה-body */
   }
   .draft-head { display: flex; align-items: center; gap: 10px; background: var(--paper); border-radius: var(--r-md); padding: 8px; }
   .draft-question { flex: 1; min-width: 0; font-weight: 700; color: var(--ink); line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
@@ -1248,6 +1250,38 @@
   .calc-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; background: var(--paper); border-radius: var(--r-sm); font-family: var(--display); font-weight: 600; color: var(--ink2); }
   .calc-row b { color: var(--ink); }
   .calc-empty { margin: auto; text-align: center; color: var(--ink3); line-height: 1.6; }
+  .calc-row { align-items: center; flex-wrap: wrap; }
+  .calc-expr { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; }
+  .calc-acts { display: inline-flex; gap: 6px; }
+  .calc-acts button { border: 0; background: white; color: var(--blue-d); border-radius: 10px; padding: 5px 10px; font: 600 .78em var(--body); cursor: pointer; box-shadow: var(--ring); }
+  .steps-list li { align-items: flex-start; }
+  .step-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .step-line .chip { border: 0; font: inherit; color: inherit; }
+  button.chip { cursor: pointer; transition: transform .08s, background .15s; }
+  button.chip:hover { background: var(--blue-l); }
+  .chip.chip-sel { background: var(--blue); color: white; box-shadow: 0 2px 0 var(--blue-d); }
+  .chip.chip-sel .mx { color: white; }
+  .chip.chip-moved { background: var(--orange-l); color: var(--orange-d); box-shadow: 0 0 0 1.5px var(--orange); }
+  .step-seed .step-line { background: var(--blue); color: white; }
+  .step-seed .chip { background: rgba(255,255,255,.18); box-shadow: none; color: white; }
+  .step-seed .mx { color: white; }
+  .mark-bad .step-line { box-shadow: inset 0 0 0 2px var(--orange); }
+  .step-mark { flex: none; width: 26px; height: 26px; margin-top: 8px; border-radius: 50%; font: 700 .9em/26px var(--display); text-align: center; }
+  .mark-ok .step-mark { background: var(--mint-l); color: var(--mint-d); animation: stamp .4s cubic-bezier(.34,1.8,.64,1); }
+  .mark-bad .step-mark { background: var(--orange-d); color: white; animation: stamp .4s cubic-bezier(.34,1.8,.64,1); }
+  .step-tag { font-size: .82em; color: var(--sand-d); background: var(--sand); border-radius: 999px; padding: 2px 10px; align-self: flex-start; }
+  .step-warn { font-size: .85em; color: var(--orange-d); line-height: 1.5; }
+  .steps-termbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--ink); color: white; border-radius: var(--r-md); padding: 8px 10px; animation: slideIn .2s ease-out; }
+  .steps-termbar[hidden], .steps-send[hidden] { display: none; }
+  .steps-termbar span { flex: 1; font-weight: 600; }
+  .steps-termbar button { border: 0; border-radius: 10px; padding: 8px 12px; font: 700 .9em var(--body); cursor: pointer; }
+  .tb-move { background: var(--sun); color: var(--ink); }
+  .tb-cancel { background: rgba(255,255,255,.15); color: white; }
+  .steps-send { border: 0; border-radius: var(--r-md); min-height: 46px; background: var(--mint-d); color: white; font: 700 1em var(--body); cursor: pointer; box-shadow: 0 4px 0 #086B51; animation: slideIn .2s ease-out; }
+  .steps-send:active { transform: translateY(3px); box-shadow: 0 1px 0 #086B51; }
+  #qs-draft-btn { position: relative; }
+  #qs-draft-btn.has-content::after { content: ''; position: absolute; top: 2px; left: -6px; width: 9px; height: 9px; border-radius: 50%; background: var(--orange); }
+  .qs-field.qs-flash { animation: pulse .35s ease-out; border-color: var(--mint-d); }
 
   .step-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; }
   .chip { background: white; border-radius: 10px; padding: 3px 10px; box-shadow: 0 1px 0 var(--neutral-d); white-space: nowrap; }
@@ -4106,7 +4140,7 @@ function draftIcon(name, size = 18) {
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${DRAFT_ICON[name]}</svg>`;
 }
 
-const draft = { tab: 'steps', question: '', strokes: [], color: '#1B1B2F', eraser: false, lines: [], stepInput: '', calcInput: '', calcLog: [] };
+const draft = { tab: 'steps', question: '', strokes: [], color: '#1B1B2F', eraser: false, lines: [], meta: [], sel: null, seeded: false, stepInput: '', calcInput: '', calcLog: [] };
 
 function ensureDraftPanel() {
   if (document.getElementById('draft-panel')) return;
@@ -4145,6 +4179,12 @@ function ensureDraftPanel() {
     <section class="draft-pane" data-pane="steps">
       <ol class="steps-list" id="steps-list"></ol>
       <div class="steps-bottom">
+        <div class="steps-termbar" id="steps-termbar" hidden>
+          <span>מה לעשות עם האיבר?</span>
+          <button type="button" class="tb-move" onclick="stepsMoveTerm()">להעביר לאגף השני</button>
+          <button type="button" class="tb-cancel" onclick="stepsCancelSel()">ביטול</button>
+        </div>
+        <button type="button" class="steps-send" id="steps-send" onclick="stepsSendAnswer()" hidden></button>
         <div class="both-sides">
           <span>לשני האגפים:</span>
           <span class="both-btns" dir="ltr">
@@ -4211,6 +4251,7 @@ function openDraft(header, seed) {
     draft.question = question;
     draft.strokes = [];
     draft.lines = seed ? [seed] : [];
+    draft.meta = []; draft.sel = null; draft.seeded = !!seed;
     draft.stepInput = '';
     draft.calcInput = '';
     draft.calcLog = [];
@@ -4219,6 +4260,7 @@ function openDraft(header, seed) {
   document.getElementById('draft-question').innerHTML = draftHeaderHtml(header);
   document.getElementById('draft-panel').classList.remove('hidden');
   document.body.classList.add('draft-open');
+  const dbtn = document.getElementById('qs-draft-btn'); if (dbtn) dbtn.classList.remove('has-content');
   draftTab(draft.tab);
 }
 // header: { labelHtml, math } - Hebrew line on top, math isolated LTR on its own line
@@ -4230,6 +4272,9 @@ function closeDraft() {
   const el = document.getElementById('draft-panel');
   if (el) el.classList.add('hidden');
   document.body.classList.remove('draft-open');
+  draft.sel = null;
+  const btn = document.getElementById('qs-draft-btn');
+  if (btn) btn.classList.toggle('has-content', draft.strokes.length > 0 || draft.lines.length > (draft.seeded ? 1 : 0) || draft.calcLog.length > 0);
 }
 function draftIsOpen() {
   const el = document.getElementById('draft-panel');
@@ -4303,36 +4348,152 @@ function drawClear() { draft.strokes = []; redrawCanvas(); }
 function mathHtml(text) {
   return escapeHtml(text).replace(/x/g, '<i class="mx">x</i>');
 }
+// מפענח ביטויים עם x (בלי eval): + − × ÷ / ( ) ² וכפל משתמע (3x, 2(…), (…)(…))
+function evalWithX(src, xv) {
+  const s = String(src).replace(/\s+/g, '').replace(/-/g, '−').replace(/\*/g, '×').replace(/\//g, '÷').replace(/:/g, '÷');
+  const toks = s.match(/\d*\.?\d+|x|[+−×÷()²]/g) || [];
+  if (toks.join('') !== s || !toks.length) throw new Error('bad');
+  const out = [];
+  toks.forEach((t, i) => { // כפל משתמע
+    const prev = out[out.length - 1];
+    if (prev !== undefined && (/^[\d.]+$|^x$|^\)$|^²$/.test(prev)) && (/^[\d.]+$|^x$|^\($/.test(t)) && !(/^[\d.]+$/.test(prev) && /^[\d.]+$/.test(t))) out.push('×');
+    out.push(t);
+  });
+  let i = 0;
+  const peek = () => out[i], take = () => out[i++];
+  const expr = () => { let v = term(); while (peek() === '+' || peek() === '−') v = take() === '+' ? v + term() : v - term(); return v; };
+  const term = () => { let v = unary(); while (peek() === '×' || peek() === '÷') { const op = take(), r = unary(); v = op === '×' ? v * r : v / r; } return v; };
+  const unary = () => { if (peek() === '−') { take(); return -unary(); } if (peek() === '+') { take(); return unary(); } return post(); };
+  const post = () => { let v = prim(); while (peek() === '²') { take(); v = v * v; } return v; };
+  const prim = () => {
+    const t = take();
+    if (t === '(') { const v = expr(); if (take() !== ')') throw new Error('paren'); return v; }
+    if (t === 'x') return xv;
+    if (t !== undefined && /^\d*\.?\d+$/.test(t)) return parseFloat(t);
+    throw new Error('bad');
+  };
+  const v = expr();
+  if (i !== out.length) throw new Error('bad');
+  return v;
+}
+const near0 = v => Math.abs(v) < 1e-9;
+// משמעות של שורה: משוואה לינארית → הפתרון שלה ('always' / 'never' כשאין x); ביטוי → הערכים שלו
+function lineMeaning(text) {
+  let t = String(text).trim();
+  if (!t) return null;
+  if (/^=/.test(t)) t = t.replace(/^=\s*/, '');
+  const parts = t.split('=');
+  try {
+    if (parts.length === 1) {
+      const vals = [0, 1, 2].map(x => evalWithX(t, x));
+      if (vals.some(v => !Number.isFinite(v))) return null;
+      return { kind: 'expr', vals, hasX: /x/.test(t) };
+    }
+    if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) return null;
+    const g = [0, 1, 2].map(x => evalWithX(parts[0], x) - evalWithX(parts[1], x));
+    if (g.some(v => !Number.isFinite(v))) return null;
+    if (!/x/.test(t)) return { kind: 'fact', ok: near0(g[0]) };
+    if (!near0(g[0] - 2 * g[1] + g[2])) return null; // לא לינארי – לא בודקים
+    const a = g[1] - g[0], b = g[0];
+    if (near0(a)) return { kind: 'eq', v: near0(b) ? 'always' : 'never' };
+    return { kind: 'eq', v: Math.round(-b / a * 1e9) / 1e9 };
+  } catch (e) { return null; }
+}
+// בדיקת שורה מול השורות שלפניה: true = ✓, false = !, null = לא בודקים
+function judgeLine(idx) {
+  const me = lineMeaning(draft.lines[idx]);
+  if (!me) return { ok: null };
+  if (me.kind === 'fact') return me.ok ? { ok: true } : { ok: false, msg: 'החישוב בשורה הזאת לא מדויק – שני הצדדים לא שווים.' };
+  for (let j = idx - 1; j >= 0; j--) {
+    const prev = lineMeaning(draft.lines[j]);
+    if (!prev || prev.kind !== me.kind) continue;
+    if (me.kind === 'eq') return prev.v === me.v ? { ok: true } : { ok: false, msg: 'משהו השתבש בשורה הזאת: הפתרון שלה שונה מזה של השורה הקודמת.' };
+    return me.vals.every((v, k) => near0(v - prev.vals[k])) ? { ok: true } : { ok: false, msg: 'השורה הזאת לא שווה לשורה הקודמת. בדקו את החישוב.' };
+  }
+  return { ok: null };
+}
+// פירוק צד של משוואה לאיברים: כל איבר עם הסימן שלפניו
+function splitTerms(side) {
+  const terms = []; let cur = '', depth = 0;
+  const t = side.trim();
+  for (let i = 0; i < t.length; i++) {
+    const ch = t[i];
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (depth === 0 && (ch === '+' || ch === '−') && t[i - 1] === ' ' && cur.trim()) { terms.push(cur.trim()); cur = ''; }
+    cur += ch;
+  }
+  if (cur.trim()) terms.push(cur.trim());
+  return terms;
+}
+const joinTerms = terms => {
+  if (!terms.length) return '0';
+  return terms.map((t, i) => i ? (/^[+−]\s/.test(t) ? t : `+ ${t}`) : t.replace(/^\+\s*/, '').replace(/^−\s+/, '−')).join(' ');
+};
+// השורה האחרונה היא היחידה שאפשר להעביר בה איברים
+function stepChipsHtml(line, idx) {
+  const live = idx === draft.lines.length - 1 && line.split('=').length === 2;
+  const moved = draft.meta[idx] && draft.meta[idx].moved;
+  return line.split('=').map((side, s) => splitTerms(side).map((term, k) => {
+    const cls = ['chip'];
+    if (moved && moved[0] === s && moved[1] === k) cls.push('chip-moved');
+    if (draft.sel && draft.sel[0] === s && draft.sel[1] === k && live) cls.push('chip-sel');
+    return live ? `<button type="button" class="${cls.join(' ')}" onclick="stepsSelect(${s},${k})" aria-label="איבר ${escapeAttr(term)}">${mathHtml(term)}</button>`
+      : `<span class="${cls.join(' ')}">${mathHtml(term)}</span>`;
+  }).join('')).join('<span class="chip-eq">=</span>');
+}
 function renderSteps() {
   const list = document.getElementById('steps-list');
   list.innerHTML = draft.lines.length
-    ? draft.lines.map((l, i) => `<li${draft.justAdded && i === draft.lines.length - 1 ? ' class="step-new"' : ''}><span class="step-n">${i + 1}</span><span class="step-line" dir="ltr">${stepChipsHtml(l)}</span></li>`).join('')
+    ? draft.lines.map((l, i) => {
+        const j = i === 0 && draft.seeded ? { ok: null } : judgeLine(i);
+        const meta = draft.meta[i] || {};
+        const cls = [i === 0 && draft.seeded ? 'step-seed' : '', j.ok === true ? 'mark-ok' : j.ok === false ? 'mark-bad' : '', draft.justAdded && i === draft.lines.length - 1 ? 'step-new' : ''].filter(Boolean).join(' ');
+        return `<li class="${cls}"><span class="step-n">${i + 1}</span><div class="step-body">
+            <span class="step-line" dir="ltr">${stepChipsHtml(l, i)}</span>
+            ${meta.tag ? `<span class="step-tag">${meta.tag}</span>` : ''}
+            ${j.ok === false ? `<span class="step-warn" role="status">${j.msg}</span>` : ''}
+          </div><span class="step-mark" aria-label="${j.ok === true ? 'נכון' : j.ok === false ? 'כדאי לבדוק' : ''}">${j.ok === true ? '✓' : j.ok === false ? '!' : ''}</span></li>`;
+      }).join('')
     : '<li class="steps-empty">כתבו כאן את החישוב, שורה אחרי שורה</li>';
   const f = document.getElementById('steps-field');
   f.innerHTML = draft.stepInput ? mathHtml(draft.stepInput) + '<span class="caret"></span>'
     : '<span class="field-ph" dir="rtl">השורה הבאה, או פעולה ומספר לשני האגפים</span>';
+  // סרגל "מה לעשות עם האיבר?"
+  const bar = document.getElementById('steps-termbar');
+  bar.hidden = !draft.sel;
+  // כפתור "לשלוח כתשובה"
+  const send = document.getElementById('steps-send'), val = stepsAnswerValue();
+  send.hidden = val === null || !!draft.sel;
+  if (val !== null) send.textContent = `לשלוח ${String(val).replace('-', '−')} כתשובה`;
   list.scrollTop = list.scrollHeight;
   draft.justAdded = false;
 }
-// מפרק שורה לאיברים: כל איבר (עם הסימן שלפניו) הוא שבב נפרד, וסימן השוויון בין הצדדים
-function stepChipsHtml(line) {
-  return line.split(' = ').map(side => {
-    const terms = []; let cur = '', depth = 0;
-    const t = side.trim();
-    for (let i = 0; i < t.length; i++) {
-      const ch = t[i];
-      if (ch === '(') depth++;
-      if (ch === ')') depth--;
-      if (depth === 0 && (ch === '+' || ch === '−') && t[i - 1] === ' ' && cur.trim()) { terms.push(cur.trim()); cur = ''; }
-      cur += ch;
-    }
-    if (cur.trim()) terms.push(cur.trim());
-    return terms.map(term => `<span class="chip">${mathHtml(term)}</span>`).join('');
-  }).join('<span class="chip-eq">=</span>');
+function stepsSelect(s, k) {
+  draft.sel = draft.sel && draft.sel[0] === s && draft.sel[1] === k ? null : [s, k];
+  renderSteps();
+}
+function stepsCancelSel() { draft.sel = null; renderSteps(); }
+// מעבירים איבר לאגף השני: הוא נמחק מצד אחד ומופיע בצד השני עם סימן הפוך
+function stepsMoveTerm() {
+  if (!draft.sel) return;
+  const [s, k] = draft.sel, last = draft.lines[draft.lines.length - 1];
+  const sides = last.split('=').map(splitTerms);
+  const term = sides[s].splice(k, 1)[0];
+  const flipped = /^−\s*/.test(term) ? `+ ${term.replace(/^−\s*/, '')}` : `− ${term.replace(/^\+\s*/, '')}`;
+  const other = sides[1 - s].length === 1 && sides[1 - s][0] === '0' ? [] : sides[1 - s];
+  other.push(flipped);
+  sides[1 - s] = other;
+  draft.lines.push(sides.map(joinTerms).join(' = '));
+  draft.meta[draft.lines.length - 1] = { tag: 'האיבר עבר לאגף השני, והסימן שלו התהפך', moved: [1 - s, other.length - 1] };
+  draft.sel = null; draft.justAdded = true;
+  renderSteps();
 }
 function stepsKey(k) {
   const spaced = '=+−×÷'.includes(k) ? ` ${k} ` : k;
   draft.stepInput = (draft.stepInput + spaced).replace(/\s+/g, ' ').replace(/^\s/, '');
+  if (draft.stepInput.length > 40) draft.stepInput = draft.stepInput.slice(0, 40);
+  draft.sel = null;
   renderSteps();
 }
 function stepsBack() {
@@ -4340,33 +4501,89 @@ function stepsBack() {
   if (/[=+−×÷]$/.test(draft.stepInput)) draft.stepInput += ' ';
   renderSteps();
 }
-function stepsOp(op) { draft.stepInput = op + ' '; renderSteps(); }
+function stepsOp(op) { draft.stepInput = op + ' '; draft.sel = null; renderSteps(); }
 function stepsCopyLast() {
   if (draft.lines.length) draft.stepInput = draft.lines[draft.lines.length - 1];
   renderSteps();
 }
+// צד לינארי כ-p·x + q (או null)
+function linOf(side) {
+  try {
+    const f0 = evalWithX(side, 0), f1 = evalWithX(side, 1), f2 = evalWithX(side, 2);
+    if (![f0, f1, f2].every(Number.isFinite) || !near0(f0 - 2 * f1 + f2)) return null;
+    return { p: f1 - f0, q: f0 };
+  } catch (e) { return null; }
+}
+const tidy = v => Math.round(v * 1e9) / 1e9;
+function fmtLin({ p, q }) {
+  p = tidy(p); q = tidy(q);
+  const num = n => String(Math.abs(n));
+  let s = p === 0 ? '' : p === 1 ? 'x' : p === -1 ? '−x' : `${p < 0 ? '−' : ''}${num(p)}x`;
+  if (q !== 0 || !s) s += s ? ` ${q < 0 ? '−' : '+'} ${num(q)}` : `${q < 0 ? '−' : ''}${num(q)}`;
+  return s;
+}
+const shortNum = v => Number.isInteger(tidy(v)) || /^\-?\d+\.\d{1,2}$/.test(String(tidy(v)));
+function stepsShake() { const f = document.getElementById('steps-field'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); }
 function stepsAdd() {
   const inp = draft.stepInput.trim();
   if (!inp) return;
-  const m = inp.match(/^([+−×÷])\s*(.+)$/);
+  const m = inp.match(/^([+−×÷])\s*(\d*\.?\d+)$/);
   const last = draft.lines[draft.lines.length - 1];
-  if (m && !(last && last.includes('='))) {
-    // אין עדיין משוואה שאפשר לעשות עליה פעולה בשני האגפים
-    const f = document.getElementById('steps-field');
-    f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
-    return;
-  }
-  if (m && last && last.includes('=')) {
-    const [op, val] = [m[1], m[2].trim()];
-    const wrap = side => (/[×÷]/.test(op) && /\s[+−]\s/.test(side.trim())) ? `(${side.trim()})` : side.trim();
+  if (/^[+−×÷]/.test(inp) && !m) { stepsShake(); return; }
+  if (m) {
+    // פעולה על שני האגפים
+    if (!(last && last.split('=').length === 2)) { stepsShake(); return; }
+    const op = m[1], k = parseFloat(m[2]);
+    if ((op === '×' || op === '÷') && k === 0) { stepsShake(); return; }
     const sides = last.split('=');
-    draft.lines.push(sides.map(sd => `${wrap(sd)} ${op} ${val}`).join(' = '));
+    const lins = sides.map(linOf);
+    const apply = L => op === '+' ? { p: L.p, q: L.q + k } : op === '−' ? { p: L.p, q: L.q - k } : op === '×' ? { p: L.p * k, q: L.q * k } : { p: L.p / k, q: L.q / k };
+    let next;
+    if (lins.every(Boolean)) {
+      const res = lins.map(apply);
+      next = res.every(r => shortNum(r.p) && shortNum(r.q)) ? res.map(fmtLin).join(' = ') : null;
+    }
+    if (!next) {
+      const wrap = sd => (/[×÷]/.test(op) && /\s[+−]\s/.test(sd.trim())) ? `(${sd.trim()})` : sd.trim();
+      next = sides.map(sd => `${wrap(sd)} ${op} ${m[2]}`).join(' = ');
+    }
+    draft.lines.push(next);
+    const verb = { '+': `הוספנו ${m[2]} לשני האגפים`, '−': `החסרנו ${m[2]} משני האגפים`, '×': `כפלנו את שני האגפים ב-${m[2]}`, '÷': `חילקנו את שני האגפים ב-${m[2]}` }[op];
+    draft.meta[draft.lines.length - 1] = { tag: escapeHtml(verb) };
   } else {
     draft.lines.push(inp);
   }
   draft.stepInput = '';
+  draft.sel = null;
   draft.justAdded = true;
   renderSteps();
+}
+// התשובה שאפשר להעביר מהשורה האחרונה: x = N, N = x, "= N", או חישוב נכון שמסתיים ב-N
+function stepsAnswerValue() {
+  if (!draft.lines.length || !(draft.seeded ? draft.lines.length > 1 : true)) return null;
+  if (!basicsCanTakeTyped()) return null;
+  const idx = draft.lines.length - 1, line = draft.lines[idx].replace(/\s+/g, '');
+  if (judgeLine(idx).ok === false) return null;
+  let m = line.match(/^x=(−?\d+(?:\.\d+)?)$/) || line.match(/^(−?\d+(?:\.\d+)?)=x$/);
+  if (m) return m[1].replace('−', '-');
+  m = line.match(/=(−?\d+(?:\.\d+)?)$/);
+  if (m && !/x/.test(line)) return m[1].replace('−', '-');
+  m = line.match(/^(−?\d+(?:\.\d+)?)$/);
+  if (m && judgeLine(idx).ok === true) return m[1].replace('−', '-');
+  return null;
+}
+function basicsCanTakeTyped() {
+  const k = document.getElementById('qs-keypad');
+  return !!k && !k.classList.contains('locked') && !fbIsOpen();
+}
+function stepsSendAnswer() { sendToAnswer(stepsAnswerValue()); }
+function sendToAnswer(v) {
+  if (v === null || v === undefined || !basicsCanTakeTyped()) return;
+  qsInput = String(v).replace('-', '−').slice(0, 10);
+  qsRender();
+  restartAnim(document.getElementById('qs-field'), 'qs-flash');
+  showToast('התשובה הועברה. נשאר ללחוץ "בדיקה"');
+  if (window.innerWidth < 1000) closeDraft();
 }
 
 // --- חישוב צד: מחשבון עם מפענח ביטויים משלו (בלי eval) ---
@@ -4392,12 +4609,14 @@ function calcEvaluate(src) {
 function renderCalc() {
   const log = document.getElementById('calc-log');
   log.innerHTML = draft.calcLog.length
-    ? draft.calcLog.map(r => `<div class="calc-row" dir="ltr"><span>${escapeHtml(r.expr)} =</span><b>${escapeHtml(String(r.val))}</b></div>`).join('')
+    ? draft.calcLog.map((r, i) => `<div class="calc-row"><span class="calc-expr" dir="ltr">${escapeHtml(r.expr)} = <b>${escapeHtml(String(r.val).replace('-', '−'))}</b></span>
+        <span class="calc-acts"><button type="button" onclick="calcContinue(${i})">להמשיך</button>${basicsCanTakeTyped() ? `<button type="button" onclick="sendToAnswer(draft.calcLog[${i}].val)">כתשובה</button>` : ''}</span></div>`).join('')
     : `<p class="calc-empty">חישובים קטנים בצד, למשל 80 × 15%.<br>משוואה עם <i class="mx">x</i>? לחצו על <i class="mx">x</i> ועברו ל"צעדים".</p>`;
   log.scrollTop = log.scrollHeight;
   document.getElementById('calc-field').innerHTML = draft.calcInput ? escapeHtml(draft.calcInput) + '<span class="caret"></span>' : '<span class="field-ph">0</span>';
 }
 function calcKey(k) { draft.calcInput += k; renderCalc(); }
+function calcContinue(i) { draft.calcInput = String(draft.calcLog[i].val).replace('-', '−'); renderCalc(); }
 function calcBack() { draft.calcInput = draft.calcInput.slice(0, -1); renderCalc(); }
 function calcClear() { draft.calcInput = ''; renderCalc(); }
 function calcEquals() {
@@ -5729,7 +5948,7 @@ function plainText(html) { const d = document.createElement('div'); d.innerHTML 
 function qsToolsHtml(onDraft, onDontKnow, onHint) {
   return `<div class="qs-tools">
       ${onHint ? `<button type="button" id="qs-hint-btn" onclick="${onHint}">${draftIcon('bulb')} <span class="qs-hint-label">רמז</span></button>` : '<span></span>'}
-      <button type="button" onclick="${onDraft}">${draftIcon('pencil')} טיוטה</button>
+      <button type="button" id="qs-draft-btn" onclick="${onDraft}">${draftIcon('pencil')} טיוטה</button>
       ${onDontKnow ? `<button type="button" onclick="${onDontKnow}">לא יודע/ת</button>` : '<span></span>'}
     </div>`;
 }
