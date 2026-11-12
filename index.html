@@ -1679,13 +1679,15 @@
   .tq-split > .tq-graph { grid-area: fig; margin: 4px 0 12px; display: flex; justify-content: center; }
   .tq-split > #qs-hint { grid-area: hint; }
   .tq-split > #qs-answer { grid-area: ans; }
-  .tq-graph canvas { display: block; width: auto; max-width: 100%; max-height: 42dvh; aspect-ratio: 1; background: white; border-radius: var(--r-lg); box-shadow: var(--ring), 0 4px 0 var(--line); }
+  .tq-graph canvas { display: block; width: auto; max-width: 100%; max-height: 36dvh; aspect-ratio: 1; background: white; border-radius: var(--r-lg); box-shadow: var(--ring), 0 4px 0 var(--line); }
   @media (min-width: 900px) {
-    .student-mode #app-container:has(.tq-split) { max-width: 1060px; }
-    .tq-split { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: "fig q" "fig hint" "fig ans"; align-items: start; }
-    .tq-split > .tq-graph { margin: 0; position: sticky; top: 16px; }
-    .tq-graph canvas { width: 100%; max-height: none; }
-    .tq-split > .tq-question { padding-top: 18px; }
+    /* גרף קטן יותר בעמודה הימנית; כשהטיוטה פתוחה חוזרים לעמודה אחת כדי שהטיוטה תיצמד לתרגיל ולא תכסה אותו */
+    body:not(.draft-open).student-mode #app-container:has(.tq-split) { max-width: 940px; }
+    body:not(.draft-open) .tq-split { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: "fig q" "fig hint" "fig ans"; align-items: start; }
+    body:not(.draft-open) .tq-split > .tq-graph { margin: 0; position: sticky; top: 16px; }
+    body:not(.draft-open) .tq-graph canvas { width: 100%; max-height: min(62dvh, 420px); }
+    body:not(.draft-open) .tq-split > .tq-question { padding-top: 18px; }
+    body.draft-open .tq-graph canvas { max-height: 34dvh; }
   }
   .tq-figure canvas { width: 100%; height: auto; margin: 0; border-radius: var(--r-md); box-shadow: var(--ring); border: 0; }
   .tq-formula { background: var(--blue-l); color: var(--ink); border-radius: 999px; padding: 6px 16px; font-size: .95em; }
