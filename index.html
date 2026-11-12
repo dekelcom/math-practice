@@ -1716,6 +1716,30 @@
   .pd-table td:first-child, .pd-table td:last-child { color: var(--ink2); }
   .pd-score { font: 700 1em var(--display); padding: 3px 10px; border-radius: 10px; }
   .pd-score.ok { background: var(--mint-l); color: var(--mint-d); } .pd-score.mid { background: var(--sun-l); color: var(--sun-d); } .pd-score.low { background: var(--orange-l); color: var(--orange-d); }
+  #app-container:has(#admin-home-view:not(.hidden)) { max-width: 1220px; }
+  .ad-of { font-size: .45em; color: var(--ink3); }
+  .ad-act { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .ad-act:first-child { border-top: 0; } .ad-act span { color: var(--ink2); font-size: .9em; grid-column: 1; } .ad-act small { color: var(--ink3); grid-row: 1; grid-column: 2; }
+  .ad-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ad-stat { background: var(--paper); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+  .ad-stat b { font: 700 1.5em var(--display); } .ad-stat span { color: var(--ink2); font-size: .85em; }
+  .ad-mis { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .ad-mis > div { display: flex; justify-content: space-between; gap: 10px; background: var(--orange-l); border-radius: 12px; padding: 8px 12px; font-size: .9em; }
+  .ad-mis small { color: var(--orange-d); font-weight: 700; }
+  .ad-parent { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+  .ad-parent:first-child { border-top: 0; padding-top: 0; }
+  .ad-ph { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; } .ad-ph b { font-size: 1.05em; } .ad-ph span { color: var(--ink2); font-size: .88em; }
+  .ad-kid { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 56px; border: 0; border-radius: 16px; background: var(--paper); padding: 10px 14px; cursor: pointer; font: inherit; color: var(--ink); text-align: right; }
+  .ad-kid:hover { background: var(--blue-l); }
+  .ad-kname { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; } .ad-kname small { color: var(--ink2); }
+  .ad-kstat { display: flex; flex-direction: column; align-items: center; min-width: 44px; } .ad-kstat b { font: 700 1.15em var(--display); } .ad-kstat small { color: var(--ink2); font-size: .75em; }
+  .ad-go { font-size: 1.6em; color: var(--ink3); }
+  .ad-clean-row { display: flex; align-items: center; gap: 14px; justify-content: space-between; border-top: 1px solid var(--line); padding: 12px 0; flex-wrap: wrap; }
+  .ad-clean-row:first-child { border-top: 0; } .ad-clean-row > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; } .ad-clean-row span { color: var(--ink2); font-size: .9em; }
+  .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
+  .ad-ok { color: var(--mint-d); font-weight: 600; }
+  .ad-warn { color: var(--sun-d); background: var(--sun-l); border-radius: 10px; padding: 4px 10px; font-weight: 600; }
+  @media (max-width: 560px) { .ad-kstat:nth-of-type(4) { display: none; } }
   .pd-more { margin: 4px 0 20px; background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 6px 16px; }
   .pd-more summary { cursor: pointer; font-weight: 600; color: var(--ink2); min-height: 44px; display: flex; align-items: center; }
   .today-lesson-sub { margin-top: 8px; font-size: .88em; color: var(--ink2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -2017,9 +2041,45 @@ try {
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
     </div>
-    <h2 style="text-align:center;">ניהול הורים</h2>
-    <div id="admin-parents-list" class="teacher-list">
-      <p style="text-align:center; color:var(--ink2);">טוען...</p>
+    <div class="pd ad">
+      <header class="pd-head">
+        <div class="pd-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="pd-title"><h2>לוח ניהול</h2><p id="ad-sub">טוען נתונים...</p></div>
+        <div class="pd-ranges" role="group" aria-label="טווח זמן">
+          <button type="button" data-range="week" class="on" onclick="adSetRange('week')">השבוע</button>
+          <button type="button" data-range="month" onclick="adSetRange('month')">החודש</button>
+          <button type="button" data-range="all" onclick="adSetRange('all')">הכול</button>
+        </div>
+      </header>
+      <section class="pd-kpis" id="ad-kpis" aria-label="מדדים"></section>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="פעילות לאורך זמן">
+          <div class="pd-h"><h3 id="ad-chart-title">דקות תרגול</h3><span>כל התלמידים יחד</span></div>
+          <div id="ad-chart"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="פעילות אחרונה">
+          <div class="pd-h"><h3>פעילות אחרונה</h3></div>
+          <div id="ad-recent"></div>
+        </section>
+      </div>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="הצלחה לפי מסלול">
+          <div class="pd-h"><h3>הצלחה לפי מסלול</h3><span>כל התשובות בטווח, כל התלמידים</span></div>
+          <div id="ad-tracks"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="איך לומדים">
+          <div class="pd-h"><h3>איך לומדים</h3></div>
+          <div id="ad-learn"></div>
+        </section>
+      </div>
+      <section class="pd-card" aria-label="הורים ותלמידים">
+        <div class="pd-h"><h3>הורים ותלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
+        <div id="admin-parents-list"><p class="pd-empty">טוען...</p></div>
+      </section>
+      <section class="pd-card" aria-label="ניקוי נתונים">
+        <div class="pd-h"><h3>ניקוי נתונים</h3><span>רשומות שמעוותות את הסטטיסטיקה</span></div>
+        <div id="ad-clean"></div>
+      </section>
     </div>
     <div style="text-align:center; margin: 20px 0;">
       <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה</button>
@@ -3633,6 +3693,7 @@ let dashboardLessonsRef = null;
 let dashboardCoinsRef = null;
 
 let dashboardMotRef = null;
+let dashboardReturnView = 'parent-students-view';
 function openParentDashboard(uid, name) {
   dashboardStudentUid = uid;
   pd = { range: pd.range || 'week', lessons: null, program: null, mot: null };
@@ -3656,7 +3717,7 @@ function openParentDashboard(uid, name) {
     const arr = [];
     snap.forEach(child => {
       const val = child.val() || {};
-      if (val.studentUid === uid) arr.push({ id: child.key, ...val });
+      if (val.studentUid === uid && !isSampleSub(val)) arr.push({ id: child.key, ...val });
     });
     arr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     dashboardSubmissions = arr;
@@ -3694,7 +3755,8 @@ function exitParentDashboard() {
   if (dashboardMotRef) { dashboardMotRef.off(); dashboardMotRef = null; }
   dashboardStudentUid = null;
   document.getElementById('parent-dashboard-view').classList.add('hidden');
-  document.getElementById('parent-students-view').classList.remove('hidden');
+  document.getElementById(dashboardReturnView).classList.remove('hidden');
+  dashboardReturnView = 'parent-students-view';
 }
 
 // ============================================================
@@ -10102,31 +10164,124 @@ async function createAuthUserIsolated(username, password) {
 }
 
 let adminParentsListenerStarted = false;
+// ============================================================
+// לוח ניהול: סטטיסטיקה על כל התלמידים, הורים ותלמידים, ניקוי נתונים
+// ============================================================
+let ad = { range: 'week', users: null, subs: null };
+// דפי "דוגמה" ישנים (תשובות "?") - לא נספרים בשום סטטיסטיקה
+const isSampleSub = x => !!(x && Array.isArray(x.problems) && x.problems.length && /^דוגמה/.test(String(x.problems[0].question || '')));
 function renderAdminHome() {
   if (adminParentsListenerStarted) return;
   adminParentsListenerStarted = true;
-  firebaseDb.ref('users').orderByChild('role').equalTo('parent').on('value', snap => {
-    const arr = [];
-    snap.forEach(child => arr.push({ uid: child.key, ...child.val() }));
-    renderAdminParentsList(arr);
-  }, err => {
-    console.warn(err);
-    document.getElementById('admin-parents-list').innerHTML =
-      '<p style="text-align:center; color:var(--red-d);">שגיאה בטעינה: ' + (err.message || err) + '</p>';
-  });
+  const fail = err => { console.warn(err); document.getElementById('ad-sub').textContent = 'שגיאה בטעינה: ' + (err.message || err); };
+  firebaseDb.ref('users').on('value', snap => { const o = {}; snap.forEach(c => { o[c.key] = c.val() || {}; }); ad.users = o; renderAdminDash(); }, fail);
+  firebaseDb.ref('submissions').limitToLast(2000).on('value', snap => { const a = []; snap.forEach(c => { a.push({ id: c.key, ...(c.val() || {}) }); }); a.sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0)); ad.subs = a; renderAdminDash(); }, fail);
 }
-function renderAdminParentsList(arr) {
-  const container = document.getElementById('admin-parents-list');
-  if (!arr.length) {
-    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין לא נוצרו חשבונות הורה.</p>';
-    return;
+function adSetRange(r) {
+  ad.range = r;
+  document.querySelectorAll('#admin-home-view .pd-ranges button').forEach(b => b.classList.toggle('on', b.dataset.range === r));
+  renderAdminDash();
+}
+function adPeriod() { const D = 864e5, now = Date.now(); return ad.range === 'week' ? { from: now - 7 * D, len: 7 * D, label: 'מהשבוע שעבר' } : ad.range === 'month' ? { from: now - 30 * D, len: 30 * D, label: 'מהחודש שעבר' } : { from: 0, len: 0, label: '' }; }
+function adDelta(a, b, unit) {
+  if (b === null || ad.range === 'all') return '';
+  if (a === b) return '<small class="pd-flat">ללא שינוי</small>';
+  return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)}${unit || ''} ${adPeriod().label}</small>`;
+}
+function barsHtml(bars, goal) {
+  const max = Math.max(goal ? goal * 1.4 : 1, ...bars.map(b => b.v), 1);
+  return `<div class="pd-bars">${goal ? `<div class="pd-goal" style="bottom:${Math.round(100 * goal / max)}%" aria-hidden="true"></div>` : ''}${bars.map(b =>
+    `<div class="pd-bar-col"><span>${b.v || '–'}</span><div class="pd-bar${b.v && (!goal || b.v >= goal) ? ' hit' : b.v ? '' : ' zero'}" style="height:${Math.max(3, Math.round(100 * b.v / max))}%"></div></div>`).join('')}</div>
+    <div class="pd-bar-names">${bars.map(b => `<span>${b.name}</span>`).join('')}</div>`;
+}
+const adWhen = ts => { if (!ts) return 'עוד לא תרגל'; const m = Math.round((Date.now() - ts) / 60000); return m < 60 ? `לפני ${Math.max(1, m)} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} ש׳` : `לפני ${Math.round(m / 1440)} ימים`; };
+function renderAdminDash() {
+  if (!ad.users || !ad.subs || !document.getElementById('ad-kpis')) return;
+  const users = ad.users, now = Date.now(), per = adPeriod(), D = 864e5;
+  const ids = Object.keys(users);
+  const parents = ids.filter(u => users[u].role === 'parent');
+  const students = ids.filter(u => !users[u].role && users[u].parentUid);
+  const real = ad.subs.filter(x => !isSampleSub(x) && x.studentUid && users[x.studentUid]);
+  const cur = weeklyStats(real, per.from, now), prev = per.len ? weeklyStats(real, per.from - per.len, per.from) : null;
+  const active = new Set(cur.subs.map(x => x.studentUid)).size, prevActive = prev ? new Set(prev.subs.map(x => x.studentUid)).size : null;
+  const pct = cur.n ? Math.round(100 * cur.ok / cur.n) : null;
+  document.getElementById('ad-sub').textContent = `${parents.length} הורים · ${students.length} תלמידים · ${real.length} תרגולים שמורים`;
+  const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
+  document.getElementById('ad-kpis').innerHTML =
+    kpi('תלמידים פעילים', 'var(--blue)', `${active}<small class="ad-of"> / ${students.length}</small>`, prev ? adDelta(active, prevActive) : '') +
+    kpi('דקות תרגול', 'var(--orange)', pdMin(cur.ms), prev ? adDelta(pdMin(cur.ms), pdMin(prev.ms)) : '') +
+    kpi('תרגילים', 'var(--purple)', cur.n, prev ? adDelta(cur.n, prev.n) : '') +
+    kpi('הצלחה', 'var(--mint)', pct === null ? '—' : pct + '%', `<small class="pd-flat">${cur.alone === null ? 'נפתרו לבד: אין נתון' : `נפתרו לבד: ${cur.alone}%`}</small>`) +
+    kpi('דפים שעברו', 'var(--sun)', cur.sheetsPassed, `<small class="pd-flat">9 ומעלה מתוך 10</small>`);
+  // גרף: דקות ביום (שבוע) / בשבוע (חודש, הכול)
+  const minutesIn = (a, b) => pdMin(real.filter(x => x.timestamp > a && x.timestamp <= b).reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0));
+  const bars = [];
+  if (ad.range === 'week') {
+    const dn = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+    for (let i = 6; i >= 0; i--) { const d0 = new Date(now - i * D); d0.setHours(0, 0, 0, 0); bars.push({ name: dn[d0.getDay()], v: minutesIn(d0.getTime(), d0.getTime() + D) }); }
+  } else {
+    const weeks = ad.range === 'month' ? 4 : 12;
+    for (let i = weeks - 1; i >= 0; i--) { const e = now - i * 7 * D, d = new Date(e - 6 * D); bars.push({ name: `${d.getDate()}.${d.getMonth() + 1}`, v: minutesIn(e - 7 * D, e) }); }
   }
-  container.innerHTML = arr.map(p => `
-    <div class="teacher-row" style="cursor:default;">
-      <div class="name">${escapeHtml(p.displayName || p.username)}</div>
-      <div class="meta">שם משתמש: ${escapeHtml(p.username)}</div>
+  document.getElementById('ad-chart-title').textContent = ad.range === 'week' ? 'דקות תרגול ביום' : 'דקות תרגול בשבוע';
+  document.getElementById('ad-chart').innerHTML = barsHtml(bars, 0);
+  // פעילות אחרונה
+  const nameOf = u => (users[u] && (users[u].displayName || users[u].username)) || 'לא ידוע';
+  document.getElementById('ad-recent').innerHTML = real.slice(0, 6).map(x => {
+    const sm = x.summary || {};
+    return `<div class="ad-act"><b>${escapeHtml(nameOf(x.studentUid))}</b><span>${escapeHtml(x.type === 'mix' ? 'אימון חכם' : x.type === 'exam' ? 'סימולציה' : trackLabelHebrew(x.track))} · ${sm.correct || 0}/${sm.total || 10}</span><small>${adWhen(x.timestamp)}</small></div>`;
+  }).join('') || '<p class="pd-empty">עוד אין פעילות.</p>';
+  // הצלחה לפי מסלול
+  const byT = {};
+  cur.subs.forEach(x => (x.problems || []).forEach(pr => { const t = pr.track || x.track; if (!t || !BASICS_TRACKS[t]) return; const b = byT[t] = byT[t] || { ok: 0, n: 0 }; b.n++; if (pr.correct) b.ok++; }));
+  const tr = Object.entries(byT).map(([t, v]) => ({ t, n: v.n, pct: Math.round(100 * v.ok / v.n) })).sort((a, b) => b.n - a.n).slice(0, 10);
+  document.getElementById('ad-tracks').innerHTML = tr.length ? tr.map(x => `<div class="pd-rrow"><span>${escapeHtml(trackLabelHebrew(x.t))} <small class="pd-flat">(${x.n})</small></span><div class="pd-rbar"><i class="${x.pct >= 80 ? 'ok' : x.pct >= 50 ? 'mid' : 'low'}" style="width:${x.pct}%"></i></div><b dir="ltr">${x.pct}%</b></div>`).join('') +
+    '<div class="pd-legend"><span><i class="ok"></i>80%+</span><span><i class="mid"></i>50–79%</span><span><i class="low"></i>מתחת ל-50%</span></div>' : '<p class="pd-empty">אין תשובות בטווח הזה.</p>';
+  // איך לומדים: רמזים, שיעורי דקה, סימולציות, טעויות נפוצות
+  const probs = cur.subs.flatMap(x => x.problems || []), withHint = probs.filter(p => p.hintsUsed !== undefined);
+  const styles = {}; probs.forEach(p => { if (p.hintStyle) styles[p.hintStyle] = (styles[p.hintStyle] || 0) + 1; });
+  const topStyle = Object.entries(styles).sort((a, b) => b[1] - a[1])[0];
+  const stat = (v, l) => `<div class="ad-stat"><b>${v}</b><span>${l}</span></div>`;
+  document.getElementById('ad-learn').innerHTML = `<div class="ad-stats">
+      ${stat(withHint.length ? Math.round(100 * withHint.filter(p => p.hintsUsed).length / withHint.length) + '%' : '—', 'מהשאלות נפתרו עם רמז')}
+      ${stat(probs.filter(p => p.lesson).length, 'שיעורי דקה נפתחו')}
+      ${stat(cur.exams.length ? Math.round(cur.exams.reduce((a, b) => a + b, 0) / cur.exams.length) + '%' : '—', `ממוצע סימולציות (${cur.exams.length})`)}
+      ${stat(topStyle ? HINT_MODE_LABELS[topStyle[0]] || topStyle[0] : '—', 'דרך ההסבר הנפוצה')}
     </div>
-  `).join('');
+    ${cur.mistakes.length ? `<div class="ad-mis"><b>הטעויות שחוזרות הכי הרבה</b>${cur.mistakes.map(([m, c]) => `<div><span>${escapeHtml(m)}</span><small>${c}×</small></div>`).join('')}</div>` : ''}`;
+  // הורים ותלמידים
+  const minsOf = u => pdMin(real.filter(x => x.studentUid === u && x.timestamp > per.from).reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0));
+  const lastOf = u => { const x = real.find(y => y.studentUid === u); return x ? x.timestamp : 0; };
+  document.getElementById('admin-parents-list').innerHTML = parents.length ? parents.map(pu => {
+    const pr = users[pu], kids = students.filter(u => users[u].parentUid === pu);
+    return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(pr.displayName || pr.username)}</b><span>@${escapeHtml(pr.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
+      ${kids.map(u => { const k = users[u], m = k.motivation || {}, last = lastOf(u);
+        return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${escapeHtml(k.displayName || k.username)}</b><small>${adWhen(last)}</small></span>
+          <span class="ad-kstat"><b>${minsOf(u)}</b><small>דקות</small></span><span class="ad-kstat"><b>${motLevel(m.xp)}</b><small>שלב</small></span><span class="ad-kstat"><b>${motShownStreak(m)}</b><small>רצף</small></span>
+          <span class="ad-go" aria-hidden="true">‹</span></button>`; }).join('') || '<p class="pd-empty">אין עדיין תלמידים.</p>'}</div>`;
+  }).join('') : '<p class="pd-empty">עדיין לא נוצרו חשבונות הורה.</p>';
+  // ניקוי נתונים
+  const samples = ad.subs.filter(isSampleSub), orphan = ad.subs.filter(x => !isSampleSub(x) && (!x.studentUid || !users[x.studentUid]));
+  const admins = ids.filter(u => users[u].role === 'admin');
+  const row = (n, title, detail, action) => `<div class="ad-clean-row"><div><b>${title}</b><span>${detail}</span></div>${n && action ? `<button type="button" class="ad-del" onclick="${action}">מחיקה (${n})</button>` : (n ? '<span class="ad-warn">לבדיקה</span>' : '<span class="ad-ok">נקי ✓</span>')}</div>`;
+  document.getElementById('ad-clean').innerHTML =
+    row(samples.length, 'דפי דוגמה', 'דפים עם "דוגמה 1…10" ותשובות "?". לא נספרים בסטטיסטיקה.', "adDeleteSubs('sample')") +
+    row(orphan.length, 'תרגולים בלי משתמש', 'תרגולים ישנים שנשמרו לפי שם בלבד, או של משתמש שנמחק.', "adDeleteSubs('orphan')") +
+    row(admins.length > 1 ? admins.length : 0, 'חשבונות מנהל', admins.length > 1 ? `יש ${admins.length} רשומות מנהל: ${admins.map(u => escapeHtml(users[u].username || u)).join(', ')}. כדאי לבדוק ב-Firebase שרק אחת בשימוש.` : 'רשומת מנהל אחת.', '');
+}
+function adOpenStudent(uid) {
+  const u = ad.users && ad.users[uid]; if (!u) return;
+  dashboardReturnView = 'admin-home-view';
+  document.getElementById('admin-home-view').classList.add('hidden');
+  openParentDashboard(uid, u.displayName || u.username);
+}
+async function adDeleteSubs(kind) {
+  const users = ad.users || {};
+  const list = (ad.subs || []).filter(x => kind === 'sample' ? isSampleSub(x) : !isSampleSub(x) && (!x.studentUid || !users[x.studentUid]));
+  if (!list.length || !confirm(`למחוק ${list.length} רשומות? אי אפשר לבטל.`)) return;
+  const upd = {}; list.forEach(x => { upd[x.id] = null; });
+  try { await firebaseDb.ref('submissions').update(upd); showToast(`נמחקו ${list.length} רשומות`); }
+  catch (e) { alert('אין הרשאה למחוק. צריך להוסיף למנהל הרשאת כתיבה ב-submissions בכללי Firebase.\n\n' + (e.message || e)); }
 }
 function openCreateParentForm() {
   document.getElementById('create-parent-form').classList.remove('hidden');
