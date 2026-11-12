@@ -1488,6 +1488,50 @@
   .fb-mult { font-style: normal; margin-inline-start: 6px; background: var(--orange); color: white; border-radius: 999px; padding: 0 7px; font-size: .85em; }
   #coins-stat.coin-bump { animation: pulse .35s ease-out; }
 
+  /* ===== מסך השאלה של הנושאים ===== */
+  #topic-view .problem-area { background: transparent; border: 0; padding: 0; margin: 8px 0 0; min-height: 0; }
+  #topic-view .q-topbar { gap: 8px; }
+  #topic-view .level-selector { margin: 4px 0 8px; gap: 6px; flex-wrap: nowrap; }
+  #topic-view .level-btn { flex: 1; min-width: 0; padding: 8px 6px; border: 0; border-radius: 999px; background: white; color: var(--ink2); box-shadow: var(--ring); font-size: .9em; white-space: nowrap; }
+  #topic-view .level-btn.active { background: var(--blue); color: white; box-shadow: 0 3px 0 var(--blue-d); }
+  #topic-view .level-btn.locked { background: var(--paper); color: var(--ink3); box-shadow: none; opacity: 1; }
+  #topic-view .progress-bar { height: 6px; margin: 6px 0 2px; }
+  #topic-view #level-info { margin: 0 0 4px; font-size: .82em !important; }
+  .tq-question { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 6px 0 14px; }
+  .tq-label { font-size: 1.08em; line-height: 1.8; text-align: center; max-width: 34em; text-wrap: balance; }
+  .tq-eq { font-size: clamp(26px, 7.5vw, 36px); margin: 0; }
+  .tq-figure { width: 100%; }
+  .tq-figure canvas { width: 100%; height: auto; margin: 0; border-radius: var(--r-md); box-shadow: var(--ring); border: 0; }
+  .tq-formula { background: var(--blue-l); color: var(--ink); border-radius: 999px; padding: 6px 16px; font-size: .95em; }
+  .tq-formula span { color: var(--blue-d); font-weight: 700; }
+  .tq-fields { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .tq-slot { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 14px; border: 2px solid var(--line); border-radius: var(--r-md); background: white; cursor: pointer; font: inherit; color: var(--ink); text-align: start; transition: border-color .15s, background .15s; }
+  .tq-slot.active { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-l); }
+  .tq-slot .tq-lab { flex: none; min-width: 6.5em; font-weight: 700; color: var(--ink2); }
+  .tq-val { flex: 1; min-width: 0; display: flex; align-items: center; font: 700 1.5em var(--display); }
+  .tq-unit { color: var(--ink2); font-size: .9em; }
+  .tq-note { font-size: .8em; color: var(--ink3); margin: -4px 4px 0; }
+  .tq-slot.ok, .tq-choice.ok { border-color: var(--mint-d); background: var(--mint-l); }
+  .tq-slot.ok .tq-val { color: var(--mint-d); }
+  .tq-slot.no, .tq-choice.no { border-color: var(--orange-d); background: var(--orange-l); }
+  .tq-slot:disabled { cursor: default; }
+  .tq-choice { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 2px solid transparent; border-radius: var(--r-md); background: white; box-shadow: var(--ring); }
+  .tq-choice .tq-lab { font-weight: 700; color: var(--ink2); }
+  .tq-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tq-opts button { flex: 1 1 auto; min-height: 48px; padding: 8px 14px; border: 0; border-radius: 14px; background: var(--paper); color: var(--ink); font: 700 1em var(--body); cursor: pointer; box-shadow: 0 0 0 1.5px var(--line), 0 3px 0 var(--line); transition: transform .08s; }
+  .tq-opts button:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 1.5px var(--line); }
+  .tq-opts button.on { background: var(--blue); color: white; box-shadow: 0 3px 0 var(--blue-d); }
+  .tq-opts button.on .mx { color: white; }
+  .tq-opts button:disabled { cursor: default; }
+  .tq-keypad .k-next { font: 700 .8em var(--body); }
+  .tq-keypad.locked button:not(.k-go) { opacity: .55; }
+  .tq-check { width: 100%; }
+  .fb-rows { display: flex; flex-direction: column; gap: 6px; }
+  .fb-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .fb-row-lab { font-weight: 700; min-width: 6em; }
+  .fb-row s { color: var(--ink2); }
+  .fb-ans-ok { box-shadow: 0 0 0 2px var(--mint-d); }
+
   /* ===== סיכום דף ===== */
   .review-mascot { display: inline-flex; width: 74px; height: 74px; border-radius: 50%; background: white; align-items: center; justify-content: center; box-shadow: var(--ring); margin-bottom: 6px; }
   .review-mascot svg { width: 54px; height: 54px; }
@@ -1872,7 +1916,8 @@ try {
     <div class="q-topbar">
       <button class="q-close" onclick="backToMenu()" aria-label="חזרה"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <h2 class="screen-title" id="topic-title"></h2>
-      <span class="coin-badge">🪙 <span class="coin-count">0</span></span>
+      <span class="q-combo" id="tq-combo" title="תשובות נכונות ברצף" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 2.5c.6 3.2 4.5 5.2 4.5 10a4.5 4.5 0 0 1-9 0c0-2.2 1-3.5 2-4.6.2 1.6 1 2.6 2 2.9-.6-2.8-.2-5.8.5-8.3z" fill="var(--orange)"/></svg><b>0</b></span>
+      <span class="q-score" id="tq-score" title="נקודות בתרגול הזה">★ 0</span>
     </div>
     <div class="level-selector" id="level-selector"></div>
     <div class="progress-bar">
@@ -2203,7 +2248,7 @@ function kumonChannelVideoId() {
 }
 
 function videoSearchQuery() {
-  if (basicsTrack) {
+  if (basicsTrack && BASICS_TRACKS[basicsTrack]) {
     const label = (BASICS_TRACKS[basicsTrack] && BASICS_TRACKS[basicsTrack].title || basicsTrack)
       .replace(/^[^֐-׿]+/, '').trim(); // מסיר אמוג'י מוביל
     return `${label} הסבר לתלמידים`;
@@ -2271,8 +2316,9 @@ function renderStagedHint(stages) {
 
 function openTopic(topicNum) {
   currentTopic = topicNum;
-  currentLevel = 1;
+  currentLevel = Math.min(3, stats.levelProgress[`t${topicNum}`] || 1);
   levelCorrectInRow = 0;
+  topicSessionXp = 0; tq = null;
   basicsTrack = null;
   document.getElementById('main-menu').classList.add('hidden');
   document.getElementById('topic-view').classList.remove('hidden');
@@ -2449,6 +2495,9 @@ function switchHomeTab(tab) {
 
 function backToMenu() {
   closeDraft();
+  fbClose();
+  if (lessonIsOpen()) closeBasicsLesson();
+  tq = null;
   document.getElementById('main-menu').classList.remove('hidden');
   document.getElementById('topic-view').classList.add('hidden');
   document.getElementById('basics-ladder-view').classList.add('hidden');
@@ -4786,15 +4835,21 @@ function stepsAnswerValue() {
   return null;
 }
 function basicsCanTakeTyped() {
+  if (tq && document.getElementById('tq-keypad')) return !tq.done && !!tq.active && !fbIsOpen();
   const k = document.getElementById('qs-keypad');
   return !!k && !k.classList.contains('locked') && !fbIsOpen();
 }
 function stepsSendAnswer() { sendToAnswer(stepsAnswerValue()); }
 function sendToAnswer(v) {
   if (v === null || v === undefined || !basicsCanTakeTyped()) return;
-  qsInput = String(v).replace('-', '−').slice(0, 10);
-  qsRender();
-  restartAnim(document.getElementById('qs-field'), 'qs-flash');
+  if (tq && document.getElementById('tq-keypad')) {
+    tq.inputs[tq.active] = String(v).replace('-', '−').slice(0, 10);
+    tqRenderFields();
+  } else {
+    qsInput = String(v).replace('-', '−').slice(0, 10);
+    qsRender();
+    restartAnim(document.getElementById('qs-field'), 'qs-flash');
+  }
   showToast('התשובה הועברה. נשאר ללחוץ "בדיקה"');
   if (window.innerWidth < 1000) closeDraft();
 }
@@ -5941,11 +5996,297 @@ function hsRank(avail) { const o = hsLoad(); return [...avail].sort((a, b) => hs
 function hsPick(avail) { const r = hsRank(avail); return r.length > 1 && Math.random() < 0.2 ? r[1 + Math.floor(Math.random() * (r.length - 1))] : r[0]; }
 function hsBest(avail) { const o = hsLoad(); const used = avail.filter(s => o[s] && o[s].s > 0); return used.length ? hsRank(used)[0] : null; }
 
+// ============================================================
+// נושאי ההכנה לבגרות (משוואה ריבועית, פונקציה, טרפז, גרפים, קו ישר) –
+// אותו מסך שאלה כמו במסלולי היסודות: כמה שדות תשובה, ניסיון שני, גיליון משוב,
+// רמזים בשלוש רמות, טיוטה ונקודות.
+// ============================================================
+const PN = v => v < 0 ? `(${fmtNumber(v)})` : fmtNumber(v);       // מספר בתוך חישוב: שלילי בסוגריים
+const r2 = v => Math.round(v * 100) / 100;
+const numField = (id, label, answer, o = {}) => ({ id, kind: 'num', label, answer, tol: o.tol ?? 0.05, unit: o.unit || '', note: o.note || '', showIf: o.showIf });
+const choiceField = (id, label, answer, choices, o = {}) => ({ id, kind: 'choice', label, answer, choices, showIf: o.showIf });
+
+// ---- ציורים לרמזים ולשיעורים ----
+function parabolasPic() {
+  // פרבולה מוגדרת לפי גובה הקודקוד: y(u) = vy − 50·(u/40)², ציר x בגובה 80
+  const P = (ox, vy, col, top, bottom) => {
+    let s = `<path d="M${ox - 40} ${vy - 50}Q${ox} ${vy + 50} ${ox + 40} ${vy - 50}" fill="none" stroke="${col}" stroke-width="3"/>`;
+    if (vy > 80) { const u = 40 * Math.sqrt((vy - 80) / 50); s += `<circle cx="${ox - u}" cy="80" r="4" fill="${col}"/><circle cx="${ox + u}" cy="80" r="4" fill="${col}"/>`; }
+    else if (vy === 80) s += `<circle cx="${ox}" cy="80" r="4" fill="${col}"/>`;
+    return s + tx(ox, 124, top, { s: 13, f: col }) + tx(ox, 142, bottom, { s: 12, f: HC.ink2, w: 500, rtl: 1 });
+  };
+  return sv(300, 150, `<path d="M8 80H292" stroke="${HC.ink}" stroke-width="2"/>` +
+    P(55, 102, HC.blue, 'Δ > 0', 'שני פתרונות') + P(150, 80, HC.orD, 'Δ = 0', 'פתרון אחד') + P(245, 52, HC.mintD, 'Δ < 0', 'אין פתרון'));
+}
+function smileFrownPic() {
+  return sv(300, 130, `<path d="M30 25Q85 145 140 25" fill="none" stroke="${HC.blue}" stroke-width="3"/><circle cx="85" cy="85" r="5" fill="${HC.blue}"/>` +
+    tx(85, 120, 'a > 0: מינימום', { s: 13, f: HC.blueD, rtl: 1 }) +
+    `<path d="M160 105Q215 -15 270 105" fill="none" stroke="${HC.or}" stroke-width="3"/><circle cx="215" cy="45" r="5" fill="${HC.or}"/>` +
+    tx(215, 124, 'a < 0: מקסימום', { s: 13, f: HC.orD, rtl: 1 }));
+}
+function slopePic(x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const L = 60, R = 240, T = 30, B = 120;
+  const [ax, bx] = dx > 0 ? [L, R] : [R, L], [ay, by] = dy > 0 ? [B, T] : dy < 0 ? [T, B] : [75, 75];
+  return sv(300, 150, ARROWS + `<path d="M${ax} ${ay}L${bx} ${by}" stroke="${HC.ink}" stroke-width="3"/>` +
+    `<path d="M${ax} ${ay}H${bx}" stroke="${HC.or}" stroke-width="2.4" stroke-dasharray="5 4"/><path d="M${bx} ${ay}V${by}" stroke="${HC.blue}" stroke-width="2.4" stroke-dasharray="5 4"/>` +
+    `<circle cx="${ax}" cy="${ay}" r="5" fill="${HC.ink}"/><circle cx="${bx}" cy="${by}" r="5" fill="${HC.ink}"/>` +
+    tx((ax + bx) / 2, ay + (ay > by ? 18 : -8), `שינוי ב-x: ${fmtNumber(dx)}`, { s: 13, f: HC.orD, rtl: 1 }) +
+    tx(bx + (bx > ax ? -8 : 8), (ay + by) / 2 + 5, `${fmtNumber(dy)}`, { s: 13, f: HC.blueD, a: bx > ax ? 'end' : 'start' }) +
+    capRtl(146, 'שיפוע = שינוי ב-y חלקי שינוי ב-x'));
+}
+function trapPic(kind) {
+  const base = `<path d="M40 120H260L210 40H90Z" fill="${HC.blueL}" stroke="${HC.blue}" stroke-width="2"/>` + tx(32, 130, 'A', { s: 13 }) + tx(268, 130, 'B', { s: 13 }) + tx(216, 34, 'C', { s: 13 }) + tx(84, 34, 'D', { s: 13 });
+  if (kind === 'angles') return sv(300, 150, base + `<path d="M58 120A18 18 0 0 0 51 104" fill="none" stroke="${HC.or}" stroke-width="2.5"/><path d="M98 52A16 16 0 0 1 106 40" fill="none" stroke="${HC.or}" stroke-width="2.5"/>` + capRtl(146, 'שתי זוויות על אותה שוק: ביחד 180°'));
+  if (kind === 'pyth') return sv(300, 150, base + `<path d="M90 40V120H40Z" fill="${HC.sun}" fill-opacity=".5" stroke="${HC.sandD}" stroke-width="2"/><path d="M90 108h-10v12" fill="none" stroke="${HC.sandD}" stroke-width="1.5"/>` + tx(98, 86, 'h', { s: 14, a: 'start' }) + capRtl(146, 'גובה + הפרש = משולש ישר-זווית: פיתגורס'));
+  return sv(300, 150, base + `<path d="M90 40V120" stroke="${HC.mint}" stroke-width="2" stroke-dasharray="5 4"/>` + tx(98, 86, 'h', { s: 14, a: 'start' }) + capRtl(146, 'שטח = (בסיס + בסיס) × גובה ÷ 2'));
+}
+
+// ---- מפרט כל שאלה: טקסט, ביטוי, שרטוט, שדות ופתרון ----
+const TOPIC_SPECS = {
+  1(p) {
+    const { a, b, c } = p, D = b * b - 4 * a * c;
+    const n = p.roots.length === 0 ? 0 : p.roots[0] === p.roots[1] ? 1 : 2;
+    const note = p.irrational ? 'מעוגל לשתי ספרות אחרי הנקודה' : '';
+    const steps = [`מזהים את המקדמים: ${M(`a = ${a}, b = ${b}, c = ${c}`)}`, `הדיסקרימיננטה: ${M(`Δ = b² − 4ac = ${PN(b)}² − 4·${PN(a)}·${PN(c)} = ${D}`)}`];
+    if (D < 0) steps.push(`${M('Δ < 0')} – אין למשוואה פתרון.`);
+    else if (D === 0) steps.push(`${M('Δ = 0')} – פתרון אחד: ${M(`x = −b / 2a = ${PN(-b)} / ${2 * a} = ${fmtNumber(-b / (2 * a))}`)}`);
+    else steps.push(`מציבים בנוסחה: ${M(`x = (${-b} ± √${D}) / ${2 * a}`)}`, `${M(`x₁ = ${fmtNumber(r2(p.roots[0]))}`)}, ${M(`x₂ = ${fmtNumber(r2(p.roots[1]))}`)}`);
+    return {
+      label: 'פתרו את המשוואה הריבועית:', math: fmtQuadratic(a, b, c),
+      formula: { label: 'נוסחת השורשים', math: 'x = (−b ± √(b² − 4ac)) / 2a' },
+      fields: [
+        choiceField('n', 'כמה פתרונות יש?', String(n), [['0', 'אין פתרון'], ['1', 'פתרון אחד'], ['2', 'שני פתרונות']]),
+        numField('x', 'x', p.roots[0], { showIf: ['n', '1'], tol: 0.011 }),
+        numField('x1', 'x₁ (הקטן)', p.roots[0], { showIf: ['n', '2'], tol: 0.011, note }),
+        numField('x2', 'x₂ (הגדול)', p.roots[1], { showIf: ['n', '2'], tol: 0.011 })
+      ],
+      steps
+    };
+  },
+  2(p) {
+    const { a, b, c } = p, vx = -b / (2 * a), vy = a * vx * vx + b * vx + c;
+    return {
+      label: 'חקרו את הפונקציה הריבועית:', math: fmtFunction(a, b, c),
+      formula: { label: 'קודקוד', math: 'x = −b / 2a ,  y = f(x)' },
+      fields: [
+        choiceField('type', 'לאן הפרבולה פתוחה?', a > 0 ? 'up' : 'down', [['up', 'למעלה (מינימום)'], ['down', 'למטה (מקסימום)']]),
+        numField('vx', 'x של הקודקוד', vx), numField('vy', 'y של הקודקוד', vy)
+      ],
+      steps: [`${M(`a = ${a}`)} ${a > 0 ? 'חיובי – הפרבולה פתוחה למעלה, והקודקוד הוא מינימום.' : 'שלילי – הפרבולה פתוחה למטה, והקודקוד הוא מקסימום.'}`,
+        `${M(`x = −b / 2a = ${PN(-b)} / ${PN(2 * a)} = ${fmtNumber(vx)}`)}`,
+        `מציבים בפונקציה: ${M(`y = f(${fmtNumber(vx)}) = ${fmtNumber(vy)}`)}`]
+    };
+  },
+  3(p) {
+    const L = ['A', 'B', 'C', 'D'], cm = 'ס"מ', sq = 'סמ"ר';
+    const area = p.area ?? p.answer;
+    const areaStep = (a, b, h) => `שטח: ${M(`(${a} + ${b}) × ${h} ÷ 2 = ${fmtNumber((a + b) * h / 2)}`)}`;
+    const pyth = (x, y, what) => `${what}: ${M(`√(${x}² + ${y}²) = ${fmtNumber(r2(Math.sqrt(x * x + y * y)))}`)}`;
+    const T = {
+      'trapezoid-angles': () => ({ label: `בטרפז ABCD שבו ${M('AB ∥ CD')} נתון: ${[0, 1, 2, 3].filter(i => i !== p.hide).map(i => M(`∠${L[i]} = ${p.angles[i]}°`)).join(', ')}. חשבו את ${M(`∠${L[p.hide]}`)}.`,
+        fields: [numField('ang', `∠${L[p.hide]}`, p.answer, { unit: '°', tol: 0.5 })],
+        steps: [`זוויות שיושבות על אותה שוק משלימות ל-${M('180°')}.`, M(`∠${L[p.hide]} = 180° − ${180 - p.answer}° = ${p.answer}°`)] }),
+      'trapezoid-perimeter': () => ({ label: `בטרפז ABCD: ${M(`AB = ${p.sides.AB}, CD = ${p.sides.CD}, BC = ${p.sides.BC}, AD = ${p.sides.AD}`)} (${cm}). חשבו את ההיקף.`,
+        fields: [numField('per', 'היקף', p.answer, { unit: cm, tol: 0.1 })],
+        steps: ['היקף = סכום כל הצלעות:', M(`${p.sides.AB} + ${p.sides.CD} + ${p.sides.BC} + ${p.sides.AD} = ${p.answer}`)] }),
+      'trapezoid-area-basic': () => ({ label: `בטרפז ABCD: בסיסים ${M(`AB = ${p.b}, CD = ${p.a}`)}, גובה ${M(`h = ${p.h}`)} (${cm}). חשבו את השטח.`,
+        fields: [numField('area', 'שטח', p.answer, { unit: sq, tol: 0.1 })], steps: [areaStep(p.b, p.a, p.h)] }),
+      'isoceles-angles': () => ({ label: `בטרפז שווה-שוקיים ABCD שבו ${M('AB ∥ CD')}, נתון ${M(`∠A = ${p.baseAngle}°`)}. חשבו את ${M('∠D')}.`,
+        fields: [numField('ang', '∠D', p.answer, { unit: '°', tol: 0.5 })],
+        steps: [`${M('∠A')} ו-${M('∠D')} על אותה שוק – ביחד ${M('180°')}.`, M(`∠D = 180° − ${p.baseAngle}° = ${p.answer}°`)] }),
+      'right-trapezoid': () => ({ label: `בטרפז ישר-זווית ABCD (${M('∠A = ∠D = 90°')}): ${M(`AB = ${p.b}, CD = ${p.a}, AD = h = ${p.h}`)} (${cm}). חשבו את השטח, את השוק הנטויה ${M('BC')} ואת ההיקף.`,
+        fields: [numField('area', 'שטח', p.area, { unit: sq, tol: 0.1 }), numField('leg', 'BC', p.leg, { unit: cm, tol: 0.1, note: 'מעוגל לשתי ספרות' }), numField('per', 'היקף', p.perim, { unit: cm, tol: 0.1 })],
+        steps: [areaStep(p.b, p.a, p.h), `ההפרש בין הבסיסים: ${M(`${p.b} − ${p.a} = ${p.dx}`)}`, pyth(p.dx, p.h, 'פיתגורס'), `היקף: ${M(`${p.b} + ${p.a} + ${p.h} + ${fmtNumber(r2(p.leg))} = ${fmtNumber(r2(p.perim))}`)}`] }),
+      'trapezoid-area': () => ({ label: `נתון טרפז: בסיסים ${M(`${p.b}`)} ו-${M(`${p.a}`)}, גובה ${M(`${p.h}`)} (${cm}). חשבו את השטח.`,
+        fields: [numField('area', 'שטח', p.answer, { unit: sq, tol: 0.1 })], steps: [areaStep(p.b, p.a, p.h)] }),
+      'isoceles-find-h': () => ({ label: `בטרפז שווה-שוקיים ABCD: ${M(`CD = ${p.a}, AB = ${p.b}, BC = ${p.leg}`)} (${cm}). חשבו את הגובה ואת השטח.`,
+        fields: [numField('h', 'גובה', p.h, { unit: cm, tol: 0.1 }), numField('area', 'שטח', p.area, { unit: sq, tol: 0.5 })],
+        steps: [`מכל צד "בולט": ${M(`(${p.b} − ${p.a}) ÷ 2 = ${p.overhang}`)}`, `פיתגורס: ${M(`h = √(${p.leg}² − ${p.overhang}²) ≈ ${p.h}`)}`, areaStep(p.b, p.a, p.h)] }),
+      'right-find-h': () => ({ label: `בטרפז ישר-זווית ABCD: ${M(`CD = ${p.a}, AB = ${p.b}, BC = ${p.slantLeg}`)} (${cm}). חשבו את הגובה ${M('AD')} ואת השטח.`,
+        fields: [numField('h', 'גובה AD', p.h, { unit: cm, tol: 0.1 }), numField('area', 'שטח', p.area, { unit: sq, tol: 0.5 })],
+        steps: [`ההפרש בין הבסיסים: ${M(`${p.b} − ${p.a} = ${p.dx}`)}`, `פיתגורס: ${M(`h = √(${p.slantLeg}² − ${p.dx}²) ≈ ${p.h}`)}`, areaStep(p.b, p.a, p.h)] }),
+      'full-isoceles': () => ({ label: `בטרפז שווה-שוקיים ABCD: ${M(`CD = ${p.a}, AB = ${p.b}, h = ${p.h}`)} (${cm}). חשבו את השוק, את השטח ואת ההיקף.`,
+        fields: [numField('leg', 'שוק', p.leg, { unit: cm, tol: 0.1, note: 'מעוגל לשתי ספרות' }), numField('area', 'שטח', p.area, { unit: sq, tol: 0.1 }), numField('per', 'היקף', p.perim, { unit: cm, tol: 0.1 })],
+        steps: [`מכל צד בולט ${M(`(${p.b} − ${p.a}) ÷ 2 = ${p.overhang}`)}`, pyth(p.overhang, p.h, 'השוק'), areaStep(p.b, p.a, p.h), `היקף: ${M(`${p.b} + ${p.a} + 2 × ${p.leg} = ${p.perim}`)}`] })
+    };
+    const s = T[p.type]();
+    s.figure = { html: '<canvas id="trap-canvas" width="500" height="300"></canvas>', draw: () => {
+      if (p.type === 'trapezoid-angles' || p.type === 'isoceles-angles') drawTrapezoid('trap-canvas', { a: 6, b: 12, h: 5, type: 'isoceles' });
+      else if (p.type === 'trapezoid-perimeter') drawTrapezoid('trap-canvas', { a: p.sides.CD, b: p.sides.AB, h: 5, type: 'regular', labels: { AB: p.sides.AB, CD: p.sides.CD, BC: p.sides.BC, AD: p.sides.AD } });
+      else if (p.type === 'trapezoid-area-basic' || p.type === 'trapezoid-area') drawTrapezoid('trap-canvas', { a: p.a, b: p.b, h: p.h, type: 'isoceles', showHeight: true });
+      else if (p.type === 'right-trapezoid' || p.type === 'right-find-h') drawTrapezoid('trap-canvas', { a: p.a, b: p.b, h: p.h, type: 'right', showHeight: p.type === 'right-trapezoid', labels: { AB: p.b, CD: p.a } });
+      else drawTrapezoid('trap-canvas', { a: p.a, b: p.b, h: p.h || 5, type: 'isoceles', showHeight: p.type === 'full-isoceles', labels: { AB: p.b, CD: p.a } });
+    } };
+    return s;
+  },
+  4(p) {
+    const fig = { html: '<canvas id="graph-canvas" width="500" height="400"></canvas>', draw: () => drawGraph('graph-canvas', p) };
+    if (p.kind === 'linear-value') return {
+      label: `לפניכם הגרף של ${M(`f(x) = ${fmtCoef(p.m, 'x', true)}${fmtCoef(p.b, '')}`)}. מצאו:`, figure: fig,
+      fields: [numField('yint', 'חיתוך עם ציר y', p.b), numField('slope', 'שיפוע', p.m), numField('fx', `f(${p.xQ})`, p.m * p.xQ + p.b)],
+      steps: [`חיתוך עם ציר y: מציבים ${M('x = 0')} ומקבלים ${M(`${p.b}`)}.`, `השיפוע הוא המספר שליד x: ${M(`${p.m}`)}.`, M(`f(${p.xQ}) = ${PN(p.m)}·${PN(p.xQ)} + ${PN(p.b)} = ${p.m * p.xQ + p.b}`)]
+    };
+    if (p.kind === 'parabola-features') return {
+      label: `לפניכם הגרף של ${M(fmtFunction(p.a, p.b, p.c))}. קראו מהגרף:`, figure: fig,
+      fields: [numField('r1', 'שורש קטן', p.r1), numField('r2', 'שורש גדול', p.r2), numField('vx', 'x של הקודקוד', p.vx), numField('vy', 'y של הקודקוד', p.vy),
+        choiceField('ext', 'הקודקוד הוא', p.a > 0 ? 'min' : 'max', [['min', 'מינימום'], ['max', 'מקסימום']])],
+      steps: [`השורשים – איפה הגרף חותך את ציר x (הנקודות הכחולות): ${M(`${p.r1}`)} ו-${M(`${p.r2}`)}.`, `הקודקוד באמצע בין השורשים: ${M(`x = (${p.r1} + ${p.r2}) ÷ 2 = ${fmtNumber(p.vx)}`)}, ${M(`y = ${fmtNumber(p.vy)}`)}.`, `${M(`a = ${p.a}`)} ${p.a > 0 ? 'חיובי – מינימום.' : 'שלילי – מקסימום.'}`]
+    };
+    return {
+      label: `לפניכם הגרף של ${M(fmtFunction(p.a, p.b, p.c))}. ענו לפי הגרף:`, figure: fig,
+      fields: [choiceField('pos', 'איפה הפונקציה חיובית?', p.a > 0 ? 'outside' : 'between', [['between', `${p.r1} < x < ${p.r2}`], ['outside', `x < ${p.r1} או x > ${p.r2}`]]),
+        choiceField('inc', 'איפה הפונקציה עולה?', p.a > 0 ? 'right' : 'left', [['left', `x < ${fmtNumber(p.vx)}`], ['right', `x > ${fmtNumber(p.vx)}`]])],
+      steps: [`חיובית = מעל ציר x. ${p.a > 0 ? 'הפרבולה פתוחה למעלה, ולכן היא מעל הציר מחוץ לשורשים' : 'הפרבולה פתוחה למטה, ולכן היא מעל הציר בין השורשים'}.`,
+        `עולה = כשזזים ימינה הגרף עולה. ${p.a > 0 ? `אחרי הקודקוד: ${M(`x > ${fmtNumber(p.vx)}`)}` : `לפני הקודקוד: ${M(`x < ${fmtNumber(p.vx)}`)}`}.`]
+    };
+  },
+  5(p) {
+    const formula = p.kind === 'identify' ? { label: 'משוואת קו ישר', math: 'y = mx + b' } : { label: 'נוסחת השיפוע', math: 'm = (y₂ − y₁) / (x₂ − x₁)' };
+    if (p.kind === 'identify') return {
+      label: 'מצאו את השיפוע ואת נקודת החיתוך עם ציר y:', math: `y = ${fmtCoef(p.m, 'x', true)}${fmtCoef(p.b, '') || ' + 0'}`, formula,
+      fields: [numField('m', 'שיפוע m', p.m, { tol: 0.01 }), numField('b', 'חיתוך b', p.b, { tol: 0.01 })],
+      steps: [`המספר שליד x הוא השיפוע: ${M(`m = ${p.m}`)}.`, `המספר שעומד לבד הוא החיתוך עם ציר y: ${M(`b = ${p.b}`)}.`]
+    };
+    const pts = `${M(`(${p.x1}, ${p.y1})`)} ו-${M(`(${p.x2}, ${p.y2})`)}`;
+    const slope = `${M(`m = (${p.y2} − ${PN(p.y1)}) / (${p.x2} − ${PN(p.x1)}) = ${p.y2 - p.y1} / ${p.x2 - p.x1} = ${p.m}`)}`;
+    if (p.kind === 'slope-from-points') return { label: `הקו עובר דרך הנקודות ${pts}. חשבו את השיפוע.`, formula, fields: [numField('m', 'שיפוע m', p.m, { tol: 0.01 })], steps: [slope] };
+    return { label: `הקו עובר דרך הנקודות ${pts}. מצאו את משוואת הקו.`, formula,
+      fields: [numField('m', 'שיפוע m', p.m, { tol: 0.01 }), numField('b', 'חיתוך b', p.b, { tol: 0.01 })],
+      steps: [slope, `מציבים את ${M(`(${p.x1}, ${p.y1})`)}: ${M(`${p.y1} = ${PN(p.m)}·${PN(p.x1)} + b`)}`, M(`b = ${p.y1} − ${PN(p.m * p.x1)} = ${p.b}`)] };
+  }
+};
+
+// מלכודות: אם התשובה מתאימה לטעות מוכרת, מסבירים אותה
+const TOPIC_TRAPS = {
+  1(p, v) {
+    if (p.roots.length !== 2 || v.n !== '2' || v.x1 == null || v.x2 == null) return null;
+    const near = (a, b) => Math.abs(a - b) < 0.02;
+    const [x1, x2] = [v.x1, v.x2];
+    if (near(x1, -p.roots[1]) && near(x2, -p.roots[0])) return 'הסימנים הפוכים: בנוסחה יש −b. אם b שלילי, −b חיובי.';
+    const d = Math.sqrt(p.b * p.b - 4 * p.a * p.c);
+    if (near(x1, (-p.b - d)) && near(x2, (-p.b + d)) && p.a !== 0.5) return 'שכחתם לחלק ב-2a בסוף הנוסחה.';
+    if (near(x1, p.roots[1]) && near(x2, p.roots[0])) return 'x₁ הוא הקטן ו-x₂ הוא הגדול – החליפו ביניהם.';
+    return null;
+  },
+  2(p, v) {
+    const vx = -p.b / (2 * p.a);
+    if (v.vx != null && vx !== 0 && Math.abs(v.vx + vx) < 0.06) return 'שכחתם את המינוס: x = −b/2a.';
+    if (v.vx != null && Math.abs(v.vx - (-p.b / p.a)) < 0.06 && p.b !== 0) return 'צריך לחלק ב-2a, לא ב-a.';
+    return null;
+  },
+  3(p, v) {
+    if (v.area != null) { const a = p.a ?? 0, b = p.b ?? 0, h = p.h ?? 0; if (Math.abs(v.area - (a + b) * h) < 0.2 && h) return 'שכחתם לחלק ב-2 בנוסחת השטח.'; }
+    if (v.ang != null && p.answer != null && Math.abs(v.ang - (180 - p.answer)) < 0.5) return 'כתבתם את הזווית הנתונה. הזווית החסרה משלימה אותה ל-180°.';
+    return null;
+  },
+  4() { return null; },
+  5(p, v) {
+    if (v.m != null && p.kind !== 'identify' && p.y1 !== p.y2 && Math.abs(v.m - (p.x2 - p.x1) / (p.y2 - p.y1)) < 0.01 && Math.abs(p.m) !== 1) return 'הפכתם את השבר: שיפוע = שינוי ב-y חלקי שינוי ב-x.';
+    if (v.m != null && Math.abs(v.m + p.m) < 0.01 && p.m !== 0) return 'הסימן של השיפוע הפוך. בדקו את סדר החיסור – אותו סדר למעלה ולמטה.';
+    return null;
+  }
+};
+
+// רמזים, בדיקות קטנות ושיעורים לנושאים (נרשמים כ"מסלולים" topic1…topic5)
+Object.assign(BASICS_HINTS, {
+  topic1(p) {
+    const { a, b, c } = p, D = b * b - 4 * a * c;
+    return hintLevels(
+      { words: `קודם בודקים כמה פתרונות יש. לשם כך מחשבים את הדיסקרימיננטה ${M('Δ = b² − 4ac')}.`,
+        life: 'הדיסקרימיננטה היא כמו "בודק כניסה": היא אומרת מראש אם יש פתרון, אחד או שניים – עוד לפני שפותרים.' },
+      { words: `${M('Δ > 0')}: שני פתרונות. ${M('Δ = 0')}: פתרון אחד. ${M('Δ < 0')}: אין פתרון. אם יש – מציבים בנוסחת השורשים.`,
+        example: `${M('x² − 5x + 6 = 0')}: ${M('Δ = 25 − 24 = 1')}, ולכן ${M('x = (5 ± 1) / 2')}: ${M('x₁ = 2, x₂ = 3')}.` },
+      { words: `כאן ${M(`a = ${a}, b = ${b}, c = ${c}`)}, ולכן ${M(`Δ = ${PN(b)}² − 4·${PN(a)}·${PN(c)} = ${D}`)}.` });
+  },
+  topic2(p) {
+    const vx = -p.b / (2 * p.a);
+    return hintLevels(
+      { words: `הסימן של ${M('a')} (המספר שליד ${M('x²')}) קובע לאן הפרבולה פתוחה. אחר כך מחפשים את הקודקוד.`,
+        life: 'a חיובי – הפרבולה מחייכת, והקודקוד הוא הנקודה הכי נמוכה. a שלילי – פרצוף עצוב, והקודקוד הכי גבוה.' },
+      { words: `${M('x')} של הקודקוד: ${M('x = −b / 2a')}. את ה-${M('y')} מקבלים כשמציבים את ה-${M('x')} הזה בפונקציה.`,
+        example: `${M('f(x) = x² − 4x + 1')}: ${M('x = 4 / 2 = 2')}, ${M('y = 4 − 8 + 1 = −3')}.` },
+      { words: `כאן ${M(`a = ${p.a}`)} – ${p.a > 0 ? 'פתוחה למעלה' : 'פתוחה למטה'}. ${M(`x = ${PN(-p.b)} / ${PN(2 * p.a)} = ${fmtNumber(vx)}`)}. עכשיו הציבו בפונקציה.` });
+  },
+  topic3(p) {
+    const g = /angles/.test(p.type) ? 'angles' : /perimeter/.test(p.type) ? 'per' : /find-h|right-trapezoid|full/.test(p.type) ? 'pyth' : 'area';
+    const L1 = { angles: 'זה תרגיל זוויות. חפשו שתי זוויות שיושבות על אותה שוק (הצלע האלכסונית).', per: 'היקף = סכום אורכי כל הצלעות.', pyth: 'חפשו בשרטוט משולש ישר-זווית: הגובה, ההפרש בין הבסיסים והשוק.', area: 'לשטח טרפז יש נוסחה קבועה: בסיס ועוד בסיס, כפול הגובה, חלקי 2.' }[g];
+    const L2 = { angles: 'שתי זוויות על אותה שוק מסתכמות ל-180°. בטרפז שווה-שוקיים גם זוויות הבסיס שוות זו לזו.', per: 'מחברים את ארבע הצלעות. אם חסרה צלע – מוצאים אותה קודם (למשל בפיתגורס).', pyth: 'פיתגורס: ניצב² + ניצב² = יתר². השוק היא היתר.', area: 'שטח = (a + b) × h ÷ 2. אל תשכחו את החלוקה ב-2.' }[g];
+    const L3 = { angles: `הזווית החסרה = ${M('180°')} פחות הזווית שעל אותה שוק.`, per: 'כתבו את כל ארבע הצלעות בשורה אחת וחברו.', pyth: p.dx || p.overhang ? `הניצב האופקי במשולש הוא ${M(String(p.dx || p.overhang))}.` : 'הורידו גובה מהקודקוד העליון אל הבסיס הגדול.', area: p.a && p.b ? `חברו קודם את הבסיסים: ${M(`${p.b} + ${p.a} = ${p.a + p.b}`)}.` : 'חברו קודם את שני הבסיסים.' }[g];
+    return hintLevels({ words: L1 }, { words: L2, example: { angles: `${M('∠A = 70°')} ⇒ ${M('∠D = 110°')}.`, per: `${M('5 + 7 + 3 + 4 = 19')}.`, pyth: `ניצבים 3 ו-4 ⇒ ${M('√(9 + 16) = 5')}.`, area: `בסיסים 4 ו-10, גובה 3: ${M('(4 + 10) × 3 ÷ 2 = 21')}.` }[g] }, { words: L3 });
+  },
+  topic4(p) {
+    if (p.kind === 'linear-value') return hintLevels(
+      { words: `הכול בגרף ובמשוואה. חיתוך עם ציר y הוא המקום שבו ${M('x = 0')}.` },
+      { words: `בפונקציה ${M('f(x) = mx + b')}: ${M('m')} הוא השיפוע ו-${M('b')} החיתוך עם ציר y. כדי לחשב ${M(`f(${p.xQ})`)} מציבים ${M(`x = ${p.xQ}`)}.`, example: `${M('f(x) = 2x − 1')}: ${M('m = 2, b = −1, f(3) = 5')}.` },
+      { words: M(`f(${p.xQ}) = ${PN(p.m)}·${PN(p.xQ)} + ${PN(p.b)}`) });
+    if (p.kind === 'parabola-features') return hintLevels(
+      { words: 'הנקודות הכחולות הן השורשים (חיתוך עם ציר x), והנקודה הירוקה היא הקודקוד.' },
+      { words: `הקודקוד נמצא בדיוק באמצע בין השורשים. אם הפרבולה פתוחה למעלה – הוא מינימום.`, example: `שורשים 1 ו-5 ⇒ ${M('x = 3')}.` },
+      { words: `${M(`x = (${p.r1} + ${p.r2}) ÷ 2`)}, ואז קראו את ה-y של הנקודה הירוקה.` });
+    return hintLevels(
+      { words: 'חיובית = הגרף מעל ציר x. עולה = כשזזים ימינה הגרף עולה.' },
+      { words: 'פרבולה פתוחה למעלה: מעל הציר מחוץ לשורשים, ועולה אחרי הקודקוד. פתוחה למטה – הפוך.' },
+      { words: `כאן ${M(`a = ${p.a}`)}: ${p.a > 0 ? 'פתוחה למעלה' : 'פתוחה למטה'}.` });
+  },
+  topic5(p) {
+    if (p.kind === 'identify') return hintLevels(
+      { words: `המשוואה בנויה בצורה ${M('y = mx + b')}.` },
+      { words: `${M('m')} הוא המספר שליד ${M('x')}, ו-${M('b')} הוא המספר שעומד לבד (אם אין – ${M('b = 0')}).`, example: `${M('y = −3x + 7')}: ${M('m = −3, b = 7')}.` },
+      { words: `כאן המספר שליד x הוא ${M(String(p.m))}.` });
+    return hintLevels(
+      { words: 'השיפוע אומר בכמה y משתנה כש-x משתנה.', life: 'כמו שיפוע של מגלשה: כמה יורדים לכל צעד קדימה.' },
+      { words: `${M('m = (y₂ − y₁) / (x₂ − x₁)')}. אחר כך מציבים נקודה ב-${M('y = mx + b')} כדי למצוא את ${M('b')}.`, example: `${M('(1, 3)')} ו-${M('(3, 7)')}: ${M('m = 4 / 2 = 2')}, ${M('3 = 2 + b')} ⇒ ${M('b = 1')}.` },
+      { words: `השינוי ב-y: ${M(`${p.y2} − ${PN(p.y1)} = ${p.y2 - p.y1}`)}. השינוי ב-x: ${M(`${p.x2} − ${PN(p.x1)} = ${p.x2 - p.x1}`)}.` });
+  }
+});
+Object.assign(BASICS_EXTRA, {
+  topic1: () => ({ pics: [null, parabolasPic()], checks: [
+    chk('ב-2x² − 3x + 1 = 0, כמה זה b?', '−3', ['3', 'הסימן שייך למספר: b = −3.'], ['2', '2 הוא a – המספר שליד x².']),
+    chk('Δ = −7. כמה פתרונות יש?', 'אין פתרון', ['שני פתרונות', 'שני פתרונות יש רק כש-Δ חיובי.'], ['פתרון אחד', 'פתרון אחד יש רק כש-Δ = 0.'])] }),
+  topic2: () => ({ pics: [smileFrownPic(), null], checks: [
+    chk('f(x) = −2x² + 3. לאן הפרבולה פתוחה?', 'למטה', ['למעלה', 'a = −2 שלילי, ולכן הפרבולה פתוחה למטה.']),
+    chk('f(x) = x² + 6x. מה ה-x של הקודקוד?', '−3', ['3', 'x = −b/2a = −6/2 = −3. אל תשכחו את המינוס.'], ['6', 'צריך לחלק ב-2a = 2.'])] }),
+  topic3: p => {
+    const g = /angles/.test(p.type) ? 'angles' : /find-h|right-trapezoid|full/.test(p.type) ? 'pyth' : 'area';
+    return { pics: [trapPic(g), null], checks: [
+      g === 'angles' ? chk('∠A = 65° ו-∠D על אותה שוק. כמה זה ∠D?', '115°', ['65°', 'זוויות על אותה שוק משלימות ל-180°, הן לא שוות.'], ['25°', '25° משלים ל-90°. כאן משלימים ל-180°.'])
+        : g === 'pyth' ? chk('ניצבים 6 ו-8. כמה זה היתר?', 10, [14, 'לא מחברים את הצלעות: √(36 + 64) = 10.'], [100, '100 זה היתר בריבוע. צריך להוציא שורש.'])
+        : chk('בסיסים 4 ו-6, גובה 2. כמה השטח?', 10, [20, 'שכחתם לחלק ב-2.'], [48, 'לא כופלים את כל המספרים: (4 + 6) × 2 ÷ 2.']),
+      chk('מה הנוסחה לשטח טרפז?', '(a + b) × h ÷ 2', ['a × b × h', 'זו לא הנוסחה. מחברים את הבסיסים, כופלים בגובה ומחלקים ב-2.'], ['(a + b) × h', 'חסרה החלוקה ב-2.'])] };
+  },
+  topic4: p => ({ pics: [null, null], checks: [
+    chk('איפה גרף חותך את ציר y?', 'בנקודה שבה x = 0', ['בנקודה שבה y = 0', 'כשy = 0 הגרף חותך את ציר x.']),
+    p.kind === 'linear-value' ? chk('f(x) = 3x − 2. כמה זה f(2)?', 4, [1, 'מציבים: 3·2 − 2 = 4.'], [6, 'שכחתם להחסיר 2.'])
+      : chk('פרבולה פתוחה למעלה. הקודקוד הוא…', 'מינימום', ['מקסימום', 'בפרבולה שמחייכת הקודקוד הוא הנקודה הכי נמוכה.'])] }),
+  topic5: p => ({ pics: [p.kind === 'identify' ? null : slopePic(p.x1, p.y1, p.x2, p.y2), null], checks: [
+    chk('y = −4x + 1. מה השיפוע?', '−4', ['4', 'הסימן שייך לשיפוע: m = −4.'], ['1', '1 הוא החיתוך עם ציר y.']),
+    chk('(0, 1) ו-(2, 5). מה השיפוע?', 2, [4, 'זה השינוי ב-y בלבד. מחלקים בשינוי ב-x: 4 ÷ 2.'], ['1/2', 'הפכתם: y למעלה, x למטה.'])] })
+});
+Object.assign(BASICS_LESSONS, {
+  topic1: [{ t: 'משוואה ריבועית', b: 'משוואה מהצורה ax² + bx + c = 0. יכולים להיות לה שני פתרונות, אחד, או אף אחד.' },
+    { t: 'הדיסקרימיננטה', b: 'Δ = b² − 4ac. חיובית – שני פתרונות, אפס – אחד, שלילית – אין.', pic: parabolasPic },
+    { t: 'נוסחת השורשים', b: 'x = (−b ± √Δ) / 2a. פעם עם פלוס ופעם עם מינוס – וכך מקבלים את שני הפתרונות.' }],
+  topic2: [{ t: 'צורת הפרבולה', b: 'הסימן של a קובע: חיובי – פתוחה למעלה (מינימום), שלילי – פתוחה למטה (מקסימום).', pic: smileFrownPic },
+    { t: 'הקודקוד', b: 'x של הקודקוד: x = −b / 2a. את ה-y מוצאים כשמציבים את ה-x בפונקציה.' },
+    { t: 'דוגמה', b: 'f(x) = x² − 4x + 1: x = 4 / 2 = 2, y = 4 − 8 + 1 = −3. הקודקוד (2, −3), מינימום.' }],
+  topic3: [{ t: 'זוויות בטרפז', b: 'שתי זוויות שיושבות על אותה שוק משלימות ל-180°.', pic: () => trapPic('angles') },
+    { t: 'שטח והיקף', b: 'שטח = (בסיס + בסיס) × גובה ÷ 2. היקף = סכום כל הצלעות.', pic: () => trapPic('area') },
+    { t: 'פיתגורס בטרפז', b: 'מורידים גובה ומקבלים משולש ישר-זווית: ניצב² + ניצב² = יתר².', pic: () => trapPic('pyth') }],
+  topic4: [{ t: 'חיתוך עם הצירים', b: 'חיתוך עם ציר y: מציבים x = 0. חיתוך עם ציר x (שורשים): איפה y = 0.' },
+    { t: 'קודקוד ושורשים', b: 'בפרבולה הקודקוד נמצא בדיוק באמצע בין השורשים.' },
+    { t: 'חיובית ועולה', b: 'חיובית = הגרף מעל ציר x. עולה = כשזזים ימינה הגרף עולה.' }],
+  topic5: [{ t: 'y = mx + b', b: 'm הוא השיפוע – כמה עולים לכל צעד ימינה. b הוא החיתוך עם ציר y.' },
+    { t: 'שיפוע משתי נקודות', b: 'm = (y₂ − y₁) / (x₂ − x₁): השינוי ב-y חלקי השינוי ב-x.', pic: () => slopePic(1, 3, 3, 7) },
+    { t: 'מציאת b', b: 'מציבים נקודה אחת ואת השיפוע ב-y = mx + b, ופותרים: 3 = 2·1 + b ⇒ b = 1.' }]
+});
+Object.assign(TRACK_LESSON, { topic1: 'topic1', topic2: 'topic2', topic3: 'topic3', topic4: 'topic4', topic5: 'topic5' });
+
 let basicsHint = null;
 function basicsHasHints(track) { return typeof BASICS_HINTS[track] === 'function'; }
 // טקסט מעורב: קטעי מתמטיקה מבודדים משמאל לימין, השאר עברית רגילה
 function mixHtml(t) {
-  const re = /[0-9x(+−×÷][0-9x\s+\-−×÷=().,/²<>]*(?:= \?(?:\/\d+)?|× \?|[0-9x)²])|[0-9x]/g;
+  const re = /[0-9a-zA-ZΔ√∠(+−×÷][0-9a-zA-ZΔ√∠°₁₂\s+\-−×÷=().,/²<>∥]*(?:= \?(?:\/\d+)?|× \?|[0-9a-zA-Z)²°₁₂])|[0-9a-zA-Z]/g;
   let out = '', last = 0, m;
   const s = String(t);
   while ((m = re.exec(s))) { out += escapeHtml(s.slice(last, m.index)) + M(m[0]); last = m.index + m[0].length; }
@@ -6155,6 +6496,234 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowLeft') { e.preventDefault(); lessonStep(1); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); lessonStep(-1); }
 }, true);
+
+// ===== מסך השאלה של הנושאים =====
+let tq = null, topicSessionXp = 0;
+const TOPIC_GEN = { 1: l => genQuadraticEquation(l), 2: l => genQuadFunction(l), 3: l => genTrapezoidProblem(l), 4: l => genGraphProblem(l), 5: l => genLinearProblem(l) };
+function tqVisible(vals) {
+  const v = vals || tq.vals;
+  return tq.spec.fields.filter(f => !f.showIf || v[f.showIf[0]] === f.showIf[1]);
+}
+function tqFieldHtml(f) {
+  const ok = tq.fieldOk[f.id], done = tq.done;
+  const st = ok === true ? ' ok' : ok === false ? ' no' : '';
+  if (f.kind === 'choice') {
+    return `<div class="tq-choice${st}" data-f="${f.id}"><span class="tq-lab">${mixHtml(f.label)}</span>
+      <div class="tq-opts">${f.choices.map(([v, t]) => `<button type="button" class="${tq.vals[f.id] === v ? 'on' : ''}" ${done || ok === true ? 'disabled' : ''} onclick="tqChoose('${f.id}','${v}')">${optHtml(t)}</button>`).join('')}</div></div>`;
+  }
+  const val = tq.inputs[f.id] || '';
+  return `<button type="button" class="tq-slot${tq.active === f.id ? ' active' : ''}${st}" data-f="${f.id}" ${done || ok === true ? 'disabled' : ''} onclick="tqSelect('${f.id}')">
+      <span class="tq-lab">${mixHtml(f.label)}</span>
+      <span class="tq-val" dir="ltr">${val ? escapeHtml(val) : ''}${tq.active === f.id && !done ? '<span class="caret"></span>' : ''}</span>
+      ${f.unit ? `<span class="tq-unit">${escapeHtml(f.unit)}</span>` : ''}
+    </button>${f.note ? `<span class="tq-note">${escapeHtml(f.note)}</span>` : ''}`;
+}
+function tqRenderFields() {
+  const vis = tqVisible();
+  if (!tq.active || !vis.some(f => f.id === tq.active && f.kind === 'num' && tq.fieldOk[f.id] !== true)) {
+    const first = vis.find(f => f.kind === 'num' && tq.fieldOk[f.id] !== true && !/\d/.test(tq.inputs[f.id] || '')) || vis.find(f => f.kind === 'num' && tq.fieldOk[f.id] !== true);
+    tq.active = first ? first.id : null;
+  }
+  document.getElementById('tq-fields').innerHTML = vis.map(tqFieldHtml).join('');
+  const kp = document.getElementById('tq-keypad');
+  if (kp) kp.classList.toggle('locked', !tq.active || tq.done);
+}
+function tqSelect(id) { if (tq.done) return; tq.active = id; tqRenderFields(); }
+function tqChoose(id, v) {
+  if (tq.done) return;
+  tq.vals[id] = v;
+  if (tq.fieldOk[id] === false) delete tq.fieldOk[id];
+  tq.active = null;
+  tqRenderFields();
+}
+function tqKey(k) {
+  if (!tq || tq.done || !tq.active) return;
+  let s = tq.inputs[tq.active] || '';
+  if (k === '−') s = s.startsWith('−') ? s.slice(1) : '−' + s;
+  else if (k === '.') { if (!s.includes('.')) s += (/\d$/.test(s) ? '' : '0') + '.'; }
+  else if (s.replace(/[−.]/g, '').length < 9) s += k;
+  tq.inputs[tq.active] = s;
+  if (tq.fieldOk[tq.active] === false) delete tq.fieldOk[tq.active];
+  tqRenderFields();
+}
+function tqBack() { if (!tq || tq.done || !tq.active) return; tq.inputs[tq.active] = (tq.inputs[tq.active] || '').slice(0, -1); tqRenderFields(); }
+function tqNextField() {
+  const nums = tqVisible().filter(f => f.kind === 'num' && tq.fieldOk[f.id] !== true);
+  if (!nums.length) return;
+  const i = nums.findIndex(f => f.id === tq.active);
+  tq.active = nums[(i + 1) % nums.length].id; tqRenderFields();
+}
+const tqNum = s => parseAnswer(String(s || '').replace(/−/g, '-'));
+function tqCollect() {
+  const vals = { ...tq.vals };
+  tqVisible().forEach(f => { if (f.kind === 'num') vals[f.id] = tqNum(tq.inputs[f.id]); });
+  return vals;
+}
+function tqSubmit() {
+  if (!tq || tq.done) return;
+  const vis = tqVisible();
+  const missing = vis.find(f => f.kind === 'num' ? !/\d/.test(tq.inputs[f.id] || '') : tq.vals[f.id] == null);
+  if (missing) {
+    if (missing.kind === 'num') tq.active = missing.id;
+    tqRenderFields();
+    const el = document.querySelector(`#tq-fields [data-f="${missing.id}"]`); if (el) restartAnim(el, 'shake');
+    showToast('נשאר למלא: ' + missing.label);
+    return;
+  }
+  const vals = tqCollect(), ok = {};
+  vis.forEach(f => { ok[f.id] = f.kind === 'num' ? nearlyEqual(vals[f.id], f.answer, f.tol) : tq.vals[f.id] === f.answer; });
+  const all = vis.every(f => ok[f.id]);
+  let trap = null;
+  try { trap = TOPIC_TRAPS[currentTopic](currentProblem, vals); } catch (e) { trap = null; }
+  if (all) { tq.fieldOk = ok; tqSettle(true, vals); return; }
+  if (basicsAttempt.tries === 0) {
+    basicsAttempt.tries = 1; basicsAttempt.missed = true; basicsAttempt.first = JSON.stringify(vals); basicsAttempt.trap = trap ? { why: trap } : null;
+    tq.fieldOk = {};
+    vis.forEach(f => { tq.fieldOk[f.id] = ok[f.id]; if (!ok[f.id] && f.kind === 'num') tq.inputs[f.id] = ''; });
+    tq.active = null;
+    tqRenderFields();
+    document.querySelectorAll('#tq-fields .no').forEach(el => restartAnim(el, 'shake'));
+    if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+    const miss = document.getElementById('qs-miss');
+    const good = vis.filter(f => ok[f.id]).length;
+    miss.innerHTML = trap ? `<b>מצאתי מה קרה:</b> ${mixHtml(trap)} נסו שוב.` : `<b>כמעט.</b> ${good ? `${good} מתוך ${vis.length} נכונים – ` : ''}תקנו את המסומנים.`;
+    miss.hidden = false; restartAnim(miss, 'qs-miss-in');
+    if (!trap) basicsHintAuto();
+    return;
+  }
+  tq.fieldOk = ok;
+  tqSettle(false, vals, trap);
+}
+function tqDontKnow() { if (!tq || tq.done) return; tqSettle(false, tqCollect(), null, true); }
+function tqSettle(correct, vals, trap, gaveUp) {
+  tq.done = true;
+  tqRenderFields();
+  const miss = document.getElementById('qs-miss'); if (miss) miss.hidden = true;
+  const missed = basicsAttempt.missed;
+  const motRes = motOnAnswer({ correct, missed, hintLevel: basicsHint ? (basicsHint.lesson ? 3 : basicsHint.used) : 0,
+    hintChecked: !!(basicsHint && basicsHint.checked[0]), tier: currentLevel + 2 });
+  if (correct && basicsHint && basicsHint.passStyle) hsBump(basicsHint.passStyle, 0, 0.4);
+  topicSessionXp += motRes.gained;
+  // סטטיסטיקה ופתיחת רמות: 3 נכונות ברצף בלי טעות פותחות את הרמה הבאה
+  stats.attempts++;
+  if (correct) stats.correct++;
+  levelCorrectInRow = correct && !missed ? levelCorrectInRow + 1 : 0;
+  const key = `t${currentTopic}`, unlocked = stats.levelProgress[key] || 1;
+  let unlockedNow = false;
+  if (levelCorrectInRow >= CORRECT_TO_UNLOCK && currentLevel === unlocked && currentLevel < 3) { stats.levelProgress[key] = currentLevel + 1; unlockedNow = true; }
+  saveStats(); updateLevelProgress();
+  if (unlockedNow) { renderLevelSelector(); setTimeout(() => { showToast(`נפתחה רמה ${currentLevel + 1}!`); confettiBurst(80); }, 400); }
+  updateTopicHeader();
+  showTopicFeedback({ correct, vals, trap: trap || (basicsAttempt.trap && basicsAttempt.trap.why), gaveUp, gained: motRes.gained, mult: motRes.mult });
+  motCelebrate(motRes.events);
+}
+function tqShowVal(f, v) {
+  if (v == null || (typeof v === 'number' && Number.isNaN(v))) return '—';
+  if (f.kind === 'choice') { const c = f.choices.find(([k]) => k === v); return c ? optHtml(c[1]) : '—'; }
+  return M(fmtNumber(typeof v === 'number' ? r2(v) : v)) + (f.unit ? ` ${escapeHtml(f.unit)}` : '');
+}
+function showTopicFeedback({ correct, vals, trap, gaveUp, gained, mult }) {
+  ensureFbSheet();
+  const sheet = document.getElementById('fb-sheet');
+  const spec = tq.spec, helped = !!basicsHint || basicsAttempt.missed;
+  const answers = {}; spec.fields.forEach(f => { answers[f.id] = f.answer; });
+  const expected = spec.fields.filter(f => !f.showIf || answers[f.showIf[0]] === f.showIf[1]);
+  let note = '';
+  if (correct && basicsHint) note = basicsHint.lesson ? 'נפתר אחרי שיעור של דקה.' : `נפתר עם רמז ${basicsHint.used}.`;
+  else if (correct && basicsAttempt.missed) note = 'נכון בניסיון השני.';
+  const rows = correct ? '' : `<div class="fb-rows">${expected.map(f => {
+    const mine = vals[f.id], ok = tq.fieldOk[f.id] === true;
+    return `<div class="fb-row"><span class="fb-row-lab">${mixHtml(f.label)}</span>${!gaveUp && !ok && mine != null && !(typeof mine === 'number' && Number.isNaN(mine)) ? `<s>${tqShowVal(f, mine)}</s>` : ''}<span class="fb-ans${ok ? ' fb-ans-ok' : ''}">${tqShowVal(f, f.answer)}</span></div>`;
+  }).join('')}</div>`;
+  const steps = (!correct || helped) ? spec.steps : null;
+  sheet.className = 'fb-sheet ' + (correct ? 'ok' : 'no');
+  sheet.innerHTML = `
+    <div class="fb-head">
+      <span class="fb-stamp" aria-hidden="true">${correct ? '✓' : '?'}</span>
+      <span class="fb-title">${correct ? PRAISE[Math.floor(Math.random() * PRAISE.length)] : 'כמעט. ככה פותרים:'}</span>
+      ${correct ? `<span class="fb-pill" id="fb-pill" dir="ltr">+${gained || 0} ★${mult > 1 ? `<i class="fb-mult">×${mult}</i>` : ''}</span>` : ''}
+    </div>
+    ${rows}
+    ${!correct && trap ? `<p class="fb-trap"><b>מה קרה:</b> ${mixHtml(trap)}</p>` : ''}
+    ${note ? `<p class="fb-note">${note}</p>` : ''}
+    ${steps ? `<ol class="fb-steps" id="fb-steps">${steps.map((st, i) => `<li ${i ? 'hidden' : 'class="show"'}><span>${st}</span></li>`).join('')}</ol>
+      ${steps.length > 1 ? '<button type="button" class="fb-next-step" id="fb-next-step" onclick="fbRevealStep()">הצעד הבא</button>' : ''}` : ''}
+    <button type="button" class="fb-go" id="fb-go" onclick="fbContinue()">לתרגיל הבא</button>`;
+  fbNext = () => newProblem();
+  document.getElementById('fb-scrim').classList.add('open');
+  requestAnimationFrame(() => sheet.classList.add('open'));
+  setTimeout(() => { const g = document.getElementById('fb-go'); if (g) g.focus({ preventScroll: true }); }, 60);
+  if (correct) setTimeout(() => flyPillTo('#tq-score', () => `★ ${topicSessionXp}`), 260);
+}
+// הנקודות "עפות" מהגיליון למונה
+function flyPillTo(sel, text) {
+  const pill = document.getElementById('fb-pill'), target = document.querySelector(sel);
+  const bump = () => { if (target) { target.textContent = text(); restartAnim(target, 'bump'); } };
+  if (!pill || !target || prefersReducedMotion()) { bump(); return; }
+  const a = pill.getBoundingClientRect(), b = target.getBoundingClientRect();
+  const fly = pill.cloneNode(true); fly.removeAttribute('id'); fly.classList.add('fb-fly');
+  fly.style.left = a.left + 'px'; fly.style.top = a.top + 'px';
+  document.body.appendChild(fly);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const anim = fly.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${dx * .5}px, ${dy * .5 - 60}px) scale(1.1)`, opacity: 1, offset: .5 }, { transform: `translate(${dx}px, ${dy}px) scale(.5)`, opacity: .2 }], { duration: 650, easing: 'cubic-bezier(.5,0,.5,1)' });
+  anim.onfinish = () => { fly.remove(); bump(); };
+}
+function updateTopicHeader() {
+  const sc = document.getElementById('tq-score'); if (sc) sc.textContent = `★ ${topicSessionXp}`;
+  const cb = document.getElementById('tq-combo');
+  if (cb) { cb.hidden = (mot.combo || 0) < 2; cb.querySelector('b').textContent = mot.combo || 0; }
+}
+function renderTopicQuestion() {
+  const p = TOPIC_GEN[currentTopic](currentLevel);
+  currentProblem = p;
+  const spec = TOPIC_SPECS[currentTopic](p);
+  basicsTrack = 'topic' + currentTopic; basicsProblems = [p]; basicsCurrent = 0; basicsHint = null; basicsRetryIdx = null;
+  basicsAttempt = { tries: 0, missed: false, first: null, trap: null, done: false };
+  if (lessonIsOpen()) closeBasicsLesson();
+  tq = { spec, vals: {}, inputs: {}, active: null, fieldOk: {}, done: false };
+  const hasNum = spec.fields.some(f => f.kind === 'num');
+  const keypad = hasNum ? `
+      <div class="qs-keypad tq-keypad" id="tq-keypad" dir="ltr">
+        ${['7', '8', '9'].map(k => `<button type="button" onclick="tqKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="tqBack()" aria-label="מחיקה">${draftIcon('back', 22)}</button>
+        ${['4', '5', '6'].map(k => `<button type="button" onclick="tqKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="tqKey('−')" aria-label="מינוס">−</button>
+        ${['1', '2', '3'].map(k => `<button type="button" onclick="tqKey('${k}')">${k}</button>`).join('')}
+        <button type="button" class="k-soft" onclick="tqKey('.')" aria-label="נקודה עשרונית">.</button>
+        <button type="button" onclick="tqKey('0')">0</button>
+        <button type="button" class="k-soft k-next" onclick="tqNextField()">השדה הבא</button>
+        <button type="button" class="k-go k-wide" onclick="tqSubmit()">בדיקה</button>
+      </div>` : `<button type="button" class="cta-big tq-check" onclick="tqSubmit()">בדיקה</button>`;
+  document.getElementById('problem-area').innerHTML = `
+    <div class="qs-question tq-question">
+      <div class="tq-label">${spec.label}</div>
+      ${spec.math ? `<div class="basics-equation tq-eq" dir="ltr">${mathHtml(spec.math)}</div>` : ''}
+      ${spec.figure ? `<div class="tq-figure">${spec.figure.html}</div>` : ''}
+      ${spec.formula ? `<div class="tq-formula"><span>${escapeHtml(spec.formula.label)}:</span> ${M(spec.formula.math)}</div>` : ''}
+    </div>
+    <div id="qs-hint" hidden></div>
+    <div id="qs-answer">
+      <div class="qs-miss" id="qs-miss" role="status" hidden></div>
+      ${qsToolsHtml('openTopicDraft()', 'tqDontKnow()', 'openBasicsHint()')}
+      <div class="tq-fields" id="tq-fields"></div>
+      ${keypad}
+    </div>`;
+  tagOpKeys(document.getElementById('problem-area'));
+  if (spec.figure && spec.figure.draw) setTimeout(spec.figure.draw, 30);
+  tqRenderFields();
+  updateTopicHeader();
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('tq-keypad') || !tq || fbIsOpen() || draftIsOpen() || lessonIsOpen()) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (/^[0-9]$/.test(e.key)) { e.preventDefault(); tqKey(e.key); }
+  else if (e.key === '-') { e.preventDefault(); tqKey('−'); }
+  else if (e.key === '.') { e.preventDefault(); tqKey('.'); }
+  else if (e.key === 'Backspace') { e.preventDefault(); tqBack(); }
+  else if (e.key === 'Tab') { e.preventDefault(); tqNextField(); }
+  else if (e.key === 'Enter') { e.preventDefault(); tqSubmit(); }
+});
 
 function basicsTypable(p) { return /^-?\d+(\.\d+)?$/.test(String(p.answer)); }
 function plainText(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent.replace(/\s+/g, ' ').trim(); }
@@ -8344,11 +8913,11 @@ function showHintTopic5() {
 // נושאים - מנהל
 // ============================================================
 const TOPICS = {
-  1: {title: '📐 פתרון משוואה ריבועית', render: renderTopic1},
-  2: {title: '📈 חקירת פונקציה ריבועית', render: renderTopic2},
-  3: {title: '📏 גיאומטריה - טרפז', render: renderTopic3},
-  4: {title: '📊 קריאת גרפים', render: renderTopic4},
-  5: {title: '📉 משוואת קו ישר', render: renderTopic5}
+  1: {title: 'משוואה ריבועית', render: renderTopicQuestion},
+  2: {title: 'חקירת פונקציה ריבועית', render: renderTopicQuestion},
+  3: {title: 'גיאומטריה – טרפז', render: renderTopicQuestion},
+  4: {title: 'קריאת גרפים', render: renderTopicQuestion},
+  5: {title: 'משוואת קו ישר', render: renderTopicQuestion}
 };
 
 function newProblem() {
@@ -8367,11 +8936,9 @@ function notebookHTML() {
   return qsToolsHtml('openTopicDraft()', '', '');
 }
 function openTopicDraft() {
-  const area = document.getElementById('problem-area');
-  const textEl = area.querySelector('.problem-text');
-  const eq = area.querySelector('.equation');
-  const math = eq ? eq.textContent.replace(/\s+/g, ' ').trim().replace(/-/g, '−') : '';
-  openDraft({ labelHtml: textEl ? textEl.innerHTML : '', math }, math);
+  if (!tq) return;
+  const math = tq.spec.math ? tq.spec.math.replace(/-/g, '−') : '';
+  openDraft({ labelHtml: tq.spec.label, math }, math);
 }
 
 function initNotebook() {
