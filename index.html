@@ -1770,6 +1770,13 @@
   .pd-reset.hidden, .pd-teacher.hidden { display: none; }
   .req-link { text-align: center; color: var(--ink2); margin: 14px 0 0; }
   .req-link button { border: 0; background: none; color: var(--blue-d); font: 600 1em var(--body); cursor: pointer; min-height: 44px; padding: 0 6px; text-decoration: underline; text-underline-offset: 3px; }
+  .req-role { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--paper); border-radius: 16px; padding: 4px; margin-bottom: 4px; }
+  .req-role button { min-height: 46px; border: 0; border-radius: 12px; background: none; font: 600 1em var(--body); color: var(--ink2); cursor: pointer; }
+  .req-role button.on { background: white; color: var(--ink); box-shadow: var(--ring), 0 2px 0 var(--line); }
+  #req-kids-wrap.hidden, #req-school-wrap.hidden { display: none; }
+  #req-kids-wrap label, #req-school-wrap label { display: block; }
+  .ad-req-role { display: inline-block; font-size: .75em; font-weight: 600; border-radius: 8px; padding: 1px 8px; vertical-align: middle; }
+  .ad-req-role.p { background: var(--blue-l); color: var(--blue-d); } .ad-req-role.t { background: var(--mint-l); color: var(--mint-d); }
   .req-sub { text-align: center; color: var(--ink2); line-height: 1.6; margin: 0 0 6px; }
   .req-hp { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; border: 0 !important; margin: 0 !important; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none; }
   #request-account-view textarea { width: 100%; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; font: inherit; background: var(--paper); resize: vertical; }
@@ -1995,19 +2002,25 @@ try {
       <button type="submit" class="cta-big">יוצאים לדרך</button>
       <div class="auth-error" id="login-error"></div>
     </form>
-    <p class="req-link">אין לכם חשבון? <button type="button" onclick="openAccountRequest()">בקשת חשבון הורה</button></p>
+    <p class="req-link">אין לכם חשבון? <button type="button" onclick="openAccountRequest()">בקשת חשבון להורה או למורה</button></p>
   </div>
   <div id="request-account-view" class="hidden">
-    <h2 class="auth-title">בקשת חשבון הורה</h2>
+    <h2 class="auth-title">בקשת חשבון</h2>
     <div id="req-form-wrap">
       <p class="req-sub">השאירו פרטים, ומנהל המערכת ייצור עבורכם חשבון ויחזור אליכם עם שם משתמש וסיסמה.</p>
       <form class="auth-form" onsubmit="event.preventDefault(); submitAccountRequest();">
+        <div class="req-role" role="radiogroup" aria-label="סוג החשבון">
+          <button type="button" role="radio" data-role="parent" class="on" aria-checked="true" onclick="setRequestRole('parent')">אני הורה</button>
+          <button type="button" role="radio" data-role="teacher" aria-checked="false" onclick="setRequestRole('teacher')">אני מורה</button>
+        </div>
         <label for="req-name">שם מלא</label>
         <input type="text" id="req-name" maxlength="60" autocomplete="name" required>
         <label for="req-contact">טלפון או אימייל</label>
         <input type="text" id="req-contact" maxlength="80" autocomplete="email" dir="ltr" required>
-        <label for="req-kids">שם הילד/ה וכיתה</label>
-        <input type="text" id="req-kids" maxlength="120" placeholder="לדוגמה: נועה, כיתה ח׳">
+        <div id="req-kids-wrap"><label for="req-kids">שם הילד/ה וכיתה</label>
+        <input type="text" id="req-kids" maxlength="120" placeholder="לדוגמה: נועה, כיתה ח׳"></div>
+        <div id="req-school-wrap" class="hidden"><label for="req-school">שם בית הספר</label>
+        <input type="text" id="req-school" maxlength="80" placeholder="לדוגמה: מקיף ז׳ באר שבע"></div>
         <label for="req-note">הערה (לא חובה)</label>
         <textarea id="req-note" maxlength="400" rows="3"></textarea>
         <input type="text" id="req-website" class="req-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -2178,7 +2191,7 @@ try {
         </section>
       </div>
       <section class="pd-card hidden" id="ad-req-card" aria-label="בקשות לחשבון הורה">
-        <div class="pd-h"><h3>בקשות לחשבון הורה</h3><span id="ad-req-count"></span></div>
+        <div class="pd-h"><h3>בקשות לחשבון</h3><span id="ad-req-count"></span></div>
         <div id="ad-requests"></div>
       </section>
       <section class="pd-card" aria-label="הורים ותלמידים">
@@ -10520,8 +10533,16 @@ let secondaryAppCounter = 0;
 // אינדקס שמות משתמש של הורים (usernames/<שם>) - כדי שמורה יוכל לשייך הורה קיים לתלמיד חדש בלי לקרוא את כל המשתמשים
 const unameKey = u => fbKey(String(u || '').trim().toLowerCase());
 // ---- בקשת חשבון הורה (ממסך ההתחברות, בלי להיות מחובר) ----
+let reqRole = 'parent';
+function setRequestRole(r) {
+  reqRole = r === 'teacher' ? 'teacher' : 'parent';
+  document.querySelectorAll('.req-role button').forEach(b => { const on = b.dataset.role === reqRole; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+  document.getElementById('req-kids-wrap').classList.toggle('hidden', reqRole === 'teacher');
+  document.getElementById('req-school-wrap').classList.toggle('hidden', reqRole !== 'teacher');
+}
 function openAccountRequest() {
-  ['req-name', 'req-contact', 'req-kids', 'req-note', 'req-website'].forEach(i => { document.getElementById(i).value = ''; });
+  ['req-name', 'req-contact', 'req-kids', 'req-school', 'req-note', 'req-website'].forEach(i => { document.getElementById(i).value = ''; });
+  setRequestRole('parent');
   document.getElementById('req-error').textContent = '';
   document.getElementById('req-form-wrap').classList.remove('hidden');
   document.getElementById('req-done').classList.add('hidden');
@@ -10536,7 +10557,10 @@ async function submitAccountRequest() {
   if (name.length < 2 || contact.length < 5) { err.textContent = 'נא למלא שם מלא וטלפון או אימייל.'; return; }
   btn.disabled = true;
   try {
-    await firebaseDb.ref('accountRequests').push({ name: name.slice(0, 60), contact: contact.slice(0, 80), kids: v('req-kids').slice(0, 120), note: v('req-note').slice(0, 400), createdAt: Date.now() });
+    if (reqRole === 'teacher' && v('req-school').length < 2) { err.textContent = 'נא למלא את שם בית הספר.'; btn.disabled = false; return; }
+    const req = { role: reqRole, name: name.slice(0, 60), contact: contact.slice(0, 80), note: v('req-note').slice(0, 400), createdAt: Date.now() };
+    if (reqRole === 'teacher') req.school = v('req-school').slice(0, 80); else req.kids = v('req-kids').slice(0, 120);
+    await firebaseDb.ref('accountRequests').push(req);
     document.getElementById('req-form-wrap').classList.add('hidden');
     document.getElementById('req-done').classList.remove('hidden');
   } catch (e) {
@@ -10577,9 +10601,9 @@ function renderAdminRequests() {
   card.classList.toggle('hidden', !list.length);
   document.getElementById('ad-req-count').textContent = list.length ? `${list.length} ממתינות` : '';
   document.getElementById('ad-requests').innerHTML = list.map(r => `<div class="ad-req">
-      <div class="ad-req-body"><b>${escapeHtml(r.name || '')}</b>
+      <div class="ad-req-body"><b>${escapeHtml(r.name || '')} <span class="ad-req-role ${r.role === 'teacher' ? 't' : 'p'}">${r.role === 'teacher' ? 'מורה' : 'הורה'}</span></b>
         <span dir="ltr" class="ad-req-contact">${escapeHtml(r.contact || '')}</span>
-        ${r.kids ? `<span>ילדים: ${escapeHtml(r.kids)}</span>` : ''}${r.note ? `<span class="ad-req-note">${escapeHtml(r.note)}</span>` : ''}
+        ${r.kids ? `<span>ילדים: ${escapeHtml(r.kids)}</span>` : ''}${r.school ? `<span>בית ספר: ${escapeHtml(r.school)}</span>` : ''}${r.note ? `<span class="ad-req-note">${escapeHtml(r.note)}</span>` : ''}
         <small>${r.createdAt ? adWhen(r.createdAt) : ''}</small></div>
       <div class="ad-req-actions"><button type="button" class="pd-soft" onclick="adApproveRequest('${r.id}')">יצירת חשבון</button><button type="button" class="pl-cancel" onclick="adRejectRequest('${r.id}')">דחייה</button></div>
     </div>`).join('');
@@ -10589,7 +10613,9 @@ function adApproveRequest(id) {
   const r = (ad.requests || []).find(x => x.id === id); if (!r) return;
   openCreateParentForm();
   adPendingRequestId = id;
-  document.getElementById('new-account-role').value = 'parent';
+  const isT = r.role === 'teacher';
+  const sel = document.getElementById('new-account-role'); sel.value = isT ? 'teacher' : 'parent'; sel.dispatchEvent(new Event('change'));
+  if (isT) document.getElementById('new-teacher-school').value = r.school || '';
   document.getElementById('new-parent-displayname').value = r.name || '';
   const f = document.getElementById('create-parent-form'); f.scrollIntoView({ block: 'center', behavior: 'smooth' });
   document.getElementById('new-parent-username').focus();
