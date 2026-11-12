@@ -3817,8 +3817,11 @@ let placementCfg = null; // { requestedAt, mandatory, paused }
 let diagFromSchedule = false;
 function placementRequested() { const c = placementCfg; return !!(c && c.requestedAt && !(mot.profile && (mot.profile.placementDone || 0) >= c.requestedAt)); }
 function placementPending() {
-  if (placementCfg && placementCfg.paused) return false;
-  return !!(mot.profile && !mot.profile.placementDone) || placementRequested();
+  const c = placementCfg || {};
+  if (c.paused) return false;
+  // הורה/מנהל ביטלו את הבדיקה (גם את בדיקת הכניסה הראשונה): cancelledAt
+  const firstTime = !!(mot.profile && !mot.profile.placementDone) && !c.cancelledAt;
+  return firstTime || placementRequested();
 }
 function placementMandatory() { return !!(placementCfg && placementCfg.mandatory && !placementCfg.paused && placementPending()); }
 function startScheduledPlacement() {
@@ -3945,9 +3948,10 @@ function pdDelta(a, b, unit) {
 function pdPlacementState() {
   const c = (pd.program && pd.program.placement) || {}, prof = (pd.mot && pd.mot.profile) || null;
   const done = prof && prof.placementDone ? prof.placementDone : 0;
-  const firstPending = !!(pd.mot && prof && !done);
+  const cancelled = !!c.cancelledAt;
+  const firstPending = !!(pd.mot && prof && !done) && !cancelled;
   const requested = !!(c.requestedAt && done < c.requestedAt);
-  return { c, done, pending: firstPending || requested || !prof, requested, firstPending, noProfile: !prof };
+  return { c, done, cancelled, pending: firstPending || requested || (!prof && !cancelled), requested, firstPending, noProfile: !prof };
 }
 function renderPdPlacement() {
   const el = document.getElementById('pd-placement'); if (!el) return;
@@ -3958,6 +3962,7 @@ function renderPdPlacement() {
   if (st.pending && c.paused) { status = 'מושהית: לא תופיע בכניסה עד שתחזירו אותה.'; cls = 'paused'; }
   else if (st.noProfile) { status = 'תופיע בכניסה הבאה, אחרי שאלון ההיכרות.'; cls = 'wait'; }
   else if (st.pending) { status = `ממתינה: תיפתח בכניסה הבאה${c.mandatory && st.requested ? ', בלי אפשרות לסגור' : ''}.`; cls = 'wait'; }
+  else if (st.cancelled && !st.done) { status = 'בוטלה: התלמיד לא יתבקש לעבור בדיקת רמה.'; cls = 'paused'; }
   else { status = st.done ? `הושלמה ב-${fmt(st.done)}.` : 'אין בדיקה מתוכננת.'; cls = 'done'; }
   const lastTxt = last && last.summary ? `תוצאה אחרונה: ${last.summary.correct}/${last.summary.total} (${fmt(last.timestamp)})` : 'עוד לא בוצעה בדיקת רמה.';
   el.innerHTML = `<div class="pl-row">
@@ -3965,7 +3970,7 @@ function renderPdPlacement() {
       <div class="pl-actions">
         ${st.pending
           ? `${c.paused ? '<button type="button" class="pd-soft" onclick="pdPlacementSet({ paused: false })">החזרת הבדיקה</button>' : '<button type="button" class="pd-soft" onclick="pdPlacementSet({ paused: true })">השהיה</button>'}
-             ${st.requested ? '<button type="button" class="pl-cancel" onclick="pdPlacementCancel()">ביטול הבקשה</button>' : ''}`
+             <button type="button" class="pl-cancel" onclick="pdPlacementCancel()">ביטול הבדיקה</button>`
           : `<label class="pl-check"><input type="checkbox" id="pl-mandatory"> בלי אפשרות לסגור</label>
              <button type="button" class="pd-soft pl-go" onclick="pdPlacementRequest()">בדיקת רמה בכניסה הבאה</button>`}
       </div>
@@ -3983,7 +3988,11 @@ function pdPlacementRequest() {
   showToast('בדיקת הרמה תיפתח בכניסה הבאה');
 }
 function pdPlacementSet(ch) { pdPlacementWrite(Object.assign({}, (pd.program && pd.program.placement) || {}, ch)); }
-function pdPlacementCancel() { pdPlacementWrite(null); }
+function pdPlacementCancel() {
+  if (!confirm('לבטל את בדיקת הרמה? התלמיד לא יתבקש לעבור אותה. אפשר לבקש שוב בכל זמן.')) return;
+  pdPlacementWrite({ cancelledAt: Date.now() });
+  showToast('בדיקת הרמה בוטלה');
+}
 function pdEditProgram() {
   const uid = dashboardStudentUid, name = document.getElementById('dashboard-student-name').textContent;
   exitParentDashboard(); openEditProgramForm(uid, name);
