@@ -1768,6 +1768,24 @@
   .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
   .ad-ok { color: var(--mint-d); font-weight: 600; }
   .pd-reset.hidden, .pd-teacher.hidden { display: none; }
+  .req-link { text-align: center; color: var(--ink2); margin: 14px 0 0; }
+  .req-link button { border: 0; background: none; color: var(--blue-d); font: 600 1em var(--body); cursor: pointer; min-height: 44px; padding: 0 6px; text-decoration: underline; text-underline-offset: 3px; }
+  .req-sub { text-align: center; color: var(--ink2); line-height: 1.6; margin: 0 0 6px; }
+  .req-hp { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; border: 0 !important; margin: 0 !important; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none; }
+  #request-account-view textarea { width: 100%; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; font: inherit; background: var(--paper); resize: vertical; }
+  .req-done { text-align: center; background: var(--mint-l); color: var(--mint-d); border-radius: var(--r-md); padding: 18px; } .req-done b { font: 700 1.3em var(--display); } .req-done p { margin: 6px 0 0; color: var(--ink2); }
+  .ad-req { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding: 12px 0; }
+  .ad-req:first-child { border-top: 0; padding-top: 0; }
+  .ad-req-body { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; } .ad-req-body span, .ad-req-body small { color: var(--ink2); font-size: .9em; } .ad-req-contact { text-align: right; }
+  .ad-req-note { background: var(--paper); border-radius: 10px; padding: 6px 10px; margin-top: 4px; }
+  .ad-req-actions { display: flex; gap: 8px; align-items: center; } .ad-req-actions .pd-soft { padding: 0 16px; }
+  #ad-req-card.hidden, #tc-add-card.hidden { display: none; }
+  .tc-hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
+  .tc-add { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: end; }
+  .tc-add > label:not(.mcp-check) { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--ink2); }
+  .tc-add input[type=text], .tc-add input[type=password] { width: 100%; box-sizing: border-box; min-height: 48px; border: 1.5px solid var(--line); border-radius: 14px; padding: 0 12px; font: inherit; color: var(--ink); background: var(--paper); }
+  .tc-add .mcp-check, .tc-add-actions, .tc-add .auth-error { grid-column: 1 / -1; }
+  .tc-add-actions { display: flex; gap: 10px; } .tc-add-actions .cta-big { flex: 1; }
   .mcp-check { display: flex !important; align-items: center; gap: 10px; font-weight: 500; margin: 6px 0; cursor: pointer; }
   .mcp-check input { width: 20px !important; height: 20px; margin: 0; accent-color: var(--blue); flex: none; }
   #app-container:has(#teacher-home-view:not(.hidden)) { max-width: 1220px; }
@@ -1966,6 +1984,31 @@ try {
       <button type="submit" class="cta-big">יוצאים לדרך</button>
       <div class="auth-error" id="login-error"></div>
     </form>
+    <p class="req-link">אין לכם חשבון? <button type="button" onclick="openAccountRequest()">בקשת חשבון הורה</button></p>
+  </div>
+  <div id="request-account-view" class="hidden">
+    <h2 class="auth-title">בקשת חשבון הורה</h2>
+    <div id="req-form-wrap">
+      <p class="req-sub">השאירו פרטים, ומנהל המערכת ייצור עבורכם חשבון ויחזור אליכם עם שם משתמש וסיסמה.</p>
+      <form class="auth-form" onsubmit="event.preventDefault(); submitAccountRequest();">
+        <label for="req-name">שם מלא</label>
+        <input type="text" id="req-name" maxlength="60" autocomplete="name" required>
+        <label for="req-contact">טלפון או אימייל</label>
+        <input type="text" id="req-contact" maxlength="80" autocomplete="email" dir="ltr" required>
+        <label for="req-kids">שם הילד/ה וכיתה</label>
+        <input type="text" id="req-kids" maxlength="120" placeholder="לדוגמה: נועה, כיתה ח׳">
+        <label for="req-note">הערה (לא חובה)</label>
+        <textarea id="req-note" maxlength="400" rows="3"></textarea>
+        <input type="text" id="req-website" class="req-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit" class="cta-big" id="req-submit">שליחת הבקשה</button>
+        <div class="auth-error" id="req-error"></div>
+      </form>
+    </div>
+    <div id="req-done" class="hidden req-done">
+      <b>הבקשה נשלחה!</b>
+      <p>נחזור אליכם בקרוב עם פרטי ההתחברות.</p>
+    </div>
+    <p class="req-link"><button type="button" onclick="showAuthView('login-view')">חזרה להתחברות</button></p>
   </div>
   <div id="force-password-view" class="hidden">
     <h2 class="auth-title">יש להחליף סיסמה</h2>
@@ -2123,6 +2166,10 @@ try {
           <div id="ad-learn"></div>
         </section>
       </div>
+      <section class="pd-card hidden" id="ad-req-card" aria-label="בקשות לחשבון הורה">
+        <div class="pd-h"><h3>בקשות לחשבון הורה</h3><span id="ad-req-count"></span></div>
+        <div id="ad-requests"></div>
+      </section>
       <section class="pd-card" aria-label="הורים ותלמידים">
         <div class="pd-h"><h3>הורים ותלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
         <div id="admin-parents-list"><p class="pd-empty">טוען...</p></div>
@@ -2170,6 +2217,17 @@ try {
         </div>
       </header>
       <section class="pd-kpis" id="tc-kpis" aria-label="מדדי הכיתה"></section>
+      <section class="pd-card hidden" id="tc-add-card" aria-label="הוספת תלמיד">
+        <div class="pd-h"><h3>הוספת תלמיד לכיתה</h3><span>התלמיד מתחבר עם שם המשתמש והסיסמה שתבחרו</span></div>
+        <form class="tc-add" onsubmit="event.preventDefault(); tcCreateStudent();">
+          <label>שם מלא<input type="text" id="tc-new-name" maxlength="60" required></label>
+          <label>שם משתמש<input type="text" id="tc-new-username" maxlength="40" dir="ltr" autocomplete="off" required></label>
+          <label>סיסמה זמנית<input type="password" id="tc-new-password" autocomplete="new-password" required></label>
+          <label class="mcp-check"><input type="checkbox" id="tc-new-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
+          <div class="tc-add-actions"><button type="submit" class="cta-big" id="tc-new-submit">יצירת תלמיד</button><button type="button" class="ob-back" onclick="tcCloseAddStudent()">ביטול</button></div>
+          <div class="auth-error" id="tc-new-error"></div>
+        </form>
+      </section>
       <section class="pd-card" aria-label="תלמידים">
         <div class="pd-h"><h3>התלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
         <div class="pd-table-wrap" id="tc-table"><p class="pd-empty">טוען...</p></div>
@@ -2181,6 +2239,8 @@ try {
         </section>
         <section class="pd-card pd-side" aria-label="פעולות לכיתה">
           <div class="pd-h"><h3>פעולות לכיתה</h3></div>
+          <button type="button" class="pd-soft" onclick="tcOpenAddStudent()">+ הוספת תלמיד</button>
+          <hr class="tc-hr">
           <p class="pd-note">בדיקת רמה לכל התלמידים בכניסה הבאה שלהם.</p>
           <label class="pl-check"><input type="checkbox" id="tc-pl-mandatory"> בלי אפשרות לסגור</label>
           <button type="button" class="pd-soft" onclick="tcPlacementAll()">בדיקת רמה לכל הכיתה</button>
@@ -10352,7 +10412,7 @@ function showAuthView(viewId) {
   document.body.classList.remove('student-mode');
   document.getElementById('app-container').classList.add('hidden');
   document.getElementById('auth-container').classList.remove('hidden');
-  ['auth-loading', 'bootstrap-view', 'login-view', 'force-password-view'].forEach(id => {
+  ['auth-loading', 'bootstrap-view', 'login-view', 'force-password-view', 'request-account-view'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -10428,6 +10488,31 @@ async function restoreLessonsFromCloudIfNeeded() {
 // ניהול משתמשים היררכי - admin יוצר הורים, הורה יוצר תלמידים
 // ============================================================
 let secondaryAppCounter = 0;
+// ---- בקשת חשבון הורה (ממסך ההתחברות, בלי להיות מחובר) ----
+function openAccountRequest() {
+  ['req-name', 'req-contact', 'req-kids', 'req-note', 'req-website'].forEach(i => { document.getElementById(i).value = ''; });
+  document.getElementById('req-error').textContent = '';
+  document.getElementById('req-form-wrap').classList.remove('hidden');
+  document.getElementById('req-done').classList.add('hidden');
+  showAuthView('request-account-view');
+}
+async function submitAccountRequest() {
+  const v = id => document.getElementById(id).value.trim();
+  const err = document.getElementById('req-error'), btn = document.getElementById('req-submit');
+  err.textContent = '';
+  if (v('req-website')) return; // מלכודת לבוטים
+  const name = v('req-name'), contact = v('req-contact');
+  if (name.length < 2 || contact.length < 5) { err.textContent = 'נא למלא שם מלא וטלפון או אימייל.'; return; }
+  btn.disabled = true;
+  try {
+    await firebaseDb.ref('accountRequests').push({ name: name.slice(0, 60), contact: contact.slice(0, 80), kids: v('req-kids').slice(0, 120), note: v('req-note').slice(0, 400), createdAt: Date.now() });
+    document.getElementById('req-form-wrap').classList.add('hidden');
+    document.getElementById('req-done').classList.remove('hidden');
+  } catch (e) {
+    console.warn(e);
+    err.textContent = 'לא הצלחנו לשלוח את הבקשה. נסו שוב מאוחר יותר.';
+  } finally { btn.disabled = false; }
+}
 async function createAuthUserIsolated(username, password) {
   const appName = 'Secondary-' + (secondaryAppCounter++) + '-' + Date.now();
   const secondaryApp = firebase.initializeApp(firebaseConfig, appName);
@@ -10454,6 +10539,33 @@ function renderAdminHome() {
   const fail = err => { console.warn(err); document.getElementById('ad-sub').textContent = 'שגיאה בטעינה: ' + (err.message || err); };
   firebaseDb.ref('users').on('value', snap => { const o = {}; snap.forEach(c => { o[c.key] = c.val() || {}; }); ad.users = o; renderAdminDash(); }, fail);
   firebaseDb.ref('submissions').limitToLast(2000).on('value', snap => { const a = []; snap.forEach(c => { a.push({ id: c.key, ...(c.val() || {}) }); }); a.sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0)); ad.subs = a; renderAdminDash(); }, fail);
+  firebaseDb.ref('accountRequests').on('value', snap => { const a = []; snap.forEach(c => { a.push({ id: c.key, ...(c.val() || {}) }); }); ad.requests = a.sort((x, y) => (y.createdAt || 0) - (x.createdAt || 0)); renderAdminRequests(); }, err => console.warn('requests', err));
+}
+function renderAdminRequests() {
+  const card = document.getElementById('ad-req-card'), list = ad.requests || [];
+  card.classList.toggle('hidden', !list.length);
+  document.getElementById('ad-req-count').textContent = list.length ? `${list.length} ממתינות` : '';
+  document.getElementById('ad-requests').innerHTML = list.map(r => `<div class="ad-req">
+      <div class="ad-req-body"><b>${escapeHtml(r.name || '')}</b>
+        <span dir="ltr" class="ad-req-contact">${escapeHtml(r.contact || '')}</span>
+        ${r.kids ? `<span>ילדים: ${escapeHtml(r.kids)}</span>` : ''}${r.note ? `<span class="ad-req-note">${escapeHtml(r.note)}</span>` : ''}
+        <small>${r.createdAt ? adWhen(r.createdAt) : ''}</small></div>
+      <div class="ad-req-actions"><button type="button" class="pd-soft" onclick="adApproveRequest('${r.id}')">יצירת חשבון</button><button type="button" class="pl-cancel" onclick="adRejectRequest('${r.id}')">דחייה</button></div>
+    </div>`).join('');
+}
+let adPendingRequestId = null;
+function adApproveRequest(id) {
+  const r = (ad.requests || []).find(x => x.id === id); if (!r) return;
+  openCreateParentForm();
+  adPendingRequestId = id;
+  document.getElementById('new-account-role').value = 'parent';
+  document.getElementById('new-parent-displayname').value = r.name || '';
+  const f = document.getElementById('create-parent-form'); f.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  document.getElementById('new-parent-username').focus();
+}
+async function adRejectRequest(id) {
+  if (!confirm('למחוק את הבקשה?')) return;
+  try { await firebaseDb.ref('accountRequests/' + id).remove(); } catch (e) { alert('המחיקה נכשלה: ' + (e.message || e)); }
 }
 function adSetRange(r) {
   ad.range = r;
@@ -10478,7 +10590,7 @@ function renderAdminDash() {
   const users = ad.users, now = Date.now(), per = adPeriod(), D = 864e5;
   const ids = Object.keys(users);
   const parents = ids.filter(u => users[u].role === 'parent');
-  const students = ids.filter(u => (users[u].role === 'student' || !users[u].role) && users[u].parentUid);
+  const students = ids.filter(u => (users[u].role === 'student' || !users[u].role) && (users[u].parentUid || users[u].teacherUid));
   const real = ad.subs.filter(x => !isSampleSub(x) && x.studentUid && users[x.studentUid]);
   const cur = weeklyStats(real, per.from, now), prev = per.len ? weeklyStats(real, per.from - per.len, per.from) : null;
   const active = new Set(cur.subs.map(x => x.studentUid)).size, prevActive = prev ? new Set(prev.subs.map(x => x.studentUid)).size : null;
@@ -10643,6 +10755,35 @@ function adDeltaFor(a, b, range) {
   if (a === b) return '<small class="pd-flat">ללא שינוי</small>';
   return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)} ${range === 'week' ? 'מהשבוע שעבר' : 'מהחודש שעבר'}</small>`;
 }
+function tcOpenAddStudent() {
+  ['tc-new-name', 'tc-new-username', 'tc-new-password'].forEach(i => { document.getElementById(i).value = ''; });
+  document.getElementById('tc-new-mustchange').checked = true;
+  document.getElementById('tc-new-error').textContent = '';
+  const c = document.getElementById('tc-add-card'); c.classList.remove('hidden'); c.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  document.getElementById('tc-new-name').focus();
+}
+function tcCloseAddStudent() { document.getElementById('tc-add-card').classList.add('hidden'); }
+async function tcCreateStudent() {
+  const name = document.getElementById('tc-new-name').value.trim(), username = document.getElementById('tc-new-username').value.trim();
+  const password = document.getElementById('tc-new-password').value, err = document.getElementById('tc-new-error'), btn = document.getElementById('tc-new-submit');
+  err.textContent = '';
+  if (!name || !username || !password) { err.textContent = 'נא למלא שם מלא, שם משתמש וסיסמה.'; return; }
+  if (password.length < 6) { err.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  btn.disabled = true;
+  try {
+    const uid = await createAuthUserIsolated(username, password);
+    await firebaseDb.ref('users/' + uid).set({
+      username, displayName: name, role: 'student', parentUid: null, teacherUid: currentUser.uid,
+      mustChangePassword: !!document.getElementById('tc-new-mustchange').checked,
+      createdAt: firebase.database.ServerValue.TIMESTAMP, createdBy: currentUser.uid
+    });
+    await firebaseDb.ref('users/' + currentUser.uid + '/students/' + uid).set(true);
+    tcCloseAddStudent();
+    showToast(`${name} נוסף/ה לכיתה`);
+  } catch (e) {
+    err.textContent = e.code === 'auth/email-already-in-use' ? 'שם המשתמש הזה כבר תפוס.' : /permission/i.test(String(e.code || e.message)) ? 'אין הרשאה ליצור תלמיד. צריך לעדכן את כללי Firebase.' : 'שגיאה: ' + (e.message || e);
+  } finally { btn.disabled = false; }
+}
 function tcOpenStudent(uid) {
   const st = tc.students && tc.students[uid]; if (!st) return;
   dashboardReturnView = 'teacher-home-view';
@@ -10718,6 +10859,7 @@ function openCreateParentForm() {
 }
 function closeCreateParentForm() {
   document.getElementById('create-parent-form').classList.add('hidden');
+  adPendingRequestId = null;
 }
 async function handleCreateParent() {
   const displayName = document.getElementById('new-parent-displayname').value.trim();
@@ -10736,7 +10878,9 @@ async function handleCreateParent() {
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       createdBy: currentUser.uid
     });
+    const rid = adPendingRequestId;
     closeCreateParentForm();
+    if (rid) { firebaseDb.ref('accountRequests/' + rid).remove().catch(e => console.warn(e)); showToast('החשבון נוצר והבקשה הוסרה מהרשימה'); }
   } catch (e) {
     errEl.textContent = e.code === 'auth/email-already-in-use' ? 'שם המשתמש הזה כבר תפוס.' : 'שגיאה: ' + (e.message || e);
   }
