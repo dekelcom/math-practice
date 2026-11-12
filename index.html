@@ -1658,6 +1658,90 @@
   .mix-go:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--sun-d); }
   .retry-chip, .mix-chip { align-self: center; display: inline-block; margin-bottom: 4px; border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .85em; }
   .retry-chip { background: var(--orange-l); color: var(--orange-d); }
+  /* ===== דשבורד הורה ===== */
+  #parent-dashboard-view { max-width: 1180px; margin: 0 auto; }
+  #app-container:has(#parent-dashboard-view:not(.hidden)) { max-width: 1220px; }
+  .pd { display: flex; flex-direction: column; gap: 18px; margin: 10px 0 18px; text-align: right; }
+  .pd-head { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .pd-logo { width: 52px; height: 52px; border-radius: 18px; background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 var(--sun-d); display: flex; align-items: center; justify-content: center; flex: none; }
+  .pd-title { flex: 1 1 240px; min-width: 0; }
+  .pd-title h2 { margin: 0; font: 700 1.75em/1.2 var(--display); color: var(--ink); text-align: right; }
+  .pd-title p { margin: 2px 0 0; color: var(--ink2); font-size: .95em; }
+  .pd-ranges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pd-ranges button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; font: 600 .95em var(--body); cursor: pointer; background: white; color: var(--ink2); box-shadow: var(--ring); }
+  .pd-ranges button.on { background: var(--ink); color: white; box-shadow: none; }
+  .pd-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .pd-kpi { background: white; border-radius: 22px; box-shadow: var(--ring), 0 4px 0 var(--line); padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+  .pd-kpi-l { display: flex; align-items: center; gap: 8px; color: var(--ink2); font-size: .9em; font-weight: 500; }
+  .pd-kpi-l i { width: 10px; height: 10px; border-radius: 50%; }
+  .pd-kpi b { font: 700 2.1em/1.1 var(--display); color: var(--ink); }
+  .pd-kpi small, .pd small.pd-flat { font-size: .82em; }
+  .pd-up { color: var(--mint-d); font-weight: 600; } .pd-down { color: var(--orange-d); font-weight: 600; } .pd-flat { color: var(--ink2); }
+  .pd-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .pd-card { background: white; border-radius: var(--r-lg); box-shadow: var(--drop); padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .pd-wide { flex: 999 1 520px; } .pd-side { flex: 1 1 280px; }
+  .pd-h { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .pd-h h3 { margin: 0; font: 600 1.35em var(--display); color: var(--ink); }
+  .pd-h span, .pd-note { color: var(--ink2); font-size: .88em; margin: 0; }
+  .pd-empty { color: var(--ink2); margin: 6px 0; }
+  .pd-bars { position: relative; height: 210px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--line); }
+  .pd-goal { position: absolute; inset-inline: 0; border-top: 2px dashed var(--sun); }
+  .pd-bar-col { flex: 1 1 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
+  .pd-bar-col span { font: 600 .9em var(--display); color: var(--ink); }
+  .pd-bar { width: 100%; max-width: 54px; border-radius: 12px 12px 4px 4px; background: #C9D2FF; }
+  .pd-bar.hit { background: var(--blue); } .pd-bar.zero { background: var(--neutral); }
+  .pd-bar-names { display: flex; gap: 10px; } .pd-bar-names span { flex: 1 1 0; text-align: center; color: var(--ink2); font-size: .82em; font-weight: 500; min-width: 0; }
+  .pd-lgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .pd-l { aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 600 1em var(--display); background: var(--paper); color: var(--ink3); box-shadow: var(--ring); }
+  .pd-l.done { background: var(--mint); color: white; box-shadow: none; }
+  .pd-l.now { background: var(--sun); color: var(--ink); box-shadow: 0 3px 0 var(--sun-d); }
+  .pd-lnow { background: var(--sun-l); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .pd-lnow > div:first-child { display: flex; justify-content: space-between; gap: 8px; } .pd-lnow span { font-family: var(--display); font-weight: 600; }
+  .pd-lbar { height: 10px; border-radius: 99px; background: white; overflow: hidden; } .pd-lbar i { display: block; height: 100%; background: var(--sun); border-radius: 99px; }
+  .pd-soft { min-height: 46px; border: 0; border-radius: 14px; background: var(--blue-l); color: var(--blue-d); font: 600 1em var(--body); cursor: pointer; }
+  .pd-rrow { display: grid; grid-template-columns: minmax(110px, 190px) minmax(0, 1fr) 52px; gap: 12px; align-items: center; }
+  @media (max-width: 560px) { .pd-rrow { grid-template-columns: minmax(0, 1fr) 52px; row-gap: 4px; } .pd-rrow .pd-rbar { grid-column: 1 / -1; grid-row: 2; } }
+  .pd-rrow span { font-weight: 500; } .pd-rrow b { font: 600 1em var(--display); text-align: left; }
+  .pd-rbar { height: 14px; border-radius: 99px; background: #EEF0F8; overflow: hidden; } .pd-rbar i { display: block; height: 100%; border-radius: 99px; }
+  .pd i.ok { background: var(--mint-d); } .pd i.mid { background: var(--blue); } .pd i.low { background: var(--orange); }
+  .pd-legend { display: flex; gap: 16px; flex-wrap: wrap; color: var(--ink2); font-size: .82em; padding-top: 4px; }
+  .pd-legend span { display: inline-flex; align-items: center; gap: 6px; } .pd-legend i { width: 12px; height: 12px; border-radius: 4px; }
+  .pd-wk { border-radius: 18px; background: var(--orange-l); padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+  .pd-wk span { color: var(--ink2); font-size: .92em; line-height: 1.5; }
+  .pd-retry { border-radius: 18px; background: var(--mint-l); color: var(--mint-d); padding: 12px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: .92em; }
+  .pd-table-wrap { overflow-x: auto; }
+  .pd-table { width: 100%; min-width: 600px; border-collapse: collapse; }
+  .pd-table th { color: var(--ink2); font-size: .82em; font-weight: 500; text-align: right; padding: 8px 10px; }
+  .pd-table td { padding: 10px; border-top: 1px solid var(--line); text-align: right; }
+  .pd-table td:first-child, .pd-table td:last-child { color: var(--ink2); }
+  .pd-score { font: 700 1em var(--display); padding: 3px 10px; border-radius: 10px; }
+  .pd-score.ok { background: var(--mint-l); color: var(--mint-d); } .pd-score.mid { background: var(--sun-l); color: var(--sun-d); } .pd-score.low { background: var(--orange-l); color: var(--orange-d); }
+  #app-container:has(#admin-home-view:not(.hidden)) { max-width: 1220px; }
+  .ad-of { font-size: .45em; color: var(--ink3); }
+  .ad-act { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .ad-act:first-child { border-top: 0; } .ad-act span { color: var(--ink2); font-size: .9em; grid-column: 1; } .ad-act small { color: var(--ink3); grid-row: 1; grid-column: 2; }
+  .ad-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ad-stat { background: var(--paper); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+  .ad-stat b { font: 700 1.5em var(--display); } .ad-stat span { color: var(--ink2); font-size: .85em; }
+  .ad-mis { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .ad-mis > div { display: flex; justify-content: space-between; gap: 10px; background: var(--orange-l); border-radius: 12px; padding: 8px 12px; font-size: .9em; }
+  .ad-mis small { color: var(--orange-d); font-weight: 700; }
+  .ad-parent { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+  .ad-parent:first-child { border-top: 0; padding-top: 0; }
+  .ad-ph { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; } .ad-ph b { font-size: 1.05em; } .ad-ph span { color: var(--ink2); font-size: .88em; }
+  .ad-kid { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 56px; border: 0; border-radius: 16px; background: var(--paper); padding: 10px 14px; cursor: pointer; font: inherit; color: var(--ink); text-align: right; }
+  .ad-kid:hover { background: var(--blue-l); }
+  .ad-kname { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; } .ad-kname small { color: var(--ink2); }
+  .ad-kstat { display: flex; flex-direction: column; align-items: center; min-width: 44px; } .ad-kstat b { font: 700 1.15em var(--display); } .ad-kstat small { color: var(--ink2); font-size: .75em; }
+  .ad-go { font-size: 1.6em; color: var(--ink3); }
+  .ad-clean-row { display: flex; align-items: center; gap: 14px; justify-content: space-between; border-top: 1px solid var(--line); padding: 12px 0; flex-wrap: wrap; }
+  .ad-clean-row:first-child { border-top: 0; } .ad-clean-row > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; } .ad-clean-row span { color: var(--ink2); font-size: .9em; }
+  .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
+  .ad-ok { color: var(--mint-d); font-weight: 600; }
+  .ad-warn { color: var(--sun-d); background: var(--sun-l); border-radius: 10px; padding: 4px 10px; font-weight: 600; }
+  @media (max-width: 560px) { .ad-kstat:nth-of-type(4) { display: none; } }
+  .pd-more { margin: 4px 0 20px; background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 6px 16px; }
+  .pd-more summary { cursor: pointer; font-weight: 600; color: var(--ink2); min-height: 44px; display: flex; align-items: center; }
   .today-lesson-sub { margin-top: 8px; font-size: .88em; color: var(--ink2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .tl-bar { display: inline-block; width: 70px; height: 7px; border-radius: 99px; background: var(--line); overflow: hidden; }
   .tl-bar i { display: block; height: 100%; background: var(--sun); border-radius: 99px; }
@@ -1957,9 +2041,45 @@ try {
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
     </div>
-    <h2 style="text-align:center;">ניהול הורים</h2>
-    <div id="admin-parents-list" class="teacher-list">
-      <p style="text-align:center; color:var(--ink2);">טוען...</p>
+    <div class="pd ad">
+      <header class="pd-head">
+        <div class="pd-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="pd-title"><h2>לוח ניהול</h2><p id="ad-sub">טוען נתונים...</p></div>
+        <div class="pd-ranges" role="group" aria-label="טווח זמן">
+          <button type="button" data-range="week" class="on" onclick="adSetRange('week')">השבוע</button>
+          <button type="button" data-range="month" onclick="adSetRange('month')">החודש</button>
+          <button type="button" data-range="all" onclick="adSetRange('all')">הכול</button>
+        </div>
+      </header>
+      <section class="pd-kpis" id="ad-kpis" aria-label="מדדים"></section>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="פעילות לאורך זמן">
+          <div class="pd-h"><h3 id="ad-chart-title">דקות תרגול</h3><span>כל התלמידים יחד</span></div>
+          <div id="ad-chart"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="פעילות אחרונה">
+          <div class="pd-h"><h3>פעילות אחרונה</h3></div>
+          <div id="ad-recent"></div>
+        </section>
+      </div>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="הצלחה לפי מסלול">
+          <div class="pd-h"><h3>הצלחה לפי מסלול</h3><span>כל התשובות בטווח, כל התלמידים</span></div>
+          <div id="ad-tracks"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="איך לומדים">
+          <div class="pd-h"><h3>איך לומדים</h3></div>
+          <div id="ad-learn"></div>
+        </section>
+      </div>
+      <section class="pd-card" aria-label="הורים ותלמידים">
+        <div class="pd-h"><h3>הורים ותלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
+        <div id="admin-parents-list"><p class="pd-empty">טוען...</p></div>
+      </section>
+      <section class="pd-card" aria-label="ניקוי נתונים">
+        <div class="pd-h"><h3>ניקוי נתונים</h3><span>רשומות שמעוותות את הסטטיסטיקה</span></div>
+        <div id="ad-clean"></div>
+      </section>
     </div>
     <div style="text-align:center; margin: 20px 0;">
       <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה</button>
@@ -2034,17 +2154,48 @@ try {
 
   <div id="parent-dashboard-view" class="hidden">
     <button class="back-btn" onclick="exitParentDashboard()">← חזרה לרשימת תלמידים</button>
-    <h2 style="text-align:center;" id="dashboard-student-name"></h2>
+    <div class="pd">
+      <header class="pd-head">
+        <div class="pd-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div class="pd-title">
+          <h2>ההתקדמות של <span id="dashboard-student-name"></span></h2>
+          <p id="pd-sub"></p>
+        </div>
+        <div class="pd-ranges" role="group" aria-label="טווח זמן">
+          <button type="button" data-range="week" class="on" onclick="pdSetRange('week')">השבוע</button>
+          <button type="button" data-range="month" onclick="pdSetRange('month')">החודש</button>
+          <button type="button" data-range="all" onclick="pdSetRange('all')">הכול</button>
+        </div>
+      </header>
+      <section class="pd-kpis" id="pd-kpis" aria-label="מדדים עיקריים"></section>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="דקות תרגול">
+          <div class="pd-h"><h3 id="pd-chart-title">דקות תרגול ביום</h3><span>יעד: 30 דקות ביום</span></div>
+          <div class="pd-chart" id="pd-chart"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="תוכנית השיעורים">
+          <div class="pd-h"><h3>תוכנית השיעורים</h3></div>
+          <div id="pd-lessons"><p class="pd-empty">טוען...</p></div>
+        </section>
+      </div>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="מוכנות לפי נושא">
+          <div class="pd-h"><h3>מוכנות לפי מסלול</h3><span>אחוז הצלחה בעשר התשובות האחרונות</span></div>
+          <div id="pd-ready"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="כדאי לחזק">
+          <div class="pd-h"><h3>כדאי לחזק</h3></div>
+          <div id="pd-weak"></div>
+        </section>
+      </div>
+      <section class="pd-card" aria-label="תרגולים אחרונים">
+        <div class="pd-h"><h3>תרגולים אחרונים</h3></div>
+        <div class="pd-table-wrap" id="pd-recent"></div>
+      </section>
+    </div>
 
-    <div class="section-title">📅 הדוח השבועי</div>
-    <div id="dashboard-weekly"></div>
-
-    <div class="section-title">📊 סטטוס נוכחי</div>
-    <div id="dashboard-status"></div>
-
-    <div class="section-title">⏱ זמן תרגול</div>
-    <div id="dashboard-time"></div>
-
+    <details class="pd-more">
+    <summary>ניתוח מפורט, מטבעות וכל הדפים</summary>
     <div class="section-title">🎯 ניתוח פערי ידע</div>
     <div id="dashboard-gaps" class="teacher-list"></div>
 
@@ -2054,16 +2205,9 @@ try {
     <div class="section-title">🪙 מטבעות</div>
     <div id="dashboard-coins"></div>
 
-    <div class="section-title">🧩 פאזל השיעורים</div>
-    <div class="puzzle-wrap">
-      <div class="puzzle-image"></div>
-      <div id="dashboard-puzzle" class="puzzle-grid">
-        <p style="text-align:center; color:var(--ink2);">טוען...</p>
-      </div>
-    </div>
-
     <div class="section-title">📋 תרגולים שהוגשו</div>
     <div id="dashboard-submissions" class="teacher-list"></div>
+    </details>
     <div id="dashboard-detail-container"></div>
   </div>
 
@@ -3548,8 +3692,12 @@ let dashboardSubmissionsRef = null;
 let dashboardLessonsRef = null;
 let dashboardCoinsRef = null;
 
+let dashboardMotRef = null;
+let dashboardReturnView = 'parent-students-view';
 function openParentDashboard(uid, name) {
   dashboardStudentUid = uid;
+  pd = { range: pd.range || 'week', lessons: null, program: null, mot: null };
+  dashboardSubmissions = [];
   document.getElementById('dashboard-student-name').textContent = name;
   document.getElementById('parent-students-view').classList.add('hidden');
   document.getElementById('parent-dashboard-view').classList.remove('hidden');
@@ -3569,14 +3717,12 @@ function openParentDashboard(uid, name) {
     const arr = [];
     snap.forEach(child => {
       const val = child.val() || {};
-      if (val.studentUid === uid) arr.push({ id: child.key, ...val });
+      if (val.studentUid === uid && !isSampleSub(val)) arr.push({ id: child.key, ...val });
     });
     arr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     dashboardSubmissions = arr;
     renderDashboardSubmissions(arr);
-    renderDashboardWeekly(arr);
-    renderDashboardStatus(arr);
-    renderDashboardTime(arr);
+    renderParentDash();
     renderDashboardGaps(arr);
     renderDashboardDeepAnalysis(arr);
   }, err => {
@@ -3587,9 +3733,11 @@ function openParentDashboard(uid, name) {
 
   if (dashboardLessonsRef) dashboardLessonsRef.off();
   dashboardLessonsRef = firebaseDb.ref('lessons/' + uid);
-  dashboardLessonsRef.on('value', snap => {
-    renderDashboardPuzzle(uid, snap.val());
-  });
+  dashboardLessonsRef.on('value', snap => { pd.lessons = snap.val(); renderParentDash(); });
+  firebaseDb.ref('users/' + uid + '/program').once('value').then(ps => { pd.program = ps.val(); renderParentDash(); }).catch(() => {});
+  if (dashboardMotRef) dashboardMotRef.off();
+  dashboardMotRef = firebaseDb.ref('users/' + uid + '/motivation');
+  dashboardMotRef.on('value', snap => { pd.mot = snap.val(); renderParentDash(); }, () => {});
 
   if (dashboardCoinsRef) dashboardCoinsRef.off();
   dashboardCoinsRef = firebaseDb.ref('users/' + uid + '/coins');
@@ -3604,11 +3752,113 @@ function exitParentDashboard() {
   if (dashboardSubmissionsRef) { dashboardSubmissionsRef.off(); dashboardSubmissionsRef = null; }
   if (dashboardLessonsRef) { dashboardLessonsRef.off(); dashboardLessonsRef = null; }
   if (dashboardCoinsRef) { dashboardCoinsRef.off(); dashboardCoinsRef = null; }
+  if (dashboardMotRef) { dashboardMotRef.off(); dashboardMotRef = null; }
   dashboardStudentUid = null;
   document.getElementById('parent-dashboard-view').classList.add('hidden');
-  document.getElementById('parent-students-view').classList.remove('hidden');
+  document.getElementById(dashboardReturnView).classList.remove('hidden');
+  dashboardReturnView = 'parent-students-view';
 }
 
+// ============================================================
+// דשבורד הורה: מדדים, דקות ביום, תוכנית שיעורים, מוכנות, מה לחזק, תרגולים אחרונים
+// ============================================================
+let pd = { range: 'week', lessons: null, program: null, mot: null };
+function pdSetRange(r) {
+  pd.range = r;
+  document.querySelectorAll('.pd-ranges button').forEach(b => b.classList.toggle('on', b.dataset.range === r));
+  renderParentDash();
+}
+function pdPeriod() {
+  const now = Date.now(), D = 864e5;
+  if (pd.range === 'week') return { from: now - 7 * D, len: 7 * D, label: 'מהשבוע שעבר' };
+  if (pd.range === 'month') return { from: now - 30 * D, len: 30 * D, label: 'מהחודש שעבר' };
+  return { from: 0, len: 0, label: '' };
+}
+const pdMin = ms => Math.round((ms || 0) / 60000);
+function pdTime(ms) { const m = pdMin(ms); return m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')} ש׳` : `${m} דק׳`; }
+function pdDelta(a, b, unit) {
+  if (b === null || b === undefined || !pd.range || pd.range === 'all') return '';
+  const p = pdPeriod();
+  if (a === b) return `<small class="pd-flat">כמו ${p.label.replace('מ', '')}</small>`;
+  return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)}${unit || ''} ${p.label}</small>`;
+}
+function pdEditProgram() {
+  const uid = dashboardStudentUid, name = document.getElementById('dashboard-student-name').textContent;
+  exitParentDashboard(); openEditProgramForm(uid, name);
+  const f = document.getElementById('edit-program-form'); if (f) f.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+function renderParentDash() {
+  if (!document.getElementById('pd-kpis')) return;
+  const arr = dashboardSubmissions || [], now = Date.now(), p = pdPeriod();
+  const cur = weeklyStats(arr, p.from, now), prev = p.len ? weeklyStats(arr, p.from - p.len, p.from) : null;
+  const m = pd.mot || {}, L = motLevel(m.xp), toNext = motLvlStart(L + 1) - (m.xp || 0);
+  const last = arr[0];
+  document.getElementById('pd-sub').textContent = last
+    ? `תרגול אחרון: ${new Date(last.timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} · ${trackLabelHebrew(last.track)}`
+    : 'עוד לא היה תרגול';
+  const pct = cur.n ? Math.round(100 * cur.ok / cur.n) : null;
+  const kpi = (label, color, value, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${color}"></i>${label}</div><b>${value}</b>${sub || ''}</div>`;
+  document.getElementById('pd-kpis').innerHTML =
+    kpi('זמן תרגול', 'var(--blue)', pdTime(cur.ms), prev ? pdDelta(pdMin(cur.ms), pdMin(prev.ms), ' דק׳') : '') +
+    kpi('תרגילים', 'var(--orange)', cur.n, prev ? pdDelta(cur.n, prev.n) : '') +
+    kpi('פתר לבד', 'var(--mint)', cur.alone === null ? '—' : cur.alone + '%', `<small class="pd-flat">${pct === null ? 'בלי רמז ובניסיון ראשון' : `הצלחה כוללת ${pct}%`}</small>`) +
+    kpi('רצף ימים', 'var(--sun)', motShownStreak(m), `<small class="pd-flat">שיא: ${m.bestStreakDays || 0} ימים</small>`) +
+    kpi('שלב', 'var(--purple)', L, `<small class="pd-flat">עוד ${toNext} XP לשלב הבא</small>`);
+  // דקות תרגול: שבוע = לפי ימים, חודש/הכול = לפי שבועות
+  const D = 864e5, bars = [];
+  const minutesIn = (a, b) => pdMin(arr.filter(x => x.timestamp > a && x.timestamp <= b).reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0));
+  const dayStart = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+  if (pd.range === 'week') {
+    const days = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+    for (let i = 6; i >= 0; i--) { const s0 = dayStart(now - i * D); bars.push({ name: days[new Date(s0).getDay()], v: minutesIn(s0, s0 + D), goal: 30 }); }
+  } else {
+    const weeks = pd.range === 'month' ? 4 : 12;
+    for (let i = weeks - 1; i >= 0; i--) { const e = now - i * 7 * D; const d = new Date(e - 7 * D + D); bars.push({ name: `${d.getDate()}.${d.getMonth() + 1}`, v: minutesIn(e - 7 * D, e), goal: 210 }); }
+  }
+  document.getElementById('pd-chart-title').textContent = pd.range === 'week' ? 'דקות תרגול ביום' : 'דקות תרגול בשבוע';
+  const goal = bars[0] ? bars[0].goal : 30, max = Math.max(goal * 1.5, ...bars.map(b => b.v));
+  document.getElementById('pd-chart').innerHTML = `<div class="pd-bars"><div class="pd-goal" style="bottom:${Math.round(100 * goal / max)}%" aria-hidden="true"></div>${bars.map(b =>
+    `<div class="pd-bar-col"><span>${b.v || '–'}</span><div class="pd-bar${b.v >= b.goal ? ' hit' : b.v ? '' : ' zero'}" style="height:${Math.max(3, Math.round(100 * b.v / max))}%"></div></div>`).join('')}</div>
+    <div class="pd-bar-names">${bars.map(b => `<span>${b.name}</span>`).join('')}</div>`;
+  document.querySelector('.pd-wide .pd-h span').textContent = pd.range === 'week' ? 'יעד: 30 דקות ביום' : 'יעד: 210 דקות בשבוע';
+  // תוכנית השיעורים
+  const lw = document.getElementById('pd-lessons'), ls = pd.lessons && Array.isArray(pd.lessons.lessons) ? pd.lessons.lessons : null;
+  const tgtMin = (pd.program && pd.program.minutesPerLesson) || LESSON_MINUTES_DEFAULT;
+  if (!ls) lw.innerHTML = '<p class="pd-empty">השיעורים יופיעו כאן כשהתרגול יתחיל.</p>';
+  else {
+    const act = typeof pd.lessons.activeLessonIdx === 'number' ? pd.lessons.activeLessonIdx : null, a = act !== null ? ls[act] : null;
+    lw.innerHTML = `<p class="pd-note">${ls.length} שיעורים · ${tgtMin} דקות כל אחד · ${ls.filter(l => l.completed).length} הושלמו</p>
+      <div class="pd-lgrid">${ls.map((l, i) => `<div class="pd-l${l.completed ? ' done' : i === act ? ' now' : ''}" aria-label="שיעור ${i + 1}${l.completed ? ', הושלם' : ''}">${l.completed ? '✓' : i + 1}</div>`).join('')}</div>
+      ${a ? `<div class="pd-lnow"><div><b>שיעור ${act + 1} בתהליך</b><span>${pdMin(a.netMs)} / ${tgtMin} דק׳</span></div><div class="pd-lbar"><i style="width:${Math.min(100, Math.round(100 * (a.netMs || 0) / (tgtMin * 60000)))}%"></i></div></div>` : ''}
+      <button type="button" class="pd-soft" onclick="pdEditProgram()">עריכת התוכנית</button>`;
+  }
+  // מוכנות: עשר התשובות האחרונות בכל מסלול
+  const byT = {};
+  arr.forEach(sub => (sub.problems || []).forEach(pr => { const t = pr.track || sub.track; if (!t || !BASICS_TRACKS[t] || pr.question === undefined || /^דוגמה/.test(pr.question)) return; (byT[t] = byT[t] || []).push(pr); }));
+  const ready = Object.entries(byT).map(([t, ps]) => { const r = ps.slice(0, 10); return { t, pct: Math.round(100 * r.filter(x => x.correct).length / r.length), n: r.length, ps }; })
+    .filter(x => x.n >= 3).sort((a, b) => b.pct - a.pct);
+  document.getElementById('pd-ready').innerHTML = ready.length ? ready.map(x => `<div class="pd-rrow"><span>${escapeHtml(trackLabelHebrew(x.t))}</span><div class="pd-rbar"><i class="${x.pct >= 80 ? 'ok' : x.pct >= 50 ? 'mid' : 'low'}" style="width:${x.pct}%"></i></div><b dir="ltr">${x.pct}%</b></div>`).join('') +
+    '<div class="pd-legend"><span><i class="ok"></i>מוכן (80%+)</span><span><i class="mid"></i>בדרך (50–79%)</span><span><i class="low"></i>צריך חיזוק</span></div>'
+    : '<p class="pd-empty">עוד אין מספיק תשובות.</p>';
+  // כדאי לחזק: מסלולים מתחת ל-75%, עם הטעות הנפוצה בהם
+  const weak = ready.filter(x => x.pct < 75).reverse().slice(0, 3).map(x => {
+    const mis = {}; x.ps.slice(0, 20).forEach(pr => { if (pr.mistake) mis[pr.mistake] = (mis[pr.mistake] || 0) + 1; });
+    const top = Object.entries(mis).sort((a, b) => b[1] - a[1])[0];
+    const wrong = x.ps.slice(0, 10).filter(pr => !pr.correct).length;
+    return `<div class="pd-wk"><b>${escapeHtml(trackLabelHebrew(x.t))}</b><span>${top ? escapeHtml(top[0]) : `${wrong} טעויות בעשר התשובות האחרונות.`}</span></div>`;
+  });
+  const retries = ((m.retry || []).length) + ((m.topicRetry || []).length);
+  document.getElementById('pd-weak').innerHTML = (weak.join('') || '<p class="pd-empty">אין כרגע מסלול מתחת ל-75%. כל הכבוד!</p>') +
+    (retries ? `<div class="pd-retry"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.6M20 4v4.6h-4.6M20 12a8 8 0 0 1-13.7 5.7L4 15.4M4 20v-4.6h4.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${retries} ${retries === 1 ? 'טעות מחכה' : 'טעויות מחכות'} לחזרה באימון החכם</div>` : '');
+  // תרגולים אחרונים
+  const rows = arr.filter(x => !p.from || x.timestamp > p.from).slice(0, 8);
+  document.getElementById('pd-recent').innerHTML = rows.length ? `<table class="pd-table"><thead><tr><th>תאריך</th><th>מסלול</th><th>שלב</th><th>ציון</th><th>לבד, בלי רמז</th><th>זמן</th></tr></thead><tbody>${rows.map(r => {
+    const sm = r.summary || {}, c = sm.correct || 0, tot = sm.total || 10, ps = r.problems || [];
+    const al = ps.some(x => x.solvedAlone !== undefined) ? `${ps.filter(x => x.solvedAlone).length} מתוך ${ps.length}` : '—';
+    const cls = c / tot >= 0.8 ? 'ok' : c / tot >= 0.6 ? 'mid' : 'low';
+    return `<tr><td dir="ltr">${new Date(r.timestamp).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' })}</td><td><b>${escapeHtml(r.type === 'mix' ? 'אימון חכם' : r.type === 'exam' ? 'סימולציה' : trackLabelHebrew(r.track))}</b></td><td>${escapeHtml(r.sheet || '')}</td><td><span class="pd-score ${cls}" dir="ltr">${c}/${tot}</span></td><td>${al}</td><td>${pdTime(sm.totalTimeMs)}</td></tr>`;
+  }).join('')}</tbody></table>` : '<p class="pd-empty">אין תרגולים בטווח הזה.</p>';
+}
 function renderDashboardPuzzle(uid, data) {
   const container = document.getElementById('dashboard-puzzle');
   if (!data || !Array.isArray(data.lessons)) {
@@ -9914,31 +10164,124 @@ async function createAuthUserIsolated(username, password) {
 }
 
 let adminParentsListenerStarted = false;
+// ============================================================
+// לוח ניהול: סטטיסטיקה על כל התלמידים, הורים ותלמידים, ניקוי נתונים
+// ============================================================
+let ad = { range: 'week', users: null, subs: null };
+// דפי "דוגמה" ישנים (תשובות "?") - לא נספרים בשום סטטיסטיקה
+const isSampleSub = x => !!(x && Array.isArray(x.problems) && x.problems.length && /^דוגמה/.test(String(x.problems[0].question || '')));
 function renderAdminHome() {
   if (adminParentsListenerStarted) return;
   adminParentsListenerStarted = true;
-  firebaseDb.ref('users').orderByChild('role').equalTo('parent').on('value', snap => {
-    const arr = [];
-    snap.forEach(child => arr.push({ uid: child.key, ...child.val() }));
-    renderAdminParentsList(arr);
-  }, err => {
-    console.warn(err);
-    document.getElementById('admin-parents-list').innerHTML =
-      '<p style="text-align:center; color:var(--red-d);">שגיאה בטעינה: ' + (err.message || err) + '</p>';
-  });
+  const fail = err => { console.warn(err); document.getElementById('ad-sub').textContent = 'שגיאה בטעינה: ' + (err.message || err); };
+  firebaseDb.ref('users').on('value', snap => { const o = {}; snap.forEach(c => { o[c.key] = c.val() || {}; }); ad.users = o; renderAdminDash(); }, fail);
+  firebaseDb.ref('submissions').limitToLast(2000).on('value', snap => { const a = []; snap.forEach(c => { a.push({ id: c.key, ...(c.val() || {}) }); }); a.sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0)); ad.subs = a; renderAdminDash(); }, fail);
 }
-function renderAdminParentsList(arr) {
-  const container = document.getElementById('admin-parents-list');
-  if (!arr.length) {
-    container.innerHTML = '<p style="text-align:center; color:var(--ink2);">עדיין לא נוצרו חשבונות הורה.</p>';
-    return;
+function adSetRange(r) {
+  ad.range = r;
+  document.querySelectorAll('#admin-home-view .pd-ranges button').forEach(b => b.classList.toggle('on', b.dataset.range === r));
+  renderAdminDash();
+}
+function adPeriod() { const D = 864e5, now = Date.now(); return ad.range === 'week' ? { from: now - 7 * D, len: 7 * D, label: 'מהשבוע שעבר' } : ad.range === 'month' ? { from: now - 30 * D, len: 30 * D, label: 'מהחודש שעבר' } : { from: 0, len: 0, label: '' }; }
+function adDelta(a, b, unit) {
+  if (b === null || ad.range === 'all') return '';
+  if (a === b) return '<small class="pd-flat">ללא שינוי</small>';
+  return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)}${unit || ''} ${adPeriod().label}</small>`;
+}
+function barsHtml(bars, goal) {
+  const max = Math.max(goal ? goal * 1.4 : 1, ...bars.map(b => b.v), 1);
+  return `<div class="pd-bars">${goal ? `<div class="pd-goal" style="bottom:${Math.round(100 * goal / max)}%" aria-hidden="true"></div>` : ''}${bars.map(b =>
+    `<div class="pd-bar-col"><span>${b.v || '–'}</span><div class="pd-bar${b.v && (!goal || b.v >= goal) ? ' hit' : b.v ? '' : ' zero'}" style="height:${Math.max(3, Math.round(100 * b.v / max))}%"></div></div>`).join('')}</div>
+    <div class="pd-bar-names">${bars.map(b => `<span>${b.name}</span>`).join('')}</div>`;
+}
+const adWhen = ts => { if (!ts) return 'עוד לא תרגל'; const m = Math.round((Date.now() - ts) / 60000); return m < 60 ? `לפני ${Math.max(1, m)} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} ש׳` : `לפני ${Math.round(m / 1440)} ימים`; };
+function renderAdminDash() {
+  if (!ad.users || !ad.subs || !document.getElementById('ad-kpis')) return;
+  const users = ad.users, now = Date.now(), per = adPeriod(), D = 864e5;
+  const ids = Object.keys(users);
+  const parents = ids.filter(u => users[u].role === 'parent');
+  const students = ids.filter(u => !users[u].role && users[u].parentUid);
+  const real = ad.subs.filter(x => !isSampleSub(x) && x.studentUid && users[x.studentUid]);
+  const cur = weeklyStats(real, per.from, now), prev = per.len ? weeklyStats(real, per.from - per.len, per.from) : null;
+  const active = new Set(cur.subs.map(x => x.studentUid)).size, prevActive = prev ? new Set(prev.subs.map(x => x.studentUid)).size : null;
+  const pct = cur.n ? Math.round(100 * cur.ok / cur.n) : null;
+  document.getElementById('ad-sub').textContent = `${parents.length} הורים · ${students.length} תלמידים · ${real.length} תרגולים שמורים`;
+  const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
+  document.getElementById('ad-kpis').innerHTML =
+    kpi('תלמידים פעילים', 'var(--blue)', `${active}<small class="ad-of"> / ${students.length}</small>`, prev ? adDelta(active, prevActive) : '') +
+    kpi('דקות תרגול', 'var(--orange)', pdMin(cur.ms), prev ? adDelta(pdMin(cur.ms), pdMin(prev.ms)) : '') +
+    kpi('תרגילים', 'var(--purple)', cur.n, prev ? adDelta(cur.n, prev.n) : '') +
+    kpi('הצלחה', 'var(--mint)', pct === null ? '—' : pct + '%', `<small class="pd-flat">${cur.alone === null ? 'נפתרו לבד: אין נתון' : `נפתרו לבד: ${cur.alone}%`}</small>`) +
+    kpi('דפים שעברו', 'var(--sun)', cur.sheetsPassed, `<small class="pd-flat">9 ומעלה מתוך 10</small>`);
+  // גרף: דקות ביום (שבוע) / בשבוע (חודש, הכול)
+  const minutesIn = (a, b) => pdMin(real.filter(x => x.timestamp > a && x.timestamp <= b).reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0));
+  const bars = [];
+  if (ad.range === 'week') {
+    const dn = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+    for (let i = 6; i >= 0; i--) { const d0 = new Date(now - i * D); d0.setHours(0, 0, 0, 0); bars.push({ name: dn[d0.getDay()], v: minutesIn(d0.getTime(), d0.getTime() + D) }); }
+  } else {
+    const weeks = ad.range === 'month' ? 4 : 12;
+    for (let i = weeks - 1; i >= 0; i--) { const e = now - i * 7 * D, d = new Date(e - 6 * D); bars.push({ name: `${d.getDate()}.${d.getMonth() + 1}`, v: minutesIn(e - 7 * D, e) }); }
   }
-  container.innerHTML = arr.map(p => `
-    <div class="teacher-row" style="cursor:default;">
-      <div class="name">${escapeHtml(p.displayName || p.username)}</div>
-      <div class="meta">שם משתמש: ${escapeHtml(p.username)}</div>
+  document.getElementById('ad-chart-title').textContent = ad.range === 'week' ? 'דקות תרגול ביום' : 'דקות תרגול בשבוע';
+  document.getElementById('ad-chart').innerHTML = barsHtml(bars, 0);
+  // פעילות אחרונה
+  const nameOf = u => (users[u] && (users[u].displayName || users[u].username)) || 'לא ידוע';
+  document.getElementById('ad-recent').innerHTML = real.slice(0, 6).map(x => {
+    const sm = x.summary || {};
+    return `<div class="ad-act"><b>${escapeHtml(nameOf(x.studentUid))}</b><span>${escapeHtml(x.type === 'mix' ? 'אימון חכם' : x.type === 'exam' ? 'סימולציה' : trackLabelHebrew(x.track))} · ${sm.correct || 0}/${sm.total || 10}</span><small>${adWhen(x.timestamp)}</small></div>`;
+  }).join('') || '<p class="pd-empty">עוד אין פעילות.</p>';
+  // הצלחה לפי מסלול
+  const byT = {};
+  cur.subs.forEach(x => (x.problems || []).forEach(pr => { const t = pr.track || x.track; if (!t || !BASICS_TRACKS[t]) return; const b = byT[t] = byT[t] || { ok: 0, n: 0 }; b.n++; if (pr.correct) b.ok++; }));
+  const tr = Object.entries(byT).map(([t, v]) => ({ t, n: v.n, pct: Math.round(100 * v.ok / v.n) })).sort((a, b) => b.n - a.n).slice(0, 10);
+  document.getElementById('ad-tracks').innerHTML = tr.length ? tr.map(x => `<div class="pd-rrow"><span>${escapeHtml(trackLabelHebrew(x.t))} <small class="pd-flat">(${x.n})</small></span><div class="pd-rbar"><i class="${x.pct >= 80 ? 'ok' : x.pct >= 50 ? 'mid' : 'low'}" style="width:${x.pct}%"></i></div><b dir="ltr">${x.pct}%</b></div>`).join('') +
+    '<div class="pd-legend"><span><i class="ok"></i>80%+</span><span><i class="mid"></i>50–79%</span><span><i class="low"></i>מתחת ל-50%</span></div>' : '<p class="pd-empty">אין תשובות בטווח הזה.</p>';
+  // איך לומדים: רמזים, שיעורי דקה, סימולציות, טעויות נפוצות
+  const probs = cur.subs.flatMap(x => x.problems || []), withHint = probs.filter(p => p.hintsUsed !== undefined);
+  const styles = {}; probs.forEach(p => { if (p.hintStyle) styles[p.hintStyle] = (styles[p.hintStyle] || 0) + 1; });
+  const topStyle = Object.entries(styles).sort((a, b) => b[1] - a[1])[0];
+  const stat = (v, l) => `<div class="ad-stat"><b>${v}</b><span>${l}</span></div>`;
+  document.getElementById('ad-learn').innerHTML = `<div class="ad-stats">
+      ${stat(withHint.length ? Math.round(100 * withHint.filter(p => p.hintsUsed).length / withHint.length) + '%' : '—', 'מהשאלות נפתרו עם רמז')}
+      ${stat(probs.filter(p => p.lesson).length, 'שיעורי דקה נפתחו')}
+      ${stat(cur.exams.length ? Math.round(cur.exams.reduce((a, b) => a + b, 0) / cur.exams.length) + '%' : '—', `ממוצע סימולציות (${cur.exams.length})`)}
+      ${stat(topStyle ? HINT_MODE_LABELS[topStyle[0]] || topStyle[0] : '—', 'דרך ההסבר הנפוצה')}
     </div>
-  `).join('');
+    ${cur.mistakes.length ? `<div class="ad-mis"><b>הטעויות שחוזרות הכי הרבה</b>${cur.mistakes.map(([m, c]) => `<div><span>${escapeHtml(m)}</span><small>${c}×</small></div>`).join('')}</div>` : ''}`;
+  // הורים ותלמידים
+  const minsOf = u => pdMin(real.filter(x => x.studentUid === u && x.timestamp > per.from).reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0));
+  const lastOf = u => { const x = real.find(y => y.studentUid === u); return x ? x.timestamp : 0; };
+  document.getElementById('admin-parents-list').innerHTML = parents.length ? parents.map(pu => {
+    const pr = users[pu], kids = students.filter(u => users[u].parentUid === pu);
+    return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(pr.displayName || pr.username)}</b><span>@${escapeHtml(pr.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
+      ${kids.map(u => { const k = users[u], m = k.motivation || {}, last = lastOf(u);
+        return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${escapeHtml(k.displayName || k.username)}</b><small>${adWhen(last)}</small></span>
+          <span class="ad-kstat"><b>${minsOf(u)}</b><small>דקות</small></span><span class="ad-kstat"><b>${motLevel(m.xp)}</b><small>שלב</small></span><span class="ad-kstat"><b>${motShownStreak(m)}</b><small>רצף</small></span>
+          <span class="ad-go" aria-hidden="true">‹</span></button>`; }).join('') || '<p class="pd-empty">אין עדיין תלמידים.</p>'}</div>`;
+  }).join('') : '<p class="pd-empty">עדיין לא נוצרו חשבונות הורה.</p>';
+  // ניקוי נתונים
+  const samples = ad.subs.filter(isSampleSub), orphan = ad.subs.filter(x => !isSampleSub(x) && (!x.studentUid || !users[x.studentUid]));
+  const admins = ids.filter(u => users[u].role === 'admin');
+  const row = (n, title, detail, action) => `<div class="ad-clean-row"><div><b>${title}</b><span>${detail}</span></div>${n && action ? `<button type="button" class="ad-del" onclick="${action}">מחיקה (${n})</button>` : (n ? '<span class="ad-warn">לבדיקה</span>' : '<span class="ad-ok">נקי ✓</span>')}</div>`;
+  document.getElementById('ad-clean').innerHTML =
+    row(samples.length, 'דפי דוגמה', 'דפים עם "דוגמה 1…10" ותשובות "?". לא נספרים בסטטיסטיקה.', "adDeleteSubs('sample')") +
+    row(orphan.length, 'תרגולים בלי משתמש', 'תרגולים ישנים שנשמרו לפי שם בלבד, או של משתמש שנמחק.', "adDeleteSubs('orphan')") +
+    row(admins.length > 1 ? admins.length : 0, 'חשבונות מנהל', admins.length > 1 ? `יש ${admins.length} רשומות מנהל: ${admins.map(u => escapeHtml(users[u].username || u)).join(', ')}. כדאי לבדוק ב-Firebase שרק אחת בשימוש.` : 'רשומת מנהל אחת.', '');
+}
+function adOpenStudent(uid) {
+  const u = ad.users && ad.users[uid]; if (!u) return;
+  dashboardReturnView = 'admin-home-view';
+  document.getElementById('admin-home-view').classList.add('hidden');
+  openParentDashboard(uid, u.displayName || u.username);
+}
+async function adDeleteSubs(kind) {
+  const users = ad.users || {};
+  const list = (ad.subs || []).filter(x => kind === 'sample' ? isSampleSub(x) : !isSampleSub(x) && (!x.studentUid || !users[x.studentUid]));
+  if (!list.length || !confirm(`למחוק ${list.length} רשומות? אי אפשר לבטל.`)) return;
+  const upd = {}; list.forEach(x => { upd[x.id] = null; });
+  try { await firebaseDb.ref('submissions').update(upd); showToast(`נמחקו ${list.length} רשומות`); }
+  catch (e) { alert('אין הרשאה למחוק. צריך להוסיף למנהל הרשאת כתיבה ב-submissions בכללי Firebase.\n\n' + (e.message || e)); }
 }
 function openCreateParentForm() {
   document.getElementById('create-parent-form').classList.remove('hidden');
