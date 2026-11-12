@@ -1110,7 +1110,7 @@
 
   .tabbar {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1500;
-    width: min(560px, 100%); display: grid; grid-template-columns: repeat(4, 1fr);
+    width: min(560px, 100%); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
     background: white; box-shadow: 0 -1px 0 var(--line), 0 -10px 30px -20px rgba(27,27,47,.3);
     padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
   }
@@ -2191,7 +2191,7 @@ try {
           </button>
           <div class="today-lesson-sub" id="today-lesson-sub"></div>
         </div>
-        <button type="button" class="lesson-ticket" onclick="openLessonsView()" aria-label="כל השיעורים">
+        <button type="button" class="lesson-ticket" id="home-lesson-ticket" onclick="openLessonsView()" aria-label="כל השיעורים">
           <div class="lesson-ticket-head">שיעורים</div>
           <div class="lesson-ticket-num" id="home-lessons-done">0</div>
           <div class="lesson-ticket-sub">מתוך <span id="home-lessons-total">12</span></div>
@@ -2232,7 +2232,7 @@ try {
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z M9 4v13.5 M15 6.5V20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         <span>מסע</span>
       </button>
-      <button class="tab" onclick="openLessonsView()">
+      <button class="tab" id="tab-lessons" onclick="openLessonsView()">
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4.5l3 2M9.5 2.5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <span>שיעורים</span>
       </button>
@@ -3436,6 +3436,7 @@ function renderJourney() {
   if (typeof lessons !== 'undefined' && Array.isArray(lessons)) {
     document.getElementById('home-lessons-done').textContent = lessonIdxs().filter(i => lessons[i] && lessons[i].completed).length;
     document.getElementById('home-lessons-total').textContent = lessonIdxs().length;
+    syncLessonsVisibility();
   }
   const W = wrap.clientWidth || 360;
   const ROW = 168, UNIT = 96, NY = 12 + UNIT / 2;          // שורת יחידה: מרכז העיגול בגובה NY
@@ -3688,6 +3689,14 @@ const lessonFrozen = i => LESSON_STATE[i] === 'frozen';
 const lessonOff = i => lessonCancelled(i) || lessonFrozen(i);
 const lessonNo = i => { let n = 0; for (let k = 0; k <= i; k++) if (!lessonCancelled(k)) n++; return n; };
 const lessonIdxs = () => Array.from({ length: LESSON_COUNT }, (_, i) => i).filter(i => !lessonCancelled(i));
+// כשההורה הקפיא או ביטל את כל השיעורים שנותרו: מסתירים את כרטיס השיעורים ואת לשונית השיעורים
+const lessonsHidden = () => Object.keys(LESSON_STATE).length > 0 && !lessonIdxs().some(i => !(lessons[i] && lessons[i].completed) && !lessonFrozen(i));
+function syncLessonsVisibility() {
+  const hide = lessonsHidden();
+  ['home-lesson-ticket', 'tab-lessons'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.toggle('hidden', hide); });
+  const lv = document.getElementById('lessons-view');
+  if (hide && lv && !lv.classList.contains('hidden')) exitLessonsView();
+}
 const padLessons = arr => { const a = (Array.isArray(arr) ? arr : []).slice(0, LESSON_COUNT); while (a.length < LESSON_COUNT) a.push({ netMs: 0, date: '', completed: false, completedAt: null }); return a; };
 const LESSON_IDLE_MS = 60 * 1000; // דקה בלי פעילות = השעון נעצר
 const LESSON_ACTIVITY_SELECTOR = '#basics-session, #diagnostic-session, #problem-area';
@@ -3716,6 +3725,7 @@ function applyStudentProgram(program, live) {
     activeLessonIdx = null; saveActiveLessonIdx(); lessonStopTicking();
   }
   if (live) { try { renderJourney(); } catch (e) {} }
+  syncLessonsVisibility();
   // ליתר ביטחון: אם התלמיד כבר הספיק לפתוח את מסך השיעורים ברגע הקצר
   // שבו עדיין נטענות ההגדרות (LESSON_COUNT/LESSON_TARGET_MS של ברירת
   // המחדל), נרענן את מה שכבר מוצג במקום להשאיר אותו לא מעודכן.
