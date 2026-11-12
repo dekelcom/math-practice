@@ -1318,6 +1318,9 @@
   .hint-back { flex-basis: 100%; }
   #qs-answer[hidden], #qs-hint[hidden] { display: none; }
   .hint-lead { margin: 0; font-weight: 700; color: var(--sand-d); }
+  .opt-m { white-space: nowrap; }
+  .opt-long { font-size: .72em; }
+  sup.sq { font-size: .56em; line-height: 0; vertical-align: .82em; font-weight: 700; margin-inline-start: .03em; letter-spacing: 0; }
   /* ציורי רמז, בדיקה קטנה, פס מכווץ, שיעור של דקה */
   .hpic { display: block; width: 100%; max-height: 170px; margin: 2px auto; direction: ltr; font-family: var(--body); }
   .hpic .tilt { transform-origin: 150px 40px; }
@@ -4377,7 +4380,9 @@ function renderOptionDisplay(v) {
   // fraction-style string: "n/d" → stacked
   const m = s.match(/^(-?\d+)\/(\d+)$/);
   if (m) return fracHtml(m[1], m[2]);
-  return s;
+  // ביטוי מתמטי בלי עברית: מבודד משמאל לימין, כדי שסוגריים וסימנים לא יתהפכו
+  if (!/[\u0590-\u05FF]/.test(s)) return `<bdi dir="ltr" class="opt-m${s.length > 11 ? ' opt-long' : ''}">${mathHtml(s)}</bdi>`;
+  return supSq(s);
 }
 // ============================================================
 // טיוטה: שרבוט / צעדים / חישוב צד - חלון משותף לכל מסכי השאלות
@@ -4607,8 +4612,10 @@ function drawUndo() { draft.strokes.pop(); redrawCanvas(); }
 function drawClear() { draft.strokes = []; redrawCanvas(); }
 
 // --- צעדים ---
+// ² כחזקה אמיתית: ספרה קטנה ומוגבהת, במקום התו הכבד של הגופן
+const supSq = h => String(h).replace(/²/g, '<sup class="sq">2</sup>');
 function mathHtml(text) {
-  return escapeHtml(text).replace(/x/g, '<i class="mx">x</i>');
+  return supSq(escapeHtml(text).replace(/x/g, '<i class="mx">x</i>'));
 }
 // מפענח ביטויים עם x (בלי eval): + − × ÷ / ( ) ² וכפל משתמע (3x, 2(…), (…)(…))
 function evalWithX(src, xv) {
@@ -4936,7 +4943,7 @@ function qProgressHtml(current, total, correct, log) {
 // ============================================================
 // רמזים למסלולי היסודות: 3 רמות (כיוון / הכלל / צעד ראשון), כל אחת בכמה דרכי הסבר
 // ============================================================
-const M = t => `<bdi dir="ltr" class="hm">${String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/-/g, '−').replace(/x/g, '<i class="mx">x</i>')}</bdi>`;
+const M = t => `<bdi dir="ltr" class="hm">${String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/-/g, '−').replace(/x/g, '<i class="mx">x</i>').replace(/²/g, '<sup class="sq">2</sup>')}</bdi>`;
 const qNums = p => (plainText(p.displayQ || `${p.a} ${p.op} ${p.b}`).replace(/,/g, '').match(/−?\d+(\.\d+)?/g) || []).map(n => Number(n.replace('−', '-')));
 function hintLevels(L1, L2, L3) {
   return [
@@ -6746,7 +6753,7 @@ function renderBasicsProblem() {
   const container = document.getElementById('basics-session');
   const eqHtml = p.displayQ || `${p.a} ${p.op} ${p.b}`;
   const isEquation = !p.questionLabel && /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml));
-  const questionLine = (p.questionLabel || isEquation) ? eqHtml : `${eqHtml} = ?`;
+  const questionLine = supSq((p.questionLabel || isEquation) ? eqHtml : `${eqHtml} = ?`);
   const labelText = p.questionLabel || (isEquation ? 'פתרו את המשוואה:' : '');
   const labelHtml = labelText ? `<div class="basics-question-label">${escapeHtml(labelText)}</div>` : '';
   qsInput = '';
