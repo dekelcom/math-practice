@@ -10545,6 +10545,14 @@ function renderAdminDash() {
         ${kids.length ? `<div class="ad-tkids">${kids.map(u => `<button type="button" class="tc-chip" onclick="adOpenStudent('${u}')">${escapeHtml(users[u].displayName || users[u].username)}</button>`).join('')}</div>` : '<p class="pd-empty">אין תלמידים משויכים. שייכו מתוך הדשבורד של התלמיד.</p>'}</div>`;
     }).join('');
   })();
+  // סנכרון רשימות התלמידים של המורים לפי teacherUid
+  const sync = {};
+  ids.filter(u => users[u].role === 'teacher').forEach(tu => {
+    const want = students.filter(u => users[u].teacherUid === tu), have = Object.keys(users[tu].students || {});
+    want.filter(u => !have.includes(u)).forEach(u => { sync['users/' + tu + '/students/' + u] = true; });
+    have.filter(u => !want.includes(u)).forEach(u => { sync['users/' + tu + '/students/' + u] = null; });
+  });
+  if (Object.keys(sync).length && !ad.syncing) { ad.syncing = true; firebaseDb.ref().update(sync).catch(e => console.warn('teacher list sync', e)).then(() => { ad.syncing = false; }); }
   // ניקוי נתונים
   const samples = ad.subs.filter(isSampleSub), orphan = ad.subs.filter(x => !isSampleSub(x) && (!x.studentUid || !users[x.studentUid]));
   const admins = ids.filter(u => users[u].role === 'admin');
@@ -10565,8 +10573,19 @@ function renderTeacherHome() {
     const denied = /permission/i.test(String(err && (err.code || err.message)));
     document.getElementById('tc-sub').textContent = denied ? 'אין הרשאה לקרוא את נתוני הכיתה. צריך לעדכן את כללי Firebase (הרשאות מורה) ולפרסם אותם.' : 'שגיאה בטעינה: ' + (err.message || err);
     if (denied) document.getElementById('tc-table').innerHTML = '<p class="pd-empty">אחרי שמנהל המערכת מעדכן את הכללים, רעננו את הדף.</p>'; };
-  firebaseDb.ref('users').orderByChild('teacherUid').equalTo(currentUser.uid).on('value', snap => {
-    const o = {}; snap.forEach(c => { o[c.key] = c.val() || {}; }); tc.students = o; renderTeacherDash();
+  // רשימת התלמידים נשמרת אצל המורה (users/<מורה>/students), והמנהל מעדכן אותה כשמשייך תלמיד.
+  // כך המורה קורא רק את הרשומה שלו ואת רשומות התלמידים שלו, בלי שאילתה על כל המשתמשים.
+  const subsRefs = {};
+  firebaseDb.ref('users/' + currentUser.uid + '/students').on('value', snap => {
+    const ids = Object.keys(snap.val() || {});
+    tc.students = tc.students || {};
+    Object.keys(subsRefs).forEach(u => { if (!ids.includes(u)) { subsRefs[u].off(); delete subsRefs[u]; delete tc.students[u]; } });
+    if (!ids.length) { tc.students = {}; renderTeacherDash(); }
+    ids.forEach(u => {
+      if (subsRefs[u]) return;
+      subsRefs[u] = firebaseDb.ref('users/' + u);
+      subsRefs[u].on('value', s2 => { const v = s2.val(); if (v && v.teacherUid === currentUser.uid) tc.students[u] = v; else delete tc.students[u]; renderTeacherDash(); }, err => { console.warn(err); delete tc.students[u]; renderTeacherDash(); });
+    });
   }, fail);
   firebaseDb.ref('submissions').limitToLast(2000).on('value', snap => {
     const a = []; snap.forEach(c => { a.push({ id: c.key, ...(c.val() || {}) }); }); a.sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0)); tc.subs = a; renderTeacherDash();
@@ -10599,7 +10618,7 @@ function renderTeacherDash() {
     return { u, name: st.displayName || st.username, grade: prof ? prof.grade : '', last, mins: pdMin(inR.reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0)), sp, level: motLevel(m.xp), streak: motShownStreak(m), alerts };
   }).sort((a, b) => b.alerts.length - a.alerts.length || a.name.localeCompare(b.name, 'he'));
   const needs = rows.filter(r => r.alerts.some(a => a[0] === 'low' || a[0] === 'mid')).length;
-  document.getElementById('tc-sub').textContent = `${ids.length} תלמידים${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
+  document.getElementById('tc-sub').textContent = `${ids.length === 1 ? 'תלמיד אחד' : ids.length + ' תלמידים'}${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
   const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
   const dl = (a, b) => prev ? adDeltaFor(a, b, tc.range) : '';
   document.getElementById('tc-kpis').innerHTML =
@@ -10649,7 +10668,11 @@ function adOpenStudent(uid) {
   document.getElementById('pd-teacher-wrap').classList.remove('hidden');
 }
 async function adAssignTeacher(tuid) {
-  try { await firebaseDb.ref('users/' + dashboardStudentUid + '/teacherUid').set(tuid || null); showToast(tuid ? 'התלמיד שויך למורה' : 'השיוך למורה הוסר'); }
+  const uid = dashboardStudentUid, upd = {};
+  Object.keys(ad.users || {}).filter(k => ad.users[k].role === 'teacher').forEach(k => { upd['users/' + k + '/students/' + uid] = null; });
+  upd['users/' + uid + '/teacherUid'] = tuid || null;
+  if (tuid) upd['users/' + tuid + '/students/' + uid] = true;
+  try { await firebaseDb.ref().update(upd); showToast(tuid ? 'התלמיד שויך למורה' : 'השיוך למורה הוסר'); }
   catch (e) { alert('השמירה נכשלה: ' + (e.message || e)); }
 }
 // איפוס התקדמות (למנהל): שלבים, נקודות ותגים, רצף, שאלון ובדיקת רמה, שיעורים ומטבעות. היסטוריית התרגולים נשמרת.
