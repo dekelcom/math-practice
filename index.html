@@ -1183,6 +1183,9 @@
   }
   .qs-keypad button:active:not(:disabled), .draft-keys button:active { transform: translateY(3px); box-shadow: 0 0 0 1.5px var(--line); }
   .qs-keypad .k-soft, .draft-keys .k-soft { background: var(--paper); color: var(--ink2); }
+  .qs-keypad button.k-op, .draft-keys button.k-op { font: 700 1.75em/1 var(--body); color: var(--ink); }
+  .draft-keys button.k-x { font-family: var(--display); font-size: 1.5em; color: var(--blue); }
+  .draft-keys button.k-sq { font-size: 2.3em; padding-bottom: 6px; }
   .qs-keypad .k-wide, .draft-keys .k-wide { grid-column: span 2; }
   .qs-keypad .k-go, .draft-keys .k-go { background: var(--blue); color: white; font-family: var(--body); font-size: 1.1em; box-shadow: 0 3px 0 var(--blue-d); }
   .qs-keypad .k-go:disabled { background: #AEB9FF; box-shadow: none; cursor: default; }
@@ -1233,7 +1236,7 @@
   .steps-bottom { display: flex; flex-direction: column; gap: 8px; }
   .both-sides { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ink2); font-size: .9em; }
   .both-btns { display: inline-flex; gap: 6px; }
-  .both-btns button { width: 44px; height: 40px; border: 0; border-radius: 12px; background: var(--orange-l); color: var(--orange-d); font: 700 1.2em var(--display); cursor: pointer; }
+  .both-btns button { width: 52px; height: 46px; border: 0; border-radius: 12px; background: var(--orange-l); color: var(--orange-d); font: 700 1.9em/1 var(--body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .draft-field {
     display: flex; align-items: center; gap: 2px; min-height: 52px; padding: 0 14px; border: 2px solid var(--blue); border-radius: var(--r-md);
     font-family: var(--display); font-weight: 700; font-size: 1.25em; color: var(--ink); overflow-x: auto; white-space: nowrap;
@@ -1241,7 +1244,7 @@
   .draft-field.shake { animation: shake .3s; border-color: var(--red-d); }
   .field-ph { color: var(--ink3); font: 400 .78em var(--body); }
   .draft-keys { grid-template-columns: repeat(6, 1fr); gap: 6px; }
-  .draft-keys button { min-height: 46px; font-size: 1.1em; }
+  .draft-keys button { min-height: 50px; font-size: 1.35em; }
   .draft-keys .k-x { color: var(--blue); font-style: italic; }
   .draft-keys .k-small { font: 600 .72em var(--body); line-height: 1.15; }
   .draft-keys .k-eq { background: var(--ink); color: white; box-shadow: 0 3px 0 #000; }
@@ -1285,7 +1288,8 @@
 
   .step-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; }
   .chip { background: white; border-radius: 10px; padding: 3px 10px; box-shadow: 0 1px 0 var(--neutral-d); white-space: nowrap; }
-  .chip-eq { color: var(--ink2); padding: 0 4px; }
+  .chip-eq { color: var(--ink); padding: 0 6px; font: 700 1.25em/1 var(--body); }
+  .step-seed .chip-eq { color: white; }
   .dq-label { font-size: .92em; line-height: 1.45; }
   .dq-math { font-family: var(--display); font-weight: 700; font-size: 1.25em; margin-top: 2px; }
 
@@ -4443,7 +4447,12 @@ function ensureDraftPanel() {
       </div>
     </section>`;
   document.body.appendChild(el);
+  tagOpKeys(el);
   initDrawCanvas();
+}
+// מקשי פעולה (= + − × ÷ וסוגריים) מקבלים גופן גדול וברור יותר
+function tagOpKeys(root) {
+  root.querySelectorAll('.draft-keys button, .qs-keypad button').forEach(b => { if (/^[=+−×÷()²√%.]$/.test(b.textContent.trim())) { b.classList.add('k-op'); if (b.textContent.trim() === '²') b.classList.add('k-sq'); } });
 }
 
 // question: plain text shown in the header; seed: an equation to start the steps list with
@@ -6206,6 +6215,7 @@ function renderBasicsProblem() {
       ${answerHtml}
     </div>
   `;
+  tagOpKeys(container);
   basicsProblemStart = Date.now();
 }
 
