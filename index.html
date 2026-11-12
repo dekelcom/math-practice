@@ -759,9 +759,9 @@
   .geq-nbline { font-size: 1.3em; font-weight: 700; color: var(--ink); }
   .geq-nbline.final { font-size: 1.55em; font-weight: 800; }
   .geq-callout { color: var(--sun-d); font-size: 0.85em; font-weight: 700; text-align: left; margin-bottom: 10px; }
-  /* סימון איברים במשוואה: צבע בלבד, בלי מסגרת */
-  .geq-hl-amber { color: var(--orange-d, #D9480F); }
-  .geq-hl-blue { color: var(--blue); }
+  /* המשוואה נראית כמו בשאר המסכים: בלי סימונים מיוחדים, רק ה-x בכחול */
+  .geq-hl-amber, .geq-hl-blue { color: inherit; }
+  .student-mode .geq-container .geq-nbline:not(:last-child) .mx { color: inherit; }
   .geq-question { font-size: 1.1em; font-weight: 600; color: var(--ink2); margin: 10px 0; }
   .geq-op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 420px; margin: 0 auto 10px; }
   .geq-op-btn {
@@ -1203,7 +1203,7 @@
   .student-mode .ba-qs-keypad button { min-height: 52px; }
   .student-mode .geq-container .geq-check-box { margin: 0 0 12px; text-align: center; }
   .student-mode .geq-container .geq-next { width: 100%; min-height: 56px; margin-top: 0; }
-  .qchip { display: inline-block; unicode-bidi: isolate; direction: ltr; font: 700 1.15em var(--display); color: var(--orange-d); margin: 0 2px; white-space: nowrap; }
+  .qchip { display: inline-block; unicode-bidi: isolate; direction: ltr; font: 700 1.15em var(--display); color: var(--ink); margin: 0 2px; white-space: nowrap; }
   .ba-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--line); color: var(--ink2); font: 700 .8em var(--display); margin-inline-end: 4px; }
   .ba-step.active .ba-num { background: var(--blue); color: white; }
   .ba-step.done .ba-num { background: var(--mint-d); color: white; }
@@ -7831,7 +7831,8 @@ function geqNum(n) { return n < 0 ? `−${Math.abs(n)}` : String(n); }
 
 function geqNotebookHtml(lines) {
   // lines: [{ html, final? }]
-  const body = lines.map(l => `<div class="geq-nbline${l.final ? ' final' : ''}">${l.html}</div>`).join('');
+  const mxify = h => String(h).replace(/(^|>)([^<]*)/g, (m, a, t) => a + t.replace(/x/g, '<i class="mx">x</i>'));
+  const body = lines.map(l => `<div class="geq-nbline${l.final ? ' final' : ''}">${mxify(l.html)}</div>`).join('');
   if (geq && lines.length) geq.curEq = plainText(lines[lines.length - 1].html);
   return `<div class="geq-notebook">${body}</div>`;
 }
@@ -7840,6 +7841,7 @@ function geqNotebookHtml(lines) {
 function geqShowOpChoices(notebookHtml, calloutHtml, question, choices, correctLabel, onCorrect) {
   geq.onChoiceCorrect = onCorrect;
   geq.correctLabel = correctLabel;
+  question = question.replace(/(<bdi[^>]*qchip[^>]*>)([^<]*)/g, (m, o, t) => o + t.replace(/x/g, '<i class="mx">x</i>'));
   const shuffled = choices.slice().sort(() => Math.random() - 0.5);
   const isText = choices.some(l => /[\u0590-\u05FF]/.test(l));
   const btnsHtml = shuffled.map((label, i) =>
