@@ -1431,7 +1431,7 @@
   .hint-lead { margin: 0; font-weight: 700; color: var(--sand-d); }
   .opt-m { white-space: nowrap; }
   .opt-long { font-size: .72em; }
-  sup.sq { font-size: .56em; line-height: 0; vertical-align: .82em; font-weight: 700; margin-inline-start: .03em; letter-spacing: 0; }
+  sup.sq { font-size: .66em; line-height: 0; vertical-align: .7em; font-weight: 700; font-style: normal; margin-inline-start: .08em; margin-inline-end: .04em; letter-spacing: 0; }
   /* ציורי רמז, בדיקה קטנה, פס מכווץ, שיעור של דקה */
   .hpic { display: block; width: 100%; max-height: 170px; margin: 2px auto; direction: ltr; font-family: var(--body); }
   .hpic .tilt { transform-origin: 150px 40px; }
@@ -2675,7 +2675,7 @@ let levelCorrectInRow = 0;
 let helpUsedForProblem = false;
 let hintLevel = 0;
 let wrongAttemptsForProblem = 0;
-const CORRECT_TO_UNLOCK = 3; // כמה צריך להצליח כדי לפתוח רמה
+const CORRECT_TO_UNLOCK = 8; // כמה תשובות נכונות (בלי עזרה) צריך כדי לפתוח רמה
 const STRUGGLE_THRESHOLD = 2; // אחרי כמה תשובות שגויות באותו תרגיל מופיע כפתור וידאו
 
 function markHelpUsed() { helpUsedForProblem = true; }
@@ -7128,10 +7128,11 @@ function tqSettle(correct, vals, trap, gaveUp) {
     hintChecked: !!(basicsHint && basicsHint.checked[0]), tier: currentLevel + 2 });
   if (correct && basicsHint && basicsHint.passStyle) hsBump(basicsHint.passStyle, 0, 0.4);
   topicSessionXp += motRes.gained;
-  // סטטיסטיקה ופתיחת רמות: 3 נכונות ברצף בלי טעות פותחות את הרמה הבאה
+  // סטטיסטיקה ופתיחת רמות: 8 תשובות נכונות בלי עזרה פותחות את הרמה הבאה
   stats.attempts++;
   if (correct) stats.correct++;
-  levelCorrectInRow = correct && !missed ? levelCorrectInRow + 1 : 0;
+  // טעות לא מאפסת את הספירה, רק לא נספרת
+  if (correct && !missed && !basicsHint) levelCorrectInRow++;
   const key = `t${currentTopic}`, unlocked = stats.levelProgress[key] || 1;
   let unlockedNow = false;
   if (levelCorrectInRow >= CORRECT_TO_UNLOCK && currentLevel === unlocked && currentLevel < 3) { stats.levelProgress[key] = currentLevel + 1; unlockedNow = true; }
@@ -8322,7 +8323,7 @@ function updateLevelProgress() {
   const unlocked = stats.levelProgress[progKey] || 1;
   if (currentLevel < 3 && currentLevel === unlocked) {
     document.getElementById('level-info').textContent =
-      `פתור ${CORRECT_TO_UNLOCK} תרגילים נכון ברצף כדי לפתוח את הרמה הבאה (${levelCorrectInRow}/${CORRECT_TO_UNLOCK})`;
+      `פותרים ${CORRECT_TO_UNLOCK} תרגילים נכון כדי לפתוח את הרמה הבאה (${levelCorrectInRow}/${CORRECT_TO_UNLOCK})`;
   } else {
     document.getElementById('level-info').textContent = '';
   }
