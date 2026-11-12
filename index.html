@@ -1897,6 +1897,8 @@
   .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
   .ad-ok { color: var(--mint-d); font-weight: 600; }
   .pd-reset.hidden, .pd-teacher.hidden { display: none; }
+  .guide-link { margin-top: 4px; font-size: .92em; } .guide-link a { color: var(--blue-d); font-weight: 600; text-underline-offset: 3px; display: inline-block; padding: 10px 4px; }
+  a.guide-btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
   .req-link { text-align: center; color: var(--ink2); margin: 14px 0 0; }
   .req-link button { border: 0; background: none; color: var(--blue-d); font: 600 1em var(--body); cursor: pointer; min-height: 44px; padding: 0 6px; text-decoration: underline; text-underline-offset: 3px; }
   .req-role { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--paper); border-radius: 16px; padding: 4px; margin-bottom: 4px; }
@@ -2132,6 +2134,7 @@ try {
       <div class="auth-error" id="login-error"></div>
     </form>
     <p class="req-link">אין לכם חשבון? <button type="button" onclick="openAccountRequest()">בקשת חשבון להורה או למורה</button></p>
+    <p class="req-link guide-link"><a href="guide.html" target="_blank" rel="noopener">מדריך למשתמש</a> · <a href="guide.pdf" download="מדריך-למשתמש.pdf">הורדת PDF</a></p>
   </div>
   <div id="request-account-view" class="hidden">
     <h2 class="auth-title">בקשת חשבון</h2>
@@ -2238,6 +2241,7 @@ try {
       </div>
       <div class="progress-actions">
         <button class="btn btn-primary" onclick="showHistory()">ההיסטוריה שלי</button>
+        <a class="btn btn-secondary guide-btn" href="guide.html#student" target="_blank" rel="noopener">מדריך</a>
         <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
         <button class="btn btn-secondary" onclick="handleLogout()">התנתק</button>
         <button class="btn btn-secondary" onclick="resetStats()">איפוס סטטיסטיקה</button>
@@ -2285,6 +2289,7 @@ try {
     <div class="topic-view-header">
       <span>👑 מנהל: <b id="admin-username-label"></b></span>
       <span>
+        <a class="btn btn-secondary guide-btn" href="guide.html" target="_blank" rel="noopener">מדריך</a>
         <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
@@ -2355,6 +2360,7 @@ try {
       <span>🍎 מורה: <b id="teacher-username-label"></b></span>
       <span>
         <button class="btn btn-secondary" onclick="openTeacherSettings()">הגדרות</button>
+        <a class="btn btn-secondary guide-btn" href="guide.html#teacher" target="_blank" rel="noopener">מדריך</a>
         <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
@@ -2408,6 +2414,7 @@ try {
     <div class="topic-view-header">
       <span>👨‍👩‍👦 הורה: <b id="parent-username-label"></b></span>
       <span>
+        <a class="btn btn-secondary guide-btn" href="guide.html#parent" target="_blank" rel="noopener">מדריך</a>
         <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
