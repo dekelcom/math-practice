@@ -395,6 +395,8 @@
     margin-bottom: 18px;
   }
   .topic-view-header b { font-weight: 700; }
+  .topic-view-header > span:last-child { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .topic-view-header > span:last-child > .btn, .topic-view-header > span:last-child > .back-btn { margin: 0; min-height: 44px; padding: 0 18px; font-size: .95em; line-height: 1; }
   .coin-badge {
     display: inline-flex;
     align-items: center;
@@ -1734,6 +1736,8 @@
   #admin-parents-list .ad-parent, #admin-parents-list .ad-parent:first-child { border-top: 1px solid var(--line); padding: 12px 0; }
   #admin-parents-list .ad-sub-h { margin-top: 18px; }
   .ad-add { min-height: 40px; padding: 0 16px; margin-inline-start: auto; font-size: .92em; align-self: center; }
+  .ad-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--mint-d); box-shadow: 0 0 0 3px var(--mint-l); margin-inline-end: 7px; vertical-align: middle; }
+  .ad-live { color: var(--mint-d); font-weight: 600; }
   .ad-new { max-width: 420px; width: 100%; margin: 0 auto 8px; }
   @media (max-width: 560px) {
     .ad .pd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -10661,6 +10665,8 @@ function barsHtml(bars, goal) {
     `<div class="pd-bar-col"><span>${b.v || '–'}</span><div class="pd-bar${b.v && (!goal || b.v >= goal) ? ' hit' : b.v ? '' : ' zero'}" style="height:${Math.max(3, Math.round(100 * b.v / max))}%"></div></div>`).join('')}</div>
     <div class="pd-bar-names">${bars.map(b => `<span>${b.name}</span>`).join('')}</div>`;
 }
+const adOnline = u => !!(ad.users && ad.users[u] && ad.users[u].activeSession && ad.users[u].activeSession.online === true);
+const adDot = u => adOnline(u) ? '<i class="ad-dot" title="מחובר/ת עכשיו" aria-label="מחובר/ת עכשיו"></i>' : '';
 const adWhen = ts => { if (!ts) return 'עוד לא תרגל'; const m = Math.round((Date.now() - ts) / 60000); return m < 60 ? `לפני ${Math.max(1, m)} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} ש׳` : m < 2880 ? 'אתמול' : `לפני ${Math.round(m / 1440)} ימים`; };
 function renderAdminDash() {
   if (!ad.users || !ad.subs || !document.getElementById('ad-kpis')) return;
@@ -10672,7 +10678,8 @@ function renderAdminDash() {
   const cur = weeklyStats(real, per.from, now), prev = per.len ? weeklyStats(real, per.from - per.len, per.from) : null;
   const active = new Set(cur.subs.map(x => x.studentUid)).size, prevActive = prev ? new Set(prev.subs.map(x => x.studentUid)).size : null;
   const pct = cur.n ? Math.round(100 * cur.ok / cur.n) : null;
-  document.getElementById('ad-sub').textContent = `${parents.length} הורים · ${students.length} תלמידים · ${real.length} תרגולים שמורים`;
+  const onlineN = ids.filter(u => users[u].role !== 'admin' && adOnline(u)).length;
+  document.getElementById('ad-sub').innerHTML = `${parents.length} הורים · ${students.length} תלמידים · ${real.length} תרגולים שמורים${onlineN ? ` · <span class="ad-live"><i class="ad-dot"></i>${onlineN} ${onlineN === 1 ? 'מחובר' : 'מחוברים'} עכשיו</span>` : ''}`;
   const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
   document.getElementById('ad-kpis').innerHTML =
     kpi('תלמידים פעילים', 'var(--blue)', `${active}<small class="ad-of"> / ${students.length}</small>`, prev ? adDelta(active, prevActive) : '') +
@@ -10721,9 +10728,9 @@ function renderAdminDash() {
   const lastOf = u => { const x = real.find(y => y.studentUid === u); return x ? x.timestamp : 0; };
   document.getElementById('admin-parents-list').innerHTML = (parents.length ? parents.map(pu => {
     const pr = users[pu], kids = students.filter(u => users[u].parentUid === pu);
-    return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(pr.displayName || pr.username)}</b><span>@${escapeHtml(pr.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
+    return `<div class="ad-parent"><div class="ad-ph"><b>${adDot(pu)}${escapeHtml(pr.displayName || pr.username)}</b><span>@${escapeHtml(pr.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
       ${kids.map(u => { const k = users[u], m = k.motivation || {}, last = lastOf(u);
-        return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${escapeHtml(k.displayName || k.username)}</b><small>${m.profile ? `כיתה ${escapeHtml(m.profile.grade)} · ${escapeHtml(m.profile.school)} · ` : ''}${adWhen(last)}</small></span>
+        return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${adDot(u)}${escapeHtml(k.displayName || k.username)}</b><small>${m.profile ? `כיתה ${escapeHtml(m.profile.grade)} · ${escapeHtml(m.profile.school)} · ` : ''}${adOnline(u) ? '<span class="ad-live">מחובר/ת עכשיו</span>' : adWhen(last)}</small></span>
           <span class="ad-kstat"><b>${minsOf(u)}</b><small>דקות</small></span><span class="ad-kstat"><b>${motLevel(m.xp)}</b><small>שלב</small></span><span class="ad-kstat"><b>${motShownStreak(m)}</b><small>רצף</small></span>
           <span class="ad-go" aria-hidden="true">‹</span></button>`; }).join('') || '<p class="pd-empty">אין עדיין תלמידים.</p>'}</div>`;
   }).join('') : '<p class="pd-empty">עדיין לא נוצרו חשבונות הורה.</p>') + (() => {
@@ -10731,7 +10738,7 @@ function renderAdminDash() {
     if (!teachers.length) return '';
     return `<h4 class="ad-sub-h">מורים</h4>` + teachers.map(tu => {
       const t = users[tu], kids = students.filter(u => users[u].teacherUid === tu);
-      return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')}${t.school ? ' · ' + escapeHtml(t.school) : ''} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span><button type="button" class="ad-edit" onclick="openTeacherSettings('${tu}')">עריכה</button></div>
+      return `<div class="ad-parent"><div class="ad-ph"><b>${adDot(tu)}${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')}${t.school ? ' · ' + escapeHtml(t.school) : ''} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span><button type="button" class="ad-edit" onclick="openTeacherSettings('${tu}')">עריכה</button></div>
         ${kids.length ? `<div class="ad-tkids">${kids.map(u => `<button type="button" class="tc-chip" onclick="adOpenStudent('${u}')">${escapeHtml(users[u].displayName || users[u].username)}</button>`).join('')}</div>` : '<p class="pd-empty">אין תלמידים משויכים. שייכו מתוך הדשבורד של התלמיד.</p>'}</div>`;
     }).join('');
   })();
@@ -11246,6 +11253,7 @@ function claimSession(uid) {
   const id = mySessionId(uid), ref = firebaseDb.ref('users/' + uid + '/activeSession');
   ref.set({ id, at: firebase.database.ServerValue.TIMESTAMP }).then(() => {
     sessionWatchRef = ref;
+    startPresence(ref);
     ref.on('value', snap => {
       const v = snap.val();
       if (v && v.id && v.id !== id) {
@@ -11257,8 +11265,25 @@ function claimSession(uid) {
     });
   }).catch(e => console.warn('session claim failed', e));
 }
-function releaseSessionWatch() { if (sessionWatchRef) { sessionWatchRef.off(); sessionWatchRef = null; } }
-function handleLogout() {
+// נוכחות: activeSession/online מסמן שהאפליקציה פתוחה עכשיו; onDisconnect מכבה אותו כשהחיבור נסגר.
+let presenceConnRef = null;
+function startPresence(ref) {
+  presenceConnRef = firebaseDb.ref('.info/connected');
+  presenceConnRef.on('value', snap => {
+    if (snap.val() !== true) return;
+    ref.child('online').onDisconnect().set(false)
+      .then(() => ref.update({ online: true, seen: firebase.database.ServerValue.TIMESTAMP }))
+      .catch(e => console.warn('presence', e));
+  });
+}
+function releaseSessionWatch() {
+  if (presenceConnRef) { presenceConnRef.off(); presenceConnRef = null; }
+  if (sessionWatchRef) { sessionWatchRef.child('online').onDisconnect().cancel().catch(() => {}); sessionWatchRef.off(); sessionWatchRef = null; }
+}
+async function handleLogout() {
+  const ref = sessionWatchRef;
+  releaseSessionWatch();
+  if (ref) { try { await ref.update({ online: false, seen: firebase.database.ServerValue.TIMESTAMP }); } catch (e) {} }
   firebaseAuth.signOut();
 }
 
