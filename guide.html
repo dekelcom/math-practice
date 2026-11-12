@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מדריך למשתמש</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --paper:#F5F7FF; --grid:#E2E7FA; --white:#fff;
+    --ink:#1B1B2F; --ink2:#5B6080; --ink3:#9AA0BC; --line:#E4E7F2;
+    --blue:#3D5AFE; --blue-d:#2B43D6; --blue-l:#E8ECFF;
+    --orange:#FF6B3D; --orange-d:#C23F17; --orange-l:#FFE8DF;
+    --mint:#14B88A; --mint-d:#0B7058; --mint-l:#E2F7EF;
+    --sun:#FFC93C; --sun-d:#8F6406; --sun-l:#FFF6DC;
+    --display:'Fredoka','Rubik',system-ui,sans-serif;
+    --body:'Rubik',system-ui,sans-serif;
+    --r-lg:28px; --r-md:18px; --r-sm:12px;
+    --ring:0 0 0 1px var(--line);
+    --drop:0 0 0 1px var(--line),0 16px 40px -24px rgba(27,27,47,.35);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; font-family: var(--body); color: var(--ink); line-height: 1.6;
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  ::selection { background: var(--sun); color: var(--ink); }
+  a { color: var(--blue-d); text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; background: var(--blue); color: white; border-radius: var(--r-lg); padding: 40px 36px 36px; display: flex; align-items: center; gap: 24px; }
+  .hero h1 { margin: 0; font: 700 clamp(1.9rem, 4.5vw, 2.9rem)/1.1 var(--display); letter-spacing: -.01em; }
+  .hero p { margin: 10px 0 0; font-size: 1.1rem; max-width: 46ch; color: #DCE2FF; }
+  .mascot { flex: none; width: 104px; height: 104px; border-radius: 50%; background: white; display: grid; place-items: center; box-shadow: 0 6px 0 var(--blue-d); }
+  .mascot svg { width: 66px; height: 66px; }
+  .chip-f { position: absolute; font: 700 .95rem var(--display); background: rgba(255,255,255,.16); border-radius: 12px; padding: 4px 12px; color: white; }
+
+  /* role picker */
+  .roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 18px 0 8px; }
+  .role { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); background: white; border-radius: var(--r-md); padding: 16px 18px; box-shadow: var(--ring), 0 4px 0 var(--line); transition: transform .12s ease-out, box-shadow .12s ease-out; }
+  .role:hover { transform: translateY(-2px); box-shadow: var(--ring), 0 6px 0 var(--line); }
+  .role:active { transform: translateY(2px); box-shadow: var(--ring), 0 1px 0 var(--line); }
+  .role b { display: block; font: 600 1.25rem var(--display); }
+  .role span { color: var(--ink2); font-size: .9rem; }
+  .ico { flex: none; width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; }
+  .ico svg { width: 26px; height: 26px; }
+  .t-orange .ico { background: var(--orange-l); color: var(--orange-d); }
+  .t-blue .ico { background: var(--blue-l); color: var(--blue-d); }
+  .t-mint .ico { background: var(--mint-l); color: var(--mint-d); }
+
+  /* sections */
+  section.part { background: white; border-radius: var(--r-lg); box-shadow: var(--drop); padding: 32px 36px; margin-top: 22px; scroll-margin-top: 16px; }
+  .part-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .part-head h2 { margin: 0; font: 700 clamp(1.6rem, 3.4vw, 2.1rem)/1.15 var(--display); }
+  .part-head p { margin: 2px 0 0; color: var(--ink2); }
+  .step { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 28px 0; border-top: 1px solid var(--line); }
+  .step > div:first-child { max-width: 760px; }
+  .part-head + .step { border-top: 0; }
+  .step.phone { grid-template-columns: minmax(0, 1fr) 260px; gap: 40px; align-items: center; }
+  .step h3 { margin: 0 0 8px; font: 600 1.35rem/1.25 var(--display); display: flex; align-items: center; gap: 10px; }
+  .num { flex: none; width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; font: 700 1rem var(--display); color: white; }
+  .t-orange .num { background: var(--orange-d); } .t-blue .num { background: var(--blue); } .t-mint .num { background: var(--mint-d); }
+  .step p { margin: 0 0 10px; color: var(--ink2); max-width: 60ch; }
+  .step ul, .step ol { margin: 0; padding-inline-start: 20px; color: var(--ink2); }
+  .step li { margin: 4px 0; }
+  .step li b, .step p b { color: var(--ink); font-weight: 600; }
+  .step.solo { grid-template-columns: 1fr; }
+  figure { margin: 0; }
+  .shot { display: block; width: 100%; height: auto; border-radius: var(--r-md); box-shadow: 0 0 0 1px var(--line), 0 14px 32px -18px rgba(27,27,47,.4); background: var(--paper); }
+  .phone .shot { max-width: 240px; margin-inline: auto; border-radius: 26px; box-shadow: 0 0 0 8px var(--ink), 0 18px 40px -16px rgba(27,27,47,.5); }
+  figcaption { margin-top: 10px; color: var(--ink3); font-size: .85rem; text-align: center; }
+  .note { display: flex; gap: 10px; background: var(--sun-l); color: #6E5208; border-radius: var(--r-sm); padding: 10px 14px; font-size: .92rem; margin-top: 12px; }
+  .note b { color: #5A4306; }
+
+  /* table */
+  table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  th { text-align: right; color: var(--ink2); font-weight: 500; font-size: .85rem; padding: 8px 10px; }
+  td { padding: 10px; border-top: 1px solid var(--line); vertical-align: top; color: var(--ink2); }
+  td:first-child { color: var(--ink); font-weight: 600; width: 34%; }
+
+  .faq { margin-top: 22px; }
+  .foot { text-align: center; color: var(--ink3); font-size: .85rem; margin-top: 28px; }
+  .foot a { font-weight: 600; }
+
+  @media (max-width: 820px) {
+    .roles { grid-template-columns: 1fr; }
+    .step, .step.phone { grid-template-columns: 1fr; gap: 18px; }
+    section.part { padding: 24px 18px; }
+    .hero { padding: 30px 22px; }
+    .mascot { width: 76px; height: 76px; } .mascot svg { width: 48px; height: 48px; }
+    .chip-f { display: none; }
+    td:first-child { width: 40%; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <span class="chip-f" dir="ltr" style="top:18px; left:30px; transform:rotate(-6deg)">7 × 8</span>
+    <span class="chip-f" dir="ltr" style="bottom:20px; left:160px; transform:rotate(4deg)">x + 3 = 7</span>
+    <span class="chip-f" dir="ltr" style="top:24px; left:220px; transform:rotate(3deg)">½ + ¼</span>
+    <div class="mascot" aria-hidden="true"><svg viewBox="0 0 40 40"><rect x="5" y="6" width="30" height="28" rx="10" fill="#FFC93C"/><circle cx="15" cy="18" r="4" fill="#fff"/><circle cx="25" cy="18" r="4" fill="#fff"/><circle cx="15.8" cy="18.6" r="2" fill="#1B1B2F"/><circle cx="25.8" cy="18.6" r="2" fill="#1B1B2F"/><path d="M16 25.5q4 3 8 0" fill="none" stroke="#1B1B2F" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div>
+      <h1>מדריך למשתמש</h1>
+      <p>כל מה שצריך לדעת כדי להתחיל לתרגל, ללוות ילד או לנהל כיתה. בחרו את התפקיד שלכם.</p>
+    </div>
+  </header>
+
+  <nav class="roles" aria-label="בחירת מדריך">
+    <a class="role t-orange" href="#student"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg></span><span><b>תלמיד</b><span>המסע, השאלות והשיעורים</span></span></a>
+    <a class="role t-blue" href="#parent"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M17 11a3 3 0 1 0 0-6M22 21v-1a5 5 0 0 0-4-4.9"/></svg></span><span><b>הורה</b><span>מעקב, שיעורים ונושאים</span></span></a>
+    <a class="role t-mint" href="#teacher"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 5l9 4.5-9 4.5zM7 11.5V16c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5v-4.5M21 9.5V15"/></svg></span><span><b>מורה</b><span>הכיתה, תלמידים ובדיקות רמה</span></span></a>
+  </nav>
+
+  <!-- כניסה -->
+  <section class="part t-blue" id="start" aria-labelledby="start-h">
+    <div class="part-head"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></span><div><h2 id="start-h">כניסה וחשבונות</h2><p>לכל אחד יש חשבון משלו: תלמיד, הורה או מורה.</p></div></div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">1</span>מתחברים</h3>
+        <p>מקלידים שם משתמש וסיסמה ולוחצים <b>"יוצאים לדרך"</b>. האפליקציה פותחת את המסך שמתאים לתפקיד.</p>
+        <ul>
+          <li><b>כניסה ראשונה:</b> אם קיבלתם סיסמה זמנית, תתבקשו לבחור סיסמה קבועה.</li>
+          <li><b>מכשיר אחד בכל פעם:</b> התחברות ממכשיר אחר מנתקת את הקודם.</li>
+          <li><b>"שמור אותי מחובר":</b> במחשב משותף כדאי לבטל את הסימון.</li>
+        </ul>
+      </div>
+      <figure><img class="shot" src="guide/img/login.png" alt="מסך ההתחברות עם שדות שם משתמש וסיסמה" width="430" height="860" loading="lazy"></figure>
+    </div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">2</span>אין לכם חשבון?</h3>
+        <p>הורים ומורים לוחצים במסך ההתחברות על <b>"בקשת חשבון להורה או למורה"</b>, ממלאים שם ודרך יצירת קשר, ושולחים. מנהל המערכת יוצר את החשבון וחוזר אליכם עם הפרטים.</p>
+        <p>חשבונות תלמידים נוצרים על ידי ההורה או המורה.</p>
+      </div>
+      <figure><img class="shot" src="guide/img/request.png" alt="טופס בקשת חשבון להורה או למורה" width="430" height="900" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <!-- תלמיד -->
+  <section class="part t-orange" id="student" aria-labelledby="student-h">
+    <div class="part-head"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg></span><div><h2 id="student-h">מדריך לתלמיד</h2><p>כל יום מתחילים בכפתור הכתום הגדול.</p></div></div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">1</span>מסך הבית</h3>
+        <ul>
+          <li><b>למעלה:</b> הדמות עם מספר השלב, המטבעות, ימי הרצף והתגים שכבר השגתם.</li>
+          <li><b>הכפתור הכתום:</b> מתחיל או ממשיך את השיעור ופותח את התחנה הבאה במסע.</li>
+          <li><b>כרטיס השיעורים:</b> כמה שיעורים הושלמו מתוך כמה.</li>
+          <li><b>המשימות של היום:</b> שלוש משימות קטנות, וכל אחת מזכה במטבעות.</li>
+          <li><b>אימון חכם:</b> סבב מעורב מכל מה שלמדתם, עם דגש על מה שטעיתם בו.</li>
+        </ul>
+        <p class="note"><span><b>כניסה ראשונה:</b> שאלון קצר (בית ספר, כיתה ועד כמה אתם אוהבים מתמטיקה) ואחריו בדיקת רמה, כדי שהמסע יתחיל מהמקום הנכון.</span></p>
+      </div>
+      <figure><img class="shot" src="guide/img/student-home.png" alt="מסך הבית של התלמיד" width="390" height="1000" loading="lazy"></figure>
+    </div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">2</span>המסע</h3>
+        <p>המסע בנוי מיחידות, ובכל יחידה יש תחנות. לחיצה על יחידה פותחת את התחנות שלה. התגית <b>"ממשיכים כאן"</b> מסמנת את התחנה הבאה.</p>
+        <ul>
+          <li>תחנה עם ✓ הושלמה. הנקודות מתחת לכל תחנה מראות כמה שלבים כבר עברתם.</li>
+          <li>בסוף המסע מחכה <b>הבוס</b>: סימולציית מבחן עם שעון.</li>
+          <li>ההורה או המורה יכולים להחליט אילו נושאים יופיעו במסע.</li>
+        </ul>
+      </div>
+      <figure><img class="shot" src="guide/img/student-journey.png" alt="מפת המסע עם יחידה פתוחה ותחנות" width="390" height="900" loading="lazy"></figure>
+    </div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">3</span>שלבים בתחנה</h3>
+        <p>בכל תחנה יש 10 שלבים. <b>9 תשובות נכונות מתוך 10</b> פותחות את השלב הבא. השלב שמחכה לכם מסומן ב"התור שלך".</p>
+      </div>
+      <figure><img class="shot" src="guide/img/student-ladder.png" alt="מסך השלבים של תחנת כפל" width="390" height="760" loading="lazy"></figure>
+    </div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">4</span>פותרים שאלה</h3>
+        <ul>
+          <li>מקלידים תשובה ולוחצים <b>"בדיקה"</b>. אחרי טעות ראשונה מקבלים רמז ועוד ניסיון.</li>
+          <li><b>רמז:</b> מסביר את הדרך עם דוגמה או איור, בלי לגלות את התשובה.</li>
+          <li><b>טיוטה:</b> מקום לכתוב ולצייר חישובים.</li>
+          <li><b>לא יודע/ת:</b> מראה את הפתרון צעד אחר צעד. השאלה תחזור מאוחר יותר.</li>
+        </ul>
+      </div>
+      <figure><img class="shot" src="guide/img/student-question.png" alt="מסך שאלה עם מקלדת מספרים וכפתורי רמז וטיוטה" width="390" height="844" loading="lazy"></figure>
+    </div>
+    <div class="step phone">
+      <div>
+        <h3><span class="num">5</span>שיעורים</h3>
+        <p>שיעור הוא זמן תרגול נטו שההורה קבע, למשל 60 דקות. השעון סופר רק כשאתם פותרים, ונעצר אחרי דקה בלי פעילות. כל שיעור שמושלם חושף חלק מתמונת הפאזל.</p>
+        <p>שיעור שההורה או המורה הקפיאו מופיע באפור עם הכיתוב "מוקפא".</p>
+      </div>
+      <figure><img class="shot" src="guide/img/student-lessons.png" alt="מסך השיעורים עם פאזל" width="390" height="540" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <!-- הורה -->
+  <section class="part t-blue" id="parent" aria-labelledby="parent-h">
+    <div class="part-head"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M17 11a3 3 0 1 0 0-6M22 21v-1a5 5 0 0 0-4-4.9"/></svg></span><div><h2 id="parent-h">מדריך להורה</h2><p>כרטיס לכל ילד, עם מה שקרה ב-7 הימים האחרונים.</p></div></div>
+    <div class="step">
+      <div>
+        <h3><span class="num">1</span>הילדים שלי</h3>
+        <ul>
+          <li><b>נקודה ירוקה ליד השם:</b> הילד מחובר עכשיו.</li>
+          <li><b>רצועת 7 ימים:</b> כל יום שבו תרגל צבוע בירוק, עם מספר הדקות.</li>
+          <li><b>מספרים:</b> דקות, דפים, אחוז הצלחה וימי רצף.</li>
+          <li><b>הערה:</b> מה שדורש תשומת לב, למשל "לא תרגל 5 ימים" או נושא לחיזוק.</li>
+          <li><b>"לדשבורד המלא":</b> גרפים, הצלחה לפי מסלול, בדיקת רמה ותרגולים אחרונים.</li>
+        </ul>
+      </div>
+      <figure><img class="shot" src="guide/img/parent-home.png" alt="מסך הילדים שלי עם שני כרטיסי ילד" width="1280" height="860" loading="lazy"></figure>
+    </div>
+    <div class="step">
+      <div>
+        <h3><span class="num">2</span>הוספת ילד</h3>
+        <ol>
+          <li>לוחצים <b>"+ הוספת ילד/ה"</b>.</li>
+          <li>ממלאים שם מלא, שם משתמש וסיסמה זמנית (לפחות 6 תווים).</li>
+          <li>לא חובה: כיתה, בית ספר ומורה. אחרי בחירת בית ספר מופיעים רק המורים שלו.</li>
+          <li>לוחצים <b>"צור תלמיד"</b> ומעבירים לילד את פרטי הכניסה.</li>
+        </ol>
+        <p class="note"><span>אם בחרתם מורה, הילד מופיע מיד גם במסך של המורה.</span></p>
+      </div>
+      <figure><img class="shot" style="max-width:620px; margin-inline:auto" src="guide/img/parent-add.png" alt="טופס הוספת ילד עם בחירת בית ספר ומורה" width="1180" height="900" loading="lazy"></figure>
+    </div>
+    <div class="step">
+      <div>
+        <h3><span class="num">3</span>שיעורים ונושאים</h3>
+        <p>פותחים מ<b>"שיעורים ונושאים"</b> בכרטיס הילד או בדשבורד. השינוי חל אחרי <b>"שמירה"</b>, מיד, גם אם הילד מחובר.</p>
+        <table>
+          <thead><tr><th>פעולה</th><th>מה קורה אצל הילד</th></tr></thead>
+          <tbody>
+            <tr><td>הקפאה</td><td>השיעור באפור ואי אפשר להתחיל אותו</td></tr>
+            <tr><td>ביטול</td><td>השיעור נעלם. אפשר לשחזר, כולל הדקות שנצברו</td></tr>
+            <tr><td>הקפאת הכול / ביטול הכול</td><td>חל על כל השיעורים שלא הושלמו, וכרטיס השיעורים נעלם</td></tr>
+            <tr><td>+ שיעור חדש</td><td>שיעור נוסף בסוף, ההתקדמות נשמרת</td></tr>
+            <tr><td>נושאים במסע</td><td>נושא מוסתר לא מופיע במפה, ההתקדמות בו נשמרת</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure><img class="shot" src="guide/img/parent-program.png" alt="עורך השיעורים והנושאים" width="1160" height="1025" loading="lazy"></figure>
+    </div>
+    <div class="step">
+      <div>
+        <h3><span class="num">4</span>מטבעות ובדיקת רמה</h3>
+        <p>לחיצה על תווית המטבעות בכרטיס פותחת כפתורים מהירים: <b>+5, +10, +25 או +50</b>.</p>
+        <p>בדשבורד המלא אפשר לבקש בדיקת רמה בכניסה הבאה, לקבוע שהיא חובה, להשהות אותה או לבטל אותה.</p>
+      </div>
+      <figure><img class="shot" src="guide/img/parent-gift.png" alt="כרטיס ילד עם כפתורי הענקת מטבעות" width="460" height="300" loading="lazy" style="max-width:460px; margin-inline:auto"></figure>
+    </div>
+  </section>
+
+  <!-- מורה -->
+  <section class="part t-mint" id="teacher" aria-labelledby="teacher-h">
+    <div class="part-head"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 5l9 4.5-9 4.5zM7 11.5V16c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5v-4.5M21 9.5V15"/></svg></span><div><h2 id="teacher-h">מדריך למורה</h2><p>כל התלמידים שמשויכים אליכם, במסך אחד.</p></div></div>
+    <div class="step">
+      <div>
+        <h3><span class="num">1</span>הכיתה שלי</h3>
+        <ul>
+          <li><b>מדדים:</b> כמה תרגלו, דקות, תרגילים, הצלחה ומי צריך תשומת לב. בוחרים טווח: השבוע, החודש או הכול.</li>
+          <li><b>טבלת התלמידים:</b> לחיצה על שורה פותחת את הדשבורד המלא של התלמיד.</li>
+          <li><b>"שיעורים ונושאים":</b> אותו עורך שיש להורה, לכל תלמיד בנפרד.</li>
+          <li><b>הצלחה לפי מסלול:</b> הנושאים שהכיתה מתקשה בהם, מהחלש לחזק.</li>
+        </ul>
+      </div>
+      <figure><img class="shot" src="guide/img/teacher-home.png" alt="מסך הכיתה של המורה" width="1280" height="1190" loading="lazy"></figure>
+    </div>
+    <div class="step solo">
+      <div>
+        <h3><span class="num">2</span>פעולות לכיתה</h3>
+        <ul>
+          <li><b>"+ הוספת תלמיד":</b> שם, שם משתמש, סיסמה זמנית, ולא חובה שם המשתמש של ההורה כדי לקשר אותו.</li>
+          <li><b>"בדיקת רמה לכל הכיתה":</b> מופיעה לכל תלמיד בכניסה הבאה. "בלי אפשרות לסגור" הופך אותה לחובה.</li>
+          <li><b>"הגדרות":</b> שם מלא ושם בית הספר. לפי בית הספר הורים מוצאים אתכם ברשימת המורים.</li>
+        </ul>
+        <p class="note"><span>תלמיד שהורה יצר ובחר בכם כמורה מופיע בכיתה מיד, בלי פעולה מצדכם.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- שאלות -->
+  <section class="part faq t-blue" id="faq" aria-labelledby="faq-h">
+    <div class="part-head"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></span><div><h2 id="faq-h">שאלות נפוצות</h2></div></div>
+    <table>
+      <thead><tr><th>מה קרה</th><th>מה עושים</th></tr></thead>
+      <tbody>
+        <tr><td>נותקתי עם "התחברת ממכשיר אחר"</td><td>מישהו התחבר לאותו חשבון במכשיר אחר. מתחברים שוב, ואם זה לא אתם, מחליפים סיסמה.</td></tr>
+        <tr><td>שכחתי סיסמה</td><td>פונים למנהל המערכת.</td></tr>
+        <tr><td>כרטיס השיעורים נעלם אצל התלמיד</td><td>כל השיעורים שנשארו מוקפאים או מבוטלים. מפשירים או משחזרים ב"שיעורים ונושאים".</td></tr>
+        <tr><td>נושא נעלם מהמסע</td><td>ההורה או המורה הסתירו אותו. ההתקדמות נשמרת וחוזרת כשמציגים אותו שוב.</td></tr>
+        <tr><td>שעון השיעור עומד</td><td>אחרי דקה בלי פעילות, או כשעוברים ללשונית אחרת, השעון נעצר. ממשיכים לפתור והוא ממשיך.</td></tr>
+        <tr><td>בדיקת הרמה קופצת בכל כניסה</td><td>ההורה או המורה יכולים להשהות או לבטל אותה בדשבורד של התלמיד.</td></tr>
+        <tr><td>המורה לא ברשימה בטופס הוספת ילד</td><td>המורה עוד לא נכנס למערכת או שלא הגדיר בית ספר. אפשר ליצור את החשבון בלי מורה ולשייך אחר כך.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="foot"><a href="./">חזרה לאפליקציה</a> · התמונות במדריך מבוססות על נתוני דוגמה</p>
+</main>
+</body>
+</html>
