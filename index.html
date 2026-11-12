@@ -1031,6 +1031,34 @@
   .j-sec.animate .journey-path { animation: pathDraw .8s ease-out both; animation-delay: .1s; }
   @keyframes pathDraw { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
   .journey.intro .j-sec { animation: nodeIn .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: calc(var(--si, 0) * 90ms); }
+  /* מסע ראשי: עיגול לכל יחידה; לחיצה פותחת מתחתיו את מסע המשנה */
+  .jm-unit { position: relative; }
+  .jm-row { position: relative; }
+  .jm-line, .jm-subline { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
+  .jm-node { position: absolute; top: 12px; width: 96px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-family: var(--body); }
+  .jm-disc { position: relative; width: 96px; height: 96px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: conic-gradient(var(--c) var(--p, 0deg), color-mix(in srgb, var(--c) 18%, white) 0); box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 30%, white); transition: transform .08s; }
+  .jm-face { width: 78px; height: 78px; border-radius: 50%; background: var(--c); color: white; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px white; }
+  .jm-face svg { width: 36px; height: 36px; }
+  .jm-node:active .jm-disc { transform: translateY(4px); }
+  .jm-node:focus-visible { outline: none; }
+  .jm-node:focus-visible .jm-disc { outline: 3px solid var(--ink); outline-offset: 6px; }
+  .jm-chev { position: absolute; bottom: -8px; left: 50%; translate: -50% 0; width: 26px; height: 26px; border-radius: 50%; background: white; color: var(--cd); display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--cl), 0 2px 4px rgba(27,27,47,.15); transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
+  .jm-unit.open .jm-chev { transform: rotate(180deg); }
+  .jm-name { margin-top: 14px; width: max-content; max-width: 190px; text-align: center; font: 700 1.05em var(--display); color: var(--ink); line-height: 1.25; text-wrap: balance; background: var(--paper); border-radius: 8px; padding: 0 6px; }
+  .jm-count { font-size: .78em; color: var(--cd); font-weight: 600; background: var(--paper); border-radius: 6px; padding: 0 6px; }
+  .jm-sub { margin-bottom: 4px; }
+  .journey-node.small { width: 72px; }
+  .journey-node.small .journey-disc { width: 72px; height: 72px; box-shadow: 0 0 0 7px color-mix(in srgb, var(--c) 16%, white), 0 5px 0 7px color-mix(in srgb, var(--c) 10%, white); }
+  .journey-node.small .journey-disc svg { width: 30px; height: 30px; }
+  .journey-node.small .journey-name { margin-top: 12px; font-size: .92em; background: var(--paper); border-radius: 6px; width: auto; max-width: 150px; padding: 0 6px; }
+  .journey-node.small .journey-sub { background: var(--paper); border-radius: 6px; padding: 0 4px; white-space: nowrap; }
+  .jm-unit.animate .journey-node { animation: nodeIn .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: calc(140ms + var(--i, 0) * 90ms); }
+  .jm-unit.animate .jm-subline { animation: pathDraw .9s ease-out both; animation-delay: .1s; }
+  .jm-unit:not(.open) .j-inner { visibility: hidden; transition: visibility 0s .5s; }
+  .jm-unit.open .j-body { grid-template-rows: 1fr; }
+  .journey.intro .jm-unit .jm-node { animation: nodeIn .5s cubic-bezier(.34,1.56,.64,1) both; animation-delay: calc(var(--si, 0) * 90ms); }
+  .journey:has(.jm-unit) { gap: 0; }
   .journey-path { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
   .journey-path path { fill: none; stroke: var(--neutral-d); stroke-width: 4; stroke-dasharray: 0.1 12; stroke-linecap: round; }
   .journey-banner {
@@ -2560,81 +2588,84 @@ function renderJourney() {
     document.getElementById('home-lessons-total').textContent = lessons.length;
   }
   const W = wrap.clientWidth || 360;
-  const ROW = 150, NODE = 84, TOP = 22;
-  const swing = Math.min(110, W * 0.26);
-  const pattern = [0, 1, 0, -1];
-  // התחנה שממשיכים ממנה: המסלול הראשון שעוד לא הושלם
+  const ROW = 168, UNIT = 96, NY = 12 + UNIT / 2;          // שורת יחידה: מרכז העיגול בגובה NY
+  const SROW = 128, SNODE = 72;                             // תחנות בתוך יחידה
+  const swing = Math.min(110, W * 0.26), sswing = Math.min(84, W * 0.21);
+  const pattern = [0, 1, 0, -1], spattern = [1, 0, -1, 0];
+  const ux = i => W / 2 + pattern[i % 4] * swing;
   let nextTrack = null;
   JOURNEY.forEach(sec => sec.nodes.forEach(n => { if (!nextTrack && n.track && (basicsProgress[n.track] || 0) < 10) nextTrack = n.track; }));
-  const chev = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const curve = pts => pts.map((p, i) => { if (!i) return `M${p[0]} ${p[1]}`; const pr = pts[i - 1], my = (pr[1] + p[1]) / 2; return `C${pr[0]} ${my} ${p[0]} ${my} ${p[0]} ${p[1]}`; }).join(' ');
   wrap.innerHTML = JOURNEY.map((section, si) => {
-    let y = TOP, nodesHtml = '';
-    const pts = [];
-    section.nodes.forEach((n, k) => {
-      const cx = W / 2 + pattern[k % 4] * swing, cy = y + NODE / 2;
-      pts.push([cx, cy]);
-      const st = journeyNodeState(n);
-      let sub;
-      if (n.track) {
-        const lvl = basicsProgress[n.track] || 0;
-        const dots = Array.from({ length: 5 }, (_, i) => `<i class="${i < Math.round(lvl / 2) ? 'on' : ''}"></i>`).join('');
-        sub = `<span class="journey-dots">${dots}</span><span class="journey-lvl">${st.done ? 'הושלם' : 'שלב ' + (lvl + 1)}</span>`;
-      } else {
-        sub = `<span class="journey-lvl">רמה ${Math.round(st.frac * 2) + 1} מתוך 3</span>`;
-      }
+    const x = ux(si), states = section.nodes.map(journeyNodeState);
+    const done = states.filter(s => s.done).length, frac = states.reduce((a, s) => a + s.frac, 0) / states.length;
+    const allDone = done === states.length, isNext = section.nodes.some(n => n.track && n.track === nextTrack);
+    const open = !!journeyOpen[si];
+    // הקו המנוקד: מהיחידה הקודמת אל העיגול, וממנו למטה (מתחת לשם)
+    const inPath = si ? curve([[ux(si - 1), 0], [x, NY]]) : '';
+    // מסע המשנה: מתחת לעיגול, דרך התחנות, וחזרה לאותו x בתחתית
+    const H = 34 + section.nodes.length * SROW;
+    const spts = [[x, 0]];
+    const stations = section.nodes.map((n, k) => {
+      const cx = W / 2 + spattern[k % 4] * sswing, cy = 34 + k * SROW + SNODE / 2;
+      spts.push([cx, cy]);
+      const st = states[k];
+      const sub = n.track
+        ? `<span class="journey-dots">${Array.from({ length: 5 }, (_, i) => `<i class="${i < Math.round((basicsProgress[n.track] || 0) / 2) ? 'on' : ''}"></i>`).join('')}</span><span class="journey-lvl">${st.done ? 'הושלם' : 'שלב ' + ((basicsProgress[n.track] || 0) + 1)}</span>`
+        : `<span class="journey-lvl">רמה ${Math.round(st.frac * 2) + 1} מתוך 3</span>`;
       const action = n.track ? `openBasicsTrack('${n.track}')` : `openTopic(${n.topic})`;
-      nodesHtml += `<button type="button" class="journey-node c-${section.color}${st.done ? ' done' : ''}" style="left:${cx - NODE / 2}px; top:${cy - NODE / 2}px; --i:${k}" onclick="${action}" aria-label="${escapeAttr(n.name)}">
+      return `<button type="button" class="journey-node small c-${section.color}${st.done ? ' done' : ''}" style="left:${cx - SNODE / 2}px; top:${cy - SNODE / 2}px; --i:${k}" onclick="${action}" aria-label="${escapeAttr(n.name)}">
           <span class="journey-disc">${journeyIcon(n.icon)}${st.done ? '<span class="journey-check">✓</span>' : ''}${n.track && n.track === nextTrack ? '<span class="journey-tag">ממשיכים כאן</span>' : ''}</span>
           <span class="journey-name">${escapeHtml(n.name)}</span>
           <span class="journey-sub">${sub}</span>
         </button>`;
-      y += ROW;
-    });
-    const h = y - ROW + NODE + 60;
-    let d = '';
-    pts.forEach((p, i) => { if (!i) { d += `M${p[0]} ${p[1]}`; return; } const pr = pts[i - 1], my = (pr[1] + p[1]) / 2; d += ` C${pr[0]} ${my} ${p[0]} ${my} ${p[0]} ${p[1]}`; });
-    const states = section.nodes.map(journeyNodeState);
-    const done = states.filter(s => s.done).length, pct = Math.round(100 * states.reduce((a, s) => a + s.frac, 0) / states.length);
-    const isNext = section.nodes.some(n => n.track && n.track === nextTrack);
-    const open = !!journeyOpen[si];
-    return `<section class="j-sec c-${section.color}${open ? ' open' : ''}" data-si="${si}" style="--si:${si}">
-        <button type="button" class="j-head" onclick="toggleJourneySection(${si})" aria-expanded="${open}" aria-controls="j-body-${si}">
-          <span class="j-ico">${journeyIcon(section.nodes[0].icon)}</span>
-          <span class="j-txt">
-            <b>${escapeHtml(section.title)}</b>
-            <small>${done} מתוך ${section.nodes.length} הושלמו</small>
-            <span class="j-bar" aria-hidden="true"><i style="width:${pct}%"></i></span>
-          </span>
-          ${isNext ? '<span class="j-next">ממשיכים כאן</span>' : ''}
-          <span class="j-chev">${chev}</span>
-        </button>
-        <div class="j-body" id="j-body-${si}"><div class="j-inner">
-          <div class="journey-map" style="height:${h}px">
-            <svg class="journey-path" width="${W}" height="${h}" aria-hidden="true"><path d="${d}"/></svg>
-            ${nodesHtml}
+    }).join('');
+    spts.push([x, H]);
+    return `<section class="jm-unit c-${section.color}${open ? ' open' : ''}" data-si="${si}" style="--si:${si}">
+        <div class="jm-row" style="height:${ROW}px">
+          <svg class="journey-path jm-line" width="${W}" height="${ROW}" aria-hidden="true">${inPath ? `<path d="${inPath}"/>` : ''}<path d="M${x} ${NY}V${ROW}"/></svg>
+          <button type="button" class="jm-node${allDone ? ' done' : ''}" style="left:${x - UNIT / 2}px" onclick="toggleJourneySection(${si})" aria-expanded="${open}" aria-controls="jm-sub-${si}" aria-label="${escapeAttr(section.title)}: ${done} מתוך ${states.length} תחנות">
+            <span class="jm-disc" style="--p:${Math.round(frac * 360)}deg">
+              <span class="jm-face">${journeyIcon(section.nodes[0].icon)}</span>
+              ${allDone ? '<span class="journey-check">✓</span>' : ''}
+              ${isNext && !open ? '<span class="journey-tag">ממשיכים כאן</span>' : ''}
+              <span class="jm-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </span>
+            <span class="jm-name">${escapeHtml(section.title)}</span>
+            <span class="jm-count">${done} מתוך ${states.length} תחנות</span>
+          </button>
+        </div>
+        <div class="j-body" id="jm-sub-${si}"><div class="j-inner">
+          <div class="journey-map jm-sub" style="height:${H}px">
+            <svg class="journey-path jm-subline" width="${W}" height="${H}" aria-hidden="true"><path d="${curve(spts)}"/></svg>
+            ${stations}
           </div>
         </div></div>
       </section>`;
   }).join('');
   wrap.style.height = '';
-  // כניסה מדורגת של כרטיסי היחידות – פעם אחת בכל טעינת עמוד
   if (!renderJourney.played && wrap.offsetParent) {
     renderJourney.played = true;
     wrap.classList.add('intro');
     setTimeout(() => wrap.classList.remove('intro'), 600 + JOURNEY.length * 90);
   }
 }
+// לחיצה על יחידה: פותחת את מסע המשנה שלה (וסוגרת יחידה אחרת שהייתה פתוחה)
 function toggleJourneySection(si) {
-  journeyOpen[si] = !journeyOpen[si];
+  const opening = !journeyOpen[si];
+  journeyOpen = opening ? { [si]: true } : {};
   try { localStorage.setItem('journeyOpen', JSON.stringify(journeyOpen)); } catch (e) {}
-  const sec = document.querySelector(`#journey .j-sec[data-si="${si}"]`);
-  if (!sec) return;
-  sec.classList.toggle('open', journeyOpen[si]);
-  sec.querySelector('.j-head').setAttribute('aria-expanded', String(journeyOpen[si]));
-  if (journeyOpen[si]) {
+  document.querySelectorAll('#journey .jm-unit').forEach(u => {
+    const on = !!journeyOpen[u.dataset.si];
+    u.classList.toggle('open', on);
+    u.querySelector('.jm-node').setAttribute('aria-expanded', String(on));
+    const tag = u.querySelector('.jm-disc .journey-tag'); if (tag) tag.hidden = on;
+  });
+  if (opening) {
+    const sec = document.querySelector(`#journey .jm-unit[data-si="${si}"]`);
     restartAnim(sec, 'animate');
-    setTimeout(() => sec.classList.remove('animate'), 1400);
-    setTimeout(() => sec.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 250);
+    setTimeout(() => sec.classList.remove('animate'), 1500);
+    setTimeout(() => sec.scrollIntoView({ block: 'start', behavior: 'smooth' }), 320);
   }
 }
 
