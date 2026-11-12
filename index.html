@@ -1774,7 +1774,9 @@
   .pe-sec.c-blue { --cl: var(--blue-l); --cd: var(--blue-d); } .pe-sec.c-mint { --cl: var(--mint-l); --cd: var(--mint-d); } .pe-sec.c-orange { --cl: var(--orange-l); --cd: var(--orange-d); }
   .pe-sec.c-purple { --cl: #EFE8FF; --cd: var(--purple-d); } .pe-sec.c-pink { --cl: var(--pink-l); --cd: var(--pink-d); } .pe-sec.c-ink { --cl: #E6E8F0; --cd: var(--ink); }
   .ph-prog-actions { display: flex; gap: 10px; flex-wrap: wrap; } .ph-prog-actions .btn { width: auto; min-width: 140px; margin: 0; }
-  #pd-prog-slot { margin-bottom: 18px; } #pd-prog-slot.hidden { display: none; }
+  #pd-prog-slot { margin-bottom: 18px; } #pd-prog-slot.hidden, #tc-prog-slot.hidden { display: none; }
+  .tc-prog-btn { min-height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--blue-l); color: var(--blue-d); font: 600 .85em var(--body); cursor: pointer; white-space: nowrap; }
+  .tc-prog-btn:hover { background: var(--blue); color: white; }
   /* בית ההורה: כרטיס לכל ילד */
   .ph-add { min-height: 44px; padding: 0 18px; }
   .ph-forms .ph-form { max-width: 440px; width: 100%; margin: 0 auto; }
@@ -2379,6 +2381,7 @@ try {
           <div class="auth-error" id="tc-new-error"></div>
         </form>
       </section>
+      <section class="pd-card ph-forms hidden" id="tc-prog-slot" aria-label="שיעורים ונושאים"></section>
       <section class="pd-card" aria-label="תלמידים">
         <div class="pd-h"><h3>התלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
         <div class="pd-table-wrap" id="tc-table"><p class="pd-empty">טוען...</p></div>
@@ -4317,9 +4320,11 @@ function pdPlacementCancel() {
   showToast('בדיקת הרמה בוטלה');
 }
 // עריכת התוכנית מתוך הדשבורד (הורה, מורה או מנהל): הטופס עובר זמנית לראש הדשבורד
-function pdEditProgram() {
-  const uid = dashboardStudentUid, name = document.getElementById('dashboard-student-name').textContent;
-  const f = document.getElementById('edit-program-form'), slot = document.getElementById('pd-prog-slot');
+function pdEditProgram() { openProgramEditorIn('pd-prog-slot', dashboardStudentUid, document.getElementById('dashboard-student-name').textContent); }
+// מעביר את עורך השיעורים והנושאים למקום אחר במסך (דשבורד, מסך מורה) ופותח אותו שם
+function openProgramEditorIn(slotId, uid, name) {
+  const f = document.getElementById('edit-program-form'), slot = document.getElementById(slotId);
+  if (f.parentElement !== slot && f.parentElement && f.parentElement.id !== 'ph-forms') f.parentElement.classList.add('hidden');
   slot.appendChild(f); slot.classList.remove('hidden');
   openEditProgramForm(uid, name);
   slot.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -4363,7 +4368,7 @@ function renderParentDash() {
   // תוכנית השיעורים
   const lw = document.getElementById('pd-lessons'), ls = pd.lessons && Array.isArray(pd.lessons.lessons) ? pd.lessons.lessons : null;
   const tgtMin = (pd.program && pd.program.minutesPerLesson) || LESSON_MINUTES_DEFAULT;
-  if (!ls) lw.innerHTML = '<p class="pd-empty">השיעורים יופיעו כאן כשהתרגול יתחיל.</p>';
+  if (!ls) lw.innerHTML = '<p class="pd-empty">השיעורים יופיעו כאן כשהתרגול יתחיל.</p><button type="button" class="pd-soft" onclick="pdEditProgram()">ניהול שיעורים ונושאים</button>';
   else {
     const lst = (pd.program && pd.program.lessonState) || {}, cnt = (pd.program && pd.program.lessonCount) || ls.length;
     const idxs = Array.from({ length: cnt }, (_, i) => i).filter(i => lst[i] !== 'cancelled'), no = i => idxs.indexOf(i) + 1;
@@ -10986,10 +10991,11 @@ function renderTeacherDash() {
     kpi('תרגילים', 'var(--purple)', cur.n, prev ? dl(cur.n, prev.n) : '') +
     kpi('הצלחה', 'var(--mint)', pct === null ? '—' : pct + '%', `<small class="pd-flat">${cur.alone === null ? 'נפתרו לבד: אין נתון' : `נפתרו לבד: ${cur.alone}%`}</small>`) +
     kpi('צריכים תשומת לב', 'var(--red)', needs, '<small class="pd-flat">לא תרגלו 5 ימים, או מתחת ל-60%</small>');
-  document.getElementById('tc-table').innerHTML = rows.length ? `<table class="pd-table tc-table"><thead><tr><th>תלמיד</th><th>כיתה</th><th>תרגול אחרון</th><th>דקות</th><th>הצלחה</th><th>שלב</th><th>רצף</th><th>התראות</th></tr></thead><tbody>${rows.map(r =>
+  document.getElementById('tc-table').innerHTML = rows.length ? `<table class="pd-table tc-table"><thead><tr><th>תלמיד</th><th>כיתה</th><th>תרגול אחרון</th><th>דקות</th><th>הצלחה</th><th>שלב</th><th>רצף</th><th>התראות</th><th><span class="sr-only">פעולות</span></th></tr></thead><tbody>${rows.map(r =>
     `<tr tabindex="0" role="button" onclick="tcOpenStudent('${r.u}')" onkeydown="if (event.key === 'Enter') tcOpenStudent('${r.u}')"><td><b>${escapeHtml(r.name)}</b></td><td>${escapeHtml(r.grade || '—')}</td><td>${adWhen(r.last)}</td><td>${r.mins}</td>
       <td>${r.sp === null ? '—' : `<span class="pd-score ${r.sp >= 80 ? 'ok' : r.sp >= 60 ? 'mid' : 'low'}" dir="ltr">${r.sp}%</span>`}</td><td>${r.level}</td><td>${r.streak}</td>
-      <td>${r.alerts.map(([k, t]) => `<span class="tc-alert ${k}">${t}</span>`).join(' ') || '<span class="ad-ok">✓</span>'}</td></tr>`).join('')}</tbody></table>`
+      <td>${r.alerts.map(([k, t]) => `<span class="tc-alert ${k}">${t}</span>`).join(' ') || '<span class="ad-ok">✓</span>'}</td>
+      <td><button type="button" class="tc-prog-btn" onclick="event.stopPropagation(); openProgramEditorIn('tc-prog-slot', '${r.u}', '${escapeAttr(r.name)}')" onkeydown="event.stopPropagation()">שיעורים ונושאים</button></td></tr>`).join('')}</tbody></table>`
     : '<p class="pd-empty">עוד לא שויכו אליך תלמידים. המנהל משייך תלמידים למורה מתוך הדשבורד של התלמיד.</p>';
   const byT = {};
   cur.subs.forEach(x => (x.problems || []).forEach(pr => { const t = pr.track || x.track; if (!t || !BASICS_TRACKS[t]) return; const b = byT[t] = byT[t] || { ok: 0, n: 0 }; b.n++; if (pr.correct) b.ok++; }));
@@ -11362,9 +11368,9 @@ function peToggleSection(si) {
   renderProgramEditor();
 }
 function closeEditProgramForm() {
-  const f = document.getElementById('edit-program-form'), home = document.getElementById('ph-forms'), slot = document.getElementById('pd-prog-slot');
+  const f = document.getElementById('edit-program-form'), home = document.getElementById('ph-forms'), slot = f.parentElement;
   f.classList.add('hidden');
-  if (slot && f.parentElement === slot) { home.appendChild(f); slot.classList.add('hidden'); }
+  if (slot && slot !== home) { home.appendChild(f); slot.classList.add('hidden'); }
   editProgramStudentUid = null; pe = null;
   phSyncForms();
 }
@@ -11393,7 +11399,7 @@ async function handleSaveProgram() {
 }
 function phSyncForms() {
   const c = document.getElementById('ph-forms'); if (!c) return;
-  const open = ['create-student-form', 'edit-program-form'].some(id => !document.getElementById(id).classList.contains('hidden'));
+  const open = ['create-student-form', 'edit-program-form'].some(id => { const el = document.getElementById(id); return c.contains(el) && !el.classList.contains('hidden'); });
   c.classList.toggle('hidden', !open);
   if (open) c.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
