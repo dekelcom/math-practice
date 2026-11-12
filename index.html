@@ -1491,6 +1491,18 @@
   .fb-mult { font-style: normal; margin-inline-start: 6px; background: var(--orange); color: white; border-radius: 999px; padding: 0 7px; font-size: .85em; }
   #coins-stat.coin-bump { animation: pulse .35s ease-out; }
 
+  /* ===== אימון חכם ===== */
+  .mix-card { display: flex; align-items: center; gap: 12px; background: var(--ink); color: white; border-radius: var(--r-lg); padding: 14px 16px; margin: -10px 0 24px; box-shadow: 0 5px 0 #000; }
+  .mix-ico { flex: none; width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.12); color: var(--sun); display: inline-flex; align-items: center; justify-content: center; }
+  .mix-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .mix-txt b { font: 700 1.1em var(--display); }
+  .mix-txt small { color: rgba(255,255,255,.75); line-height: 1.4; }
+  .mix-go { flex: none; border: 0; border-radius: 14px; padding: 12px 18px; background: var(--sun); color: var(--ink); font: 700 1em var(--body); cursor: pointer; box-shadow: 0 4px 0 var(--sun-d); transition: transform .08s, box-shadow .08s; }
+  .mix-go:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--sun-d); }
+  .retry-chip, .mix-chip { align-self: center; display: inline-block; margin-bottom: 4px; border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .85em; }
+  .retry-chip { background: var(--orange-l); color: var(--orange-d); }
+  .mix-chip { background: var(--blue-l); color: var(--blue-d); }
+
   /* ===== מסך השאלה של הנושאים ===== */
   #topic-view .problem-area { background: transparent; border: 0; padding: 0; margin: 8px 0 0; min-height: 0; }
   #topic-view .q-topbar { gap: 8px; }
@@ -1686,6 +1698,7 @@ try {
 
       <h3 class="path-heading">המשימות של היום</h3>
       <div id="home-quests" class="quests"></div>
+      <div id="home-mix"></div>
       <h3 class="path-heading">המסלול שלך</h3>
       <div id="journey" class="journey"></div>
     </section>
@@ -1951,7 +1964,7 @@ const MOT_BADGES = [
 ];
 const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const yesterdayKey = () => { const y = new Date(); y.setDate(y.getDate() - 1); return dayKey(y); };
-function motNew() { return { xp: 0, streakDays: 0, bestStreakDays: 0, lastDay: null, combo: 0, bestCombo: 0, badges: {}, day: { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} } }; }
+function motNew() { return { xp: 0, streakDays: 0, bestStreakDays: 0, lastDay: null, combo: 0, bestCombo: 0, badges: {}, retry: [], tracks: {}, day: { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} } }; }
 var mot = motNew();
 // שלב N מתחיל ב-75·N·(N−1) נקודות: 150, 450, 900, 1500… – כל שלב קצת יותר ארוך מהקודם
 const motLvlStart = L => 75 * L * (L - 1);
@@ -2077,6 +2090,8 @@ function updateMotUI() {
         <span class="quest-txt"><b>${x.name}</b><small>פרס: ${x.reward} מטבעות</small></span>
       </div>`;
   }).join('');
+  const mixEl = document.getElementById('home-mix');
+  if (mixEl) mixEl.innerHTML = mixCardHtml();
   const pr = document.getElementById('mot-progress');
   if (pr) pr.innerHTML = `
       <div class="mot-card">
@@ -2090,6 +2105,99 @@ function updateMotUI() {
       </div>
       <h4 class="mot-sub">התגים שלי</h4>
       ${badgesHtml()}`;
+}
+
+// ============================================================
+// חזרה חכמה: טעויות נשמרות בתור, וחוזרות עם מספרים חדשים ב"אימון החכם",
+// יחד עם שאלות מהמסלולים החלשים (משקל לפי אחוז ההצלחה האחרון)
+// ============================================================
+const RETRY_MAX = 20, MIX_SIZE = 10, MIX_RETRY_MAX = 5;
+const MIX_EXCLUDE = ['additionBreakApart', 'oneStepEq', 'multiStepEq'];
+let basicsMixed = false;
+function retryQueue() { if (!Array.isArray(mot.retry)) mot.retry = []; return mot.retry; }
+function retryPush(track, sheet) {
+  if (MIX_EXCLUDE.includes(track) || !BASICS_TRACKS[track]) return;
+  const q = retryQueue();
+  q.push({ track, sheet, at: dayKey() });
+  while (q.length > RETRY_MAX) q.shift();
+}
+function trackResult(track, ok) {
+  if (!BASICS_TRACKS[track]) return;
+  mot.tracks = mot.tracks || {};
+  mot.tracks[track] = (mot.tracks[track] || []).concat(ok ? 1 : 0).slice(-10);
+}
+// אחוז הצלחה בעשר התשובות האחרונות במסלול (50 אם עוד אין נתונים)
+const trackMastery = track => { const a = (mot.tracks || {})[track]; return a && a.length ? Math.round(100 * a.reduce((s, x) => s + x, 0) / a.length) : 50; };
+const trackTitle = t => (BASICS_TRACKS[t] && BASICS_TRACKS[t].title || t).replace(/^[^֐-׿]+/, '').trim();
+function mixProblem(track, sheet) {
+  try {
+    const ps = genBasicsProblems(track, sheet);
+    const p = ps[Math.floor(Math.random() * ps.length)];
+    if (!p || p.guided || p.breakApart) return null;
+    p._track = track; p._sheet = sheet;
+    return p;
+  } catch (e) { return null; }
+}
+function mixPool() {
+  const started = Object.keys(BASICS_TRACKS).filter(t => !MIX_EXCLUDE.includes(t) && ((basicsProgress[t] || 0) > 0 || ((mot.tracks || {})[t] || []).length));
+  return started.length ? started : ['addition', 'subtraction', 'multiplication', 'division'];
+}
+function weakestTrack() {
+  const withData = Object.keys(mot.tracks || {}).filter(t => BASICS_TRACKS[t] && mot.tracks[t].length >= 3);
+  if (!withData.length) return null;
+  const t = withData.sort((a, b) => trackMastery(a) - trackMastery(b))[0];
+  return trackMastery(t) < 80 ? t : null;
+}
+function buildMixProblems() {
+  const out = [], seen = new Set();
+  const add = p => { if (!p) return false; const k = p._track + '|' + (p.displayQ || `${p.a}${p.op}${p.b}`); if (seen.has(k)) return false; seen.add(k); out.push(p); return true; };
+  // קודם הטעויות שמחכות (הוותיקות קודם)
+  retryQueue().splice(0, MIX_RETRY_MAX).forEach(r => { const p = mixProblem(r.track, r.sheet); if (p) { p._retry = true; add(p); } });
+  // ואז מסלולים לפי חולשה: משקל = 110 − אחוז הצלחה
+  const pool = mixPool();
+  for (let guard = 0; out.length < MIX_SIZE && guard < 200; guard++) {
+    const w = pool.map(t => 110 - trackMastery(t)), sum = w.reduce((a, b) => a + b, 0);
+    let r = Math.random() * sum, t = pool[0];
+    for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) { t = pool[i]; break; } }
+    add(mixProblem(t, Math.min(9, basicsProgress[t] || 0)));
+  }
+  // הטעויות מפוזרות בסבב ולא כולן בהתחלה
+  for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+  return out.slice(0, MIX_SIZE);
+}
+function startMixSession() {
+  basicsMixed = true;
+  basicsProblems = buildMixProblems();
+  basicsTrack = basicsProblems[0]._track; basicsSheetIndex = basicsProblems[0]._sheet;
+  basicsCurrent = 0; basicsCorrect = 0; basicsSessionLog = []; basicsRetryIdx = null;
+  basicsSessionStart = Date.now(); basicsLastSubmissionRef = null;
+  motSave();
+  ['main-menu', 'basics-ladder-view', 'topic-view'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+  document.getElementById('basics-session-view').classList.remove('hidden');
+  document.getElementById('basics-session-title').textContent = 'אימון חכם';
+  renderBasicsProblem();
+}
+function finishMixSession() {
+  basicsSheetPassed = basicsCorrect >= BASICS_PASS_THRESHOLD;
+  basicsSheetUnlocked = false;
+  autoSaveSession('mix', 'mix', 'אימון חכם');
+  const badgesBefore = Object.keys(mot.badges);
+  const ev = motOnSheet({ correct: basicsCorrect, total: BASICS_SHEET_SIZE, trackDone: false });
+  basicsFreshBadges = Object.keys(mot.badges).filter(b => !badgesBefore.includes(b));
+  renderSheetReview();
+  countUp(document.getElementById('review-pct'), Math.round(100 * basicsCorrect / BASICS_SHEET_SIZE), '%');
+  if (basicsSheetPassed) confettiBurst(60);
+  motCelebrate(ev);
+}
+function exitMixSession() { basicsMixed = false; closeDraft(); fbClose(); backToMenu(); }
+function mixCardHtml() {
+  const n = retryQueue().length, weak = weakestTrack();
+  return `<div class="mix-card">
+      <span class="mix-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.6M20 4v4.6h-4.6M20 12a8 8 0 0 1-13.7 5.7L4 15.4M4 20v-4.6h4.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="mix-txt"><b>אימון חכם</b>
+        <small>${n ? `${n} ${n === 1 ? 'טעות מחכה' : 'טעויות מחכות'} לחזרה, עם מספרים חדשים` : 'סבב מעורב מהמסלולים שלך'}${weak ? ` · כדאי לחזק: ${escapeHtml(trackTitle(weak))}` : ''}</small></span>
+      <button type="button" class="mix-go" onclick="startMixSession()">התחלה</button>
+    </div>`;
 }
 
 // ============================================================
@@ -3255,6 +3363,7 @@ function trackLabelHebrew(track) {
     return BASICS_TRACKS[track].title.replace(/^[^֐-׿]+/, '').trim();
   }
   if (track === 'mixed') return 'בדיקת רמה';
+  if (track === 'mix') return 'אימון חכם';
   return track || '';
 }
 
@@ -4356,6 +4465,7 @@ function genBasicsProblems(track, sheetIndex) {
 }
 
 function openBasicsSheet(index) {
+  basicsMixed = false;
   const unlocked = basicsProgress[basicsTrack] || 0;
   if (index > unlocked) return;
   basicsSheetIndex = index;
@@ -6746,6 +6856,7 @@ function qsToolsHtml(onDraft, onDontKnow, onHint) {
 let qsInput = '';
 function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
+  if (p && p._track) { basicsTrack = p._track; basicsSheetIndex = p._sheet; }
   closeDraft();
   if (p && p.breakApart) { renderBreakApartProblem(); return; }
   if (p && p.guided === 'oneStep') { renderGuidedOneStep(); return; }
@@ -6783,7 +6894,7 @@ function renderBasicsProblem() {
   }
   container.innerHTML = `
     ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsSessionLog)}
-    <div class="qs-question">${labelHtml}<div class="basics-equation">${questionLine}</div></div>
+    <div class="qs-question">${p._retry ? '<span class="retry-chip">חוזרים על טעות</span>' : basicsMixed ? `<span class="mix-chip">${escapeHtml(trackTitle(basicsTrack))}</span>` : ''}${labelHtml}<div class="basics-equation">${questionLine}</div></div>
     <div id="qs-hint" hidden></div>
     <div id="qs-answer">
       <div class="qs-miss" id="qs-miss" role="status" hidden></div>
@@ -6911,6 +7022,10 @@ function recordBasicsAnswer(value, correct, trapHit) {
   });
   if (correct) basicsCorrect++;
   if (correct && basicsHint && basicsHint.passStyle) hsBump(basicsHint.passStyle, 0, 0.4);
+  // חזרה חכמה: טעות (או פתרון שנזקק לרמז 3 / לשיעור) נכנסת לתור, ותחזור עם מספרים חדשים
+  trackResult(basicsTrack, correct && !basicsAttempt.missed);
+  if (!correct || (basicsHint && (basicsHint.lesson || basicsHint.used >= 3))) retryPush(basicsTrack, basicsSheetIndex);
+  motSave();
   updateProgressSegs();
   updateQCombo();
   showBasicsFeedback({ p, value, correct, trapHit, xp: motRes.gained, mult: motRes.mult });
@@ -7036,7 +7151,7 @@ function countUp(el, to, suffix) {
   if (prefersReducedMotion()) { el.textContent = to + suffix; return; }
   const t0 = performance.now();
   const tick = now => {
-    const k = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - k, 3);
+    const k = Math.min(1, ((now || performance.now()) - t0) / 900), e = 1 - Math.pow(1 - k, 3);
     el.textContent = Math.round(to * e) + suffix;
     if (k < 1) requestAnimationFrame(tick);
   };
@@ -7585,6 +7700,7 @@ let basicsSheetPassed = false;
 let basicsSheetUnlocked = false;
 
 function finishBasicsSheet() {
+  if (basicsMixed) { finishMixSession(); return; }
   basicsSheetPassed = basicsCorrect >= BASICS_PASS_THRESHOLD;
   const wasUnlockSheet = basicsSheetIndex === (basicsProgress[basicsTrack] || 0);
   basicsSheetUnlocked = false;
@@ -7613,12 +7729,14 @@ function renderSheetReview() {
   const container = document.getElementById('basics-session');
   const cls = basicsSheetPassed ? 'passed' : 'failed';
   const pct = Math.round(100 * basicsCorrect / BASICS_SHEET_SIZE);
-  const headline = basicsSheetPassed
+  const headline = basicsMixed
+    ? (basicsSheetPassed ? '🎯 סבב מעולה!' : 'סיימת סבב. הטעויות יחזרו בסבב הבא, עם מספרים חדשים.')
+    : basicsSheetPassed
     ? (basicsSheetUnlocked
         ? (basicsSheetIndex < 9 ? '🎉 שלט בשלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
         : '✓ עברת. אפשר להמשיך לשלב הבא או לתרגל שוב.')
     : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
-  const videoBtn = basicsSheetPassed ? '' :
+  const videoBtn = basicsSheetPassed || basicsMixed ? '' :
     `<button class="btn btn-info video-help-btn" onclick="openVideoSearch()">🎥 הסבר בווידאו</button>`;
   const nextSheetIdx = basicsSheetIndex + 1;
   const nextUnlocked = nextSheetIdx <= 9 && nextSheetIdx <= (basicsProgress[basicsTrack] || 0);
@@ -7675,9 +7793,10 @@ function renderSheetReview() {
     </div>
     ${videoBtn}
     <div class="review-actions">
-      <button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב את השלב</button>
+      ${basicsMixed ? `<button class="btn btn-primary" onclick="startMixSession()">עוד סבב</button>
+      <button class="btn btn-secondary" onclick="exitMixSession()">למסע</button>` : `<button class="btn btn-primary" onclick="openBasicsSheet(${basicsSheetIndex})">נסה שוב את השלב</button>
       <button class="btn btn-secondary" onclick="exitBasicsSession()">חזרה לסולם</button>
-      ${nextBtn}
+      ${nextBtn}`}
     </div>
   `;
 }
@@ -7703,6 +7822,7 @@ function fbClose() {
   fbNext = null;
 }
 function exitBasicsSession() {
+  if (basicsMixed) { exitMixSession(); return; }
   closeDraft();
   fbClose();
   if (lessonIsOpen()) closeBasicsLesson();
