@@ -1718,6 +1718,11 @@
   .pd-score.ok { background: var(--mint-l); color: var(--mint-d); } .pd-score.mid { background: var(--sun-l); color: var(--sun-d); } .pd-score.low { background: var(--orange-l); color: var(--orange-d); }
   #app-container:has(#admin-home-view:not(.hidden)) { max-width: 1220px; }
   /* ===== שאלון כניסה ראשונה ===== */
+  .ob-confirm { position: fixed; inset: 0; z-index: 3100; background: rgba(27,27,47,.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .ob-confirm.hidden { display: none; }
+  .ob-confirm-card { width: 100%; max-width: 400px; background: white; border-radius: var(--r-lg); box-shadow: var(--drop); padding: 22px 20px; display: flex; flex-direction: column; gap: 12px; text-align: center; animation: fadeQ .25s ease-out; }
+  .ob-confirm-card h3 { margin: 0; font: 700 1.4em var(--display); color: var(--ink); }
+  .ob-confirm-card p { margin: 0; color: var(--ink2); line-height: 1.6; }
   #onboarding-view { position: fixed; inset: 0; z-index: 3000; background-color: var(--paper); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 26px 26px; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
   #onboarding-view.hidden { display: none; }
   .ob { width: 100%; max-width: 520px; background: white; border-radius: var(--r-lg); box-shadow: var(--drop); padding: 26px 22px 24px; display: flex; flex-direction: column; gap: 14px; text-align: right; margin: auto 0; animation: fadeQ .3s ease-out; }
@@ -2274,9 +2279,19 @@ try {
     </div>
   </div>
 
+  <div id="diag-confirm" class="ob-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="diag-confirm-title">
+    <div class="ob-confirm-card">
+      <div class="ob-mascot" id="diag-confirm-mascot" aria-hidden="true"></div>
+      <h3 id="diag-confirm-title">רגע, לפני שיוצאים</h3>
+      <p>בדיקת הרמה לוקחת כמה דקות, ובזכותה המסלול שלך יתחיל בדיוק ברמה שמתאימה לך. אם יוצאים עכשיו, היא תחכה לך בכניסה הבאה.</p>
+      <button type="button" class="cta-big" onclick="diagConfirmStay()">ממשיכים בבדיקה</button>
+      <button type="button" class="ob-back" onclick="diagConfirmLeave()">אעשה את זה אחר כך</button>
+    </div>
+  </div>
+
   <div id="diagnostic-view" class="hidden">
     <div class="q-topbar">
-      <button class="q-close" onclick="exitDiagnostic()" aria-label="חזרה לתפריט">
+      <button class="q-close" onclick="diagClose()" aria-label="יציאה מבדיקת הרמה">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
       </button>
       <span class="q-chip">בדיקת רמה</span>
@@ -3750,6 +3765,7 @@ function finishDiagnostic() {
   });
   saveBasicsProgress();
   autoSaveSession('diagnostic', 'mixed', 'בדיקת רמה');
+  if (mot.profile && !mot.profile.placementDone) { mot.profile.placementDone = Date.now(); motSave(); }
   const total = diagnosticQuestions.length;
   const container = document.getElementById('diagnostic-session');
   container.innerHTML = `
@@ -3762,6 +3778,16 @@ function finishDiagnostic() {
   `;
 }
 
+// בכניסה הראשונה בדיקת הרמה היא חלק מהשאלון: האיקס שואל לפני שיוצאים, ואם יצאו היא חוזרת בכניסה הבאה
+function placementPending() { return !!(mot.profile && !mot.profile.placementDone); }
+function diagClose() {
+  const done = diagnosticCurrent >= diagnosticQuestions.length;
+  if (!placementPending() || done) { exitDiagnostic(); return; }
+  document.getElementById('diag-confirm-mascot').innerHTML = MASCOT_SVG;
+  document.getElementById('diag-confirm').classList.remove('hidden');
+}
+function diagConfirmStay() { document.getElementById('diag-confirm').classList.add('hidden'); }
+function diagConfirmLeave() { document.getElementById('diag-confirm').classList.add('hidden'); exitDiagnostic(); }
 function exitDiagnostic() {
   document.getElementById('diagnostic-view').classList.add('hidden');
   document.getElementById('main-menu').classList.remove('hidden');
@@ -10206,6 +10232,7 @@ async function routeByRole(role) {
     renderJourney();
     await motLoadRemote();
     if (!mot.profile) openOnboarding();
+    else if (placementPending()) startDiagnostic();
   }
 }
 
