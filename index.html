@@ -1717,6 +1717,30 @@
   .pd-score { font: 700 1em var(--display); padding: 3px 10px; border-radius: 10px; }
   .pd-score.ok { background: var(--mint-l); color: var(--mint-d); } .pd-score.mid { background: var(--sun-l); color: var(--sun-d); } .pd-score.low { background: var(--orange-l); color: var(--orange-d); }
   #app-container:has(#admin-home-view:not(.hidden)) { max-width: 1220px; }
+  /* ===== שאלון כניסה ראשונה ===== */
+  #onboarding-view { position: fixed; inset: 0; z-index: 3000; background-color: var(--paper); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 26px 26px; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
+  #onboarding-view.hidden { display: none; }
+  .ob { width: 100%; max-width: 520px; background: white; border-radius: var(--r-lg); box-shadow: var(--drop); padding: 26px 22px 24px; display: flex; flex-direction: column; gap: 14px; text-align: right; margin: auto 0; animation: fadeQ .3s ease-out; }
+  .ob-steps { display: flex; gap: 6px; justify-content: center; } .ob-steps i { width: 34px; height: 7px; border-radius: 99px; background: var(--line); transition: background .25s; } .ob-steps i.on { background: var(--blue); }
+  .ob-mascot { width: 76px; height: 76px; margin: 2px auto 0; animation: bob 3s ease-in-out infinite; } .ob-mascot svg { width: 100%; height: 100%; }
+  .ob h2 { margin: 0; font: 700 1.6em/1.25 var(--display); color: var(--ink); text-align: center; }
+  .ob-sub { margin: 0; color: var(--ink2); text-align: center; line-height: 1.6; }
+  .ob-label { font-weight: 600; margin: 10px 0 -4px; }
+  .ob-input { width: 100%; box-sizing: border-box; min-height: 54px; border: 2px solid var(--line); border-radius: var(--r-md); padding: 0 16px; font: 500 1.1em var(--body); background: var(--paper); color: var(--ink); }
+  .ob-input:focus { outline: none; border-color: var(--blue); background: white; }
+  .ob-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .ob-chip { min-height: 58px; border: 0; border-radius: var(--r-md); background: white; box-shadow: 0 0 0 1.5px var(--line), 0 4px 0 var(--line); font: 700 1.4em var(--display); color: var(--ink); cursor: pointer; transition: transform .06s; }
+  .ob-chip.on { background: var(--blue); color: white; box-shadow: 0 4px 0 var(--blue-d); }
+  .ob-chip:active { transform: translateY(3px); }
+  .ob-likes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .ob-like { border: 0; border-radius: var(--r-md); background: white; box-shadow: 0 0 0 1.5px var(--line), 0 4px 0 var(--line); padding: 12px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; font: 600 .82em var(--body); color: var(--ink2); min-height: 92px; }
+  .ob-like.l1 { color: var(--red-d); } .ob-like.l2 { color: var(--orange-d); } .ob-like.l3 { color: var(--sun-d); } .ob-like.l4 { color: var(--mint-d); } .ob-like.l5 { color: var(--blue); }
+  .ob-like.on { box-shadow: 0 0 0 2.5px currentColor, 0 4px 0 currentColor; background: var(--paper); }
+  .ob-like span { color: var(--ink); }
+  .ob-nav { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .ob-nav .ob-next { flex: 1; }
+  .ob-next { margin-top: 4px; } .ob-next:disabled { opacity: .45; cursor: default; box-shadow: none; transform: none; }
+  .ob-back { min-height: 54px; padding: 0 18px; border: 0; border-radius: var(--r-md); background: var(--paper); color: var(--ink2); font: 600 1em var(--body); cursor: pointer; box-shadow: var(--ring); }
   .ad-of { font-size: .45em; color: var(--ink3); }
   .ad-act { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 10px 0; border-top: 1px solid var(--line); }
   .ad-act:first-child { border-top: 0; } .ad-act span { color: var(--ink2); font-size: .9em; grid-column: 1; } .ad-act small { color: var(--ink3); grid-row: 1; grid-column: 2; }
@@ -2240,6 +2264,14 @@ try {
       <span class="q-chip" id="basics-session-title"></span>
     </div>
     <div id="basics-session" class="basics-session"></div>
+  </div>
+
+  <div id="onboarding-view" class="hidden" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+    <div class="ob">
+      <div class="ob-steps" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+      <div class="ob-mascot" id="ob-mascot" aria-hidden="true"></div>
+      <div id="ob-body"></div>
+    </div>
   </div>
 
   <div id="diagnostic-view" class="hidden">
@@ -3593,6 +3625,58 @@ function buildDiagnostic() {
   return out.sort(() => Math.random() - 0.5);
 }
 
+// ============================================================
+// כניסה ראשונה: שאלון קצר (בית ספר, כיתה, אהבה למתמטיקה) ואז בדיקת רמה
+// ============================================================
+const OB_GRADES = ['ה׳', 'ו׳', 'ז׳', 'ח׳', 'ט׳', 'י׳', 'י״א', 'י״ב'];
+const OB_LIKE = [[1, 'ממש לא'], [2, 'לא כל כך'], [3, 'בסדר'], [4, 'אוהב/ת'], [5, 'מאוד!']];
+let ob = { step: 0, school: '', grade: '', like: 0 };
+function openOnboarding() {
+  ob = { step: 0, school: '', grade: '', like: 0 };
+  document.getElementById('main-menu').classList.add('hidden');
+  document.getElementById('onboarding-view').classList.remove('hidden');
+  document.getElementById('ob-mascot').innerHTML = MASCOT_SVG;
+  renderOnboarding();
+}
+function obFace(n) {
+  const mouth = ['M8 16.5q4-3 8 0', 'M8.5 16h7', 'M8.5 15.5q3.5 1.2 7 0', 'M8 15q4 3 8 0', 'M7.5 14.5q4.5 4.5 9 0z'][n - 1];
+  return `<svg viewBox="0 0 24 24" width="38" height="38" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".18"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.3" fill="currentColor"/><circle cx="15" cy="10" r="1.3" fill="currentColor"/><path d="${mouth}" fill="${n === 5 ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+}
+function renderOnboarding() {
+  const body = document.getElementById('ob-body');
+  document.querySelectorAll('.ob-steps i').forEach((d, i) => d.classList.toggle('on', i <= ob.step));
+  const name = escapeHtml((studentName || '').split(' ')[0]);
+  if (ob.step === 0) {
+    body.innerHTML = `<h2 id="ob-title">היי ${name}, נעים להכיר!</h2>
+      <p class="ob-sub">שלוש שאלות קצרות, ואז בדיקת רמה קטנה כדי שנדע מאיפה להתחיל.</p>
+      <label class="ob-label" for="ob-school">באיזה בית ספר את/ה לומד/ת?</label>
+      <input type="text" id="ob-school" class="ob-input" autocomplete="off" placeholder="שם בית הספר" value="${escapeAttr(ob.school)}" oninput="ob.school = this.value; obSync()" onkeydown="if (event.key === 'Enter') obNext()">
+      <button type="button" class="cta-big ob-next" id="ob-next" onclick="obNext()">ממשיכים</button>`;
+    setTimeout(() => { const i = document.getElementById('ob-school'); if (i) i.focus(); }, 50);
+  } else if (ob.step === 1) {
+    body.innerHTML = `<h2 id="ob-title">באיזו כיתה את/ה?</h2>
+      <div class="ob-grid" role="radiogroup" aria-label="כיתה">${OB_GRADES.map(g => `<button type="button" role="radio" aria-checked="${ob.grade === g}" class="ob-chip${ob.grade === g ? ' on' : ''}" onclick="ob.grade = '${g}'; renderOnboarding()">${g}</button>`).join('')}</div>
+      <div class="ob-nav"><button type="button" class="ob-back" onclick="ob.step = 0; renderOnboarding()">חזרה</button><button type="button" class="cta-big ob-next" id="ob-next" onclick="obNext()">ממשיכים</button></div>`;
+  } else {
+    body.innerHTML = `<h2 id="ob-title">כמה את/ה אוהב/ת מתמטיקה?</h2>
+      <p class="ob-sub">אין תשובה לא נכונה. זה עוזר לנו להתאים את הקצב.</p>
+      <div class="ob-likes" role="radiogroup" aria-label="כמה אוהב/ת מתמטיקה">${OB_LIKE.map(([n, l]) => `<button type="button" role="radio" aria-checked="${ob.like === n}" class="ob-like l${n}${ob.like === n ? ' on' : ''}" onclick="ob.like = ${n}; renderOnboarding()">${obFace(n)}<span>${l}</span></button>`).join('')}</div>
+      <div class="ob-nav"><button type="button" class="ob-back" onclick="ob.step = 1; renderOnboarding()">חזרה</button><button type="button" class="cta-big ob-next" id="ob-next" onclick="obNext()">לבדיקת הרמה</button></div>`;
+  }
+  obSync();
+}
+function obSync() {
+  const btn = document.getElementById('ob-next'); if (!btn) return;
+  btn.disabled = ob.step === 0 ? ob.school.trim().length < 2 : ob.step === 1 ? !ob.grade : !ob.like;
+}
+function obNext() {
+  const btn = document.getElementById('ob-next'); if (btn && btn.disabled) return;
+  if (ob.step < 2) { ob.step++; renderOnboarding(); return; }
+  mot.profile = { school: ob.school.trim().slice(0, 80), grade: ob.grade, likesMath: ob.like, at: Date.now() };
+  motSave();
+  document.getElementById('onboarding-view').classList.add('hidden');
+  startDiagnostic();
+}
 function startDiagnostic() {
   diagnosticQuestions = buildDiagnostic();
   diagnosticCurrent = 0;
@@ -3793,9 +3877,11 @@ function renderParentDash() {
   const cur = weeklyStats(arr, p.from, now), prev = p.len ? weeklyStats(arr, p.from - p.len, p.from) : null;
   const m = pd.mot || {}, L = motLevel(m.xp), toNext = motLvlStart(L + 1) - (m.xp || 0);
   const last = arr[0];
-  document.getElementById('pd-sub').textContent = last
+  const prof = (pd.mot && pd.mot.profile) || null;
+  const profTxt = prof ? `כיתה ${prof.grade} · ${prof.school} · אהבה למתמטיקה ${prof.likesMath}/5 · ` : '';
+  document.getElementById('pd-sub').textContent = profTxt + (last
     ? `תרגול אחרון: ${new Date(last.timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} · ${trackLabelHebrew(last.track)}`
-    : 'עוד לא היה תרגול';
+    : 'עוד לא היה תרגול');
   const pct = cur.n ? Math.round(100 * cur.ok / cur.n) : null;
   const kpi = (label, color, value, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${color}"></i>${label}</div><b>${value}</b>${sub || ''}</div>`;
   document.getElementById('pd-kpis').innerHTML =
@@ -10115,9 +10201,11 @@ async function routeByRole(role) {
     await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
     initStudentCoinsSync();
-    motLoad(); motLoadRemote();
+    motLoad();
     await initStudentBasicsProgressSync();
     renderJourney();
+    await motLoadRemote();
+    if (!mot.profile) openOnboarding();
   }
 }
 
@@ -10256,7 +10344,7 @@ function renderAdminDash() {
     const pr = users[pu], kids = students.filter(u => users[u].parentUid === pu);
     return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(pr.displayName || pr.username)}</b><span>@${escapeHtml(pr.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
       ${kids.map(u => { const k = users[u], m = k.motivation || {}, last = lastOf(u);
-        return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${escapeHtml(k.displayName || k.username)}</b><small>${adWhen(last)}</small></span>
+        return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${escapeHtml(k.displayName || k.username)}</b><small>${m.profile ? `כיתה ${escapeHtml(m.profile.grade)} · ${escapeHtml(m.profile.school)} · ` : ''}${adWhen(last)}</small></span>
           <span class="ad-kstat"><b>${minsOf(u)}</b><small>דקות</small></span><span class="ad-kstat"><b>${motLevel(m.xp)}</b><small>שלב</small></span><span class="ad-kstat"><b>${motShownStreak(m)}</b><small>רצף</small></span>
           <span class="ad-go" aria-hidden="true">‹</span></button>`; }).join('') || '<p class="pd-empty">אין עדיין תלמידים.</p>'}</div>`;
   }).join('') : '<p class="pd-empty">עדיין לא נוצרו חשבונות הורה.</p>';
