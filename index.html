@@ -11208,6 +11208,36 @@ async function handleForcePasswordChange() {
   }
 }
 
+// ============================================================
+// חיבור ממכשיר אחד בכל פעם: כל כניסה רושמת מזהה מכשיר ב-users/<uid>/activeSession,
+// ומכשיר שרואה מזהה אחר מתנתק ("התחברת ממכשיר אחר"). רענון באותה לשונית שומר על אותו מזהה.
+// ============================================================
+let sessionWatchRef = null, kickedMessage = '';
+function mySessionId(uid) {
+  const k = 'sessionId:' + uid;
+  let id = null;
+  try { id = sessionStorage.getItem(k); } catch (e) {}
+  if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2, 10); try { sessionStorage.setItem(k, id); } catch (e) {} }
+  return id;
+}
+function claimSession(uid) {
+  if (!firebaseDb || !uid) return;
+  releaseSessionWatch();
+  const id = mySessionId(uid), ref = firebaseDb.ref('users/' + uid + '/activeSession');
+  ref.set({ id, at: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+    sessionWatchRef = ref;
+    ref.on('value', snap => {
+      const v = snap.val();
+      if (v && v.id && v.id !== id) {
+        releaseSessionWatch();
+        kickedMessage = 'התחברת ממכשיר אחר, ולכן נותקת כאן. אפשר להתחבר שוב.';
+        try { sessionStorage.removeItem('sessionId:' + uid); } catch (e) {}
+        firebaseAuth.signOut();
+      }
+    });
+  }).catch(e => console.warn('session claim failed', e));
+}
+function releaseSessionWatch() { if (sessionWatchRef) { sessionWatchRef.off(); sessionWatchRef = null; } }
 function handleLogout() {
   firebaseAuth.signOut();
 }
@@ -11255,9 +11285,11 @@ async function handleChangePassword() {
     if (suppressAuthRouting) return;
     if (!user) {
       currentUser = null;
+      releaseSessionWatch();
       try {
         const snap = await firebaseDb.ref('system/bootstrapped').once('value');
         showAuthView(snap.val() ? 'login-view' : 'bootstrap-view');
+        if (kickedMessage) { const el = document.getElementById('login-error'); if (el) el.textContent = kickedMessage; kickedMessage = ''; }
       } catch (e) {
         console.warn('bootstrap check failed', e);
         showAuthView('login-view');
@@ -11273,6 +11305,7 @@ async function handleChangePassword() {
         return;
       }
       currentUser = { uid: user.uid, ...profile };
+      claimSession(user.uid);
       if (profile.mustChangePassword) {
         showAuthView('force-password-view');
         return;
