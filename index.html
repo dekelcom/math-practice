@@ -2290,7 +2290,7 @@ function updateMotUI() {
 // יחד עם שאלות מהמסלולים החלשים (משקל לפי אחוז ההצלחה האחרון)
 // ============================================================
 const RETRY_MAX = 20, MIX_SIZE = 10, MIX_RETRY_MAX = 5;
-const MIX_EXCLUDE = ['additionBreakApart', 'oneStepEq', 'multiStepEq'];
+const MIX_EXCLUDE = ['additionBreakApart'];
 let basicsMixed = false;
 function retryQueue() { if (!Array.isArray(mot.retry)) mot.retry = []; return mot.retry; }
 function retryPush(track, sheet) {
@@ -4798,7 +4798,7 @@ function genOneStepEqProblem(sheetIdx) {
   else if (kind === 'sub') { sol = p(1, 30); a = p(1, 20); rhs = sol - a; displayQ = `x − ${a} = ${rhs}`; }
   else if (kind === 'mul') { sol = p(2, 12); a = p(2, 9); rhs = a * sol; displayQ = `${a}x = ${rhs}`; }
   else { a = p(2, 9); const q = p(2, 12); sol = q * a; rhs = q; displayQ = `x ÷ ${a} = ${rhs}`; }
-  return { guided: 'oneStep', kind, a, rhs, sol, answer: String(sol), displayQ };
+  return { eqKind: 'oneStep', kind, a, rhs, sol, answer: String(sol), displayQ };
 }
 
 // משוואה מורכבת: a1x + a2x + k1 = k2 + a3x  (איסוף איברים + משתנה משני הצדדים, B תמיד חיובי)
@@ -4816,7 +4816,7 @@ function genMultiStepEqProblem(sheetIdx) {
   const lhsX = `${a1 === 1 ? 'x' : a1 + 'x'} + ${a2 === 1 ? 'x' : a2 + 'x'}`;
   const rhsX = a3 === 1 ? 'x' : `${a3}x`;
   const displayQ = `${lhsX} + ${k1} = ${k2} + ${rhsX}`;
-  return { guided: 'multiStep', a1, a2, a3, k1, k2, B, sol, answer: String(sol), displayQ };
+  return { eqKind: 'multiStep', a1, a2, a3, k1, k2, B, sol, answer: String(sol), displayQ };
 }
 
 function genBasicsProblems(track, sheetIndex) {
@@ -7292,8 +7292,6 @@ function renderBasicsProblem() {
   if (p && p._track) { basicsTrack = p._track; basicsSheetIndex = p._sheet; }
   closeDraft();
   if (p && p.breakApart) { renderBreakApartProblem(); return; }
-  if (p && p.guided === 'oneStep') { renderGuidedOneStep(); return; }
-  if (p && p.guided === 'multiStep') { renderGuidedMultiStep(); return; }
   const container = document.getElementById('basics-session');
   const eqHtml = p.displayQ || `${p.a} ${p.op} ${p.b}`;
   const isEquation = !p.questionLabel && /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml));
@@ -7824,8 +7822,40 @@ function geqDontKnow() {
   row.classList.add('correct');
   setTimeout(() => geq.onComputeCorrect(), 1400);
 }
-BASICS_HINTS.oneStepEq = geqHintLevels;
-BASICS_HINTS.multiStepEq = geqHintLevels;
+// משוואות יחידה 1 - מסך השאלה הרגיל: "פתרו את המשוואה", והדרך (פעולה הפוכה) נמצאת ברמזים
+const EQ_INV = { add: a => `− ${a}`, sub: a => `+ ${a}`, mul: a => `÷ ${a}`, div: a => `× ${a}` };
+const EQ_TERM = { add: a => `+ ${a}`, sub: a => `− ${a}`, mul: a => `${a}x`, div: a => `÷ ${a}` };
+BASICS_HINTS.oneStepEq = p => {
+  const T = EQ_TERM[p.kind](p.a), I = EQ_INV[p.kind](p.a);
+  const after = p.kind === 'add' ? `${p.rhs} − ${p.a}` : p.kind === 'sub' ? `${p.rhs} + ${p.a}` : p.kind === 'mul' ? `${p.rhs} ÷ ${p.a}` : `${p.rhs} × ${p.a}`;
+  return hintLevels(
+    { words: `המטרה: ${M('x')} לבד בצד אחד. מה עוד יושב ליד ה-${M('x')}? ${M(T)}.`,
+      life: `כמו מאזניים: כדי להוריד משהו מצד אחד בלי לשבור את האיזון, עושים את אותו הדבר גם בצד השני.` },
+    { words: `מבטלים בפעולה ההפוכה: חיבור וחיסור מבטלים זה את זה, כפל וחילוק מבטלים זה את זה. ועושים אותה בשני הצדדים.`,
+      example: `${M('x + 5 = 12')}: מחסירים ${M('5')} משני הצדדים, ${M('x = 7')}. ${M('3x = 12')}: מחלקים ב-${M('3')}, ${M('x = 4')}.` },
+    { words: `ההפך של ${M(T)} הוא ${M(I)}. בצד השני: ${M(`x = ${after}`)}. כמה זה?` });
+};
+BASICS_HINTS.multiStepEq = p => {
+  const sum = p.a1 + p.a2, a3 = p.a3 === 1 ? 'x' : `${p.a3}x`;
+  return hintLevels(
+    { words: `שלושה צעדים: מכנסים את איברי ה-${M('x')}, מעבירים את כל ה-${M('x')} לצד אחד ואת המספרים לצד השני, ואז מחלקים.`,
+      life: `כמו לסדר חדר: קודם שמים את כל הצעצועים מאותו סוג ביחד, ורק אז סופרים.` },
+    { words: `איברים עם ${M('x')} מחברים לפי המספרים שלפניהם (${M('2x + 3x = 5x')}). איבר שעובר צד מחליף סימן.`,
+      example: `${M('2x + x + 4 = 10 + x')} → ${M('3x + 4 = 10 + x')} → ${M('2x + 4 = 10')} → ${M('2x = 6')} → ${M('x = 3')}.` },
+    { words: `מכנסים: ${M(`${sum}x + ${p.k1} = ${p.k2} + ${a3}`)}. מחסירים ${M(a3)} משני הצדדים: ${M(`${p.B}x + ${p.k1} = ${p.k2}`)}. עכשיו מחסירים ${M(p.k1)}${p.B === 1 ? '' : ` ומחלקים ב-${M(p.B)}`}.` });
+};
+BASICS_STEPS.oneStepEq = p => BASICS_STEPS.solveLinear(p);
+BASICS_STEPS.multiStepEq = p => {
+  const sum = p.a1 + p.a2, a3 = p.a3 === 1 ? 'x' : `${p.a3}x`, y = p.k2 - p.k1;
+  return [`מכנסים את איברי ה-${M('x')}: ${M(`${sum}x + ${p.k1} = ${p.k2} + ${a3}`)}`,
+    `מחסירים ${M(a3)} משני הצדדים: ${M(`${p.B}x + ${p.k1} = ${p.k2}`)}`,
+    `מחסירים ${M(p.k1)} משני הצדדים: ${M(`${p.B}x = ${y}`)}`,
+    p.B === 1 ? M(`x = ${p.sol}`) : `מחלקים ב-${M(p.B)}: ${M(`x = ${y} ÷ ${p.B} = ${p.sol}`)}`];
+};
+BASICS_TRAPS.oneStepEq = p => {
+  const wrong = p.kind === 'add' ? p.rhs + p.a : p.kind === 'sub' ? p.rhs - p.a : p.kind === 'mul' ? p.rhs * p.a : p.rhs / p.a;
+  return Number.isInteger(wrong) && wrong !== p.sol ? [trap(wrong, `עשיתם את אותה פעולה במקום הפעולה ההפוכה. ההפך של ${EQ_TERM[p.kind](p.a)} הוא ${EQ_INV[p.kind](p.a)}.`)] : [];
+};
 
 function geqNum(n) { return n < 0 ? `−${Math.abs(n)}` : String(n); }
 
