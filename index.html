@@ -2290,7 +2290,7 @@ function updateMotUI() {
 // יחד עם שאלות מהמסלולים החלשים (משקל לפי אחוז ההצלחה האחרון)
 // ============================================================
 const RETRY_MAX = 20, MIX_SIZE = 10, MIX_RETRY_MAX = 5;
-const MIX_EXCLUDE = ['additionBreakApart'];
+const MIX_EXCLUDE = [];
 let basicsMixed = false;
 function retryQueue() { if (!Array.isArray(mot.retry)) mot.retry = []; return mot.retry; }
 function retryPush(track, sheet) {
@@ -4284,7 +4284,7 @@ function genBreakApartAddProblem(sheetIdx) {
   return {
     a, b, tensA, onesA, tensB, onesB,
     tensSum: tensA + tensB, onesSum: onesA + onesB, answer: a + b,
-    displayQ: `${a} + ${b}`, breakApart: true
+    displayQ: `${a} + ${b}`, baKind: true
   };
 }
 
@@ -7291,7 +7291,6 @@ function renderBasicsProblem() {
   const p = basicsProblems[basicsCurrent];
   if (p && p._track) { basicsTrack = p._track; basicsSheetIndex = p._sheet; }
   closeDraft();
-  if (p && p.breakApart) { renderBreakApartProblem(); return; }
   const container = document.getElementById('basics-session');
   const eqHtml = p.displayQ || `${p.a} ${p.op} ${p.b}`;
   const isEquation = !p.questionLabel && /x/.test(plainText(eqHtml)) && /=/.test(plainText(eqHtml));
@@ -7856,6 +7855,25 @@ BASICS_EXTRA.multiStepEq = p => {
     chk(`מה שווה ${A} + ${B2}?`, `${sum}x`, [`${p.a1 * p.a2}x`, 'מחברים את המספרים שלפני ה-x, לא כופלים.'], [`${sum}x²`, 'ה-x לא מוכפל בעצמו, הוא רק "הסוג". לכן נשאר x.']),
     chk('איבר שעובר לצד השני של השוויון:', 'מחליף סימן', ['נשאר עם אותו סימן', 'מעבירים על ידי הפעולה ההפוכה, ולכן הסימן מתהפך.'], ['נעלם', 'הוא לא נעלם: הוא עובר לצד השני עם סימן הפוך.'])] };
 };
+// חיבור עם פירוק - מסך השאלה הרגיל; הפירוק לעשרות ואחדות נמצא ברמזים ובפתרון המלא
+BASICS_HINTS.additionBreakApart = p => hintLevels(
+  { words: `מפרקים כל מספר לעשרות ולאחדות: ${M(`${p.a} = ${p.tensA} + ${p.onesA}`)}, ${M(`${p.b} = ${p.tensB} + ${p.onesB}`)}.`,
+    life: `כמו כסף: שטרות של 10 לחוד ומטבעות של 1 לחוד, ובסוף סופרים הכול ביחד.` },
+  { words: `מחברים עשרות עם עשרות ואחדות עם אחדות, ואז מחברים את שתי התוצאות.`,
+    example: `${M('34 + 25')}: ${M('30 + 20 = 50')}, ${M('4 + 5 = 9')}, ${M('50 + 9 = 59')}.` },
+  { words: `עשרות: ${M(`${p.tensA} + ${p.tensB} = ${p.tensSum}`)}. אחדות: ${M(`${p.onesA} + ${p.onesB} = ?`)}. ואז מחברים.` });
+BASICS_STEPS.additionBreakApart = p => [
+  `מפרקים: ${M(`${p.a} = ${p.tensA} + ${p.onesA}`)}, ${M(`${p.b} = ${p.tensB} + ${p.onesB}`)}`,
+  `עשרות: ${M(`${p.tensA} + ${p.tensB} = ${p.tensSum}`)}`,
+  `אחדות: ${M(`${p.onesA} + ${p.onesB} = ${p.onesSum}`)}`,
+  `ביחד: ${M(`${p.tensSum} + ${p.onesSum} = ${p.answer}`)}`];
+BASICS_TRAPS.additionBreakApart = p => [
+  trap(p.tensSum + (p.onesSum % 10), `שכחתם להעביר את העשרת מהאחדות: ${p.onesA} + ${p.onesB} = ${p.onesSum}, וזה עשרת אחת ועוד ${p.onesSum % 10}.`),
+  trap(p.tensSum, 'חיברתם רק את העשרות. חסרות האחדות.'),
+  trap(p.onesSum, 'חיברתם רק את האחדות. חסרות העשרות.')].filter(t => t.v !== p.answer);
+BASICS_EXTRA.additionBreakApart = p => ({ pics: [null, null], checks: [
+  chk(`איך מפרקים את ${p.a}?`, `${p.tensA} + ${p.onesA}`, [`${Math.floor(p.a / 10)} + ${p.onesA}`, `הספרה ${Math.floor(p.a / 10)} נמצאת במקום העשרות, אז היא שווה ${p.tensA}.`], [`${p.a} + 0`, 'זה לא מפרק כלום. מפרידים עשרות ואחדות.']),
+  chk(`${p.tensA} + ${p.tensB} = ?`, p.tensSum, [p.tensSum / 10, 'אלה עשרות: 3 עשרות ועוד 2 עשרות הן 50, לא 5.'], [p.tensA + p.tensB + 10, 'נסו שוב לאט: כמה עשרות יש ביחד?'])] });
 BASICS_STEPS.oneStepEq = p => BASICS_STEPS.solveLinear(p);
 BASICS_STEPS.multiStepEq = p => {
   const sum = p.a1 + p.a2, a3 = p.a3 === 1 ? 'x' : `${p.a3}x`, y = p.k2 - p.k1;
