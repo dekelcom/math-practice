@@ -10561,7 +10561,10 @@ let tc = { range: 'week', students: null, subs: null, started: false };
 function renderTeacherHome() {
   if (tc.started || !firebaseDb) return;
   tc.started = true;
-  const fail = err => { console.warn(err); document.getElementById('tc-sub').textContent = 'שגיאה בטעינה: ' + (err.message || err); };
+  const fail = err => { console.warn(err);
+    const denied = /permission/i.test(String(err && (err.code || err.message)));
+    document.getElementById('tc-sub').textContent = denied ? 'אין הרשאה לקרוא את נתוני הכיתה. צריך לעדכן את כללי Firebase (הרשאות מורה) ולפרסם אותם.' : 'שגיאה בטעינה: ' + (err.message || err);
+    if (denied) document.getElementById('tc-table').innerHTML = '<p class="pd-empty">אחרי שמנהל המערכת מעדכן את הכללים, רעננו את הדף.</p>'; };
   firebaseDb.ref('users').orderByChild('teacherUid').equalTo(currentUser.uid).on('value', snap => {
     const o = {}; snap.forEach(c => { o[c.key] = c.val() || {}; }); tc.students = o; renderTeacherDash();
   }, fail);
