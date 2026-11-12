@@ -1778,7 +1778,9 @@
   .ad-req:first-child { border-top: 0; padding-top: 0; }
   .ad-req-body { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; } .ad-req-body span, .ad-req-body small { color: var(--ink2); font-size: .9em; } .ad-req-contact { text-align: right; }
   .ad-req-note { background: var(--paper); border-radius: 10px; padding: 6px 10px; margin-top: 4px; }
-  .ad-req-actions { display: flex; gap: 8px; align-items: center; } .ad-req-actions .pd-soft { padding: 0 16px; }
+  .ad-req-actions { display: flex; gap: 8px; align-items: center; }
+  #new-teacher-school-wrap.hidden { display: none; }
+  #new-teacher-school-wrap label { display: block; margin-top: 8px; } .ad-req-actions .pd-soft { padding: 0 16px; }
   #ad-req-card.hidden, #tc-add-card.hidden { display: none; }
   .tc-hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
   .tc-add { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: end; }
@@ -2184,9 +2186,10 @@ try {
     </div>
     <div id="create-parent-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
       <label>סוג חשבון</label>
-      <select id="new-account-role"><option value="parent">הורה</option><option value="teacher">מורה</option></select>
+      <select id="new-account-role" onchange="document.getElementById('new-teacher-school-wrap').classList.toggle('hidden', this.value !== 'teacher')"><option value="parent">הורה</option><option value="teacher">מורה</option></select>
       <label>שם מלא</label>
       <input type="text" id="new-parent-displayname">
+      <div id="new-teacher-school-wrap" class="hidden"><label for="new-teacher-school">שם בית הספר</label><input type="text" id="new-teacher-school" maxlength="80"></div>
       <label>שם משתמש</label>
       <input type="text" id="new-parent-username">
       <label>סיסמה זמנית</label>
@@ -2223,6 +2226,7 @@ try {
           <label>שם מלא<input type="text" id="tc-new-name" maxlength="60" required></label>
           <label>שם משתמש<input type="text" id="tc-new-username" maxlength="40" dir="ltr" autocomplete="off" required></label>
           <label>סיסמה זמנית<input type="password" id="tc-new-password" autocomplete="new-password" required></label>
+          <label>שם המשתמש של ההורה (לא חובה)<input type="text" id="tc-new-parent" maxlength="40" dir="ltr" autocomplete="off" placeholder="אם להורה כבר יש חשבון"></label>
           <label class="mcp-check"><input type="checkbox" id="tc-new-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
           <div class="tc-add-actions"><button type="submit" class="cta-big" id="tc-new-submit">יצירת תלמיד</button><button type="button" class="ob-back" onclick="tcCloseAddStudent()">ביטול</button></div>
           <div class="auth-error" id="tc-new-error"></div>
@@ -10488,6 +10492,8 @@ async function restoreLessonsFromCloudIfNeeded() {
 // ניהול משתמשים היררכי - admin יוצר הורים, הורה יוצר תלמידים
 // ============================================================
 let secondaryAppCounter = 0;
+// אינדקס שמות משתמש של הורים (usernames/<שם>) - כדי שמורה יוכל לשייך הורה קיים לתלמיד חדש בלי לקרוא את כל המשתמשים
+const unameKey = u => fbKey(String(u || '').trim().toLowerCase());
 // ---- בקשת חשבון הורה (ממסך ההתחברות, בלי להיות מחובר) ----
 function openAccountRequest() {
   ['req-name', 'req-contact', 'req-kids', 'req-note', 'req-website'].forEach(i => { document.getElementById(i).value = ''; });
@@ -10654,10 +10660,16 @@ function renderAdminDash() {
     if (!teachers.length) return '';
     return `<h4 class="ad-sub-h">מורים</h4>` + teachers.map(tu => {
       const t = users[tu], kids = students.filter(u => users[u].teacherUid === tu);
-      return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
+      return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')}${t.school ? ' · ' + escapeHtml(t.school) : ''} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
         ${kids.length ? `<div class="ad-tkids">${kids.map(u => `<button type="button" class="tc-chip" onclick="adOpenStudent('${u}')">${escapeHtml(users[u].displayName || users[u].username)}</button>`).join('')}</div>` : '<p class="pd-empty">אין תלמידים משויכים. שייכו מתוך הדשבורד של התלמיד.</p>'}</div>`;
     }).join('');
   })();
+  // סנכרון אינדקס שמות המשתמש של ההורים (פעם אחת בכל פתיחה של לוח הניהול)
+  if (!ad.unameSynced) {
+    ad.unameSynced = true;
+    const idx = {}; parents.forEach(u => { if (users[u].username) idx['usernames/' + unameKey(users[u].username)] = { uid: u, role: 'parent' }; });
+    if (Object.keys(idx).length) firebaseDb.ref().update(idx).catch(e => { console.warn('username index sync', e); ad.unameSynced = false; });
+  }
   // סנכרון רשימות התלמידים של המורים לפי teacherUid
   const sync = {};
   ids.filter(u => users[u].role === 'teacher').forEach(tu => {
@@ -10731,7 +10743,7 @@ function renderTeacherDash() {
     return { u, name: st.displayName || st.username, grade: prof ? prof.grade : '', last, mins: pdMin(inR.reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0)), sp, level: motLevel(m.xp), streak: motShownStreak(m), alerts };
   }).sort((a, b) => b.alerts.length - a.alerts.length || a.name.localeCompare(b.name, 'he'));
   const needs = rows.filter(r => r.alerts.some(a => a[0] === 'low' || a[0] === 'mid')).length;
-  document.getElementById('tc-sub').textContent = `${ids.length === 1 ? 'תלמיד אחד' : ids.length + ' תלמידים'}${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
+  document.getElementById('tc-sub').textContent = `${currentUser.school ? currentUser.school + ' · ' : ''}${ids.length === 1 ? 'תלמיד אחד' : ids.length + ' תלמידים'}${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
   const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
   const dl = (a, b) => prev ? adDeltaFor(a, b, tc.range) : '';
   document.getElementById('tc-kpis').innerHTML =
@@ -10756,7 +10768,7 @@ function adDeltaFor(a, b, range) {
   return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)} ${range === 'week' ? 'מהשבוע שעבר' : 'מהחודש שעבר'}</small>`;
 }
 function tcOpenAddStudent() {
-  ['tc-new-name', 'tc-new-username', 'tc-new-password'].forEach(i => { document.getElementById(i).value = ''; });
+  ['tc-new-name', 'tc-new-username', 'tc-new-password', 'tc-new-parent'].forEach(i => { document.getElementById(i).value = ''; });
   document.getElementById('tc-new-mustchange').checked = true;
   document.getElementById('tc-new-error').textContent = '';
   const c = document.getElementById('tc-add-card'); c.classList.remove('hidden'); c.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -10769,17 +10781,25 @@ async function tcCreateStudent() {
   err.textContent = '';
   if (!name || !username || !password) { err.textContent = 'נא למלא שם מלא, שם משתמש וסיסמה.'; return; }
   if (password.length < 6) { err.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
+  const parentName = document.getElementById('tc-new-parent').value.trim();
   btn.disabled = true;
   try {
+    // הורה קיים: מאתרים לפי שם המשתמש לפני שיוצרים את החשבון
+    let parentUid = null;
+    if (parentName) {
+      const hit = (await firebaseDb.ref('usernames/' + unameKey(parentName)).once('value')).val();
+      if (!hit || hit.role !== 'parent' || !hit.uid) { err.textContent = `לא מצאנו הורה עם שם המשתמש "${parentName}". בדקו את האיות, או השאירו ריק וקשרו אחר כך.`; return; }
+      parentUid = hit.uid;
+    }
     const uid = await createAuthUserIsolated(username, password);
     await firebaseDb.ref('users/' + uid).set({
-      username, displayName: name, role: 'student', parentUid: null, teacherUid: currentUser.uid,
+      username, displayName: name, role: 'student', parentUid, teacherUid: currentUser.uid,
       mustChangePassword: !!document.getElementById('tc-new-mustchange').checked,
       createdAt: firebase.database.ServerValue.TIMESTAMP, createdBy: currentUser.uid
     });
     await firebaseDb.ref('users/' + currentUser.uid + '/students/' + uid).set(true);
     tcCloseAddStudent();
-    showToast(`${name} נוסף/ה לכיתה`);
+    showToast(parentUid ? `${name} נוסף/ה לכיתה וקושר/ה להורה` : `${name} נוסף/ה לכיתה`);
   } catch (e) {
     err.textContent = e.code === 'auth/email-already-in-use' ? 'שם המשתמש הזה כבר תפוס.' : /permission/i.test(String(e.code || e.message)) ? 'אין הרשאה ליצור תלמיד. צריך לעדכן את כללי Firebase.' : 'שגיאה: ' + (e.message || e);
   } finally { btn.disabled = false; }
@@ -10855,6 +10875,9 @@ function openCreateParentForm() {
   document.getElementById('new-parent-username').value = '';
   document.getElementById('new-parent-password').value = '';
   document.getElementById('new-account-mustchange').checked = true;
+  document.getElementById('new-account-role').value = 'parent';
+  document.getElementById('new-teacher-school').value = '';
+  document.getElementById('new-teacher-school-wrap').classList.add('hidden');
   document.getElementById('create-parent-error').textContent = '';
 }
 function closeCreateParentForm() {
@@ -10872,12 +10895,14 @@ async function handleCreateParent() {
   try {
     const uid = await createAuthUserIsolated(username, password);
     const role = (document.getElementById('new-account-role') || {}).value === 'teacher' ? 'teacher' : 'parent';
+    const school = role === 'teacher' ? document.getElementById('new-teacher-school').value.trim().slice(0, 80) : '';
     await firebaseDb.ref('users/' + uid).set({
-      username, displayName, role, parentUid: null,
+      username, displayName, role, parentUid: null, school: school || null,
       mustChangePassword: !!(document.getElementById('new-account-mustchange') || {}).checked,
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       createdBy: currentUser.uid
     });
+    if (role === 'parent') firebaseDb.ref('usernames/' + unameKey(username)).set({ uid, role: 'parent' }).catch(e => console.warn('username index', e));
     const rid = adPendingRequestId;
     closeCreateParentForm();
     if (rid) { firebaseDb.ref('accountRequests/' + rid).remove().catch(e => console.warn(e)); showToast('החשבון נוצר והבקשה הוסרה מהרשימה'); }
