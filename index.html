@@ -7806,6 +7806,24 @@ function geqHintLevels() {
       example: `${M('x + 5 = 12')}: מחסירים ${M('5')} משני הצדדים ומקבלים ${M('x = 7')}. ${M('3x = 12')}: מחלקים ב-${M('3')} ומקבלים ${M('x = 4')}.` },
     { words: `ההפך של ${T} הוא ${I}. עושים את זה בשני הצדדים.` });
 }
+// "לא יודע/ת": מראים את התשובה של השלב הזה וממשיכים (נרשם כתרגיל עם עזרה)
+function geqDontKnow() {
+  if (!geq) return;
+  geq.hadMistake = true;
+  const btns = [...document.querySelectorAll('.geq-op-btn')];
+  if (btns.length) {
+    if (btns.every(b => b.disabled)) return;
+    btns.forEach(b => { b.disabled = true; if (b.dataset.label === geq.correctLabel) b.classList.add('correct'); });
+    setTimeout(() => geq.onChoiceCorrect(), 1400);
+    return;
+  }
+  const keypad = document.getElementById('geq-keypad'), row = document.getElementById('geq-active-row');
+  if (!keypad || !row || keypad.querySelector('button:disabled')) return;
+  keypad.querySelectorAll('button').forEach(b => b.disabled = true);
+  geqInputBuffer = String(geq.expectedMagnitude); geqRenderInputBuf();
+  row.classList.add('correct');
+  setTimeout(() => geq.onComputeCorrect(), 1400);
+}
 BASICS_HINTS.oneStepEq = geqHintLevels;
 BASICS_HINTS.multiStepEq = geqHintLevels;
 
@@ -7835,7 +7853,7 @@ function geqShowOpChoices(notebookHtml, calloutHtml, question, choices, correctL
     </div>
     <div id="qs-hint" hidden></div>
     <div id="qs-answer">
-      ${qsToolsHtml('geqOpenDraft()', '', 'openBasicsHint()')}
+      ${qsToolsHtml('geqOpenDraft()', 'geqDontKnow()', 'openBasicsHint()')}
       <div class="basics-options geq-op-grid${isText ? ' text-opts' : ''}">${btnsHtml}</div>
     </div>
   `);
@@ -7875,7 +7893,7 @@ function geqShowCompute(notebookHtml, label, prefix, rows, expectedMagnitude, is
     </div>
     <div id="qs-hint" hidden></div>
     <div id="qs-answer">
-      ${qsToolsHtml('geqOpenDraft()', '', 'openBasicsHint()')}
+      ${qsToolsHtml('geqOpenDraft()', 'geqDontKnow()', 'openBasicsHint()')}
       <div class="qs-field" id="geq-active-row" dir="ltr"><span class="qs-prefix">${prefix}</span>${isNegative ? '<span>−</span>' : ''}<span id="geq-blank"></span><span class="caret"></span></div>
       <div class="qs-keypad geq-keypad" id="geq-keypad" dir="ltr">
         ${['7','8','9'].map(k => `<button type="button" onclick="geqKey('${k}')">${k}</button>`).join('')}
