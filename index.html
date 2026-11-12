@@ -1768,6 +1768,8 @@
   .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
   .ad-ok { color: var(--mint-d); font-weight: 600; }
   .pd-reset.hidden, .pd-teacher.hidden { display: none; }
+  .mcp-check { display: flex !important; align-items: center; gap: 10px; font-weight: 500; margin: 6px 0; cursor: pointer; }
+  .mcp-check input { width: 20px !important; height: 20px; margin: 0; accent-color: var(--blue); flex: none; }
   #app-container:has(#teacher-home-view:not(.hidden)) { max-width: 1220px; }
   .pd-teacher { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink2); }
   .pd-teacher select { min-height: 44px; border-radius: 12px; border: 1.5px solid var(--line); padding: 0 10px; font: inherit; color: var(--ink); background: white; }
@@ -2141,6 +2143,7 @@ try {
       <input type="text" id="new-parent-username">
       <label>סיסמה זמנית</label>
       <input type="password" id="new-parent-password">
+      <label class="mcp-check"><input type="checkbox" id="new-account-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
       <button class="btn btn-primary" onclick="handleCreateParent()">צור חשבון</button>
       <button class="btn btn-secondary" onclick="closeCreateParentForm()">ביטול</button>
       <div class="auth-error" id="create-parent-error"></div>
@@ -2220,6 +2223,7 @@ try {
       <input type="text" id="new-student-notes">
       <label>שיוך התקדמות ישנה (שם קודם, אופציונלי)</label>
       <input type="text" id="new-student-legacy-name" placeholder="לדוגמה: יונתן">
+      <label class="mcp-check"><input type="checkbox" id="new-student-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
       <button class="btn btn-primary" onclick="handleCreateStudent()">צור תלמיד</button>
       <button class="btn btn-secondary" onclick="closeCreateStudentForm()">ביטול</button>
       <div class="auth-error" id="create-student-error"></div>
@@ -10473,7 +10477,7 @@ function renderAdminDash() {
   const users = ad.users, now = Date.now(), per = adPeriod(), D = 864e5;
   const ids = Object.keys(users);
   const parents = ids.filter(u => users[u].role === 'parent');
-  const students = ids.filter(u => !users[u].role && users[u].parentUid);
+  const students = ids.filter(u => (users[u].role === 'student' || !users[u].role) && users[u].parentUid);
   const real = ad.subs.filter(x => !isSampleSub(x) && x.studentUid && users[x.studentUid]);
   const cur = weeklyStats(real, per.from, now), prev = per.len ? weeklyStats(real, per.from - per.len, per.from) : null;
   const active = new Set(cur.subs.map(x => x.studentUid)).size, prevActive = prev ? new Set(prev.subs.map(x => x.studentUid)).size : null;
@@ -10671,6 +10675,7 @@ function openCreateParentForm() {
   document.getElementById('new-parent-displayname').value = '';
   document.getElementById('new-parent-username').value = '';
   document.getElementById('new-parent-password').value = '';
+  document.getElementById('new-account-mustchange').checked = true;
   document.getElementById('create-parent-error').textContent = '';
 }
 function closeCreateParentForm() {
@@ -10689,7 +10694,7 @@ async function handleCreateParent() {
     const role = (document.getElementById('new-account-role') || {}).value === 'teacher' ? 'teacher' : 'parent';
     await firebaseDb.ref('users/' + uid).set({
       username, displayName, role, parentUid: null,
-      mustChangePassword: false,
+      mustChangePassword: !!(document.getElementById('new-account-mustchange') || {}).checked,
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       createdBy: currentUser.uid
     });
@@ -10821,7 +10826,7 @@ async function handleCreateStudent() {
     await firebaseDb.ref('users/' + uid).set({
       username, displayName, role: 'student', parentUid: currentUser.uid,
       grade: grade || null, notes: notes || null,
-      mustChangePassword: false,
+      mustChangePassword: !!(document.getElementById('new-student-mustchange') || {}).checked,
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       createdBy: currentUser.uid
     });
