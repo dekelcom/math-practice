@@ -1768,6 +1768,15 @@
   .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
   .ad-ok { color: var(--mint-d); font-weight: 600; }
   .pd-reset.hidden { display: none; }
+  .pl-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+  .pl-status { flex: 1 1 280px; display: flex; flex-direction: column; gap: 4px; border-radius: 16px; padding: 12px 14px; }
+  .pl-status span { color: var(--ink2); font-size: .9em; }
+  .pl-status.done { background: var(--mint-l); } .pl-status.wait { background: var(--sun-l); } .pl-status.paused { background: var(--paper); box-shadow: var(--ring); }
+  .pl-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .pl-actions .pd-soft { padding: 0 16px; }
+  .pl-check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; color: var(--ink2); cursor: pointer; }
+  .pl-check input { width: 20px; height: 20px; accent-color: var(--blue); }
+  .pl-cancel { min-height: 46px; padding: 0 14px; border: 0; border-radius: 14px; background: none; color: var(--red-d); font: 600 .95em var(--body); cursor: pointer; }
   .ad-warn { color: var(--sun-d); background: var(--sun-l); border-radius: 10px; padding: 4px 10px; font-weight: 600; }
   @media (max-width: 560px) { .ad-kstat:nth-of-type(4) { display: none; } }
   .pd-more { margin: 4px 0 20px; background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 6px 16px; }
@@ -2209,6 +2218,10 @@ try {
           <div id="pd-lessons"><p class="pd-empty">טוען...</p></div>
         </section>
       </div>
+      <section class="pd-card" aria-label="בדיקת רמה">
+        <div class="pd-h"><h3>בדיקת רמה</h3><span>מתי התלמיד יעבור את בדיקת הרמה</span></div>
+        <div id="pd-placement"><p class="pd-empty">טוען...</p></div>
+      </section>
       <div class="pd-row">
         <section class="pd-card pd-wide" aria-label="מוכנות לפי נושא">
           <div class="pd-h"><h3>מוכנות לפי מסלול</h3><span>אחוז הצלחה בעשר התשובות האחרונות</span></div>
@@ -3403,6 +3416,7 @@ async function loadStudentProgram() {
   try {
     const snap = await firebaseDb.ref('users/' + studentUid + '/program').once('value');
     const program = snap.val();
+    placementCfg = (program && program.placement) || null;
     if (program) {
       LESSON_COUNT = program.lessonCount || LESSON_COUNT_DEFAULT;
       LESSON_TARGET_MS = (program.minutesPerLesson || LESSON_MINUTES_DEFAULT) * 60 * 1000;
@@ -3706,7 +3720,8 @@ function obNext() {
   mot.profile = { school: ob.school.trim().slice(0, 80), grade: ob.grade, likesMath: ob.like, at: Date.now() };
   motSave();
   document.getElementById('onboarding-view').classList.add('hidden');
-  startDiagnostic();
+  if (placementPending()) startScheduledPlacement();
+  else { document.getElementById('main-menu').classList.remove('hidden'); renderJourney(); }
 }
 function startDiagnostic() {
   diagnosticQuestions = buildDiagnostic();
@@ -3781,7 +3796,9 @@ function finishDiagnostic() {
   });
   saveBasicsProgress();
   autoSaveSession('diagnostic', 'mixed', 'בדיקת רמה');
-  if (mot.profile && !mot.profile.placementDone) { mot.profile.placementDone = Date.now(); motSave(); }
+  if (mot.profile) { mot.profile.placementDone = Date.now(); motSave(); } // כל בדיקת רמה שהושלמה עונה גם על בקשה פתוחה
+  diagFromSchedule = false;
+  document.querySelector('#diagnostic-view .q-close').classList.remove('hidden');
   const total = diagnosticQuestions.length;
   const container = document.getElementById('diagnostic-session');
   container.innerHTML = `
@@ -3794,17 +3811,32 @@ function finishDiagnostic() {
   `;
 }
 
-// בכניסה הראשונה בדיקת הרמה היא חלק מהשאלון: האיקס שואל לפני שיוצאים, ואם יצאו היא חוזרת בכניסה הבאה
-function placementPending() { return !!(mot.profile && !mot.profile.placementDone); }
+// בדיקת רמה מתוזמנת: בכניסה הראשונה (אחרי השאלון), או כשהורה/מנהל ביקשו (users/<uid>/program/placement).
+// הורה/מנהל יכולים להשהות בקשה (לא תקפוץ בכניסות) ולבחור אם אפשר לסגור אותה.
+let placementCfg = null; // { requestedAt, mandatory, paused }
+let diagFromSchedule = false;
+function placementRequested() { const c = placementCfg; return !!(c && c.requestedAt && !(mot.profile && (mot.profile.placementDone || 0) >= c.requestedAt)); }
+function placementPending() {
+  if (placementCfg && placementCfg.paused) return false;
+  return !!(mot.profile && !mot.profile.placementDone) || placementRequested();
+}
+function placementMandatory() { return !!(placementCfg && placementCfg.mandatory && !placementCfg.paused && placementPending()); }
+function startScheduledPlacement() {
+  diagFromSchedule = true;
+  startDiagnostic();
+  document.querySelector('#diagnostic-view .q-close').classList.toggle('hidden', placementMandatory());
+}
 function diagClose() {
   const done = diagnosticCurrent >= diagnosticQuestions.length;
-  if (!placementPending() || done) { exitDiagnostic(); return; }
+  if (!diagFromSchedule || !placementPending() || done) { exitDiagnostic(); return; }
   document.getElementById('diag-confirm-mascot').innerHTML = MASCOT_SVG;
   document.getElementById('diag-confirm').classList.remove('hidden');
 }
 function diagConfirmStay() { document.getElementById('diag-confirm').classList.add('hidden'); }
 function diagConfirmLeave() { document.getElementById('diag-confirm').classList.add('hidden'); exitDiagnostic(); }
 function exitDiagnostic() {
+  diagFromSchedule = false;
+  document.querySelector('#diagnostic-view .q-close').classList.remove('hidden');
   document.getElementById('diagnostic-view').classList.add('hidden');
   document.getElementById('main-menu').classList.remove('hidden');
 }
@@ -3909,6 +3941,49 @@ function pdDelta(a, b, unit) {
   if (a === b) return `<small class="pd-flat">כמו ${p.label.replace('מ', '')}</small>`;
   return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)}${unit || ''} ${p.label}</small>`;
 }
+// ---- ניהול בדיקת רמה (הורה ומנהל) ----
+function pdPlacementState() {
+  const c = (pd.program && pd.program.placement) || {}, prof = (pd.mot && pd.mot.profile) || null;
+  const done = prof && prof.placementDone ? prof.placementDone : 0;
+  const firstPending = !!(pd.mot && prof && !done);
+  const requested = !!(c.requestedAt && done < c.requestedAt);
+  return { c, done, pending: firstPending || requested || !prof, requested, firstPending, noProfile: !prof };
+}
+function renderPdPlacement() {
+  const el = document.getElementById('pd-placement'); if (!el) return;
+  const st = pdPlacementState(), c = st.c;
+  const last = (dashboardSubmissions || []).find(x => x.type === 'diagnostic');
+  const fmt = ts => new Date(ts).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  let status, cls;
+  if (st.pending && c.paused) { status = 'מושהית: לא תופיע בכניסה עד שתחזירו אותה.'; cls = 'paused'; }
+  else if (st.noProfile) { status = 'תופיע בכניסה הבאה, אחרי שאלון ההיכרות.'; cls = 'wait'; }
+  else if (st.pending) { status = `ממתינה: תיפתח בכניסה הבאה${c.mandatory && st.requested ? ', בלי אפשרות לסגור' : ''}.`; cls = 'wait'; }
+  else { status = st.done ? `הושלמה ב-${fmt(st.done)}.` : 'אין בדיקה מתוכננת.'; cls = 'done'; }
+  const lastTxt = last && last.summary ? `תוצאה אחרונה: ${last.summary.correct}/${last.summary.total} (${fmt(last.timestamp)})` : 'עוד לא בוצעה בדיקת רמה.';
+  el.innerHTML = `<div class="pl-row">
+      <div class="pl-status ${cls}"><b>${status}</b><span>${lastTxt}</span></div>
+      <div class="pl-actions">
+        ${st.pending
+          ? `${c.paused ? '<button type="button" class="pd-soft" onclick="pdPlacementSet({ paused: false })">החזרת הבדיקה</button>' : '<button type="button" class="pd-soft" onclick="pdPlacementSet({ paused: true })">השהיה</button>'}
+             ${st.requested ? '<button type="button" class="pl-cancel" onclick="pdPlacementCancel()">ביטול הבקשה</button>' : ''}`
+          : `<label class="pl-check"><input type="checkbox" id="pl-mandatory"> בלי אפשרות לסגור</label>
+             <button type="button" class="pd-soft pl-go" onclick="pdPlacementRequest()">בדיקת רמה בכניסה הבאה</button>`}
+      </div>
+    </div>`;
+}
+async function pdPlacementWrite(val) {
+  try {
+    await firebaseDb.ref('users/' + dashboardStudentUid + '/program/placement').set(val);
+    pd.program = Object.assign({}, pd.program || {}, { placement: val }); renderPdPlacement();
+  } catch (e) { alert('השמירה נכשלה: ' + (e.message || e)); }
+}
+function pdPlacementRequest() {
+  const mandatory = !!(document.getElementById('pl-mandatory') || {}).checked;
+  pdPlacementWrite({ requestedAt: Date.now(), mandatory, paused: false });
+  showToast('בדיקת הרמה תיפתח בכניסה הבאה');
+}
+function pdPlacementSet(ch) { pdPlacementWrite(Object.assign({}, (pd.program && pd.program.placement) || {}, ch)); }
+function pdPlacementCancel() { pdPlacementWrite(null); }
 function pdEditProgram() {
   const uid = dashboardStudentUid, name = document.getElementById('dashboard-student-name').textContent;
   exitParentDashboard(); openEditProgramForm(uid, name);
@@ -3961,6 +4036,7 @@ function renderParentDash() {
       ${a ? `<div class="pd-lnow"><div><b>שיעור ${act + 1} בתהליך</b><span>${pdMin(a.netMs)} / ${tgtMin} דק׳</span></div><div class="pd-lbar"><i style="width:${Math.min(100, Math.round(100 * (a.netMs || 0) / (tgtMin * 60000)))}%"></i></div></div>` : ''}
       <button type="button" class="pd-soft" onclick="pdEditProgram()">עריכת התוכנית</button>`;
   }
+  renderPdPlacement();
   // מוכנות: עשר התשובות האחרונות בכל מסלול
   const byT = {};
   arr.forEach(sub => (sub.problems || []).forEach(pr => { const t = pr.track || sub.track; if (!t || !BASICS_TRACKS[t] || pr.question === undefined || /^דוגמה/.test(pr.question)) return; (byT[t] = byT[t] || []).push(pr); }));
@@ -10250,7 +10326,7 @@ async function routeByRole(role) {
     renderJourney();
     await motLoadRemote();
     if (!mot.profile) openOnboarding();
-    else if (placementPending()) startDiagnostic();
+    else if (placementPending()) startScheduledPlacement();
   }
 }
 
@@ -10549,7 +10625,7 @@ async function handleSaveProgram() {
   if (!count || count < 1 || count > 99) { errEl.textContent = 'מספר שיעורים לא תקין (1-99).'; return; }
   if (!minutes || minutes < 1 || minutes > 600) { errEl.textContent = 'משך שיעור לא תקין (1-600 דקות).'; return; }
   try {
-    await firebaseDb.ref('users/' + editProgramStudentUid + '/program').set({
+    await firebaseDb.ref('users/' + editProgramStudentUid + '/program').update({
       lessonCount: count, minutesPerLesson: minutes, resetIfNotSameDay: resetSameDay
     });
     closeEditProgramForm();
