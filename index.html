@@ -1443,6 +1443,47 @@
   .fb-go:active { transform: translateY(3px); box-shadow: 0 2px 0 #086B51; }
   .fb-sheet.no .fb-go:active { box-shadow: 0 2px 0 var(--blue-d); }
 
+  /* ===== מוטיבציה ===== */
+  .avatar-wrap { position: relative; width: 54px; height: 54px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: conic-gradient(var(--blue) var(--xp-deg, 0deg), var(--blue-l) 0); flex: none; }
+  .avatar-wrap .app-avatar { box-shadow: none; }
+  .lvl-badge { position: absolute; bottom: -4px; left: -4px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--blue); color: white;
+    font: 700 .75em/22px var(--display); text-align: center; box-shadow: 0 0 0 2.5px white; }
+  .quests { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .quest { background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 10px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .quest-ring { flex: none; width: 46px; height: 46px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+  .quest-ring > span { width: 36px; height: 36px; border-radius: 50%; background: white; display: inline-flex; align-items: center; justify-content: center; font: 700 .78em var(--display); color: var(--ink); }
+  .quest.done .quest-ring > span { background: var(--mint-l); color: var(--mint-d); font-size: 1em; }
+  .quest-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+  .quest-txt b { font-size: .92em; }
+  .quest-txt small { color: var(--sun-d); font-weight: 600; font-size: .78em; }
+  @media (max-width: 480px) { .quest { flex-direction: column; text-align: center; padding: 10px 6px; } .quest-txt { align-items: center; } }
+  .mot-card { display: flex; align-items: center; gap: 16px; background: white; border-radius: var(--r-lg); box-shadow: var(--ring); padding: 16px; margin-bottom: 16px; }
+  .mot-level { flex: none; width: 96px; height: 96px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+  .mot-level > span { width: 78px; height: 78px; border-radius: 50%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .mot-level b { font: 700 1.8em/1 var(--display); color: var(--blue-d); }
+  .mot-level small { color: var(--ink2); font-size: .8em; }
+  .mot-facts { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mot-facts div { display: flex; flex-direction: column; }
+  .mot-facts b { font: 700 1.3em var(--display); }
+  .mot-facts small { color: var(--ink2); font-size: .8em; }
+  .mot-sub { margin: 4px 0 10px; font: 700 1.05em var(--display); }
+  .badge-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .badge-tile { background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; font-size: .82em; font-weight: 600; }
+  .badge-ico { font-size: 1.9em; line-height: 1; }
+  .badge-tile.locked { opacity: .35; filter: grayscale(1); }
+  .badge-tile.new { animation: slap .45s cubic-bezier(.34,1.7,.64,1) both; animation-delay: .6s; box-shadow: 0 0 0 2px var(--sun); }
+  .review-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 14px; }
+  .review-stats div { background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 10px; display: flex; flex-direction: column; align-items: center; }
+  .review-stats b { font: 700 1.3em var(--display); }
+  .review-stats small { color: var(--ink2); font-size: .8em; }
+  .review-badges .badge-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 140px)); justify-content: center; }
+  .q-combo { display: inline-flex; align-items: center; gap: 2px; background: var(--orange-l); color: var(--orange-d); border-radius: 999px; padding: 3px 9px; font: 700 .9em var(--display); }
+  .q-combo[hidden] { display: none; }
+  .q-combo.bump { animation: pulse .35s ease-out; }
+  .fb-mult { font-style: normal; margin-inline-start: 6px; background: var(--orange); color: white; border-radius: 999px; padding: 0 7px; font-size: .85em; }
+  #coins-stat.coin-bump { animation: pulse .35s ease-out; }
+
   /* ===== סיכום דף ===== */
   .review-mascot { display: inline-flex; width: 74px; height: 74px; border-radius: 50%; background: white; align-items: center; justify-content: center; box-shadow: var(--ring); margin-bottom: 6px; }
   .review-mascot svg { width: 54px; height: 54px; }
@@ -1564,12 +1605,12 @@ try {
 
   <div id="main-menu" class="hidden">
     <div class="app-topbar">
-      <span class="app-avatar" id="app-avatar" aria-hidden="true"></span>
+      <span class="avatar-wrap" id="app-avatar-wrap"><span class="app-avatar" id="app-avatar" aria-hidden="true"></span><span class="lvl-badge" aria-hidden="true">1</span></span>
       <span class="app-pill coin-pill" id="coins-stat" title="מטבעות">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="var(--sun)" stroke="var(--sun-d)" stroke-width="2"/><path d="M12 7.5v9M9.5 9.5h4a1.8 1.8 0 0 1 0 3.5h-3a1.8 1.8 0 0 0 0 3.5h4" fill="none" stroke="var(--sun-d)" stroke-width="1.6" stroke-linecap="round"/></svg>
         <span class="coin-count">0</span>
       </span>
-      <span class="app-pill streak-pill" title="רצף תשובות נכונות">
+      <span class="app-pill streak-pill" title="ימים ברצף">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2.5c.6 3.2 4.5 5.2 4.5 10a4.5 4.5 0 0 1-9 0c0-2.2 1-3.5 2-4.6.2 1.6 1 2.6 2 2.9-.6-2.8-.2-5.8.5-8.3z" fill="var(--orange)"/></svg>
         <span id="current-streak">0</span>
       </span>
@@ -1592,12 +1633,15 @@ try {
         </div>
       </div>
 
+      <h3 class="path-heading">המשימות של היום</h3>
+      <div id="home-quests" class="quests"></div>
       <h3 class="path-heading">המסלול שלך</h3>
       <div id="journey" class="journey"></div>
     </section>
 
     <section id="panel-progress" class="app-panel hidden">
       <h3 class="path-heading">ההתקדמות שלי</h3>
+      <div id="mot-progress"></div>
       <div class="stats" id="overall-stats">
         <div class="stat-item">
           <div class="stat-value" id="total-correct">0</div>
@@ -1837,6 +1881,166 @@ try {
 
 <script>
 // ============================================================
+// מוטיבציה: נקודות (XP) עם מכפיל רצף, שלב חשבון, ימים ברצף, משימות יומיות ותגים.
+// נשמר במכשיר ובחשבון (users/<uid>/motivation) כדי שגם ההורה יראה.
+// ============================================================
+const MOT_QUESTS = [
+  { id: 'q5', name: '5 שאלות', need: 5, reward: 20, key: 'answered', color: 'var(--mint-d)' },
+  { id: 'combo4', name: 'רצף של 4', need: 4, reward: 15, key: 'bestCombo', color: 'var(--orange-d)' },
+  { id: 'sheet', name: 'דף ב-9 ומעלה', need: 1, reward: 40, key: 'sheets', color: 'var(--purple)' }
+];
+const MOT_BADGES = [
+  { id: 'streak3', name: '3 ימים ברצף', icon: '🔥' },
+  { id: 'combo5', name: 'רצף של 5', icon: '⚡' },
+  { id: 'perfect', name: 'דף מושלם', icon: '💯' },
+  { id: 'streak7', name: 'שבוע ברצף', icon: '📅' },
+  { id: 'track', name: 'מסלול שלם', icon: '🏁' },
+  { id: 'lvl5', name: 'שלב 5', icon: '⭐' }
+];
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const yesterdayKey = () => { const y = new Date(); y.setDate(y.getDate() - 1); return dayKey(y); };
+function motNew() { return { xp: 0, streakDays: 0, bestStreakDays: 0, lastDay: null, combo: 0, bestCombo: 0, badges: {}, day: { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} } }; }
+var mot = motNew();
+// שלב N מתחיל ב-75·N·(N−1) נקודות: 150, 450, 900, 1500… – כל שלב קצת יותר ארוך מהקודם
+const motLvlStart = L => 75 * L * (L - 1);
+const motLevel = xp => { let L = 1; while (motLvlStart(L + 1) <= (xp || 0)) L++; return L; };
+const motLvlProgress = xp => { const L = motLevel(xp), a = motLvlStart(L), b = motLvlStart(L + 1); return { L, have: (xp || 0) - a, need: b - a }; };
+const comboMult = c => Math.min(3, 1 + Math.floor((Math.max(1, c) - 1) / 3));
+// רצף ימים "חי": אם לא תרגלו היום וגם לא אתמול – הרצף נשבר
+const motShownStreak = m => m && (m.lastDay === dayKey() || m.lastDay === yesterdayKey()) ? (m.streakDays || 0) : 0;
+const motKey = () => 'motivation:' + ((typeof studentUid !== 'undefined' && studentUid) || 'local');
+function motTouchDay() { if (!mot.day || mot.day.date !== dayKey()) mot.day = { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} }; }
+function motLoad() {
+  mot = motNew();
+  try { const o = JSON.parse(localStorage.getItem(motKey())); if (o) mot = Object.assign(motNew(), o); } catch (e) {}
+  motTouchDay(); updateMotUI();
+}
+async function motLoadRemote() {
+  if (typeof firebaseDb === 'undefined' || !firebaseDb || !studentUid) return;
+  try {
+    const r = (await firebaseDb.ref('users/' + studentUid + '/motivation').once('value')).val();
+    if (r && (r.xp || 0) > (mot.xp || 0)) { mot = Object.assign(motNew(), r); motTouchDay(); motSaveLocal(); }
+  } catch (e) {}
+  updateMotUI();
+}
+function motSaveLocal() { try { localStorage.setItem(motKey(), JSON.stringify(mot)); } catch (e) {} }
+let motSyncWarned = false;
+function motSave() {
+  motSaveLocal();
+  if (typeof firebaseDb !== 'undefined' && firebaseDb && studentUid) {
+    firebaseDb.ref('users/' + studentUid + '/motivation').set(mot).catch(e => {
+      if (!motSyncWarned) { motSyncWarned = true; console.warn('motivation sync failed – needs a write rule for users/$uid/motivation', e); }
+    });
+  }
+  updateMotUI();
+}
+function motMarkActive() {
+  const today = dayKey();
+  if (mot.lastDay === today) return;
+  mot.streakDays = mot.lastDay === yesterdayKey() ? (mot.streakDays || 0) + 1 : 1;
+  mot.bestStreakDays = Math.max(mot.bestStreakDays || 0, mot.streakDays);
+  mot.lastDay = today;
+}
+const HXP = [1, 0.8, 0.5, 0.3];
+// כל תשובה סופית: מחזיר כמה נקודות, המכפיל, והאירועים לחגוג (שלב, משימה, תג, רצף)
+function motOnAnswer({ correct, missed, hintLevel, hintChecked, tier }) {
+  motTouchDay(); motMarkActive();
+  mot.day.answered++;
+  const events = [];
+  let gained = 0, mult = 1;
+  if (correct) {
+    mot.combo = missed ? 0 : (mot.combo || 0) + 1;
+    mult = comboMult(mot.combo);
+    const hl = Math.min(3, hintLevel || 0);
+    const hx = HXP[hl] - (hl === 1 && !hintChecked ? 0.15 : 0);
+    gained = Math.max(1, Math.round((10 + 5 * tier) * mult * hx * (missed ? 0.75 : 1)));
+    const before = motLevel(mot.xp);
+    mot.xp = (mot.xp || 0) + gained;
+    if (motLevel(mot.xp) > before) events.push({ type: 'level', level: motLevel(mot.xp), levels: motLevel(mot.xp) - before });
+    mot.bestCombo = Math.max(mot.bestCombo || 0, mot.combo);
+    mot.day.bestCombo = Math.max(mot.day.bestCombo || 0, mot.combo);
+    if ([3, 5, 10].includes(mot.combo)) events.push({ type: 'combo', combo: mot.combo });
+  } else mot.combo = 0;
+  events.push(...motCheckBadges(), ...motClaimQuests());
+  motSave();
+  return { gained, mult, combo: mot.combo, events };
+}
+function motOnSheet({ correct, total, trackDone }) {
+  motTouchDay();
+  if (correct >= total - 1) mot.day.sheets = (mot.day.sheets || 0) + 1;
+  const events = [...motCheckBadges({ perfect: correct === total, trackDone }), ...motClaimQuests()];
+  motSave();
+  return events;
+}
+function motCheckBadges(extra = {}) {
+  const got = [];
+  const give = id => { if (!mot.badges[id]) { mot.badges[id] = dayKey(); got.push({ type: 'badge', badge: MOT_BADGES.find(b => b.id === id) }); } };
+  if (mot.streakDays >= 3) give('streak3');
+  if (mot.streakDays >= 7) give('streak7');
+  if (mot.bestCombo >= 5) give('combo5');
+  if (motLevel(mot.xp) >= 5) give('lvl5');
+  if (extra.perfect) give('perfect');
+  if (extra.trackDone) give('track');
+  return got;
+}
+function motClaimQuests() {
+  const got = [];
+  MOT_QUESTS.forEach(q => { if (!mot.day.claimed[q.id] && (mot.day[q.key] || 0) >= q.need) { mot.day.claimed[q.id] = true; got.push({ type: 'quest', quest: q }); } });
+  return got;
+}
+// מטבעות בלי החלונית הקופצת הישנה (החגיגה מגיעה בהודעה)
+function awardCoinsQuiet(reward) {
+  if (typeof firebaseDb !== 'undefined' && firebaseDb && studentUid) {
+    firebaseDb.ref('users/' + studentUid + '/coins').transaction(c => (c || 0) + reward).catch(() => { stats.coins += reward; saveStats(); });
+  } else { stats.coins += reward; saveStats(); }
+  document.querySelectorAll('#coins-stat').forEach(b => restartAnim(b, 'coin-bump'));
+}
+function motCelebrate(events) {
+  let delay = 0;
+  const say = (msg, fn) => { setTimeout(() => { showToast(msg); if (fn) fn(); }, delay); delay += 1500; };
+  events.forEach(ev => {
+    if (ev.type === 'level') { const c = 10 * (ev.levels || 1); awardCoinsQuiet(c); say(`עלית לשלב ${ev.level}! קיבלת ${c} מטבעות`, () => confettiBurst(70)); }
+    else if (ev.type === 'quest') { awardCoinsQuiet(ev.quest.reward); say(`משימה הושלמה: ${ev.quest.name}! קיבלת ${ev.quest.reward} מטבעות`); }
+    else if (ev.type === 'badge') say(`תג חדש: ${ev.badge.name} ${ev.badge.icon}`);
+    else if (ev.type === 'combo') confettiBurst(ev.combo * 10);
+  });
+}
+const ringStyle = (pct, color) => `background: conic-gradient(${color} ${Math.round(pct * 360)}deg, var(--line) 0)`;
+function badgesHtml(fresh = [], onlyFresh = false) {
+  return `<div class="badge-grid">${MOT_BADGES.filter(b => !onlyFresh || fresh.includes(b.id)).map(b => {
+    const has = !!mot.badges[b.id], isNew = fresh.includes(b.id);
+    return `<div class="badge-tile${has ? '' : ' locked'}${isNew ? ' new' : ''}" title="${escapeAttr(b.name)}"><span class="badge-ico" aria-hidden="true">${b.icon}</span><span>${escapeHtml(b.name)}</span></div>`;
+  }).join('')}</div>`;
+}
+function updateMotUI() {
+  const { L: lvl, have, need } = motLvlProgress(mot.xp), frac = have / need;
+  const s = document.getElementById('current-streak'); if (s) s.textContent = motShownStreak(mot);
+  const av = document.getElementById('app-avatar-wrap');
+  if (av) { av.style.setProperty('--xp-deg', Math.round(frac * 360) + 'deg'); av.querySelector('.lvl-badge').textContent = lvl; av.title = `שלב ${lvl} · עוד ${need - have} נקודות לשלב הבא`; }
+  const q = document.getElementById('home-quests');
+  if (q) q.innerHTML = MOT_QUESTS.map(x => {
+    const v = Math.min(x.need, mot.day[x.key] || 0), done = !!mot.day.claimed[x.id];
+    return `<div class="quest${done ? ' done' : ''}">
+        <span class="quest-ring" style="${ringStyle(v / x.need, x.color)}"><span>${done ? '✓' : `${v}/${x.need}`}</span></span>
+        <span class="quest-txt"><b>${x.name}</b><small>פרס: ${x.reward} מטבעות</small></span>
+      </div>`;
+  }).join('');
+  const pr = document.getElementById('mot-progress');
+  if (pr) pr.innerHTML = `
+      <div class="mot-card">
+        <span class="mot-level" style="${ringStyle(frac, 'var(--blue)')}"><span><b>${lvl}</b><small>שלב</small></span></span>
+        <div class="mot-facts">
+          <div><b>${mot.xp || 0}</b><small>נקודות · עוד ${need - have} לשלב ${lvl + 1}</small></div>
+          <div><b>${motShownStreak(mot)}</b><small>ימים ברצף</small></div>
+          <div><b>${mot.bestStreakDays || 0}</b><small>הרצף הכי ארוך</small></div>
+          <div><b>${mot.bestCombo || 0}</b><small>תשובות ברצף (שיא)</small></div>
+        </div>
+      </div>
+      <h4 class="mot-sub">התגים שלי</h4>
+      ${badgesHtml()}`;
+}
+
+// ============================================================
 // סטטיסטיקה גלובלית
 // ============================================================
 let stats = JSON.parse(localStorage.getItem('mathStats') || '{"correct":0,"attempts":0,"streak":0,"levelProgress":{},"coins":0}');
@@ -1856,7 +2060,7 @@ function saveStats() {
 function updateStatsDisplay() {
   document.getElementById('total-correct').textContent = stats.correct;
   document.getElementById('total-attempts').textContent = stats.attempts;
-  document.getElementById('current-streak').textContent = stats.streak;
+  document.getElementById('current-streak').textContent = motShownStreak(mot);
   const coinEls = document.querySelectorAll('.coin-count');
   coinEls.forEach(el => el.textContent = stats.coins);
 }
@@ -4660,7 +4864,8 @@ function qProgressHtml(current, total, correct, log) {
     `<i class="${i === current ? 'now' : log && log[i] ? (log[i].correct ? 'ok' : 'no') : i < current ? 'done' : ''}"></i>`).join('');
   return `<div class="q-progress" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${current}" aria-label="תרגיל ${current + 1} מתוך ${total}">
     <div class="q-segs">${segs}</div>
-    <span class="q-score" title="נכונים עד כה">★ ${correct}</span>
+    ${log ? `<span class="q-combo" title="תשובות נכונות ברצף" ${(mot.combo || 0) < 2 ? 'hidden' : ''}><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 2.5c.6 3.2 4.5 5.2 4.5 10a4.5 4.5 0 0 1-9 0c0-2.2 1-3.5 2-4.6.2 1.6 1 2.6 2 2.9-.6-2.8-.2-5.8.5-8.3z" fill="var(--orange)"/></svg><b>${mot.combo || 0}</b></span>` : ''}
+    <span class="q-score" title="${log ? 'נקודות בדף הזה' : 'נכונים עד כה'}">★ ${log ? log.reduce((a, r) => a + (r.xp || 0), 0) : correct}</span>
   </div>`;
 }
 
@@ -6107,10 +6312,12 @@ function recordBasicsAnswer(value, correct, trapHit) {
     showBasicsFeedback({ p, value, correct, trapHit, retry: true });
     return;
   }
+  const motRes = motOnAnswer({ correct, missed: basicsAttempt.missed, hintLevel: basicsHint ? (basicsHint.lesson ? 3 : basicsHint.used) : 0,
+    hintChecked: !!(basicsHint && basicsHint.checked[0]), tier: Math.floor(basicsSheetIndex / 2) + 1 });
   basicsSessionLog.push({
     track: basicsTrack, sheetIdx: basicsSheetIndex,
     question: (p.questionLabel ? p.questionLabel + ' ' : '') + (p.displayQ || `${p.a} ${p.op} ${p.b}`),
-    chosen: value, correct, expected: p.answer, timeMs,
+    chosen: value, correct, expected: p.answer, timeMs, xp: motRes.gained,
     solvedAlone: correct && !helped,
     ...(basicsAttempt.missed ? { firstTry: basicsAttempt.first } : {}),
     ...(basicsHint ? { hintsUsed: basicsHint.used, hintChecked: !!basicsHint.checked[basicsHint.level], ...(basicsHint.lesson ? { lesson: true } : {}), ...(basicsHint.passStyle ? { hintStyle: basicsHint.passStyle } : {}) } : {}),
@@ -6119,7 +6326,17 @@ function recordBasicsAnswer(value, correct, trapHit) {
   if (correct) basicsCorrect++;
   if (correct && basicsHint && basicsHint.passStyle) hsBump(basicsHint.passStyle, 0, 0.4);
   updateProgressSegs();
-  showBasicsFeedback({ p, value, correct, trapHit });
+  updateQCombo();
+  showBasicsFeedback({ p, value, correct, trapHit, xp: motRes.gained, mult: motRes.mult });
+  motCelebrate(motRes.events);
+}
+const sessionXp = () => basicsSessionLog.reduce((a, r) => a + (r.xp || 0), 0);
+function updateQCombo() {
+  const el = document.querySelector('#basics-session .q-combo');
+  if (!el) return;
+  el.hidden = (mot.combo || 0) < 2;
+  el.querySelector('b').textContent = mot.combo || 0;
+  if (!el.hidden) restartAnim(el, 'bump');
 }
 function updateProgressSegs() {
   const segs = document.querySelectorAll('#basics-session .q-segs i');
@@ -6142,7 +6359,7 @@ function answerChip(p, v) {
   if (!basicsTypable(p) && typeof renderOptionDisplay === 'function' && p.options && p.options.map(String).includes(s)) return renderOptionDisplay(s);
   return /[֐-׿]/.test(s) ? escapeHtml(s) : M(s);
 }
-function showBasicsFeedback({ p, value, correct, trapHit, retry }) {
+function showBasicsFeedback({ p, value, correct, trapHit, retry, xp, mult }) {
   ensureFbSheet();
   const sheet = document.getElementById('fb-sheet');
   const helped = !!basicsHint || basicsAttempt.missed;
@@ -6158,7 +6375,7 @@ function showBasicsFeedback({ p, value, correct, trapHit, retry }) {
     <div class="fb-head">
       <span class="fb-stamp" aria-hidden="true">${correct ? '✓' : '?'}</span>
       <span class="fb-title">${correct ? PRAISE[Math.floor(Math.random() * PRAISE.length)] : 'כמעט. ככה פותרים:'}</span>
-      ${correct && !retry ? '<span class="fb-pill" id="fb-pill" dir="ltr">+1 ★</span>' : ''}
+      ${correct && !retry ? `<span class="fb-pill" id="fb-pill" dir="ltr">+${xp || 0} ★${mult > 1 ? `<i class="fb-mult">×${mult}</i>` : ''}</span>` : ''}
     </div>
     ${correct ? '' : `<div class="fb-cmp">${gaveUp ? '' : `<s dir="auto">${answerChip(p, value)}</s>`}<span>התשובה הנכונה:</span><span class="fb-ans">${answerChip(p, p.answer)}</span></div>`}
     ${!correct && trapHit ? `<p class="fb-trap"><b>מה קרה:</b> ${escapeHtml(trapHit.why)}</p>` : ''}
@@ -6189,7 +6406,7 @@ function fbContinue() {
 function flyStarToScore() {
   const pill = document.getElementById('fb-pill');
   const target = document.querySelector('#basics-session .q-score');
-  const bump = () => { if (target) { target.textContent = `★ ${basicsCorrect}`; restartAnim(target, 'bump'); } };
+  const bump = () => { if (target) { target.textContent = `★ ${sessionXp()}`; restartAnim(target, 'bump'); } };
   if (!pill || !target || prefersReducedMotion()) { bump(); return; }
   const a = pill.getBoundingClientRect(), b = target.getBoundingClientRect();
   const fly = pill.cloneNode(true); fly.removeAttribute('id'); fly.classList.add('fb-fly');
@@ -6795,12 +7012,17 @@ function finishBasicsSheet() {
     basicsSheetUnlocked = true;
   }
   autoSaveSession('sheet', basicsTrack, sheetLabelFor(basicsTrack, basicsSheetIndex));
+  const badgesBefore = Object.keys(mot.badges);
+  const sheetEvents = motOnSheet({ correct: basicsCorrect, total: BASICS_SHEET_SIZE, trackDone: basicsSheetUnlocked && basicsSheetIndex === 9 });
+  basicsFreshBadges = Object.keys(mot.badges).filter(b => !badgesBefore.includes(b));
   renderSheetReview();
+  motCelebrate(sheetEvents);
   countUp(document.getElementById('review-pct'), Math.round(100 * basicsCorrect / BASICS_SHEET_SIZE), '%');
   if (basicsSheetPassed) confettiBurst(basicsSheetUnlocked ? 90 : 60);
   if (basicsSheetUnlocked && basicsSheetIndex < 9) setTimeout(() => showToast('נפתח שלב חדש בסולם!'), 700);
 }
 
+let basicsFreshBadges = [];
 function renderSheetReview() {
   const container = document.getElementById('basics-session');
   const cls = basicsSheetPassed ? 'passed' : 'failed';
@@ -6850,6 +7072,12 @@ function renderSheetReview() {
       <div class="review-pct" id="review-pct">${pct}%</div>
       ${unlockBadge}
     </div>
+    <div class="review-stats">
+      <div><b>${basicsCorrect}/${BASICS_SHEET_SIZE}</b><small>נכונות</small></div>
+      <div><b dir="ltr">+${sessionXp()}</b><small>נקודות</small></div>
+      <div><b>${Math.max(1, Math.round(basicsSessionLog.reduce((a, r) => a + (r.timeMs || 0), 0) / 60000))}</b><small>דקות</small></div>
+    </div>
+    ${basicsFreshBadges.length ? `<div class="review-badges"><h4 class="mot-sub">תג חדש!</h4>${badgesHtml(basicsFreshBadges, true)}</div>` : ''}
     <div class="submission-banner sent">✓ נשמר בהיסטוריה ונשלח למורה</div>
     <div class="review-table-wrap">
       <table class="review-table">
@@ -8305,6 +8533,7 @@ async function routeByRole(role) {
     await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
     initStudentCoinsSync();
+    motLoad(); motLoadRemote();
     await initStudentBasicsProgressSync();
     renderJourney();
   }
@@ -8445,7 +8674,7 @@ function renderParentStudentsList(arr) {
       <div class="name">${escapeHtml(s.displayName || s.username)}</div>
       <div class="meta">שם משתמש: ${escapeHtml(s.username)}</div>
       ${s.grade ? `<div class="meta">${escapeHtml(s.grade)}</div>` : ''}
-      <div class="meta">🪙 ${s.coins || 0}</div>
+      <div class="meta">🪙 ${s.coins || 0}${s.motivation ? ` · 🔥 ${motShownStreak(s.motivation)} ימים ברצף · שלב ${motLevel(s.motivation.xp)} · ${Object.keys(s.motivation.badges || {}).length} תגים` : ''}</div>
       <button class="btn btn-secondary" onclick="event.stopPropagation(); openEditProgramForm('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">⚙️ הגדרות שיעורים</button>
       <button class="btn btn-secondary" onclick="event.stopPropagation(); handleGiftCoins('${s.uid}', '${escapeAttr(s.displayName || s.username)}')">🎁 העניק מטבעות</button>
     </div>
