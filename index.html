@@ -667,6 +667,13 @@
   @media (max-width: 600px) {
     .basics-options { grid-template-columns: repeat(2, 1fr); }
   }
+  .basics-equation { white-space: nowrap; max-width: 100%; overflow: hidden; }
+  .basics-options.text-opts { grid-template-columns: repeat(2, 1fr); }
+  .basics-options.text-opts .basics-option { font-size: 1.15em; min-height: 62px; line-height: 1.3; padding: 12px 10px; }
+  .basics-options.long-opts { grid-template-columns: 1fr; }
+  .basics-options.long-opts .basics-option { font-size: 1em; min-height: 54px; line-height: 1.4; padding: 10px 12px; }
+  .basics-options.long-opts .opt-m { white-space: normal; font-size: 1em; }
+  .basics-option { min-width: 0; overflow-wrap: anywhere; }
 
   /* חיבור עם פירוק (break-apart) */
   .ba-container { max-width: 480px; margin: 0 auto; text-align: center; }
@@ -6873,6 +6880,7 @@ function renderTopicQuestion() {
       ${keypad}
     </div>`;
   tagOpKeys(document.getElementById('problem-area'));
+  fitEquation(document.querySelector('#problem-area .tq-eq'));
   if (spec.figure && spec.figure.draw) setTimeout(spec.figure.draw, 30);
   tqRenderFields();
   updateTopicHeader();
@@ -6889,6 +6897,15 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Enter') { e.preventDefault(); tqSubmit(); }
 });
 
+// משוואה ארוכה לא נשברת באמצע: מקטינים את הגופן עד שהיא נכנסת בשורה אחת
+function fitEquation(el) {
+  if (!el) return;
+  el.style.fontSize = '';
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  for (let guard = 0; guard < 30 && el.scrollWidth > el.clientWidth + 1 && size > 18; guard++) {
+    size -= 2; el.style.fontSize = size + 'px';
+  }
+}
 function basicsTypable(p) { return /^-?\d+(\.\d+)?$/.test(String(p.answer)); }
 function plainText(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent.replace(/\s+/g, ' ').trim(); }
 
@@ -6935,7 +6952,10 @@ function renderBasicsProblem() {
         <button type="button" class="k-go k-wide" id="qs-submit" onclick="qsSubmit()" disabled>בדיקה</button>
       </div>`;
   } else {
-    answerHtml = `<div class="basics-options">${p.options.map(v =>
+    const optTexts = p.options.map(String);
+    const optCls = optTexts.some(t => t.length > 28) ? ' long-opts'
+      : optTexts.some(t => /[\u0590-\u05FF]/.test(t) || (t.length > 8 && !/^-?\d+\/\d+$/.test(t))) ? ' text-opts' : '';
+    answerHtml = `<div class="basics-options${optCls}">${p.options.map(v =>
       `<button type="button" class="basics-option" data-val="${escapeAttr(v)}" onclick="checkBasicsAnswer(this.dataset.val, this)">${renderOptionDisplay(v)}</button>`
     ).join('')}</div>`;
   }
@@ -6950,6 +6970,7 @@ function renderBasicsProblem() {
     </div>
   `;
   tagOpKeys(container);
+  fitEquation(container.querySelector('.basics-equation'));
   basicsProblemStart = Date.now();
 }
 
