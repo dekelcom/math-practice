@@ -1597,14 +1597,18 @@
   .badge-tile.locked { opacity: .35; filter: grayscale(1); }
   .badge-tile.new { animation: slap .45s cubic-bezier(.34,1.7,.64,1) both; animation-delay: .6s; box-shadow: 0 0 0 2px var(--sun); }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .home-badges-head { display: flex; align-items: baseline; gap: 10px; } .home-badges-head span { color: var(--ink2); font-size: .9em; font-weight: 600; }
-  .home-badges { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; min-width: 0; }
-  @media (min-width: 520px) { .home-badges { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; } .hb-name { font-size: .72em; } }
-  .hb { min-width: 0; background: white; border-radius: var(--r-md); box-shadow: var(--ring), 0 3px 0 var(--line); padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
-  .hb-ico { font-size: 1.8em; line-height: 1; }
-  .hb-name { font-size: .76em; font-weight: 600; color: var(--ink); line-height: 1.25; }
-  .hb.locked { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--line); }
-  .hb.locked .hb-ico { filter: grayscale(1); opacity: .35; } .hb.locked .hb-name { color: var(--ink2); font-weight: 500; }
+  .hb-strip { display: inline-flex; align-items: center; flex-direction: row; }
+  .hb-chip { position: relative; width: 36px; height: 36px; flex: none; border-radius: 50%; background: white; box-shadow: 0 0 0 2px var(--paper), var(--ring), 0 2px 0 var(--line);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 1.2em; line-height: 1; overflow: hidden; margin-inline-start: -7px; isolation: isolate; }
+  .hb-chip:first-child { margin-inline-start: 0; }
+  .hb-chip::after { content: ''; position: absolute; inset: -30%; pointer-events: none; z-index: 1;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.35) 40%, rgba(255,255,255,.9) 47%, rgba(255,255,255,.9) 53%, rgba(255,255,255,.35) 60%, transparent 70%);
+    transform: translateX(-130%); animation: hb-glare 5s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .22s + 1s); }
+  @keyframes hb-glare { 0%, 64% { transform: translateX(-130%); } 84%, 100% { transform: translateX(130%); } }
+  .hb-more { font: 700 .72em var(--display); color: var(--ink2); background: white; display: none; }
+  .hb-more::after { display: none; }
+  @media (max-width: 519px) { .hb-strip .hb-chip:nth-child(n+4):not(.hb-more) { display: none; } .hb-more { display: inline-flex; } .hb-chip { width: 32px; height: 32px; font-size: 1.05em; } }
+  @media (prefers-reduced-motion: reduce) { .hb-chip::after { animation: none; display: none; } }
   .review-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 14px; }
   .review-stats div { background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 10px; display: flex; flex-direction: column; align-items: center; }
   .review-stats b { font: 700 1.3em var(--display); }
@@ -2188,6 +2192,7 @@ try {
         <span id="current-streak">0</span>
       </span>
       <span class="app-topbar-spacer"></span>
+      <span class="hb-strip hidden" id="home-badges" role="list" aria-label="התגים שלי"></span>
     </div>
 
     <section id="panel-journey" class="app-panel">
@@ -2209,8 +2214,6 @@ try {
 
       <h3 class="path-heading">המשימות של היום</h3>
       <div id="home-quests" class="quests"></div>
-      <div class="home-badges-head"><h3 class="path-heading">התגים שלי</h3><span id="home-badges-count"></span></div>
-      <div id="home-badges" class="home-badges"></div>
       <div id="home-mix"></div>
       <h3 class="path-heading">המסלול שלך</h3>
       <div id="journey" class="journey"></div>
@@ -2751,14 +2754,13 @@ function badgesHtml(fresh = [], onlyFresh = false) {
     return `<div class="badge-tile${has ? '' : ' locked'}${isNew ? ' new' : ''}" title="${escapeAttr(b.name)}"><span class="badge-ico" aria-hidden="true">${b.icon}</span><span>${escapeHtml(b.name)}</span></div>`;
   }).join('')}</div>`;
 }
-// התגים בעמוד הראשי: קודם מה שהושג (החדש ביותר ראשון), אחר כך מה שעוד פתוח להשגה
+// התגים שהושגו, בפס העליון (החדש ביותר ראשון), עם ברק שעובר עליהם
 function renderHomeBadges() {
   const box = document.getElementById('home-badges'); if (!box) return;
-  const got = MOT_BADGES.filter(b => mot.badges[b.id]).sort((a, b) => String(mot.badges[b.id]).localeCompare(String(mot.badges[a.id])));
-  const rest = MOT_BADGES.filter(b => !mot.badges[b.id]);
-  document.getElementById('home-badges-count').textContent = `${got.length} מתוך ${MOT_BADGES.length}`;
-  box.innerHTML = got.concat(rest).map(b => { const has = !!mot.badges[b.id];
-    return `<div class="hb${has ? '' : ' locked'}" title="${escapeAttr(b.name)}${has ? '' : ' (עוד לא הושג)'}"><span class="hb-ico" aria-hidden="true">${b.icon}</span><span class="hb-name">${escapeHtml(b.name)}</span>${has ? '' : '<span class="sr-only">, עוד לא הושג</span>'}</div>`; }).join('');
+  const got = MOT_BADGES.filter(b => mot.badges && mot.badges[b.id]).sort((a, b) => String(mot.badges[b.id]).localeCompare(String(mot.badges[a.id])));
+  box.classList.toggle('hidden', !got.length);
+  box.innerHTML = got.map((b, i) => `<span class="hb-chip" role="listitem" style="--i:${i}" title="${escapeAttr(b.name)}" aria-label="${escapeAttr(b.name)}"><span aria-hidden="true">${b.icon}</span></span>`).join('') +
+    (got.length > 3 ? `<span class="hb-chip hb-more" aria-hidden="true" dir="ltr">+${got.length - 3}</span>` : '');
 }
 function updateMotUI() {
   renderHomeBadges();
