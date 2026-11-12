@@ -1717,6 +1717,29 @@
   .pd-score { font: 700 1em var(--display); padding: 3px 10px; border-radius: 10px; }
   .pd-score.ok { background: var(--mint-l); color: var(--mint-d); } .pd-score.mid { background: var(--sun-l); color: var(--sun-d); } .pd-score.low { background: var(--orange-l); color: var(--orange-d); }
   #app-container:has(#admin-home-view:not(.hidden)) { max-width: 1220px; }
+  /* לוח ניהול: שורות מיושרות בגובה, רשימות בעמודות */
+  @media (min-width: 900px) {
+    .ad .ad-row-a { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: stretch; }
+    .ad .ad-row-b { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+    .ad .ad-row-b .ad-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    #ad-chart { flex: 1 1 auto; display: flex; flex-direction: column; }
+    #ad-chart .pd-bars { flex: 1 1 auto; height: auto; min-height: 210px; }
+    #ad-tracks { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+    #ad-clean { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); column-gap: 28px; }
+    #ad-clean .ad-clean-row { border-top: 0; flex-direction: column; align-items: flex-start; justify-content: space-between; flex-wrap: nowrap; }
+    #ad-clean .ad-clean-row > div { flex: 0 0 auto; }
+  }
+  #admin-parents-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); column-gap: 28px; align-items: start; }
+  #admin-parents-list > .ad-sub-h, #admin-parents-list > .pd-empty { grid-column: 1 / -1; }
+  #admin-parents-list .ad-parent, #admin-parents-list .ad-parent:first-child { border-top: 1px solid var(--line); padding: 12px 0; }
+  #admin-parents-list .ad-sub-h { margin-top: 18px; }
+  .ad-add { min-height: 40px; padding: 0 16px; margin-inline-start: auto; font-size: .92em; align-self: center; }
+  .ad-new { max-width: 420px; width: 100%; margin: 0 auto 8px; }
+  @media (max-width: 560px) {
+    .ad .pd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .ad .pd-kpi { padding: 12px 14px; } .ad .pd-kpi b { font-size: 1.8em; }
+    .ad .pd-kpis > .pd-kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  }
   /* ===== שאלון כניסה ראשונה ===== */
   .ob-confirm { position: fixed; inset: 0; z-index: 3100; background: rgba(27,27,47,.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
   .ob-confirm.hidden { display: none; }
@@ -2170,7 +2193,7 @@ try {
         </div>
       </header>
       <section class="pd-kpis" id="ad-kpis" aria-label="מדדים"></section>
-      <div class="pd-row">
+      <div class="pd-row ad-row-a">
         <section class="pd-card pd-wide" aria-label="פעילות לאורך זמן">
           <div class="pd-h"><h3 id="ad-chart-title">דקות תרגול</h3><span>כל התלמידים יחד</span></div>
           <div id="ad-chart"></div>
@@ -2180,7 +2203,7 @@ try {
           <div id="ad-recent"></div>
         </section>
       </div>
-      <div class="pd-row">
+      <div class="pd-row ad-row-b">
         <section class="pd-card pd-wide" aria-label="הצלחה לפי מסלול">
           <div class="pd-h"><h3>הצלחה לפי מסלול</h3><span>כל התשובות בטווח, כל התלמידים</span></div>
           <div id="ad-tracks"></div>
@@ -2195,31 +2218,28 @@ try {
         <div id="ad-requests"></div>
       </section>
       <section class="pd-card" aria-label="הורים ותלמידים">
-        <div class="pd-h"><h3>הורים ותלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
+        <div class="pd-h"><h3>הורים, מורים ותלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span><button type="button" class="pd-soft ad-add" onclick="openCreateParentForm()">+ חשבון הורה או מורה</button></div>
+        <div id="create-parent-form" class="auth-form ad-new hidden">
+          <label>סוג חשבון</label>
+          <select id="new-account-role" onchange="document.getElementById('new-teacher-school-wrap').classList.toggle('hidden', this.value !== 'teacher')"><option value="parent">הורה</option><option value="teacher">מורה</option></select>
+          <label>שם מלא</label>
+          <input type="text" id="new-parent-displayname">
+          <div id="new-teacher-school-wrap" class="hidden"><label for="new-teacher-school">שם בית הספר</label><input type="text" id="new-teacher-school" maxlength="80"></div>
+          <label>שם משתמש</label>
+          <input type="text" id="new-parent-username">
+          <label>סיסמה זמנית</label>
+          <input type="password" id="new-parent-password">
+          <label class="mcp-check"><input type="checkbox" id="new-account-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
+          <button class="btn btn-primary" onclick="handleCreateParent()">צור חשבון</button>
+          <button class="btn btn-secondary" onclick="closeCreateParentForm()">ביטול</button>
+          <div class="auth-error" id="create-parent-error"></div>
+        </div>
         <div id="admin-parents-list"><p class="pd-empty">טוען...</p></div>
       </section>
       <section class="pd-card" aria-label="ניקוי נתונים">
         <div class="pd-h"><h3>ניקוי נתונים</h3><span>רשומות שמעוותות את הסטטיסטיקה</span></div>
         <div id="ad-clean"></div>
       </section>
-    </div>
-    <div style="text-align:center; margin: 20px 0;">
-      <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה או מורה</button>
-    </div>
-    <div id="create-parent-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
-      <label>סוג חשבון</label>
-      <select id="new-account-role" onchange="document.getElementById('new-teacher-school-wrap').classList.toggle('hidden', this.value !== 'teacher')"><option value="parent">הורה</option><option value="teacher">מורה</option></select>
-      <label>שם מלא</label>
-      <input type="text" id="new-parent-displayname">
-      <div id="new-teacher-school-wrap" class="hidden"><label for="new-teacher-school">שם בית הספר</label><input type="text" id="new-teacher-school" maxlength="80"></div>
-      <label>שם משתמש</label>
-      <input type="text" id="new-parent-username">
-      <label>סיסמה זמנית</label>
-      <input type="password" id="new-parent-password">
-      <label class="mcp-check"><input type="checkbox" id="new-account-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
-      <button class="btn btn-primary" onclick="handleCreateParent()">צור חשבון</button>
-      <button class="btn btn-secondary" onclick="closeCreateParentForm()">ביטול</button>
-      <div class="auth-error" id="create-parent-error"></div>
     </div>
   </div>
 
@@ -10674,7 +10694,7 @@ function renderAdminDash() {
   document.getElementById('ad-chart').innerHTML = barsHtml(bars, 0);
   // פעילות אחרונה
   const nameOf = u => (users[u] && (users[u].displayName || users[u].username)) || 'לא ידוע';
-  document.getElementById('ad-recent').innerHTML = real.slice(0, 6).map(x => {
+  document.getElementById('ad-recent').innerHTML = real.slice(0, 5).map(x => {
     const sm = x.summary || {};
     return `<div class="ad-act"><b>${escapeHtml(nameOf(x.studentUid))}</b><span>${escapeHtml(x.type === 'mix' ? 'אימון חכם' : x.type === 'exam' ? 'סימולציה' : trackLabelHebrew(x.track))} · ${sm.correct || 0}/${sm.total || 10}</span><small>${adWhen(x.timestamp)}</small></div>`;
   }).join('') || '<p class="pd-empty">עוד אין פעילות.</p>';
