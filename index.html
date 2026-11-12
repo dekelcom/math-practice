@@ -1673,6 +1673,20 @@
   .tq-label { font-size: 1.08em; line-height: 1.8; text-align: center; max-width: 34em; text-wrap: balance; }
   .tq-eq { font-size: clamp(26px, 7.5vw, 36px); margin: 0; }
   .tq-figure { width: 100%; }
+  /* קריאת גרפים: הגרף בעמודה משלו (ימין בדסקטופ), המשוואה והתשובות לידו */
+  .tq-split { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "q" "fig" "hint" "ans"; column-gap: 28px; }
+  .tq-split > .tq-question { grid-area: q; flex: none; padding: 6px 0 4px; margin: 0; }
+  .tq-split > .tq-graph { grid-area: fig; margin: 4px 0 12px; display: flex; justify-content: center; }
+  .tq-split > #qs-hint { grid-area: hint; }
+  .tq-split > #qs-answer { grid-area: ans; }
+  .tq-graph canvas { display: block; width: auto; max-width: 100%; max-height: 42dvh; aspect-ratio: 1; background: white; border-radius: var(--r-lg); box-shadow: var(--ring), 0 4px 0 var(--line); }
+  @media (min-width: 900px) {
+    .student-mode #app-container:has(.tq-split) { max-width: 1060px; }
+    .tq-split { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: "fig q" "fig hint" "fig ans"; align-items: start; }
+    .tq-split > .tq-graph { margin: 0; position: sticky; top: 16px; }
+    .tq-graph canvas { width: 100%; max-height: none; }
+    .tq-split > .tq-question { padding-top: 18px; }
+  }
   .tq-figure canvas { width: 100%; height: auto; margin: 0; border-radius: var(--r-md); box-shadow: var(--ring); border: 0; }
   .tq-formula { background: var(--blue-l); color: var(--ink); border-radius: 999px; padding: 6px 16px; font-size: .95em; }
   .tq-formula span { color: var(--blue-d); font-weight: 700; }
@@ -6645,20 +6659,20 @@ const TOPIC_SPECS = {
     return s;
   },
   4(p) {
-    const fig = { html: '<canvas id="graph-canvas" width="500" height="400"></canvas>', draw: () => drawGraph('graph-canvas', p) };
+    const fig = { html: '<canvas id="graph-canvas" width="520" height="520"></canvas>', draw: () => drawGraph('graph-canvas', p) };
     if (p.kind === 'linear-value') return {
-      label: `לפניכם הגרף של ${M(`f(x) = ${fmtCoef(p.m, 'x', true)}${fmtCoef(p.b, '')}`)}. מצאו:`, figure: fig,
+      label: 'קראו מהגרף ומצאו:', math: `f(x) = ${fmtCoef(p.m, 'x', true)}${fmtCoef(p.b, '')}`, split: true, figure: fig,
       fields: [numField('yint', 'חיתוך עם ציר y', p.b), numField('slope', 'שיפוע', p.m), numField('fx', `f(${p.xQ})`, p.m * p.xQ + p.b)],
       steps: [`חיתוך עם ציר y: מציבים ${M('x = 0')} ומקבלים ${M(`${p.b}`)}.`, `השיפוע הוא המספר שליד x: ${M(`${p.m}`)}.`, M(`f(${p.xQ}) = ${PN(p.m)}·${PN(p.xQ)} + ${PN(p.b)} = ${p.m * p.xQ + p.b}`)]
     };
     if (p.kind === 'parabola-features') return {
-      label: `לפניכם הגרף של ${M(fmtFunction(p.a, p.b, p.c))}. קראו מהגרף:`, figure: fig,
+      label: 'קראו מהגרף:', math: fmtFunction(p.a, p.b, p.c), split: true, figure: fig,
       fields: [numField('r1', 'שורש קטן', p.r1), numField('r2', 'שורש גדול', p.r2), numField('vx', 'x של הקודקוד', p.vx), numField('vy', 'y של הקודקוד', p.vy),
         choiceField('ext', 'הקודקוד הוא', p.a > 0 ? 'min' : 'max', [['min', 'מינימום'], ['max', 'מקסימום']])],
       steps: [`השורשים – איפה הגרף חותך את ציר x (הנקודות הכחולות): ${M(`${p.r1}`)} ו-${M(`${p.r2}`)}.`, `הקודקוד באמצע בין השורשים: ${M(`x = (${p.r1} + ${p.r2}) ÷ 2 = ${fmtNumber(p.vx)}`)}, ${M(`y = ${fmtNumber(p.vy)}`)}.`, `${M(`a = ${p.a}`)} ${p.a > 0 ? 'חיובי – מינימום.' : 'שלילי – מקסימום.'}`]
     };
     return {
-      label: `לפניכם הגרף של ${M(fmtFunction(p.a, p.b, p.c))}. ענו לפי הגרף:`, figure: fig,
+      label: 'ענו לפי הגרף:', math: fmtFunction(p.a, p.b, p.c), split: true, figure: fig,
       fields: [choiceField('pos', 'איפה הפונקציה חיובית?', p.a > 0 ? 'outside' : 'between', [['between', `${p.r1} < x < ${p.r2}`], ['outside', `x < ${p.r1} או x > ${p.r2}`]]),
         choiceField('inc', 'איפה הפונקציה עולה?', p.a > 0 ? 'right' : 'left', [['left', `x < ${fmtNumber(p.vx)}`], ['right', `x > ${fmtNumber(p.vx)}`]])],
       steps: [`חיובית = מעל ציר x. ${p.a > 0 ? 'הפרבולה פתוחה למעלה, ולכן היא מעל הציר מחוץ לשורשים' : 'הפרבולה פתוחה למטה, ולכן היא מעל הציר בין השורשים'}.`,
@@ -7219,20 +7233,21 @@ function renderTopicQuestion() {
         <button type="button" class="k-soft k-next" onclick="tqNextField()">השדה הבא</button>
         <button type="button" class="k-go k-wide" onclick="tqSubmit()">בדיקה</button>
       </div>` : `<button type="button" class="cta-big tq-check" onclick="tqSubmit()">בדיקה</button>`;
-  document.getElementById('problem-area').innerHTML = `
+  document.getElementById('problem-area').innerHTML = `${spec.split ? '<div class="tq-split">' : ''}
     <div class="qs-question tq-question">
       <div class="tq-label">${spec.label}</div>
-      ${spec.math ? `<div class="basics-equation tq-eq" dir="ltr">${mathHtml(spec.math)}</div>` : ''}
-      ${spec.figure ? `<div class="tq-figure">${spec.figure.html}</div>` : ''}
+      ${spec.math ? `<div class="basics-equation tq-eq" dir="ltr">${mathHtml(spec.math.replace(/= [-−] /g, '= −'))}</div>` : ''}
+      ${spec.figure && !spec.split ? `<div class="tq-figure">${spec.figure.html}</div>` : ''}
       ${spec.formula ? `<div class="tq-formula"><span>${escapeHtml(spec.formula.label)}:</span> ${M(spec.formula.math)}</div>` : ''}
     </div>
+    ${spec.figure && spec.split ? `<div class="tq-figure tq-graph">${spec.figure.html}</div>` : ''}
     <div id="qs-hint" hidden></div>
     <div id="qs-answer">
       <div class="qs-miss" id="qs-miss" role="status" hidden></div>
       ${qsToolsHtml('openTopicDraft()', 'tqDontKnow()', 'openBasicsHint()')}
       <div class="tq-fields" id="tq-fields"></div>
       ${keypad}
-    </div>`;
+    </div>${spec.split ? '</div>' : ''}`;
   tagOpKeys(document.getElementById('problem-area'));
   fitEquation(document.querySelector('#problem-area .tq-eq'));
   if (spec.figure && spec.figure.draw) setTimeout(spec.figure.draw, 30);
@@ -9125,6 +9140,7 @@ function drawGraph(canvasId, problem) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
+  ctx.direction = 'ltr'; // אחרת המינוס נכתב אחרי המספר (הדף מימין לשמאל)
 
   // טווח
   let xMin = -6, xMax = 6, yMin = -6, yMax = 6;
@@ -9175,8 +9191,8 @@ function drawGraph(canvasId, problem) {
   }
 
   // תוויות צירים
-  ctx.fillStyle = '#1B1B2F';
-  ctx.font = '11px Arial';
+  ctx.fillStyle = '#5B6078';
+  ctx.font = '600 13px Rubik, Arial';
   ctx.textAlign = 'center';
   for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
     if (x === 0) continue;
@@ -9189,9 +9205,11 @@ function drawGraph(canvasId, problem) {
   }
   ctx.fillText('0', sx(0) - 5, sy(0) + 14);
 
-  // ציור הפונקציה
-  ctx.strokeStyle = '#FF4D4D';
-  ctx.lineWidth = 2.5;
+  // ציור הפונקציה - רק בתוך אזור הרשת
+  ctx.save();
+  ctx.beginPath(); ctx.rect(padding, padding, W - 2 * padding, H - 2 * padding); ctx.clip();
+  ctx.strokeStyle = '#3D5AFE';
+  ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath();
   let first = true;
   if (problem.kind === 'linear-value') {
@@ -9209,6 +9227,7 @@ function drawGraph(canvasId, problem) {
     }
   }
   ctx.stroke();
+  ctx.restore();
 
   // סימון נקודות חשובות
   if (problem.kind === 'parabola-features' || problem.kind === 'parabola-advanced') {
@@ -9218,7 +9237,7 @@ function drawGraph(canvasId, problem) {
     ctx.arc(sx(problem.vx), sy(problem.vy), 5, 0, 2*Math.PI);
     ctx.fill();
     // שורשים
-    ctx.fillStyle = '#3D5AFE';
+    ctx.fillStyle = '#FF6B35';
     [problem.r1, problem.r2].forEach(r => {
       ctx.beginPath();
       ctx.arc(sx(r), sy(0), 5, 0, 2*Math.PI);
