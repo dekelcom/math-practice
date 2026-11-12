@@ -1767,6 +1767,7 @@
   .ad-clean-row:first-child { border-top: 0; } .ad-clean-row > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; } .ad-clean-row span { color: var(--ink2); font-size: .9em; }
   .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
   .ad-ok { color: var(--mint-d); font-weight: 600; }
+  .pd-reset.hidden { display: none; }
   .ad-warn { color: var(--sun-d); background: var(--sun-l); border-radius: 10px; padding: 4px 10px; font-weight: 600; }
   @media (max-width: 560px) { .ad-kstat:nth-of-type(4) { display: none; } }
   .pd-more { margin: 4px 0 20px; background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 6px 16px; }
@@ -2190,6 +2191,7 @@ try {
           <h2>ההתקדמות של <span id="dashboard-student-name"></span></h2>
           <p id="pd-sub"></p>
         </div>
+        <button type="button" class="ad-del pd-reset hidden" id="pd-reset" onclick="adResetStudent()">איפוס התקדמות</button>
         <div class="pd-ranges" role="group" aria-label="טווח זמן">
           <button type="button" data-range="week" class="on" onclick="pdSetRange('week')">השבוע</button>
           <button type="button" data-range="month" onclick="pdSetRange('month')">החודש</button>
@@ -3339,6 +3341,20 @@ function saveBasicsProgress() {
 // הפכו לענן-קודם. מאמצים את גרסת הענן אם קיימת (לוקחים את הגבוה מבין
 // המקומי לענן בכל תחום, כדי לא לאבד התקדמות משני הצדדים), אחרת מזרעים
 // את הענן מהמצב המקומי הנוכחי.
+// איפוס התקדמות שהמנהל ביצע: מנקה גם את מה שנשמר על המכשיר, פעם אחת, ואז טוען מחדש
+async function applyRemoteReset() {
+  if (!firebaseDb || !studentUid) return false;
+  try {
+    const at = (await firebaseDb.ref('users/' + studentUid + '/resetAt').once('value')).val();
+    const seenKey = 'resetSeen:' + studentUid;
+    if (!at || Number(localStorage.getItem(seenKey) || 0) >= at) return false;
+    ['basicsProgress', 'mathStats', 'lessonsProgress', 'activeLessonIdx', 'motivation:' + studentUid, 'hintStyles:' + studentUid, 'journeyOpen']
+      .forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    localStorage.setItem(seenKey, String(at));
+    location.reload();
+    return true;
+  } catch (e) { console.warn('reset check failed', e); return false; }
+}
 async function initStudentBasicsProgressSync() {
   if (!firebaseDb || !studentUid) return;
   try {
@@ -3867,6 +3883,7 @@ function exitParentDashboard() {
   document.getElementById('parent-dashboard-view').classList.add('hidden');
   document.getElementById(dashboardReturnView).classList.remove('hidden');
   dashboardReturnView = 'parent-students-view';
+  document.getElementById('pd-reset').classList.add('hidden');
 }
 
 // ============================================================
@@ -10223,6 +10240,7 @@ async function routeByRole(role) {
     studentUid = currentUser.uid;
     localStorage.setItem('studentName', studentName);
     document.getElementById('student-username-label').textContent = studentName;
+    if (await applyRemoteReset()) return;
     showAppView('main-menu');
     await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
@@ -10389,6 +10407,20 @@ function adOpenStudent(uid) {
   dashboardReturnView = 'admin-home-view';
   document.getElementById('admin-home-view').classList.add('hidden');
   openParentDashboard(uid, u.displayName || u.username);
+  document.getElementById('pd-reset').classList.remove('hidden');
+}
+// איפוס התקדמות (למנהל): שלבים, נקודות ותגים, רצף, שאלון ובדיקת רמה, שיעורים ומטבעות. היסטוריית התרגולים נשמרת.
+async function adResetStudent() {
+  const uid = dashboardStudentUid; if (!uid) return;
+  const name = document.getElementById('dashboard-student-name').textContent;
+  const ok = prompt(`איפוס ההתקדמות של ${name}:\nשלבים פתוחים, נקודות, שלב, רצף, תגים, שאלון ובדיקת רמה, שיעורים ומטבעות יתאפסו.\nהיסטוריית התרגולים נשמרת.\n\nכדי לאשר, כתבו: איפוס`);
+  if ((ok || '').trim() !== 'איפוס') return;
+  const zeros = {}; Object.keys(BASICS_TRACKS).forEach(t => { zeros[t] = 0; });
+  try {
+    await firebaseDb.ref('users/' + uid).update({ basicsProgress: zeros, motivation: null, coins: 0, resetAt: Date.now() });
+    await firebaseDb.ref('lessons/' + uid).set(null);
+    showToast(`ההתקדמות של ${name} אופסה. בכניסה הבאה הוא יתחיל מההתחלה.`);
+  } catch (e) { alert('האיפוס נכשל: ' + (e.message || e)); }
 }
 async function adDeleteSubs(kind) {
   const users = ad.users || {};
