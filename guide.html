@@ -40,6 +40,9 @@
   .hero p { margin: 10px 0 0; font-size: 1.1rem; max-width: 46ch; color: #DCE2FF; }
   .mascot { flex: none; width: 104px; height: 104px; border-radius: 50%; background: white; display: grid; place-items: center; box-shadow: 0 6px 0 var(--blue-d); }
   .mascot svg { width: 66px; height: 66px; }
+  .pdf-dl { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; min-height: 44px; padding: 0 18px; border-radius: 14px; background: white; color: var(--blue-d); font: 600 1rem var(--body); text-decoration: none; box-shadow: 0 4px 0 var(--blue-d); }
+  .pdf-dl:hover { background: var(--sun); color: var(--ink); }
+  .pdf-dl:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--blue-d); }
   .chip-f { position: absolute; font: 700 .95rem var(--display); background: rgba(255,255,255,.16); border-radius: 12px; padding: 4px 12px; color: white; }
 
   /* role picker */
@@ -102,6 +105,16 @@
     .chip-f { display: none; }
     td:first-child { width: 40%; }
   }
+  @media print {
+    body { background: white; zoom: .74; }
+    .wrap { max-width: none; padding: 0; }
+    section.part { box-shadow: none; border: 1px solid var(--line); break-before: page; }
+    #start { break-before: auto; }
+    .step, .trio figure, tr { break-inside: avoid; }
+    .shot { box-shadow: 0 0 0 1px var(--line); }
+    .role:hover { transform: none; }
+    .pdf-dl, .foot a { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -114,6 +127,7 @@
     <div>
       <h1>מדריך למשתמש</h1>
       <p>כל מה שצריך לדעת כדי להתחיל לתרגל, ללוות ילד או לנהל כיתה. בחרו את התפקיד שלכם.</p>
+      <a class="pdf-dl" href="guide.pdf" download="מדריך-למשתמש.pdf"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>הורדה כ-PDF</a>
     </div>
   </header>
 
