@@ -1745,6 +1745,11 @@
   .pe-l-act button { min-height: 36px; padding: 0 10px; border: 0; border-radius: 10px; background: white; color: var(--ink); font: 600 .82em var(--body); cursor: pointer; box-shadow: var(--ring); }
   .pe-l-act button:hover { background: var(--blue-l); color: var(--blue-d); }
   .pe-l-act button.del { color: var(--red-d); } .pe-l-act button.del:hover { background: var(--red-l); }
+  .pe-bulk { display: flex; align-items: center; gap: 6px 8px; flex-wrap: wrap; background: var(--paper); border-radius: 14px; padding: 8px 10px 8px 12px; }
+  .pe-bulk span { color: var(--ink2); font-size: .88em; margin-inline-end: auto; }
+  .pe-bulk button { min-height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: white; color: var(--ink); font: 600 .85em var(--body); cursor: pointer; box-shadow: var(--ring); }
+  .pe-bulk button:hover { background: var(--blue-l); color: var(--blue-d); }
+  .pe-bulk button.del { color: var(--red-d); } .pe-bulk button.del:hover { background: var(--red-l); }
   .pe-add { align-self: flex-start; padding: 0 18px; min-height: 44px; }
   .pe-gone { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; color: var(--ink2); font-size: .9em; }
   .pe-sec { display: flex; flex-direction: column; gap: 8px; }
@@ -11282,9 +11287,13 @@ function renderProgramEditor() {
       <div class="pe-h"><h4 id="pe-l-h">שיעורים</h4><span>${live.length} שיעורים${gone.length ? ` · ${gone.length} בוטלו` : ''}</span></div>
       <div class="pe-fields"><label>דקות נטו לכל שיעור <input type="number" id="program-minutes" min="1" max="600" value="${pe.minutes || ''}" onchange="peReadInputs(); renderProgramEditor()"></label>
         <label class="mcp-check"><input type="checkbox" id="program-reset-same-day" ${pe.reset ? 'checked' : ''}> לאפס שיעור שלא הושלם עד סוף היום</label></div>
+      ${(() => { const open = live.filter(i => !L(i).completed), allFz = open.length && open.every(i => pe.state[i] === 'frozen');
+        return open.length > 1 ? `<div class="pe-bulk"><span>כל השיעורים שלא הושלמו (${open.length}):</span>
+          <button type="button" onclick="peBulk('${allFz ? '' : 'frozen'}')">${allFz ? 'הפשרת הכול' : 'הקפאת הכול'}</button>
+          <button type="button" class="del" onclick="peBulk('cancelled')">ביטול הכול</button></div>` : ''; })()}
       <ol class="pe-lessons">${tiles || '<li class="pd-empty">אין שיעורים פעילים.</li>'}</ol>
       <button type="button" class="pd-soft pe-add" onclick="peAddLesson()">+ שיעור חדש</button>
-      ${gone.length ? `<div class="pe-gone"><span>שיעורים שבוטלו:</span>${gone.map(i => `<button type="button" class="ph-link" onclick="peSetLesson(${i}, '')">שחזור${L(i).netMs ? ` (${pdMin(L(i).netMs)} דק׳)` : ''}</button>`).join('')}</div>` : ''}
+      ${gone.length ? `<div class="pe-gone"><span>שיעורים שבוטלו:</span>${gone.length > 1 ? `<button type="button" class="ph-link" onclick="peRestoreAll()">שחזור הכול (${gone.length})</button>` : `<button type="button" class="ph-link" onclick="peSetLesson(${gone[0]}, '')">שחזור${L(gone[0]).netMs ? ` (${pdMin(L(gone[0]).netMs)} דק׳)` : ''}</button>`}</div>` : ''}
     </section>
     <section class="pe-col" aria-labelledby="pe-t-h">
       <div class="pe-h"><h4 id="pe-t-h">נושאים במסע</h4><span>${hiddenN ? `${hiddenN} מוסתרים` : 'כל הנושאים מוצגים'}</span></div>
@@ -11300,6 +11309,18 @@ function peSetLesson(i, st) {
   else if (st) pe.state[i] = st; else delete pe.state[i];
   renderProgramEditor();
 }
+// פעולה על כל השיעורים שלא הושלמו: הקפאה, הפשרה או ביטול
+function peBulk(st) {
+  peReadInputs();
+  const L = i => pe.lessons[i] || {};
+  const open = Array.from({ length: pe.count }, (_, i) => i).filter(i => pe.state[i] !== 'cancelled' && !L(i).completed);
+  if (st === 'cancelled' && !confirm(`לבטל ${open.length} שיעורים? אפשר לשחזר אותם אחר כך מאותו מסך.`)) return;
+  open.forEach(i => { if (st) pe.state[i] = st; else delete pe.state[i]; });
+  // שיעורים חדשים שלא נשמרו ומבוטלים יחד: פשוט מורידים אותם מהסוף
+  if (st === 'cancelled') while (pe.count > pe.origCount && pe.state[pe.count - 1] === 'cancelled' && !(L(pe.count - 1).netMs)) { delete pe.state[pe.count - 1]; pe.count--; }
+  renderProgramEditor();
+}
+function peRestoreAll() { peReadInputs(); Object.keys(pe.state).forEach(k => { if (pe.state[k] === 'cancelled') delete pe.state[k]; }); renderProgramEditor(); }
 function peAddLesson() { peReadInputs(); if (pe.count >= 99) return; delete pe.state[pe.count]; pe.count++; renderProgramEditor(); }
 function peToggleTopic(k) { peReadInputs(); if (pe.hidden[k]) delete pe.hidden[k]; else pe.hidden[k] = true; renderProgramEditor(); }
 function peToggleSection(si) {
