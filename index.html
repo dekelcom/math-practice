@@ -1203,7 +1203,7 @@
   .student-mode .ba-qs-keypad button { min-height: 52px; }
   .student-mode .geq-container .geq-check-box { margin: 0 0 12px; text-align: center; }
   .student-mode .geq-container .geq-next { width: 100%; min-height: 56px; margin-top: 0; }
-  .qchip { display: inline-block; unicode-bidi: isolate; direction: ltr; font: 700 1.1em var(--display); background: var(--sun-l, #fff3c4); box-shadow: 0 0 0 1.5px var(--sun-d, #b07a12); border-radius: 8px; padding: 0 8px; margin: 0 3px; white-space: nowrap; }
+  .qchip { display: inline-block; unicode-bidi: isolate; direction: ltr; font: 700 1.15em var(--display); color: var(--ink); margin: 0 2px; white-space: nowrap; }
   .ba-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--line); color: var(--ink2); font: 700 .8em var(--display); margin-inline-end: 4px; }
   .ba-step.active .ba-num { background: var(--blue); color: white; }
   .ba-step.done .ba-num { background: var(--mint-d); color: white; }
@@ -6507,7 +6507,7 @@ const BASICS_LESSONS = {
 };
 const TRACK_LESSON = { addition: 'count', subtraction: 'count', multiplication: 'mult', division: 'mult', multiAdd: 'column', multiSub: 'column', longMul: 'long', longDiv: 'long',
   negatives: 'negatives', orderops: 'orderops', fractions: 'fractions', fractionsAdv: 'fractions', decimals: 'decimals', simplify: 'algebra', factorize: 'algebra',
-  solveLinear: 'equations', inequalities: 'equations', simultaneous: 'equations', placeValue: 'place', properties: 'place' };
+  solveLinear: 'equations', oneStepEq: 'equations', multiStepEq: 'equations', inequalities: 'equations', simultaneous: 'equations', placeValue: 'place', properties: 'place' };
 
 // ---- מודל לומד: איזו דרך הסבר עובדת לתלמיד הזה ----
 const HSTYLE_ORDER = ['pic', 'words', 'example', 'life'];
@@ -7758,6 +7758,8 @@ function geqRenderShell(bodyHtml) {
     ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsSessionLog)}
     <div class="geq-container">${bodyHtml}</div>
   `;
+  basicsHint = null;
+  if (typeof lessonIsOpen === 'function' && lessonIsOpen()) closeBasicsLesson();
   fitEquation(document.querySelector('#basics-session .geq-nbline:last-child'));
 }
 // טיוטה ורמז במסך המודרך - כמו במסך השאלה הרגיל
@@ -7765,7 +7767,31 @@ function geqOpenDraft() {
   const eq = (geq && geq.curEq) || '';
   openDraft({ labelHtml: '', math: eq }, eq);
 }
-function geqToggleHint() { const h = document.getElementById('geq-hint'); if (h) h.classList.toggle('show'); }
+// רמזים מודרכים: אותה מערכת רמזים של מסך השאלה, לפי השלב הנוכחי בתרגיל
+function geqHintLevels() {
+  const h = (geq && geq.hint) || { stage: 'compute', expr: '' };
+  const T = h.T ? M(h.T) : '', I = h.I ? mixHtml(h.I) : '';
+  if (h.stage === 'collect') return hintLevels(
+    { words: `איברים עם ${M('x')} הם מאותו סוג, ולכן אפשר לחבר אותם לאיבר אחד.`,
+      life: `כמו פירות: ${M('2')} תפוחים ועוד ${M('3')} תפוחים הם ${M('5')} תפוחים. ה-${M('x')} הוא ה"תפוח".` },
+    { words: `מחברים רק את המספרים שלפני ה-${M('x')}. ה-${M('x')} נשאר כמו שהוא, ולא הופך ל-${M('x²')}.`,
+      example: `${M('2x + 3x = 5x')}, ו-${M('x + 4x = 5x')} (כי ${M('x')} לבד הוא ${M('1x')}).` },
+    { words: `חברו את המספרים: ${M(`${h.a1} + ${h.a2}`)}, והוסיפו ${M('x')} בסוף.` });
+  if (h.stage === 'compute') return hintLevels(
+    { words: `עכשיו זה רק חשבון: מה שכתוב בתיבה הוא תרגיל רגיל.`,
+      life: `כמו בקופה: יודעים מה עושים, נשאר רק לחשב את הסכום.` },
+    { words: `מחשבים משמאל לימין, ורושמים את התוצאה בלבד.`,
+      example: `${M('x = 12 − 5 =')} → כותבים ${M('7')}.` },
+    { words: `כמה זה ${M(h.expr)}? אם צריך, פתחו טיוטה ונסו שם.` });
+  return hintLevels(
+    { words: `המטרה: ${M('x')} לבד בצד אחד. מה עוד "מפריע" לו? ${T}.`,
+      life: `כמו מאזניים: כדי להוריד משהו מצד אחד בלי לשבור את האיזון, עושים אותו דבר גם בצד השני.` },
+    { words: `כל פעולה מתבטלת בפעולה ההפוכה: חיבור וחיסור מבטלים זה את זה, וכפל וחילוק מבטלים זה את זה.`,
+      example: `${M('x + 5 = 12')}: מחסירים ${M('5')} משני הצדדים ומקבלים ${M('x = 7')}. ${M('3x = 12')}: מחלקים ב-${M('3')} ומקבלים ${M('x = 4')}.` },
+    { words: `ההפך של ${T} הוא ${I}. עושים את זה בשני הצדדים.` });
+}
+BASICS_HINTS.oneStepEq = geqHintLevels;
+BASICS_HINTS.multiStepEq = geqHintLevels;
 
 function geqNum(n) { return n < 0 ? `−${Math.abs(n)}` : String(n); }
 
@@ -7791,9 +7817,9 @@ function geqShowOpChoices(notebookHtml, calloutHtml, question, choices, correctL
       ${notebookHtml}
       ${calloutHtml || ''}
     </div>
+    <div id="qs-hint" hidden></div>
     <div id="qs-answer">
-      <div class="geq-hint" id="geq-hint">רמז: חושבים על הפעולה שמבטלת את מה שכתוב - ומבצעים אותה משני צדי המשוואה.</div>
-      ${qsToolsHtml('geqOpenDraft()', '', 'geqToggleHint()')}
+      ${qsToolsHtml('geqOpenDraft()', '', 'openBasicsHint()')}
       <div class="basics-options geq-op-grid${isText ? ' text-opts' : ''}">${btnsHtml}</div>
     </div>
   `);
@@ -7810,10 +7836,9 @@ function geqHandleOpChoice(btnEl) {
   } else {
     geq.hadMistake = true;
     btnEl.classList.add('incorrect');
-    allBtns.forEach(b => { if (b.dataset.label === geq.correctLabel) b.classList.add('correct'); });
-    const hint = document.getElementById('geq-hint');
-    if (hint) hint.classList.add('show');
-    setTimeout(() => geq.onChoiceCorrect(), 1400);
+    allBtns.forEach(b => { b.disabled = b.classList.contains('incorrect'); });
+    restartAnim(btnEl, 'shake');
+    basicsHintAuto();
   }
 }
 
@@ -7823,6 +7848,7 @@ function geqShowCompute(notebookHtml, label, prefix, rows, expectedMagnitude, is
   // rows: array of extra compute-row html strings shown ABOVE the active one (e.g. an auto-solved "done" row)
   geq.expectedMagnitude = expectedMagnitude;
   geq.onComputeCorrect = onCorrect;
+  geq.hint = { stage: 'compute', expr: prefix.replace(/^.*?=\s*(?=.*=)/, '').replace(/\s*=\s*$/, '') };
   geqInputBuffer = '';
   const rowsHtml = (rows || []).join('');
   geqRenderShell(`
@@ -7831,9 +7857,9 @@ function geqShowCompute(notebookHtml, label, prefix, rows, expectedMagnitude, is
       ${notebookHtml}
       ${rowsHtml}
     </div>
+    <div id="qs-hint" hidden></div>
     <div id="qs-answer">
-      <div class="geq-hint" id="geq-hint">רמז: מחשבים כל צד לבד, ורושמים רק את המספר.</div>
-      ${qsToolsHtml('geqOpenDraft()', '', 'geqToggleHint()')}
+      ${qsToolsHtml('geqOpenDraft()', '', 'openBasicsHint()')}
       <div class="qs-field" id="geq-active-row" dir="ltr"><span class="qs-prefix">${prefix}</span>${isNegative ? '<span>−</span>' : ''}<span id="geq-blank"></span><span class="caret"></span></div>
       <div class="qs-keypad geq-keypad" id="geq-keypad" dir="ltr">
         ${['7','8','9'].map(k => `<button type="button" onclick="geqKey('${k}')">${k}</button>`).join('')}
@@ -7874,6 +7900,7 @@ function geqSubmitCompute() {
     geq.hadMistake = true;
     row.classList.remove('incorrect'); void row.offsetWidth; row.classList.add('incorrect');
     setTimeout(() => row.classList.remove('incorrect'), 700);
+    basicsHintAuto();
     geqInputBuffer = '';
     geqRenderInputBuf();
   }
@@ -7947,6 +7974,7 @@ function geqOneStepPhase1() {
   const nb = geqNotebookHtml([{ html: geqOneStepLine(prob) }]);
   const targetTerm = prob.kind === 'mul' ? `${prob.a}x` : (prob.kind === 'div' ? `÷ ${prob.a}` : `${prob.kind === 'add' ? '+' : '−'} ${prob.a}`);
   const question = `איזו פעולה מבטלת את <bdi dir="ltr" class="qchip">${targetTerm}</bdi>?`;
+  geq.hint = { stage: 'undo', T: targetTerm, I: geqOneStepInverseLabel(prob) };
   geqShowOpChoices(nb, '', question, geqOneStepDistractors(prob), geqOneStepInverseLabel(prob), geqOneStepPhase2);
 }
 
@@ -8027,6 +8055,8 @@ function geqMultiStepPhase1() {
   const correct = `${combined}x`;
   const wrong = [`${prob.a1 * prob.a2}x²`, `${combined}x²`, `${Math.max(1, Math.abs(prob.a1 - prob.a2))}x`, `${combined + 1}x`, `${prob.a1 * prob.a2}x`];
   const options = genStringOptions(correct, wrong);
+  geq.hint = { stage: 'collect', a1: prob.a1 === 1 ? 'x' : prob.a1 + 'x', a2: prob.a2 === 1 ? 'x' : prob.a2 + 'x' };
+  geq.hint.a1 = prob.a1; geq.hint.a2 = prob.a2;
   geqShowOpChoices(nb, '', `מה שווה <bdi dir="ltr" class="qchip">${prob.a1 === 1 ? 'x' : prob.a1 + 'x'} + ${prob.a2 === 1 ? 'x' : prob.a2 + 'x'}</bdi>?`, options, correct, geqMultiStepPhase2);
 }
 
@@ -8041,6 +8071,7 @@ function geqMultiStepPhase2() {
   ]);
   const term = prob.a3 === 1 ? 'x' : `${prob.a3}x`;
   const choices = [`מחסרים ${term}`, `מוסיפים ${term}`, `מכפילים ב-${term}`, `מחלקים ב-${term}`];
+  geq.hint = { stage: 'undo', T: term, I: `מחסרים ${term}` };
   geqShowOpChoices(nb, '', `כדי לבטל את <bdi dir="ltr" class="qchip">${term}</bdi> המסומן, מה עושים בשני הצדדים?`, choices, `מחסרים ${term}`, geqMultiStepPhase3);
 }
 
@@ -8066,6 +8097,7 @@ function geqMultiStepPhase4() {
   const prob = geq.prob;
   const nb = geqNotebookHtml(geq.lines);
   const choices = [`− ${prob.k1}`, `+ ${prob.k1}`, `× ${prob.k1}`, `÷ ${prob.k1}`];
+  geq.hint = { stage: 'undo', T: `+ ${prob.k1}`, I: `− ${prob.k1}` };
   geqShowOpChoices(nb, '', `איזו פעולה מבטלת את <bdi dir="ltr" class="qchip">+ ${prob.k1}</bdi>?`, choices, `− ${prob.k1}`, geqMultiStepPhase5);
 }
 
@@ -8086,6 +8118,7 @@ function geqMultiStepPhase6() {
   const prob = geq.prob;
   const nb = geqNotebookHtml(geq.lines);
   const choices = [`÷ ${prob.B}`, `× ${prob.B}`, `+ ${prob.B}`, `− ${prob.B}`];
+  geq.hint = { stage: 'undo', T: `${prob.B}x`, I: `÷ ${prob.B}` };
   geqShowOpChoices(nb, '', `איזו פעולה מבטלת את המקדם <bdi dir="ltr" class="qchip">${prob.B}</bdi>?`, choices, `÷ ${prob.B}`, geqMultiStepPhase7);
 }
 
