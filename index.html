@@ -1658,6 +1658,10 @@
   .mix-go:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--sun-d); }
   .retry-chip, .mix-chip { align-self: center; display: inline-block; margin-bottom: 4px; border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .85em; }
   .retry-chip { background: var(--orange-l); color: var(--orange-d); }
+  .today-lesson-sub { margin-top: 8px; font-size: .88em; color: var(--ink2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tl-bar { display: inline-block; width: 70px; height: 7px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .tl-bar i { display: block; height: 100%; background: var(--sun); border-radius: 99px; }
+  button.lesson-ticket { border: 0; cursor: pointer; font: inherit; }
   .mix-chip { background: var(--blue-l); color: var(--blue-d); }
 
   /* ===== מסך השאלה של הנושאים ===== */
@@ -1866,16 +1870,17 @@ try {
       <div class="home-hero">
         <div class="home-hero-text">
           <h2 class="home-greet">היי <b id="student-username-label"></b>, ממשיכים?</h2>
-          <button class="cta-big" onclick="openLessonsView()">
+          <button class="cta-big" id="today-lesson-btn" onclick="startTodaysLesson()">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
-            השיעור של היום
+            <span id="today-lesson-label">השיעור של היום</span>
           </button>
+          <div class="today-lesson-sub" id="today-lesson-sub"></div>
         </div>
-        <div class="lesson-ticket" aria-label="שיעורים שהושלמו">
+        <button type="button" class="lesson-ticket" onclick="openLessonsView()" aria-label="כל השיעורים">
           <div class="lesson-ticket-head">שיעורים</div>
           <div class="lesson-ticket-num" id="home-lessons-done">0</div>
           <div class="lesson-ticket-sub">מתוך <span id="home-lessons-total">12</span></div>
-        </div>
+        </button>
       </div>
 
       <h3 class="path-heading">המשימות של היום</h3>
@@ -2910,6 +2915,41 @@ function journeyNodeState(n) {
   const u = (stats.levelProgress || {})['t' + n.topic] || 1;
   return { done: u >= 3, started: u > 1, frac: (u - 1) / 2 };
 }
+// התחנה הבאה במסע (המסלול הראשון שעוד לא הושלם)
+function journeyNextTrack() {
+  let t = null;
+  JOURNEY.forEach(sec => sec.nodes.forEach(n => { if (!t && n.track && (basicsProgress[n.track] || 0) < 10) t = n.track; }));
+  return t;
+}
+// "השיעור של היום": מתחיל (או ממשיך) את שיעור הזמן של ההורה ופותח ישר את התחנה הבאה במסע
+function startTodaysLesson() {
+  if (typeof lessons !== 'undefined' && Array.isArray(lessons) && activeLessonIdx === null) {
+    const idx = lessons.findIndex(l => !l.completed);
+    if (idx >= 0) {
+      const lesson = lessons[idx];
+      if (lesson.date !== todayStr()) { if (LESSON_RESET_IF_NOT_SAME_DAY) lesson.netMs = 0; lesson.date = todayStr(); }
+      activeLessonIdx = idx; saveActiveLessonIdx(); saveLessons();
+      lessonLastActivity = 0; lessonStartTicking(); renderLessonTimerWidget(); syncLessonsToFirebase(true);
+    }
+  }
+  const next = journeyNextTrack();
+  if (next) openBasicsTrack(next); else updateTodayLessonBtn();
+}
+function updateTodayLessonBtn() {
+  const label = document.getElementById('today-lesson-label'), sub = document.getElementById('today-lesson-sub');
+  if (!label || typeof lessons === 'undefined' || !Array.isArray(lessons)) return;
+  const next = journeyNextTrack(), nextName = next ? trackTitle(next) : '';
+  const active = activeLessonIdx !== null && lessons[activeLessonIdx];
+  if (active) {
+    const pct = Math.min(100, Math.round(100 * (active.netMs || 0) / LESSON_TARGET_MS));
+    label.textContent = `ממשיכים בשיעור ${activeLessonIdx + 1}`;
+    sub.innerHTML = `<span class="tl-bar"><i style="width:${pct}%"></i></span>${Math.floor((active.netMs || 0) / 60000)} מתוך ${Math.round(LESSON_TARGET_MS / 60000)} דקות`;
+  } else {
+    const idx = lessons.findIndex(l => !l.completed);
+    label.textContent = idx >= 0 ? `מתחילים את שיעור ${idx + 1}` : 'ממשיכים לתרגל';
+    sub.textContent = nextName ? `התחנה הבאה: ${nextName}` : '';
+  }
+}
 function renderJourney() {
   const wrap = document.getElementById('journey');
   if (!wrap) return;
@@ -2925,8 +2965,8 @@ function renderJourney() {
   const swing = Math.min(110, W * 0.26), sswing = Math.min(84, W * 0.21);
   const pattern = [0, 1, 0, -1], spattern = [1, 0, -1, 0];
   const ux = i => W / 2 + pattern[i % 4] * swing;
-  let nextTrack = null;
-  JOURNEY.forEach(sec => sec.nodes.forEach(n => { if (!nextTrack && n.track && (basicsProgress[n.track] || 0) < 10) nextTrack = n.track; }));
+  const nextTrack = journeyNextTrack();
+  updateTodayLessonBtn();
   const curve = pts => pts.map((p, i) => { if (!i) return `M${p[0]} ${p[1]}`; const pr = pts[i - 1], my = (pr[1] + p[1]) / 2; return `C${pr[0]} ${my} ${p[0]} ${my} ${p[0]} ${p[1]}`; }).join(' ');
   wrap.innerHTML = JOURNEY.map((section, si) => {
     const x = ux(si), states = section.nodes.map(journeyNodeState);
@@ -3260,6 +3300,7 @@ function renderLessonTimerWidget() {
   }
   widget.classList.toggle('paused', idle);
   widget.classList.remove('hidden');
+  updateTodayLessonBtn();
 }
 function syncLessonsToFirebase(force) {
   if (!firebaseDb) return;
