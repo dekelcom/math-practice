@@ -1548,6 +1548,53 @@
   .fb-mult { font-style: normal; margin-inline-start: 6px; background: var(--orange); color: white; border-radius: 999px; padding: 0 7px; font-size: .85em; }
   #coins-stat.coin-bump { animation: pulse .35s ease-out; }
 
+  /* ===== הבוס, מוכנות, דוח שבועי ===== */
+  .boss-face { background: var(--ink); overflow: hidden; }
+  .boss-face svg { width: 64px; height: 60px; }
+  .jm-boss .jm-disc { background: conic-gradient(var(--mint-d) var(--p, 0deg), var(--line) 0); box-shadow: 0 6px 0 var(--line); }
+  .exam-intro { text-align: center; align-items: center; }
+  .exam-intro .lesson-top { width: 100%; }
+  .boss-art svg { width: 120px; height: 110px; animation: bob 2.6s ease-in-out infinite; }
+  .exam-rules { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .exam-rules span { background: var(--paper); border-radius: 999px; padding: 5px 12px; font-weight: 700; font-size: .9em; }
+  .exam-wins { color: var(--mint-d); font-weight: 700; }
+  .exam-intro .lesson-actions { width: 100%; }
+  #basics-session .q-score.exam-low { color: var(--red-d); animation: pulse 1s ease-in-out infinite; }
+  .exam-chip { background: var(--ink); color: white; }
+  .basics-option.chosen { background: var(--blue); color: white; border-color: var(--blue-d); }
+  .exam-meta { font-size: .55em; font-weight: 600; color: var(--ink2); margin-top: 2px; }
+  .exam-note { margin: 6px 0 0; font-size: .95em; color: var(--ink2); font-weight: 500; }
+  .exam-result .review-mascot svg { width: 60px; height: 56px; }
+  .ready-card { background: white; border-radius: var(--r-lg); box-shadow: var(--ring); padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .ready-top { display: flex; align-items: center; gap: 14px; }
+  .ready-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .ready-txt b { font: 700 1.1em var(--display); }
+  .ready-txt small { color: var(--ink2); line-height: 1.5; }
+  .ready-empty { margin: 0; color: var(--ink2); text-align: center; }
+  .ready-list { display: flex; flex-direction: column; gap: 6px; }
+  .ready-row { display: grid; grid-template-columns: minmax(0, 7em) 1fr auto; align-items: center; gap: 10px; border: 0; background: var(--paper); border-radius: 12px; padding: 8px 12px; font: inherit; color: var(--ink); cursor: pointer; text-align: start; }
+  .ready-name { font-weight: 700; font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ready-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .ready-bar i { display: block; height: 100%; border-radius: 999px; }
+  .ready-pct { font: 700 .9em var(--display); min-width: 2.6em; text-align: end; }
+  .exam-tracks { margin-bottom: 14px; }
+  .exam-wrong { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .exam-wrong-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; background: white; border-radius: 12px; box-shadow: var(--ring); padding: 8px 12px; }
+  .ew-q { font: 700 1em var(--display); text-align: left; overflow-wrap: anywhere; }
+  .ew-a { color: var(--ink2); }
+  .ew-c { background: var(--mint-l); color: var(--mint-d); border-radius: 8px; padding: 2px 8px; font-weight: 700; }
+  .wk { background: white; border-radius: var(--r-lg); box-shadow: var(--ring); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .wk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+  .wk-grid div { background: var(--paper); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .wk-grid b { font: 700 1.4em var(--display); }
+  .wk-grid span { color: var(--ink2); font-size: .85em; }
+  .wk-grid small { font-size: .75em; color: var(--ink2); }
+  .wk-grid small.wk-up { color: var(--mint-d); }
+  .wk-grid small.wk-down { color: var(--orange-d); }
+  .wk-line { margin: 0; line-height: 1.6; }
+  .wk-mistakes ul { margin: 4px 0 0; padding-inline-start: 20px; }
+  .wk-mistakes li { line-height: 1.6; }
+
   /* ===== אימון חכם ===== */
   .mix-card { display: flex; align-items: center; gap: 12px; background: var(--ink); color: white; border-radius: var(--r-lg); padding: 14px 16px; margin: -10px 0 24px; box-shadow: 0 5px 0 #000; }
   .mix-ico { flex: none; width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.12); color: var(--sun); display: inline-flex; align-items: center; justify-content: center; }
@@ -1762,6 +1809,7 @@ try {
 
     <section id="panel-progress" class="app-panel hidden">
       <h3 class="path-heading">ההתקדמות שלי</h3>
+      <div id="readiness"></div>
       <div id="mot-progress"></div>
       <div class="stats" id="overall-stats">
         <div class="stat-item">
@@ -1905,6 +1953,9 @@ try {
     <button class="back-btn" onclick="exitParentDashboard()">← חזרה לרשימת תלמידים</button>
     <h2 style="text-align:center;" id="dashboard-student-name"></h2>
 
+    <div class="section-title">📅 הדוח השבועי</div>
+    <div id="dashboard-weekly"></div>
+
     <div class="section-title">📊 סטטוס נוכחי</div>
     <div id="dashboard-status"></div>
 
@@ -2017,7 +2068,8 @@ const MOT_BADGES = [
   { id: 'perfect', name: 'דף מושלם', icon: '💯' },
   { id: 'streak7', name: 'שבוע ברצף', icon: '📅' },
   { id: 'track', name: 'מסלול שלם', icon: '🏁' },
-  { id: 'lvl5', name: 'שלב 5', icon: '⭐' }
+  { id: 'lvl5', name: 'שלב 5', icon: '⭐' },
+  { id: 'boss', name: 'ניצחון על הבוס', icon: '🏆' }
 ];
 const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const yesterdayKey = () => { const y = new Date(); y.setDate(y.getDate() - 1); return dayKey(y); };
@@ -2147,6 +2199,8 @@ function updateMotUI() {
         <span class="quest-txt"><b>${x.name}</b><small>פרס: ${x.reward} מטבעות</small></span>
       </div>`;
   }).join('');
+  const rd = document.getElementById('readiness');
+  if (rd) rd.innerHTML = readinessHtml();
   const mixEl = document.getElementById('home-mix');
   if (mixEl) mixEl.innerHTML = mixCardHtml();
   const pr = document.getElementById('mot-progress');
@@ -2246,7 +2300,7 @@ function finishMixSession() {
   if (basicsSheetPassed) confettiBurst(60);
   motCelebrate(ev);
 }
-function exitMixSession() { basicsMixed = false; closeDraft(); fbClose(); backToMenu(); }
+function exitMixSession() { basicsMixed = false; basicsExam = false; clearInterval(examTimer); closeDraft(); fbClose(); backToMenu(); }
 function mixCardHtml() {
   const n = retryQueue().length, weak = weakestTrack();
   return `<div class="mix-card">
@@ -2254,6 +2308,206 @@ function mixCardHtml() {
       <span class="mix-txt"><b>אימון חכם</b>
         <small>${n ? `${n} ${n === 1 ? 'טעות מחכה' : 'טעויות מחכות'} לחזרה, עם מספרים חדשים` : 'סבב מעורב מהמסלולים שלך'}${weak ? ` · כדאי לחזק: ${escapeHtml(trackTitle(weak))}` : ''}</small></span>
       <button type="button" class="mix-go" onclick="startMixSession()">התחלה</button>
+    </div>`;
+}
+
+// ============================================================
+// שלב ו: "הבוס" – סימולציית מבחן עם טיימר, בלי רמזים ובלי משוב באמצע;
+// מסך מוכנות; ודוח שבועי להורה
+// ============================================================
+const EXAM_MIN = 12, EXAM_PASS = 70;
+let basicsExam = false, examTimer = null, examEnd = 0, examStart = 0, examEvents = [];
+const mmss = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+// ---- מוכנות: לכל מסלול שהתחיל – 70% לפי ההתקדמות בסולם, 30% לפי ההצלחה האחרונה ----
+function readinessTracks() {
+  const list = [];
+  JOURNEY.forEach(sec => sec.nodes.forEach(n => {
+    if (!n.track || MIX_EXCLUDE.includes(n.track)) return;
+    const prog = basicsProgress[n.track] || 0, data = ((mot.tracks || {})[n.track] || []).length;
+    if (!prog && !data) return;
+    const acc = trackMastery(n.track);
+    list.push({ track: n.track, name: n.name, prog, acc, r: Math.round(70 * Math.min(1, prog / 10) + 30 * acc / 100) });
+  }));
+  return list;
+}
+function readinessOverall() { const l = readinessTracks(); return l.length ? Math.round(l.reduce((a, t) => a + t.r, 0) / l.length) : 0; }
+function readinessHtml() {
+  const list = readinessTracks().sort((a, b) => a.r - b.r);
+  const all = readinessOverall();
+  if (!list.length) return `<div class="ready-card"><p class="ready-empty">אחרי כמה דפים יופיע כאן כמה אתה מוכן בכל מסלול.</p></div>`;
+  return `<div class="ready-card">
+      <div class="ready-top">
+        <span class="mot-level" style="${ringStyle(all / 100, 'var(--mint-d)')}"><span><b>${all}%</b><small>מוכנות</small></span></span>
+        <div class="ready-txt"><b>מוכנות במסלולים שהתחלת</b><small>70% לפי ההתקדמות בסולם ו-30% לפי ההצלחה ב-10 התשובות האחרונות.${mot.bossWins ? ` ניצחת את הבוס ${mot.bossWins} ${mot.bossWins === 1 ? 'פעם' : 'פעמים'}.` : ''}</small></div>
+      </div>
+      <div class="ready-list">${list.map(t => `<button type="button" class="ready-row" onclick="openBasicsTrack('${t.track}')">
+          <span class="ready-name">${escapeHtml(t.name)}</span>
+          <span class="ready-bar"><i style="width:${t.r}%; background:${t.r < 50 ? 'var(--orange-d)' : t.r < 80 ? 'var(--sun-d)' : 'var(--mint-d)'}"></i></span>
+          <span class="ready-pct">${t.r}%</span></button>`).join('')}</div>
+    </div>`;
+}
+
+// ---- פתיחת הבוס ----
+function openExamIntro() {
+  let wrap = document.getElementById('lesson-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.id = 'lesson-wrap'; wrap.className = 'lesson-wrap'; wrap.addEventListener('click', e => { if (e.target === wrap) closeBasicsLesson(); }); document.body.appendChild(wrap); }
+  lessonReturnFocus = document.activeElement;
+  wrap.innerHTML = `<div class="lesson exam-intro" role="dialog" aria-modal="true" aria-labelledby="exam-title">
+      <div class="lesson-top"><span class="lesson-kicker">סימולציית מבחן</span>
+        <button type="button" class="q-close hint-x" onclick="closeBasicsLesson()" aria-label="סגירה">${draftIcon('close', 18)}</button></div>
+      <div class="boss-art" aria-hidden="true">${BOSS_SVG}</div>
+      <h3 id="exam-title">הבוס</h3>
+      <p>${MIX_SIZE} שאלות מהמסלולים שלך, ברמה שאתה נמצא בה. כמו במבחן: בלי רמזים ובלי בדיקה באמצע – הציון בסוף. צריך ${EXAM_PASS}% כדי לנצח.</p>
+      <div class="exam-rules"><span>${MIX_SIZE} שאלות</span><span>${EXAM_MIN} דקות</span><span>בלי רמזים</span><span>ציון בסוף</span></div>
+      ${mot.bossWins ? `<p class="exam-wins">ניצחת את הבוס ${mot.bossWins} ${mot.bossWins === 1 ? 'פעם' : 'פעמים'}.</p>` : ''}
+      <div class="lesson-actions"><button type="button" class="lesson-prev" onclick="closeBasicsLesson()">לא עכשיו</button><button type="button" class="lesson-next" onclick="closeBasicsLesson(); startExam()">מתחילים</button></div>
+    </div>`;
+  const go = wrap.querySelector('.lesson-next'); if (go) go.focus({ preventScroll: true });
+}
+const BOSS_SVG = '<svg viewBox="0 0 120 110" width="120" height="110"><rect x="18" y="26" width="84" height="74" rx="26" fill="var(--ink)"/><path d="M30 30l8-22 14 18 8-20 8 20 14-18 8 22z" fill="var(--sun)" stroke="var(--sun-d)" stroke-width="3" stroke-linejoin="round"/><circle cx="45" cy="58" r="10" fill="white"/><circle cx="75" cy="58" r="10" fill="white"/><circle cx="47" cy="60" r="5" fill="var(--ink)"/><circle cx="73" cy="60" r="5" fill="var(--ink)"/><path d="M36 44l16 6M84 44l-16 6" stroke="white" stroke-width="4" stroke-linecap="round"/><path d="M44 82q16 -10 32 0" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/></svg>';
+
+// ---- המבחן עצמו ----
+function buildExamProblems() {
+  const pool = mixPool().slice().sort(() => Math.random() - 0.5), out = [], seen = new Set();
+  for (let guard = 0; out.length < MIX_SIZE && guard < 200; guard++) {
+    const t = pool[out.length % pool.length], p = mixProblem(t, Math.min(9, basicsProgress[t] || 0));
+    if (!p) continue;
+    const k = t + '|' + (p.displayQ || `${p.a}${p.op}${p.b}`);
+    if (seen.has(k)) continue;
+    seen.add(k); out.push(p);
+  }
+  return out;
+}
+function startExam() {
+  basicsMixed = true; basicsExam = true; examEvents = [];
+  basicsProblems = buildExamProblems();
+  basicsTrack = basicsProblems[0]._track; basicsSheetIndex = basicsProblems[0]._sheet;
+  basicsCurrent = 0; basicsCorrect = 0; basicsSessionLog = []; basicsRetryIdx = null;
+  basicsSessionStart = Date.now(); basicsLastSubmissionRef = null;
+  ['main-menu', 'basics-ladder-view', 'topic-view'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+  document.getElementById('basics-session-view').classList.remove('hidden');
+  document.getElementById('basics-session-title').textContent = 'הבוס: סימולציה';
+  examStart = Date.now(); examEnd = examStart + EXAM_MIN * 60000;
+  clearInterval(examTimer);
+  examTimer = setInterval(examTick, 1000);
+  renderBasicsProblem();
+  examTick();
+}
+function examTick() {
+  if (!basicsExam) { clearInterval(examTimer); return; }
+  const left = examEnd - Date.now();
+  const el = document.querySelector('#basics-session .q-score');
+  if (el) { el.textContent = '⏱ ' + mmss(left); el.classList.toggle('exam-low', left < 60000); }
+  if (left <= 0) examTimeUp();
+}
+function examTimeUp() {
+  if (!basicsExam) return;
+  for (let i = basicsSessionLog.length; i < MIX_SIZE; i++) {
+    const p = basicsProblems[i];
+    basicsSessionLog.push({ track: p._track, sheetIdx: p._sheet, question: (p.questionLabel ? p.questionLabel + ' ' : '') + (p.displayQ || `${p.a} ${p.op} ${p.b}`), chosen: '—', correct: false, expected: p.answer, timeMs: 0, unanswered: true });
+  }
+  showToast('נגמר הזמן!');
+  finishExam();
+}
+function examAdvance() {
+  basicsCurrent++;
+  if (basicsCurrent >= MIX_SIZE) finishExam(); else { renderBasicsProblem(); examTick(); }
+}
+function finishExam() {
+  clearInterval(examTimer);
+  if (!basicsExam) return;
+  basicsExam = false;
+  const used = Math.min(EXAM_MIN * 60000, Date.now() - examStart);
+  const answered = basicsSessionLog.filter(r => !r.unanswered).length;
+  const pct = Math.round(100 * basicsCorrect / MIX_SIZE), win = pct >= EXAM_PASS;
+  autoSaveSession('exam', 'exam', `סימולציה · ${pct}%`);
+  const badgesBefore = Object.keys(mot.badges);
+  if (win) {
+    mot.bossWins = (mot.bossWins || 0) + 1;
+    if (!mot.badges.boss) mot.badges.boss = dayKey();
+    awardCoinsQuiet(30);
+  }
+  examEvents.push(...motCheckBadges(), ...motClaimQuests());
+  motSave();
+  const fresh = Object.keys(mot.badges).filter(b => !badgesBefore.includes(b));
+  // פירוט לפי מסלול
+  const by = {};
+  basicsSessionLog.forEach(r => { const t = r.track; by[t] = by[t] || { ok: 0, n: 0 }; by[t].n++; if (r.correct) by[t].ok++; });
+  const rows = Object.entries(by).sort((a, b) => a[1].ok / a[1].n - b[1].ok / b[1].n);
+  const weak = rows.find(([, v]) => v.ok < v.n);
+  const container = document.getElementById('basics-session');
+  container.innerHTML = `
+    <div class="basics-result ${win ? 'passed' : 'failed'} exam-result">
+      <span class="review-mascot" aria-hidden="true">${win ? MASCOT_SVG : BOSS_SVG}</span>
+      ${win ? '🏆 ניצחת את הבוס!' : 'הציון בסימולציה'}
+      <span class="score" id="review-pct">${pct}%</span>
+      <div class="exam-meta">${basicsCorrect} מתוך ${MIX_SIZE} נכונות${answered < MIX_SIZE ? ` · נענו ${answered}` : ''} · זמן: ${mmss(used)}</div>
+      ${win ? '<div class="unlock-badge">+30 מטבעות</div>' : `<p class="exam-note">צריך ${EXAM_PASS}% כדי לנצח. הטעויות נכנסו לאימון החכם.</p>`}
+    </div>
+    ${fresh.length ? `<div class="review-badges"><h4 class="mot-sub">תג חדש!</h4>${badgesHtml(fresh, true)}</div>` : ''}
+    <h4 class="mot-sub">לפי מסלול</h4>
+    <div class="ready-list exam-tracks">${rows.map(([t, v]) => `<button type="button" class="ready-row" onclick="exitMixSession(); openBasicsTrack('${t}')">
+        <span class="ready-name">${escapeHtml(trackTitle(t))}</span>
+        <span class="ready-bar"><i style="width:${Math.round(100 * v.ok / v.n)}%; background:${v.ok === v.n ? 'var(--mint-d)' : v.ok ? 'var(--sun-d)' : 'var(--orange-d)'}"></i></span>
+        <span class="ready-pct">${v.ok}/${v.n}</span></button>`).join('')}</div>
+    ${basicsSessionLog.some(r => !r.correct) ? `<h4 class="mot-sub">התשובות שכדאי לבדוק</h4>
+    <div class="exam-wrong">${basicsSessionLog.map(r => r.correct ? '' : `<div class="exam-wrong-row"><span class="ew-q" dir="ltr">${r.question}</span><span class="ew-a">${r.unanswered ? 'לא נענתה' : `<s dir="ltr">${escapeHtml(String(r.chosen))}</s>`}</span><span class="ew-c" dir="ltr">${escapeHtml(String(r.expected))}</span></div>`).join('')}</div>` : ''}
+    <div class="review-actions">
+      ${weak ? `<button class="btn btn-primary" onclick="exitMixSession(); openBasicsTrack('${weak[0]}')">תרגול ממוקד: ${escapeHtml(trackTitle(weak[0]))}</button>` : ''}
+      <button class="btn btn-success" onclick="openExamIntro()">עוד סימולציה</button>
+      <button class="btn btn-secondary" onclick="exitMixSession()">למסע</button>
+    </div>`;
+  countUp(document.getElementById('review-pct'), pct, '%');
+  if (win) confettiBurst(120);
+  motCelebrate(examEvents);
+  examEvents = [];
+}
+
+// ---- דוח שבועי להורה ----
+function weeklyStats(arr, fromMs, toMs) {
+  const subs = arr.filter(s => s.timestamp && s.timestamp > fromMs && s.timestamp <= toMs);
+  const probs = subs.flatMap(s => (s.problems || []).map(p => ({ ...p, _ts: s.timestamp })));
+  const withAlone = probs.filter(p => p.solvedAlone !== undefined);
+  const days = new Set(subs.map(s => dayKey(new Date(s.timestamp))));
+  const byTrack = {};
+  probs.forEach(p => { if (!p.track || !BASICS_TRACKS[p.track]) return; const b = byTrack[p.track] = byTrack[p.track] || { ok: 0, n: 0 }; b.n++; if (p.correct) b.ok++; });
+  const mistakes = {};
+  probs.forEach(p => { if (p.mistake) mistakes[p.mistake] = (mistakes[p.mistake] || 0) + 1; });
+  return {
+    subs, n: probs.length, ok: probs.filter(p => p.correct).length,
+    alone: withAlone.length ? Math.round(100 * withAlone.filter(p => p.solvedAlone).length / withAlone.length) : null,
+    hints: probs.filter(p => p.hintsUsed).length, lessonsOpened: probs.filter(p => p.lesson).length,
+    ms: subs.reduce((a, s) => a + ((s.summary && s.summary.totalTimeMs) || 0), 0), days: days.size,
+    sheetsPassed: subs.filter(s => s.type === 'sheet' && s.summary && s.summary.correct >= 9).length,
+    exams: subs.filter(s => s.type === 'exam').map(s => s.summary ? Math.round(100 * s.summary.correct / (s.summary.total || 1)) : 0),
+    tracks: Object.entries(byTrack).filter(([, v]) => v.n >= 4).map(([t, v]) => ({ t, pct: Math.round(100 * v.ok / v.n), n: v.n })).sort((a, b) => a.pct - b.pct),
+    mistakes: Object.entries(mistakes).sort((a, b) => b[1] - a[1]).slice(0, 3)
+  };
+}
+function renderDashboardWeekly(arr) {
+  const el = document.getElementById('dashboard-weekly');
+  if (!el) return;
+  const now = Date.now(), WEEK = 7 * 864e5;
+  const w = weeklyStats(arr, now - WEEK, now), prev = weeklyStats(arr, now - 2 * WEEK, now - WEEK);
+  if (!w.n) { el.innerHTML = '<p style="text-align:center; color:var(--ink2);">השבוע עוד לא היה תרגול.</p>'; return; }
+  const pct = Math.round(100 * w.ok / w.n), prevPct = prev.n ? Math.round(100 * prev.ok / prev.n) : null;
+  const trend = (a, b, unit = '') => b === null || b === undefined ? '' : a > b ? `<small class="wk-up">▲ ${a - b}${unit} מהשבוע הקודם</small>` : a < b ? `<small class="wk-down">▼ ${b - a}${unit} מהשבוע הקודם</small>` : '<small>כמו בשבוע הקודם</small>';
+  const strong = w.tracks.slice().reverse().filter(t => t.pct >= 85).slice(0, 3), weak = w.tracks.filter(t => t.pct < 75).slice(0, 3);
+  el.innerHTML = `<div class="wk">
+      <div class="wk-grid">
+        <div><b>${w.days}</b><span>ימי תרגול</span>${trend(w.days, prev.n ? prev.days : null)}</div>
+        <div><b>${Math.round(w.ms / 60000)}</b><span>דקות</span>${trend(Math.round(w.ms / 60000), prev.n ? Math.round(prev.ms / 60000) : null)}</div>
+        <div><b>${w.n}</b><span>שאלות</span>${trend(w.n, prev.n || null)}</div>
+        <div><b>${pct}%</b><span>הצלחה</span>${trend(pct, prevPct, '%')}</div>
+        <div><b>${w.alone === null ? '—' : w.alone + '%'}</b><span>נפתרו לבד, בלי רמז ובניסיון ראשון</span></div>
+        <div><b>${w.sheetsPassed}</b><span>דפים שעברו (9+)</span></div>
+      </div>
+      ${w.exams.length ? `<p class="wk-line">🏆 סימולציות: ${w.exams.map(x => x + '%').join(', ')}</p>` : ''}
+      ${w.hints ? `<p class="wk-line">💡 נעזר ברמז ב-${w.hints} שאלות${w.lessonsOpened ? `, ופתח ${w.lessonsOpened} שיעורי דקה` : ''}.</p>` : ''}
+      ${strong.length ? `<p class="wk-line">💪 חזק השבוע: ${strong.map(t => `${escapeHtml(trackLabelHebrew(t.t))} (${t.pct}%)`).join(', ')}</p>` : ''}
+      ${weak.length ? `<p class="wk-line">🎯 כדאי לחזק: ${weak.map(t => `${escapeHtml(trackLabelHebrew(t.t))} (${t.pct}%)`).join(', ')}</p>` : ''}
+      ${w.mistakes.length ? `<div class="wk-mistakes"><b>הטעויות שחזרו הכי הרבה:</b><ul>${w.mistakes.map(([m, c]) => `<li>${escapeHtml(m)} <small>(${c}×)</small></li>`).join('')}</ul></div>` : ''}
     </div>`;
 }
 
@@ -2642,7 +2896,19 @@ function renderJourney() {
           </div>
         </div></div>
       </section>`;
-  }).join('');
+  }).join('') + (() => {
+    const xb = ux(JOURNEY.length), rd = readinessOverall();
+    return `<section class="jm-unit jm-boss c-ink">
+        <div class="jm-row" style="height:${ROW}px">
+          <svg class="journey-path jm-line" width="${W}" height="${ROW}" aria-hidden="true"><path d="${curve([[ux(JOURNEY.length - 1), 0], [xb, NY]])}"/></svg>
+          <button type="button" class="jm-node" style="left:${xb - UNIT / 2}px" onclick="openExamIntro()" aria-label="הבוס: סימולציית מבחן">
+            <span class="jm-disc" style="--p:${Math.round(rd * 3.6)}deg"><span class="jm-face boss-face">${BOSS_SVG}</span></span>
+            <span class="jm-name">הבוס: סימולציית מבחן</span>
+            <span class="jm-count">${MIX_SIZE} שאלות · ${EXAM_MIN} דקות${mot.bossWins ? ` · 🏆 ${mot.bossWins}` : ''}</span>
+          </button>
+        </div>
+      </section>`;
+  })();
   wrap.style.height = '';
   if (!renderJourney.played && wrap.offsetParent) {
     renderJourney.played = true;
@@ -3189,6 +3455,7 @@ function openParentDashboard(uid, name) {
     arr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     dashboardSubmissions = arr;
     renderDashboardSubmissions(arr);
+    renderDashboardWeekly(arr);
     renderDashboardStatus(arr);
     renderDashboardTime(arr);
     renderDashboardGaps(arr);
@@ -3449,6 +3716,7 @@ function trackLabelHebrew(track) {
   }
   if (track === 'mixed') return 'בדיקת רמה';
   if (track === 'mix') return 'אימון חכם';
+  if (track === 'exam') return 'הבוס: סימולציה';
   return track || '';
 }
 
@@ -4865,6 +5133,7 @@ function lineMeaning(text) {
 }
 // בדיקת שורה מול השורות שלפניה: true = ✓, false = !, null = לא בודקים
 function judgeLine(idx) {
+  if (basicsExam) return { ok: null };
   const me = lineMeaning(draft.lines[idx]);
   if (!me) return { ok: null };
   if (me.kind === 'fact') return me.ok ? { ok: true } : { ok: false, msg: 'החישוב בשורה הזאת לא מדויק – שני הצדדים לא שווים.' };
@@ -6991,12 +7260,12 @@ function renderBasicsProblem() {
     ).join('')}</div>`;
   }
   container.innerHTML = `
-    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsSessionLog)}
-    <div class="qs-question">${p._retry ? '<span class="retry-chip">חוזרים על טעות</span>' : basicsMixed ? `<span class="mix-chip">${escapeHtml(trackTitle(basicsTrack))}</span>` : ''}${labelHtml}<div class="basics-equation">${questionLine}</div></div>
+    ${qProgressHtml(basicsCurrent, BASICS_SHEET_SIZE, basicsCorrect, basicsExam ? null : basicsSessionLog)}
+    <div class="qs-question">${basicsExam ? `<span class="mix-chip exam-chip">שאלה ${basicsCurrent + 1} מתוך ${MIX_SIZE}</span>` : p._retry ? '<span class="retry-chip">חוזרים על טעות</span>' : basicsMixed ? `<span class="mix-chip">${escapeHtml(trackTitle(basicsTrack))}</span>` : ''}${labelHtml}<div class="basics-equation">${questionLine}</div></div>
     <div id="qs-hint" hidden></div>
     <div id="qs-answer">
       <div class="qs-miss" id="qs-miss" role="status" hidden></div>
-      ${qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()', basicsHasHints(basicsTrack) ? 'openBasicsHint()' : '')}
+      ${basicsExam ? qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()', '') : qsToolsHtml('openBasicsDraft()', 'basicsDontKnow()', basicsHasHints(basicsTrack) ? 'openBasicsHint()' : '')}
       ${answerHtml}
     </div>
   `;
@@ -7054,8 +7323,14 @@ function basicsAnswer(value, correct, gaveUp) {
   if (basicsAttempt.done) return;
   const p = basicsProblems[basicsCurrent];
   const btn = document.querySelector(`.basics-option[data-val="${CSS.escape(String(value))}"]`);
-  if (!correct && !gaveUp && basicsAttempt.tries === 0) { basicsFirstMiss(p, value, btn); return; }
+  if (!correct && !gaveUp && basicsAttempt.tries === 0 && !basicsExam) { basicsFirstMiss(p, value, btn); return; }
   basicsAttempt.done = true;
+  if (basicsExam) { // במבחן לא מגלים אם צדקת – רק נועלים ועוברים הלאה
+    const kp = document.getElementById('qs-keypad'); if (kp) { kp.classList.add('locked'); kp.querySelectorAll('button').forEach(b => b.disabled = true); }
+    document.querySelectorAll('.basics-option').forEach(b => { b.disabled = true; if (b === btn) b.classList.add('chosen'); });
+    recordBasicsAnswer(value, correct, null);
+    return;
+  }
   const trapHit = correct ? null : (findBasicsTrap(p, value) || basicsAttempt.trap);
   // סימון על המסך
   if (document.getElementById('qs-keypad')) qsShowResult(correct);
@@ -7125,6 +7400,7 @@ function recordBasicsAnswer(value, correct, trapHit) {
   trackResult(basicsTrack, correct && !basicsAttempt.missed);
   if (!correct || (basicsHint && (basicsHint.lesson || basicsHint.used >= 3))) retryPush(basicsTrack, basicsSheetIndex);
   motSave();
+  if (basicsExam) { examEvents.push(...motRes.events); setTimeout(examAdvance, 250); return; }
   updateProgressSegs();
   updateQCombo();
   showBasicsFeedback({ p, value, correct, trapHit, xp: motRes.gained, mult: motRes.mult });
@@ -7799,6 +8075,7 @@ let basicsSheetPassed = false;
 let basicsSheetUnlocked = false;
 
 function finishBasicsSheet() {
+  if (basicsExam) { finishExam(); return; }
   if (basicsMixed) { finishMixSession(); return; }
   basicsSheetPassed = basicsCorrect >= BASICS_PASS_THRESHOLD;
   const wasUnlockSheet = basicsSheetIndex === (basicsProgress[basicsTrack] || 0);
