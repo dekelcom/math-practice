@@ -1767,6 +1767,28 @@
   .ad-clean-row:first-child { border-top: 0; } .ad-clean-row > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; } .ad-clean-row span { color: var(--ink2); font-size: .9em; }
   .ad-del { min-height: 44px; border: 0; border-radius: 14px; background: var(--red-l); color: var(--red-d); font: 600 .95em var(--body); padding: 0 16px; cursor: pointer; }
   .ad-ok { color: var(--mint-d); font-weight: 600; }
+  .pd-reset.hidden, .pd-teacher.hidden { display: none; }
+  .mcp-check { display: flex !important; align-items: center; gap: 10px; font-weight: 500; margin: 6px 0; cursor: pointer; }
+  .mcp-check input { width: 20px !important; height: 20px; margin: 0; accent-color: var(--blue); flex: none; }
+  #app-container:has(#teacher-home-view:not(.hidden)) { max-width: 1220px; }
+  .pd-teacher { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink2); }
+  .pd-tstatus { font-size: .85em; font-weight: 600; } .pd-tstatus.ok { color: var(--mint-d); } .pd-tstatus.err { color: var(--red-d); }
+  .pd-teacher select { min-height: 44px; border-radius: 12px; border: 1.5px solid var(--line); padding: 0 10px; font: inherit; color: var(--ink); background: white; }
+  .tc-table tbody tr { cursor: pointer; } .tc-table tbody tr:hover, .tc-table tbody tr:focus { background: var(--blue-l); outline: none; }
+  .tc-alert { display: inline-block; border-radius: 10px; padding: 3px 9px; font-size: .82em; font-weight: 600; margin: 2px 0; }
+  .tc-alert.low { background: var(--red-l); color: var(--red-d); } .tc-alert.mid { background: var(--orange-l); color: var(--orange-d); } .tc-alert.wait { background: var(--sun-l); color: var(--sun-d); }
+  .ad-sub-h { margin: 14px 0 4px; font: 600 1.1em var(--display); color: var(--ink); }
+  .ad-tkids { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tc-chip { min-height: 44px; border: 0; border-radius: 14px; background: var(--paper); padding: 0 14px; font: 600 .95em var(--body); color: var(--ink); cursor: pointer; } .tc-chip:hover { background: var(--blue-l); }
+  .pl-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+  .pl-status { flex: 1 1 280px; display: flex; flex-direction: column; gap: 4px; border-radius: 16px; padding: 12px 14px; }
+  .pl-status span { color: var(--ink2); font-size: .9em; }
+  .pl-status.done { background: var(--mint-l); } .pl-status.wait { background: var(--sun-l); } .pl-status.paused { background: var(--paper); box-shadow: var(--ring); }
+  .pl-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .pl-actions .pd-soft { padding: 0 16px; }
+  .pl-check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; color: var(--ink2); cursor: pointer; }
+  .pl-check input { width: 20px; height: 20px; accent-color: var(--blue); }
+  .pl-cancel { min-height: 46px; padding: 0 14px; border: 0; border-radius: 14px; background: none; color: var(--red-d); font: 600 .95em var(--body); cursor: pointer; }
   .ad-warn { color: var(--sun-d); background: var(--sun-l); border-radius: 10px; padding: 4px 10px; font-weight: 600; }
   @media (max-width: 560px) { .ad-kstat:nth-of-type(4) { display: none; } }
   .pd-more { margin: 4px 0 20px; background: white; border-radius: var(--r-md); box-shadow: var(--ring); padding: 6px 16px; }
@@ -2111,18 +2133,59 @@ try {
       </section>
     </div>
     <div style="text-align:center; margin: 20px 0;">
-      <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה</button>
+      <button class="btn btn-primary" onclick="openCreateParentForm()">+ הוסף הורה או מורה</button>
     </div>
     <div id="create-parent-form" class="auth-form hidden" style="max-width:420px; margin:0 auto;">
+      <label>סוג חשבון</label>
+      <select id="new-account-role"><option value="parent">הורה</option><option value="teacher">מורה</option></select>
       <label>שם מלא</label>
       <input type="text" id="new-parent-displayname">
       <label>שם משתמש</label>
       <input type="text" id="new-parent-username">
       <label>סיסמה זמנית</label>
       <input type="password" id="new-parent-password">
-      <button class="btn btn-primary" onclick="handleCreateParent()">צור הורה</button>
+      <label class="mcp-check"><input type="checkbox" id="new-account-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
+      <button class="btn btn-primary" onclick="handleCreateParent()">צור חשבון</button>
       <button class="btn btn-secondary" onclick="closeCreateParentForm()">ביטול</button>
       <div class="auth-error" id="create-parent-error"></div>
+    </div>
+  </div>
+
+  <div id="teacher-home-view" class="hidden">
+    <div class="topic-view-header">
+      <span>🍎 מורה: <b id="teacher-username-label"></b></span>
+      <span>
+        <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
+        <button class="back-btn" onclick="handleLogout()">התנתק</button>
+      </span>
+    </div>
+    <div class="pd">
+      <header class="pd-head">
+        <div class="pd-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M3 9.5 12 5l9 4.5-9 4.5zM7 11.5V16c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5v-4.5M21 9.5V15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="pd-title"><h2>הכיתה שלי</h2><p id="tc-sub">טוען...</p></div>
+        <div class="pd-ranges" role="group" aria-label="טווח זמן">
+          <button type="button" data-range="week" class="on" onclick="tcSetRange('week')">השבוע</button>
+          <button type="button" data-range="month" onclick="tcSetRange('month')">החודש</button>
+          <button type="button" data-range="all" onclick="tcSetRange('all')">הכול</button>
+        </div>
+      </header>
+      <section class="pd-kpis" id="tc-kpis" aria-label="מדדי הכיתה"></section>
+      <section class="pd-card" aria-label="תלמידים">
+        <div class="pd-h"><h3>התלמידים</h3><span>לחיצה על תלמיד פותחת את הדשבורד שלו</span></div>
+        <div class="pd-table-wrap" id="tc-table"><p class="pd-empty">טוען...</p></div>
+      </section>
+      <div class="pd-row">
+        <section class="pd-card pd-wide" aria-label="הצלחה לפי מסלול בכיתה">
+          <div class="pd-h"><h3>הצלחה לפי מסלול</h3><span>כל התלמידים בכיתה, בטווח שנבחר</span></div>
+          <div id="tc-tracks"></div>
+        </section>
+        <section class="pd-card pd-side" aria-label="פעולות לכיתה">
+          <div class="pd-h"><h3>פעולות לכיתה</h3></div>
+          <p class="pd-note">בדיקת רמה לכל התלמידים בכניסה הבאה שלהם.</p>
+          <label class="pl-check"><input type="checkbox" id="tc-pl-mandatory"> בלי אפשרות לסגור</label>
+          <button type="button" class="pd-soft" onclick="tcPlacementAll()">בדיקת רמה לכל הכיתה</button>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -2161,6 +2224,7 @@ try {
       <input type="text" id="new-student-notes">
       <label>שיוך התקדמות ישנה (שם קודם, אופציונלי)</label>
       <input type="text" id="new-student-legacy-name" placeholder="לדוגמה: יונתן">
+      <label class="mcp-check"><input type="checkbox" id="new-student-mustchange" checked> לחייב החלפת סיסמה בכניסה הראשונה</label>
       <button class="btn btn-primary" onclick="handleCreateStudent()">צור תלמיד</button>
       <button class="btn btn-secondary" onclick="closeCreateStudentForm()">ביטול</button>
       <div class="auth-error" id="create-student-error"></div>
@@ -2190,6 +2254,8 @@ try {
           <h2>ההתקדמות של <span id="dashboard-student-name"></span></h2>
           <p id="pd-sub"></p>
         </div>
+        <label class="pd-teacher hidden" id="pd-teacher-wrap">מורה: <select id="pd-teacher" onchange="adAssignTeacher(this.value)"></select><span class="pd-tstatus" id="pd-teacher-status" aria-live="polite"></span></label>
+        <button type="button" class="ad-del pd-reset hidden" id="pd-reset" onclick="adResetStudent()">איפוס התקדמות</button>
         <div class="pd-ranges" role="group" aria-label="טווח זמן">
           <button type="button" data-range="week" class="on" onclick="pdSetRange('week')">השבוע</button>
           <button type="button" data-range="month" onclick="pdSetRange('month')">החודש</button>
@@ -2207,6 +2273,10 @@ try {
           <div id="pd-lessons"><p class="pd-empty">טוען...</p></div>
         </section>
       </div>
+      <section class="pd-card" aria-label="בדיקת רמה">
+        <div class="pd-h"><h3>בדיקת רמה</h3><span>מתי התלמיד יעבור את בדיקת הרמה</span></div>
+        <div id="pd-placement"><p class="pd-empty">טוען...</p></div>
+      </section>
       <div class="pd-row">
         <section class="pd-card pd-wide" aria-label="מוכנות לפי נושא">
           <div class="pd-h"><h3>מוכנות לפי מסלול</h3><span>אחוז הצלחה בעשר התשובות האחרונות</span></div>
@@ -3339,6 +3409,20 @@ function saveBasicsProgress() {
 // הפכו לענן-קודם. מאמצים את גרסת הענן אם קיימת (לוקחים את הגבוה מבין
 // המקומי לענן בכל תחום, כדי לא לאבד התקדמות משני הצדדים), אחרת מזרעים
 // את הענן מהמצב המקומי הנוכחי.
+// איפוס התקדמות שהמנהל ביצע: מנקה גם את מה שנשמר על המכשיר, פעם אחת, ואז טוען מחדש
+async function applyRemoteReset() {
+  if (!firebaseDb || !studentUid) return false;
+  try {
+    const at = (await firebaseDb.ref('users/' + studentUid + '/resetAt').once('value')).val();
+    const seenKey = 'resetSeen:' + studentUid;
+    if (!at || Number(localStorage.getItem(seenKey) || 0) >= at) return false;
+    ['basicsProgress', 'mathStats', 'lessonsProgress', 'activeLessonIdx', 'motivation:' + studentUid, 'hintStyles:' + studentUid, 'journeyOpen']
+      .forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    localStorage.setItem(seenKey, String(at));
+    location.reload();
+    return true;
+  } catch (e) { console.warn('reset check failed', e); return false; }
+}
 async function initStudentBasicsProgressSync() {
   if (!firebaseDb || !studentUid) return;
   try {
@@ -3387,6 +3471,7 @@ async function loadStudentProgram() {
   try {
     const snap = await firebaseDb.ref('users/' + studentUid + '/program').once('value');
     const program = snap.val();
+    placementCfg = (program && program.placement) || null;
     if (program) {
       LESSON_COUNT = program.lessonCount || LESSON_COUNT_DEFAULT;
       LESSON_TARGET_MS = (program.minutesPerLesson || LESSON_MINUTES_DEFAULT) * 60 * 1000;
@@ -3690,7 +3775,8 @@ function obNext() {
   mot.profile = { school: ob.school.trim().slice(0, 80), grade: ob.grade, likesMath: ob.like, at: Date.now() };
   motSave();
   document.getElementById('onboarding-view').classList.add('hidden');
-  startDiagnostic();
+  if (placementPending()) startScheduledPlacement();
+  else { document.getElementById('main-menu').classList.remove('hidden'); renderJourney(); }
 }
 function startDiagnostic() {
   diagnosticQuestions = buildDiagnostic();
@@ -3765,7 +3851,9 @@ function finishDiagnostic() {
   });
   saveBasicsProgress();
   autoSaveSession('diagnostic', 'mixed', 'בדיקת רמה');
-  if (mot.profile && !mot.profile.placementDone) { mot.profile.placementDone = Date.now(); motSave(); }
+  if (mot.profile) { mot.profile.placementDone = Date.now(); motSave(); } // כל בדיקת רמה שהושלמה עונה גם על בקשה פתוחה
+  diagFromSchedule = false;
+  document.querySelector('#diagnostic-view .q-close').classList.remove('hidden');
   const total = diagnosticQuestions.length;
   const container = document.getElementById('diagnostic-session');
   container.innerHTML = `
@@ -3773,22 +3861,40 @@ function finishDiagnostic() {
       🎯 סיימת את בדיקת הרמה
       <span class="score">${diagnosticCorrect} / ${total}</span>
     </div>
-    <div class="submission-banner sent">פתחנו עבורך:<br>${unlockedSummary.map(s => '• ' + s).join('<br>')}<br><br>✓ נשמר בהיסטוריה ונשלח למורה</div>
+    <div class="submission-banner sent">פתחנו עבורך:<br>${unlockedSummary.map(s => '• ' + s).join('<br>')}<br><br>✓ נשמר בהיסטוריה</div>
     <button class="btn btn-secondary" onclick="exitDiagnostic()">חזרה לתפריט</button>
   `;
 }
 
-// בכניסה הראשונה בדיקת הרמה היא חלק מהשאלון: האיקס שואל לפני שיוצאים, ואם יצאו היא חוזרת בכניסה הבאה
-function placementPending() { return !!(mot.profile && !mot.profile.placementDone); }
+// בדיקת רמה מתוזמנת: בכניסה הראשונה (אחרי השאלון), או כשהורה/מנהל ביקשו (users/<uid>/program/placement).
+// הורה/מנהל יכולים להשהות בקשה (לא תקפוץ בכניסות) ולבחור אם אפשר לסגור אותה.
+let placementCfg = null; // { requestedAt, mandatory, paused }
+let diagFromSchedule = false;
+function placementRequested() { const c = placementCfg; return !!(c && c.requestedAt && !(mot.profile && (mot.profile.placementDone || 0) >= c.requestedAt)); }
+function placementPending() {
+  const c = placementCfg || {};
+  if (c.paused) return false;
+  // הורה/מנהל ביטלו את הבדיקה (גם את בדיקת הכניסה הראשונה): cancelledAt
+  const firstTime = !!(mot.profile && !mot.profile.placementDone) && !c.cancelledAt;
+  return firstTime || placementRequested();
+}
+function placementMandatory() { return !!(placementCfg && placementCfg.mandatory && !placementCfg.paused && placementPending()); }
+function startScheduledPlacement() {
+  diagFromSchedule = true;
+  startDiagnostic();
+  document.querySelector('#diagnostic-view .q-close').classList.toggle('hidden', placementMandatory());
+}
 function diagClose() {
   const done = diagnosticCurrent >= diagnosticQuestions.length;
-  if (!placementPending() || done) { exitDiagnostic(); return; }
+  if (!diagFromSchedule || !placementPending() || done) { exitDiagnostic(); return; }
   document.getElementById('diag-confirm-mascot').innerHTML = MASCOT_SVG;
   document.getElementById('diag-confirm').classList.remove('hidden');
 }
 function diagConfirmStay() { document.getElementById('diag-confirm').classList.add('hidden'); }
 function diagConfirmLeave() { document.getElementById('diag-confirm').classList.add('hidden'); exitDiagnostic(); }
 function exitDiagnostic() {
+  diagFromSchedule = false;
+  document.querySelector('#diagnostic-view .q-close').classList.remove('hidden');
   document.getElementById('diagnostic-view').classList.add('hidden');
   document.getElementById('main-menu').classList.remove('hidden');
 }
@@ -3867,6 +3973,8 @@ function exitParentDashboard() {
   document.getElementById('parent-dashboard-view').classList.add('hidden');
   document.getElementById(dashboardReturnView).classList.remove('hidden');
   dashboardReturnView = 'parent-students-view';
+  document.getElementById('pd-reset').classList.add('hidden');
+  document.getElementById('pd-teacher-wrap').classList.add('hidden');
 }
 
 // ============================================================
@@ -3891,6 +3999,55 @@ function pdDelta(a, b, unit) {
   const p = pdPeriod();
   if (a === b) return `<small class="pd-flat">כמו ${p.label.replace('מ', '')}</small>`;
   return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)}${unit || ''} ${p.label}</small>`;
+}
+// ---- ניהול בדיקת רמה (הורה ומנהל) ----
+function pdPlacementState() {
+  const c = (pd.program && pd.program.placement) || {}, prof = (pd.mot && pd.mot.profile) || null;
+  const done = prof && prof.placementDone ? prof.placementDone : 0;
+  const cancelled = !!c.cancelledAt;
+  const firstPending = !!(pd.mot && prof && !done) && !cancelled;
+  const requested = !!(c.requestedAt && done < c.requestedAt);
+  return { c, done, cancelled, pending: firstPending || requested || (!prof && !cancelled), requested, firstPending, noProfile: !prof };
+}
+function renderPdPlacement() {
+  const el = document.getElementById('pd-placement'); if (!el) return;
+  const st = pdPlacementState(), c = st.c;
+  const last = (dashboardSubmissions || []).find(x => x.type === 'diagnostic');
+  const fmt = ts => new Date(ts).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  let status, cls;
+  if (st.pending && c.paused) { status = 'מושהית: לא תופיע בכניסה עד שתחזירו אותה.'; cls = 'paused'; }
+  else if (st.noProfile) { status = 'תופיע בכניסה הבאה, אחרי שאלון ההיכרות.'; cls = 'wait'; }
+  else if (st.pending) { status = `ממתינה: תיפתח בכניסה הבאה${c.mandatory && st.requested ? ', בלי אפשרות לסגור' : ''}.`; cls = 'wait'; }
+  else if (st.cancelled && !st.done) { status = 'בוטלה: התלמיד לא יתבקש לעבור בדיקת רמה.'; cls = 'paused'; }
+  else { status = st.done ? `הושלמה ב-${fmt(st.done)}.` : 'אין בדיקה מתוכננת.'; cls = 'done'; }
+  const lastTxt = last && last.summary ? `תוצאה אחרונה: ${last.summary.correct}/${last.summary.total} (${fmt(last.timestamp)})` : 'עוד לא בוצעה בדיקת רמה.';
+  el.innerHTML = `<div class="pl-row">
+      <div class="pl-status ${cls}"><b>${status}</b><span>${lastTxt}</span></div>
+      <div class="pl-actions">
+        ${st.pending
+          ? `${c.paused ? '<button type="button" class="pd-soft" onclick="pdPlacementSet({ paused: false })">החזרת הבדיקה</button>' : '<button type="button" class="pd-soft" onclick="pdPlacementSet({ paused: true })">השהיה</button>'}
+             <button type="button" class="pl-cancel" onclick="pdPlacementCancel()">ביטול הבדיקה</button>`
+          : `<label class="pl-check"><input type="checkbox" id="pl-mandatory"> בלי אפשרות לסגור</label>
+             <button type="button" class="pd-soft pl-go" onclick="pdPlacementRequest()">בדיקת רמה בכניסה הבאה</button>`}
+      </div>
+    </div>`;
+}
+async function pdPlacementWrite(val) {
+  try {
+    await firebaseDb.ref('users/' + dashboardStudentUid + '/program/placement').set(val);
+    pd.program = Object.assign({}, pd.program || {}, { placement: val }); renderPdPlacement();
+  } catch (e) { alert('השמירה נכשלה: ' + (e.message || e)); }
+}
+function pdPlacementRequest() {
+  const mandatory = !!(document.getElementById('pl-mandatory') || {}).checked;
+  pdPlacementWrite({ requestedAt: Date.now(), mandatory, paused: false });
+  showToast('בדיקת הרמה תיפתח בכניסה הבאה');
+}
+function pdPlacementSet(ch) { pdPlacementWrite(Object.assign({}, (pd.program && pd.program.placement) || {}, ch)); }
+function pdPlacementCancel() {
+  if (!confirm('לבטל את בדיקת הרמה? התלמיד לא יתבקש לעבור אותה. אפשר לבקש שוב בכל זמן.')) return;
+  pdPlacementWrite({ cancelledAt: Date.now() });
+  showToast('בדיקת הרמה בוטלה');
 }
 function pdEditProgram() {
   const uid = dashboardStudentUid, name = document.getElementById('dashboard-student-name').textContent;
@@ -3944,6 +4101,7 @@ function renderParentDash() {
       ${a ? `<div class="pd-lnow"><div><b>שיעור ${act + 1} בתהליך</b><span>${pdMin(a.netMs)} / ${tgtMin} דק׳</span></div><div class="pd-lbar"><i style="width:${Math.min(100, Math.round(100 * (a.netMs || 0) / (tgtMin * 60000)))}%"></i></div></div>` : ''}
       <button type="button" class="pd-soft" onclick="pdEditProgram()">עריכת התוכנית</button>`;
   }
+  renderPdPlacement();
   // מוכנות: עשר התשובות האחרונות בכל מסלול
   const byT = {};
   arr.forEach(sub => (sub.problems || []).forEach(pr => { const t = pr.track || sub.track; if (!t || !BASICS_TRACKS[t] || pr.question === undefined || /^דוגמה/.test(pr.question)) return; (byT[t] = byT[t] || []).push(pr); }));
@@ -8768,7 +8926,7 @@ function renderSheetReview() {
       <div><b>${Math.max(1, Math.round(basicsSessionLog.reduce((a, r) => a + (r.timeMs || 0), 0) / 60000))}</b><small>דקות</small></div>
     </div>
     ${basicsFreshBadges.length ? `<div class="review-badges"><h4 class="mot-sub">תג חדש!</h4>${badgesHtml(basicsFreshBadges, true)}</div>` : ''}
-    <div class="submission-banner sent">✓ נשמר בהיסטוריה ונשלח למורה</div>
+    <div class="submission-banner sent">✓ נשמר בהיסטוריה</div>
     <div class="review-table-wrap">
       <table class="review-table">
         <thead>
@@ -10203,18 +10361,22 @@ function showAuthView(viewId) {
 function showAppView(viewId) {
   document.getElementById('auth-container').classList.add('hidden');
   document.getElementById('app-container').classList.remove('hidden');
-  ['main-menu', 'admin-home-view', 'parent-home-view', 'change-password-view'].forEach(id => {
+  ['main-menu', 'admin-home-view', 'parent-home-view', 'teacher-home-view', 'change-password-view'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
 }
 
 async function routeByRole(role) {
-  document.body.classList.toggle('student-mode', role !== 'admin' && role !== 'parent');
+  document.body.classList.toggle('student-mode', role !== 'admin' && role !== 'parent' && role !== 'teacher');
   if (role === 'admin') {
     document.getElementById('admin-username-label').textContent = currentUser.username;
     showAppView('admin-home-view');
     renderAdminHome();
+  } else if (role === 'teacher') {
+    document.getElementById('teacher-username-label').textContent = currentUser.displayName || currentUser.username;
+    showAppView('teacher-home-view');
+    renderTeacherHome();
   } else if (role === 'parent') {
     document.getElementById('parent-username-label').textContent = currentUser.username;
     showAppView('parent-home-view');
@@ -10223,6 +10385,7 @@ async function routeByRole(role) {
     studentUid = currentUser.uid;
     localStorage.setItem('studentName', studentName);
     document.getElementById('student-username-label').textContent = studentName;
+    if (await applyRemoteReset()) return;
     showAppView('main-menu');
     await loadStudentProgram();
     restoreLessonsFromCloudIfNeeded();
@@ -10232,7 +10395,7 @@ async function routeByRole(role) {
     renderJourney();
     await motLoadRemote();
     if (!mot.profile) openOnboarding();
-    else if (placementPending()) startDiagnostic();
+    else if (placementPending()) startScheduledPlacement();
   }
 }
 
@@ -10309,13 +10472,13 @@ function barsHtml(bars, goal) {
     `<div class="pd-bar-col"><span>${b.v || '–'}</span><div class="pd-bar${b.v && (!goal || b.v >= goal) ? ' hit' : b.v ? '' : ' zero'}" style="height:${Math.max(3, Math.round(100 * b.v / max))}%"></div></div>`).join('')}</div>
     <div class="pd-bar-names">${bars.map(b => `<span>${b.name}</span>`).join('')}</div>`;
 }
-const adWhen = ts => { if (!ts) return 'עוד לא תרגל'; const m = Math.round((Date.now() - ts) / 60000); return m < 60 ? `לפני ${Math.max(1, m)} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} ש׳` : `לפני ${Math.round(m / 1440)} ימים`; };
+const adWhen = ts => { if (!ts) return 'עוד לא תרגל'; const m = Math.round((Date.now() - ts) / 60000); return m < 60 ? `לפני ${Math.max(1, m)} דק׳` : m < 1440 ? `לפני ${Math.round(m / 60)} ש׳` : m < 2880 ? 'אתמול' : `לפני ${Math.round(m / 1440)} ימים`; };
 function renderAdminDash() {
   if (!ad.users || !ad.subs || !document.getElementById('ad-kpis')) return;
   const users = ad.users, now = Date.now(), per = adPeriod(), D = 864e5;
   const ids = Object.keys(users);
   const parents = ids.filter(u => users[u].role === 'parent');
-  const students = ids.filter(u => !users[u].role && users[u].parentUid);
+  const students = ids.filter(u => (users[u].role === 'student' || !users[u].role) && users[u].parentUid);
   const real = ad.subs.filter(x => !isSampleSub(x) && x.studentUid && users[x.studentUid]);
   const cur = weeklyStats(real, per.from, now), prev = per.len ? weeklyStats(real, per.from - per.len, per.from) : null;
   const active = new Set(cur.subs.map(x => x.studentUid)).size, prevActive = prev ? new Set(prev.subs.map(x => x.studentUid)).size : null;
@@ -10367,14 +10530,30 @@ function renderAdminDash() {
   // הורים ותלמידים
   const minsOf = u => pdMin(real.filter(x => x.studentUid === u && x.timestamp > per.from).reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0));
   const lastOf = u => { const x = real.find(y => y.studentUid === u); return x ? x.timestamp : 0; };
-  document.getElementById('admin-parents-list').innerHTML = parents.length ? parents.map(pu => {
+  document.getElementById('admin-parents-list').innerHTML = (parents.length ? parents.map(pu => {
     const pr = users[pu], kids = students.filter(u => users[u].parentUid === pu);
     return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(pr.displayName || pr.username)}</b><span>@${escapeHtml(pr.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
       ${kids.map(u => { const k = users[u], m = k.motivation || {}, last = lastOf(u);
         return `<button type="button" class="ad-kid" onclick="adOpenStudent('${u}')"><span class="ad-kname"><b>${escapeHtml(k.displayName || k.username)}</b><small>${m.profile ? `כיתה ${escapeHtml(m.profile.grade)} · ${escapeHtml(m.profile.school)} · ` : ''}${adWhen(last)}</small></span>
           <span class="ad-kstat"><b>${minsOf(u)}</b><small>דקות</small></span><span class="ad-kstat"><b>${motLevel(m.xp)}</b><small>שלב</small></span><span class="ad-kstat"><b>${motShownStreak(m)}</b><small>רצף</small></span>
           <span class="ad-go" aria-hidden="true">‹</span></button>`; }).join('') || '<p class="pd-empty">אין עדיין תלמידים.</p>'}</div>`;
-  }).join('') : '<p class="pd-empty">עדיין לא נוצרו חשבונות הורה.</p>';
+  }).join('') : '<p class="pd-empty">עדיין לא נוצרו חשבונות הורה.</p>') + (() => {
+    const teachers = ids.filter(u => users[u].role === 'teacher');
+    if (!teachers.length) return '';
+    return `<h4 class="ad-sub-h">מורים</h4>` + teachers.map(tu => {
+      const t = users[tu], kids = students.filter(u => users[u].teacherUid === tu);
+      return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
+        ${kids.length ? `<div class="ad-tkids">${kids.map(u => `<button type="button" class="tc-chip" onclick="adOpenStudent('${u}')">${escapeHtml(users[u].displayName || users[u].username)}</button>`).join('')}</div>` : '<p class="pd-empty">אין תלמידים משויכים. שייכו מתוך הדשבורד של התלמיד.</p>'}</div>`;
+    }).join('');
+  })();
+  // סנכרון רשימות התלמידים של המורים לפי teacherUid
+  const sync = {};
+  ids.filter(u => users[u].role === 'teacher').forEach(tu => {
+    const want = students.filter(u => users[u].teacherUid === tu), have = Object.keys(users[tu].students || {});
+    want.filter(u => !have.includes(u)).forEach(u => { sync['users/' + tu + '/students/' + u] = true; });
+    have.filter(u => !want.includes(u)).forEach(u => { sync['users/' + tu + '/students/' + u] = null; });
+  });
+  if (Object.keys(sync).length && !ad.syncing) { ad.syncing = true; firebaseDb.ref().update(sync).catch(e => console.warn('teacher list sync', e)).then(() => { ad.syncing = false; }); }
   // ניקוי נתונים
   const samples = ad.subs.filter(isSampleSub), orphan = ad.subs.filter(x => !isSampleSub(x) && (!x.studentUid || !users[x.studentUid]));
   const admins = ids.filter(u => users[u].role === 'admin');
@@ -10384,11 +10563,142 @@ function renderAdminDash() {
     row(orphan.length, 'תרגולים בלי משתמש', 'תרגולים ישנים שנשמרו לפי שם בלבד, או של משתמש שנמחק.', "adDeleteSubs('orphan')") +
     row(admins.length > 1 ? admins.length : 0, 'חשבונות מנהל', admins.length > 1 ? `יש ${admins.length} רשומות מנהל: ${admins.map(u => escapeHtml(users[u].username || u)).join(', ')}. כדאי לבדוק ב-Firebase שרק אחת בשימוש.` : 'רשומת מנהל אחת.', '');
 }
+// ============================================================
+// מסך מורה: הכיתה (תלמידים עם teacherUid של המורה), מדדים, התראות, פעולות לכיתה
+// ============================================================
+let tc = { range: 'week', students: null, subs: null, started: false };
+function renderTeacherHome() {
+  if (tc.started || !firebaseDb) return;
+  tc.started = true;
+  const fail = err => { console.warn(err);
+    const denied = /permission/i.test(String(err && (err.code || err.message)));
+    document.getElementById('tc-sub').textContent = denied ? 'אין הרשאה לקרוא את נתוני הכיתה. צריך לעדכן את כללי Firebase (הרשאות מורה) ולפרסם אותם.' : 'שגיאה בטעינה: ' + (err.message || err);
+    if (denied) document.getElementById('tc-table').innerHTML = '<p class="pd-empty">אחרי שמנהל המערכת מעדכן את הכללים, רעננו את הדף.</p>'; };
+  // רשימת התלמידים נשמרת אצל המורה (users/<מורה>/students), והמנהל מעדכן אותה כשמשייך תלמיד.
+  // כך המורה קורא רק את הרשומה שלו ואת רשומות התלמידים שלו, בלי שאילתה על כל המשתמשים.
+  const subsRefs = {};
+  firebaseDb.ref('users/' + currentUser.uid + '/students').on('value', snap => {
+    const ids = Object.keys(snap.val() || {});
+    tc.students = tc.students || {};
+    Object.keys(subsRefs).forEach(u => { if (!ids.includes(u)) { subsRefs[u].off(); delete subsRefs[u]; delete tc.students[u]; } });
+    if (!ids.length) { tc.students = {}; renderTeacherDash(); }
+    ids.forEach(u => {
+      if (subsRefs[u]) return;
+      subsRefs[u] = firebaseDb.ref('users/' + u);
+      subsRefs[u].on('value', s2 => { const v = s2.val(); if (v && v.teacherUid === currentUser.uid) tc.students[u] = v; else delete tc.students[u]; renderTeacherDash(); }, err => { console.warn(err); delete tc.students[u]; renderTeacherDash(); });
+    });
+  }, fail);
+  firebaseDb.ref('submissions').limitToLast(2000).on('value', snap => {
+    const a = []; snap.forEach(c => { a.push({ id: c.key, ...(c.val() || {}) }); }); a.sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0)); tc.subs = a; renderTeacherDash();
+  }, fail);
+}
+function tcSetRange(r) {
+  tc.range = r;
+  document.querySelectorAll('#teacher-home-view .pd-ranges button').forEach(b => b.classList.toggle('on', b.dataset.range === r));
+  renderTeacherDash();
+}
+function renderTeacherDash() {
+  if (!tc.students || !tc.subs || !document.getElementById('tc-kpis')) return;
+  const ids = Object.keys(tc.students), now = Date.now(), D = 864e5;
+  const per = tc.range === 'week' ? { from: now - 7 * D, len: 7 * D } : tc.range === 'month' ? { from: now - 30 * D, len: 30 * D } : { from: 0, len: 0 };
+  const subs = tc.subs.filter(x => !isSampleSub(x) && ids.includes(x.studentUid));
+  const cur = weeklyStats(subs, per.from, now), prev = per.len ? weeklyStats(subs, per.from - per.len, per.from) : null;
+  const active = new Set(cur.subs.map(x => x.studentUid)).size;
+  const pct = cur.n ? Math.round(100 * cur.ok / cur.n) : null;
+  const rows = ids.map(u => {
+    const st = tc.students[u], m = st.motivation || {}, mine = subs.filter(x => x.studentUid === u);
+    const inR = mine.filter(x => x.timestamp > per.from), probs = inR.flatMap(x => x.problems || []);
+    const ok = probs.filter(p => p.correct).length, last = mine[0] ? mine[0].timestamp : 0;
+    const days = last ? Math.floor((now - last) / D) : null;
+    const sp = probs.length ? Math.round(100 * ok / probs.length) : null;
+    const alerts = [];
+    if (days === null) alerts.push(['low', 'עוד לא תרגל']); else if (days >= 5) alerts.push(['low', `לא תרגל ${days} ימים`]);
+    if (sp !== null && probs.length >= 10 && sp < 60) alerts.push(['mid', `הצלחה ${sp}%`]);
+    const c = (st.program && st.program.placement) || {}, prof = m.profile || null;
+    if (c.requestedAt && !(prof && (prof.placementDone || 0) >= c.requestedAt) && !c.paused) alerts.push(['wait', 'בדיקת רמה ממתינה']);
+    return { u, name: st.displayName || st.username, grade: prof ? prof.grade : '', last, mins: pdMin(inR.reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0)), sp, level: motLevel(m.xp), streak: motShownStreak(m), alerts };
+  }).sort((a, b) => b.alerts.length - a.alerts.length || a.name.localeCompare(b.name, 'he'));
+  const needs = rows.filter(r => r.alerts.some(a => a[0] === 'low' || a[0] === 'mid')).length;
+  document.getElementById('tc-sub').textContent = `${ids.length === 1 ? 'תלמיד אחד' : ids.length + ' תלמידים'}${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
+  const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
+  const dl = (a, b) => prev ? adDeltaFor(a, b, tc.range) : '';
+  document.getElementById('tc-kpis').innerHTML =
+    kpi('תרגלו בטווח', 'var(--blue)', `${active}<small class="ad-of"> / ${ids.length}</small>`, prev ? dl(active, new Set(prev.subs.map(x => x.studentUid)).size) : '') +
+    kpi('דקות תרגול', 'var(--orange)', pdMin(cur.ms), prev ? dl(pdMin(cur.ms), pdMin(prev.ms)) : '') +
+    kpi('תרגילים', 'var(--purple)', cur.n, prev ? dl(cur.n, prev.n) : '') +
+    kpi('הצלחה', 'var(--mint)', pct === null ? '—' : pct + '%', `<small class="pd-flat">${cur.alone === null ? 'נפתרו לבד: אין נתון' : `נפתרו לבד: ${cur.alone}%`}</small>`) +
+    kpi('צריכים תשומת לב', 'var(--red)', needs, '<small class="pd-flat">לא תרגלו 5 ימים, או מתחת ל-60%</small>');
+  document.getElementById('tc-table').innerHTML = rows.length ? `<table class="pd-table tc-table"><thead><tr><th>תלמיד</th><th>כיתה</th><th>תרגול אחרון</th><th>דקות</th><th>הצלחה</th><th>שלב</th><th>רצף</th><th>התראות</th></tr></thead><tbody>${rows.map(r =>
+    `<tr tabindex="0" role="button" onclick="tcOpenStudent('${r.u}')" onkeydown="if (event.key === 'Enter') tcOpenStudent('${r.u}')"><td><b>${escapeHtml(r.name)}</b></td><td>${escapeHtml(r.grade || '—')}</td><td>${adWhen(r.last)}</td><td>${r.mins}</td>
+      <td>${r.sp === null ? '—' : `<span class="pd-score ${r.sp >= 80 ? 'ok' : r.sp >= 60 ? 'mid' : 'low'}" dir="ltr">${r.sp}%</span>`}</td><td>${r.level}</td><td>${r.streak}</td>
+      <td>${r.alerts.map(([k, t]) => `<span class="tc-alert ${k}">${t}</span>`).join(' ') || '<span class="ad-ok">✓</span>'}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="pd-empty">עוד לא שויכו אליך תלמידים. המנהל משייך תלמידים למורה מתוך הדשבורד של התלמיד.</p>';
+  const byT = {};
+  cur.subs.forEach(x => (x.problems || []).forEach(pr => { const t = pr.track || x.track; if (!t || !BASICS_TRACKS[t]) return; const b = byT[t] = byT[t] || { ok: 0, n: 0 }; b.n++; if (pr.correct) b.ok++; }));
+  const tr = Object.entries(byT).map(([t, v]) => ({ t, n: v.n, pct: Math.round(100 * v.ok / v.n) })).sort((a, b) => a.pct - b.pct).slice(0, 10);
+  document.getElementById('tc-tracks').innerHTML = tr.length ? tr.map(x => `<div class="pd-rrow"><span>${escapeHtml(trackLabelHebrew(x.t))} <small class="pd-flat">(${x.n})</small></span><div class="pd-rbar"><i class="${x.pct >= 80 ? 'ok' : x.pct >= 50 ? 'mid' : 'low'}" style="width:${x.pct}%"></i></div><b dir="ltr">${x.pct}%</b></div>`).join('') : '<p class="pd-empty">אין תשובות בטווח הזה.</p>';
+}
+function adDeltaFor(a, b, range) {
+  if (range === 'all') return '';
+  if (a === b) return '<small class="pd-flat">ללא שינוי</small>';
+  return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)} ${range === 'week' ? 'מהשבוע שעבר' : 'מהחודש שעבר'}</small>`;
+}
+function tcOpenStudent(uid) {
+  const st = tc.students && tc.students[uid]; if (!st) return;
+  dashboardReturnView = 'teacher-home-view';
+  document.getElementById('teacher-home-view').classList.add('hidden');
+  openParentDashboard(uid, st.displayName || st.username);
+}
+async function tcPlacementAll() {
+  const ids = Object.keys(tc.students || {}); if (!ids.length) return;
+  const mandatory = !!document.getElementById('tc-pl-mandatory').checked;
+  if (!confirm(`לבקש בדיקת רמה מ-${ids.length} תלמידים בכניסה הבאה שלהם${mandatory ? ', בלי אפשרות לסגור' : ''}?`)) return;
+  const upd = {}, val = { requestedAt: Date.now(), mandatory, paused: false };
+  ids.forEach(u => { upd['users/' + u + '/program/placement'] = val; });
+  try { await firebaseDb.ref().update(upd); showToast('בדיקת רמה נשלחה לכל הכיתה'); }
+  catch (e) { alert('השמירה נכשלה: ' + (e.message || e)); }
+}
 function adOpenStudent(uid) {
   const u = ad.users && ad.users[uid]; if (!u) return;
   dashboardReturnView = 'admin-home-view';
   document.getElementById('admin-home-view').classList.add('hidden');
   openParentDashboard(uid, u.displayName || u.username);
+  document.getElementById('pd-reset').classList.remove('hidden');
+  const teachers = Object.keys(ad.users).filter(k => ad.users[k].role === 'teacher');
+  document.getElementById('pd-teacher').innerHTML = '<option value="">ללא מורה</option>' + teachers.map(k => `<option value="${k}"${u.teacherUid === k ? ' selected' : ''}>${escapeHtml(ad.users[k].displayName || ad.users[k].username)}</option>`).join('');
+  document.getElementById('pd-teacher-wrap').classList.remove('hidden');
+  document.getElementById('pd-teacher-status').textContent = '';
+}
+async function adAssignTeacher(tuid) {
+  const uid = dashboardStudentUid, st = document.getElementById('pd-teacher-status');
+  st.textContent = 'שומר...'; st.className = 'pd-tstatus';
+  try {
+    // 1. השדה אצל התלמיד
+    await firebaseDb.ref('users/' + uid + '/teacherUid').set(tuid || null);
+    // 2. הרשימה אצל המורים
+    const teachers = Object.keys(ad.users || {}).filter(k => ad.users[k].role === 'teacher');
+    for (const k of teachers) await firebaseDb.ref('users/' + k + '/students/' + uid).set(k === tuid ? true : null);
+    // 3. בדיקה שזה באמת נשמר
+    const back = (await firebaseDb.ref('users/' + uid + '/teacherUid').once('value')).val() || '';
+    if (back !== (tuid || '')) throw new Error('הערך לא נשמר בשרת');
+    st.textContent = '✓ נשמר'; st.className = 'pd-tstatus ok';
+  } catch (e) {
+    console.warn('assign teacher failed', e);
+    st.textContent = 'השמירה נכשלה: ' + (e.code || e.message || e); st.className = 'pd-tstatus err';
+  }
+}
+// איפוס התקדמות (למנהל): שלבים, נקודות ותגים, רצף, שאלון ובדיקת רמה, שיעורים ומטבעות. היסטוריית התרגולים נשמרת.
+async function adResetStudent() {
+  const uid = dashboardStudentUid; if (!uid) return;
+  const name = document.getElementById('dashboard-student-name').textContent;
+  const ok = prompt(`איפוס ההתקדמות של ${name}:\nשלבים פתוחים, נקודות, שלב, רצף, תגים, שאלון ובדיקת רמה, שיעורים ומטבעות יתאפסו.\nהיסטוריית התרגולים נשמרת.\n\nכדי לאשר, כתבו: איפוס`);
+  if ((ok || '').trim() !== 'איפוס') return;
+  const zeros = {}; Object.keys(BASICS_TRACKS).forEach(t => { zeros[t] = 0; });
+  try {
+    await firebaseDb.ref('users/' + uid).update({ basicsProgress: zeros, motivation: null, coins: 0, resetAt: Date.now() });
+    await firebaseDb.ref('lessons/' + uid).set(null);
+    showToast(`ההתקדמות של ${name} אופסה. בכניסה הבאה הוא יתחיל מההתחלה.`);
+  } catch (e) { alert('האיפוס נכשל: ' + (e.message || e)); }
 }
 async function adDeleteSubs(kind) {
   const users = ad.users || {};
@@ -10403,6 +10713,7 @@ function openCreateParentForm() {
   document.getElementById('new-parent-displayname').value = '';
   document.getElementById('new-parent-username').value = '';
   document.getElementById('new-parent-password').value = '';
+  document.getElementById('new-account-mustchange').checked = true;
   document.getElementById('create-parent-error').textContent = '';
 }
 function closeCreateParentForm() {
@@ -10418,9 +10729,10 @@ async function handleCreateParent() {
   if (password.length < 6) { errEl.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים.'; return; }
   try {
     const uid = await createAuthUserIsolated(username, password);
+    const role = (document.getElementById('new-account-role') || {}).value === 'teacher' ? 'teacher' : 'parent';
     await firebaseDb.ref('users/' + uid).set({
-      username, displayName, role: 'parent', parentUid: null,
-      mustChangePassword: false,
+      username, displayName, role, parentUid: null,
+      mustChangePassword: !!(document.getElementById('new-account-mustchange') || {}).checked,
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       createdBy: currentUser.uid
     });
@@ -10517,7 +10829,7 @@ async function handleSaveProgram() {
   if (!count || count < 1 || count > 99) { errEl.textContent = 'מספר שיעורים לא תקין (1-99).'; return; }
   if (!minutes || minutes < 1 || minutes > 600) { errEl.textContent = 'משך שיעור לא תקין (1-600 דקות).'; return; }
   try {
-    await firebaseDb.ref('users/' + editProgramStudentUid + '/program').set({
+    await firebaseDb.ref('users/' + editProgramStudentUid + '/program').update({
       lessonCount: count, minutesPerLesson: minutes, resetIfNotSameDay: resetSameDay
     });
     closeEditProgramForm();
@@ -10552,7 +10864,7 @@ async function handleCreateStudent() {
     await firebaseDb.ref('users/' + uid).set({
       username, displayName, role: 'student', parentUid: currentUser.uid,
       grade: grade || null, notes: notes || null,
-      mustChangePassword: false,
+      mustChangePassword: !!(document.getElementById('new-student-mustchange') || {}).checked,
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       createdBy: currentUser.uid
     });
@@ -10648,7 +10960,7 @@ function handleLogout() {
 
 function openChangePassword() {
   changePasswordReturnView = currentUser.role === 'admin' ? 'admin-home-view'
-    : currentUser.role === 'parent' ? 'parent-home-view' : 'main-menu';
+    : currentUser.role === 'parent' ? 'parent-home-view' : currentUser.role === 'teacher' ? 'teacher-home-view' : 'main-menu';
   document.getElementById('change-current-password').value = '';
   document.getElementById('change-new-password').value = '';
   document.getElementById('change-new-password-confirm').value = '';
