@@ -1780,6 +1780,15 @@
   .ad-req-note { background: var(--paper); border-radius: 10px; padding: 6px 10px; margin-top: 4px; }
   .ad-req-actions { display: flex; gap: 8px; align-items: center; }
   #new-teacher-school-wrap.hidden { display: none; }
+  .tset-card { text-align: right; }
+  .tset-card h3 { text-align: center; } .tset-card > p { text-align: center; margin: -4px 0 4px; color: var(--ink2); }
+  .tset-card label { font-weight: 600; color: var(--ink2); margin-bottom: -6px; }
+  .tset-card input { width: 100%; box-sizing: border-box; min-height: 50px; border: 1.5px solid var(--line); border-radius: 14px; padding: 0 12px; font: inherit; color: var(--ink); background: var(--paper); }
+  .tset-card input:focus { outline: none; border-color: var(--blue); background: white; }
+  .tset-msg { min-height: 1.2em; font-size: .9em; } .tset-msg.err { color: var(--red-d); }
+  .req-link-btn { border: 0; background: none; color: var(--blue-d); font: 600 .95em var(--body); cursor: pointer; min-height: 44px; text-decoration: underline; text-underline-offset: 3px; }
+  .req-link-btn.hidden { display: none; }
+  .ad-edit { margin-inline-start: auto; min-height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--blue-l); color: var(--blue-d); font: 600 .85em var(--body); cursor: pointer; }
   #new-teacher-school-wrap label { display: block; margin-top: 8px; } .ad-req-actions .pd-soft { padding: 0 16px; }
   #ad-req-card.hidden, #tc-add-card.hidden { display: none; }
   .tc-hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
@@ -2205,6 +2214,7 @@ try {
     <div class="topic-view-header">
       <span>🍎 מורה: <b id="teacher-username-label"></b></span>
       <span>
+        <button class="btn btn-secondary" onclick="openTeacherSettings()">הגדרות</button>
         <button class="btn btn-secondary" onclick="openChangePassword()">החלף סיסמה</button>
         <button class="back-btn" onclick="handleLogout()">התנתק</button>
       </span>
@@ -2403,6 +2413,21 @@ try {
       <span class="q-chip" id="basics-session-title"></span>
     </div>
     <div id="basics-session" class="basics-session"></div>
+  </div>
+
+  <div id="tset-modal" class="ob-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="tset-title">
+    <form class="ob-confirm-card tset-card" onsubmit="event.preventDefault(); saveTeacherSettings();">
+      <h3 id="tset-title">הגדרות מורה</h3>
+      <p id="tset-sub"></p>
+      <label for="tset-name">שם מלא</label>
+      <input type="text" id="tset-name" maxlength="60" required>
+      <label for="tset-school">שם בית הספר</label>
+      <input type="text" id="tset-school" maxlength="80" placeholder="לדוגמה: מקיף ז׳ באר שבע">
+      <div class="tset-msg" id="tset-msg" aria-live="polite"></div>
+      <button type="submit" class="cta-big" id="tset-save">שמירה</button>
+      <button type="button" class="ob-back" onclick="closeTeacherSettings()">ביטול</button>
+      <button type="button" class="req-link-btn" id="tset-pw" onclick="closeTeacherSettings(); openChangePassword();">החלפת סיסמה</button>
+    </form>
   </div>
 
   <div id="onboarding-view" class="hidden" role="dialog" aria-modal="true" aria-labelledby="ob-title">
@@ -10660,7 +10685,7 @@ function renderAdminDash() {
     if (!teachers.length) return '';
     return `<h4 class="ad-sub-h">מורים</h4>` + teachers.map(tu => {
       const t = users[tu], kids = students.filter(u => users[u].teacherUid === tu);
-      return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')}${t.school ? ' · ' + escapeHtml(t.school) : ''} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span></div>
+      return `<div class="ad-parent"><div class="ad-ph"><b>${escapeHtml(t.displayName || t.username)}</b><span>@${escapeHtml(t.username || '')}${t.school ? ' · ' + escapeHtml(t.school) : ''} · ${kids.length} ${kids.length === 1 ? 'תלמיד' : 'תלמידים'}</span><button type="button" class="ad-edit" onclick="openTeacherSettings('${tu}')">עריכה</button></div>
         ${kids.length ? `<div class="ad-tkids">${kids.map(u => `<button type="button" class="tc-chip" onclick="adOpenStudent('${u}')">${escapeHtml(users[u].displayName || users[u].username)}</button>`).join('')}</div>` : '<p class="pd-empty">אין תלמידים משויכים. שייכו מתוך הדשבורד של התלמיד.</p>'}</div>`;
     }).join('');
   })();
@@ -10743,7 +10768,7 @@ function renderTeacherDash() {
     return { u, name: st.displayName || st.username, grade: prof ? prof.grade : '', last, mins: pdMin(inR.reduce((t, x) => t + ((x.summary && x.summary.totalTimeMs) || 0), 0)), sp, level: motLevel(m.xp), streak: motShownStreak(m), alerts };
   }).sort((a, b) => b.alerts.length - a.alerts.length || a.name.localeCompare(b.name, 'he'));
   const needs = rows.filter(r => r.alerts.some(a => a[0] === 'low' || a[0] === 'mid')).length;
-  document.getElementById('tc-sub').textContent = `${currentUser.school ? currentUser.school + ' · ' : ''}${ids.length === 1 ? 'תלמיד אחד' : ids.length + ' תלמידים'}${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
+  document.getElementById('tc-sub').textContent = `${currentUser.school || 'בית ספר: לא הוגדר (אפשר להוסיף ב״הגדרות״)'} · ${ids.length === 1 ? 'תלמיד אחד' : ids.length + ' תלמידים'}${needs ? ` · ${needs} צריכים תשומת לב` : ''}`;
   const kpi = (l, c, v, sub) => `<div class="pd-kpi"><div class="pd-kpi-l"><i style="background:${c}"></i>${l}</div><b>${v}</b>${sub || ''}</div>`;
   const dl = (a, b) => prev ? adDeltaFor(a, b, tc.range) : '';
   document.getElementById('tc-kpis').innerHTML =
@@ -10766,6 +10791,40 @@ function adDeltaFor(a, b, range) {
   if (range === 'all') return '';
   if (a === b) return '<small class="pd-flat">ללא שינוי</small>';
   return `<small class="${a > b ? 'pd-up' : 'pd-down'}">${a > b ? '▲' : '▼'} ${Math.abs(a - b)} ${range === 'week' ? 'מהשבוע שעבר' : 'מהחודש שעבר'}</small>`;
+}
+// ---- הגדרות מורה: המורה עצמו, או המנהל עבור מורה מסוים ----
+let tsetUid = null;
+function openTeacherSettings(uid) {
+  const self = !uid || uid === currentUser.uid;
+  tsetUid = self ? currentUser.uid : uid;
+  const rec = self ? currentUser : ((ad.users || {})[uid] || {});
+  document.getElementById('tset-title').textContent = self ? 'ההגדרות שלי' : 'עריכת מורה';
+  document.getElementById('tset-sub').textContent = rec.username ? 'שם משתמש: ' + rec.username : '';
+  document.getElementById('tset-name').value = rec.displayName || '';
+  document.getElementById('tset-school').value = rec.school || '';
+  document.getElementById('tset-msg').textContent = ''; document.getElementById('tset-msg').className = 'tset-msg';
+  document.getElementById('tset-pw').classList.toggle('hidden', !self);
+  document.getElementById('tset-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('tset-name').focus(), 30);
+}
+function closeTeacherSettings() { document.getElementById('tset-modal').classList.add('hidden'); tsetUid = null; }
+async function saveTeacherSettings() {
+  const name = document.getElementById('tset-name').value.trim(), school = document.getElementById('tset-school').value.trim();
+  const msg = document.getElementById('tset-msg'), btn = document.getElementById('tset-save');
+  if (name.length < 2) { msg.textContent = 'נא למלא שם מלא.'; msg.className = 'tset-msg err'; return; }
+  btn.disabled = true;
+  try {
+    await firebaseDb.ref('users/' + tsetUid).update({ displayName: name.slice(0, 60), school: school ? school.slice(0, 80) : null });
+    if (tsetUid === currentUser.uid) {
+      currentUser.displayName = name; currentUser.school = school || null;
+      const l = document.getElementById('teacher-username-label'); if (l) l.textContent = name;
+      if (typeof renderTeacherDash === 'function') renderTeacherDash();
+    }
+    closeTeacherSettings(); showToast('ההגדרות נשמרו');
+  } catch (e) {
+    msg.textContent = /permission/i.test(String(e.code || e.message)) ? 'אין הרשאה לשמור. צריך לעדכן את כללי Firebase.' : 'השמירה נכשלה: ' + (e.message || e);
+    msg.className = 'tset-msg err';
+  } finally { btn.disabled = false; }
 }
 function tcOpenAddStudent() {
   ['tc-new-name', 'tc-new-username', 'tc-new-password', 'tc-new-parent'].forEach(i => { document.getElementById(i).value = ''; });
