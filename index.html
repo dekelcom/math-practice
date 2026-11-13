@@ -2703,6 +2703,9 @@ function motNormalize(m) {
 function motTouchDay() {
   if (!mot.day || mot.day.date !== dayKey()) mot.day = { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} };
   if (!mot.day.claimed || typeof mot.day.claimed !== 'object') mot.day.claimed = {};
+  if (!mot.badges || typeof mot.badges !== 'object') mot.badges = {};
+  if (!mot.tracks || typeof mot.tracks !== 'object') mot.tracks = {};
+  if (!Array.isArray(mot.retry)) mot.retry = mot.retry && typeof mot.retry === 'object' ? Object.values(mot.retry) : [];
 }
 function motLoad() {
   mot = motNew();
