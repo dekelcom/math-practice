@@ -12143,12 +12143,25 @@ const Reels = (() => {
   }
   function closeExplain(next) {
     root.querySelector('.rl-ex-scrim').classList.remove('on'); root.querySelector('.rl-ex').classList.remove('on');
-    if (next) setTimeout(() => feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' }), 250);
+    if (next) setTimeout(() => goNext(), 250);
   }
   const exOpen = () => root.querySelector('.rl-ex').classList.contains('on');
 
   // ---------- תשובות ----------
-  function autoNext(el) { clearTimeout(el._auto); el._auto = setTimeout(() => { if (current === el && !exOpen()) feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' }); }, 350); }
+  // גלילה לכרטיס הבא: יעד מפורש (offsetTop), ואם הדפדפן לא גלל (קורה בטלפונים עם scroll-snap) קופצים ישירות
+  function goNext(from) {
+    const kids = [...feed.children], base = from || current || kids[Math.round(feed.scrollTop / Math.max(1, feed.clientHeight))];
+    let target = kids[kids.indexOf(base) + 1];
+    if (!target) { addCard(); target = feed.children[kids.indexOf(base) + 1]; }
+    if (!target) return;
+    const top = target.offsetTop;
+    try { feed.scrollTo({ top, behavior: 'smooth' }); } catch (e) { feed.scrollTop = top; }
+    clearTimeout(feed._fix);
+    feed._fix = setTimeout(() => {
+      if (Math.abs(feed.scrollTop - top) > 4) { feed.style.scrollSnapType = 'none'; feed.scrollTop = top; requestAnimationFrame(() => { feed.style.scrollSnapType = ''; }); }
+    }, 700);
+  }
+  function autoNext(el) { clearTimeout(el._auto); el._auto = setTimeout(() => { if (!exOpen() && Math.abs(feed.scrollTop - el.offsetTop) < feed.clientHeight / 2) goNext(el); }, 400); }
   function finishCard(el) {
     el.dataset.done = '1'; root.querySelectorAll('.rl-act .needq').forEach(b => b.disabled = true);
     const sw = el.querySelector('.rl-swipe'); if (sw) sw.textContent = 'גוללים למעלה ↑';
@@ -12308,7 +12321,7 @@ const Reels = (() => {
     el.querySelector('[data-act="close"]').onclick = close;
     el.querySelector('[data-act="again"]').onclick = () => {
       st.ended = false; st.started = Date.now(); st.log = []; st.saved = true; st.answered = 0; st.correct = 0; el._end = false;
-      addCard(); feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' }); say('cheer', 'יאללה, עוד סבב!');
+      addCard(); goNext(el); say('cheer', 'יאללה, עוד סבב!');
     };
     return el;
   }
@@ -12403,7 +12416,7 @@ const Reels = (() => {
     root.querySelector('[data-act="sound"]').onclick = toggleSound;
     root.querySelector('.rl-top [data-act="close"]').onclick = close;
     root.querySelector('[data-act="hint"]').onclick = actHint;
-    root.querySelector('[data-act="next"]').onclick = () => feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' });
+    root.querySelector('[data-act="next"]').onclick = () => goNext();
     root.querySelector('.rl-ex-go').onclick = () => closeExplain(true);
     root.addEventListener('pointerdown', () => audio(), { passive: true });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && root && !root.classList.contains('hidden')) { if (exOpen()) closeExplain(true); else close(); } });
