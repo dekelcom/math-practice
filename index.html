@@ -2815,7 +2815,7 @@ function updateMotUI() {
   const rd = document.getElementById('readiness');
   if (rd) rd.innerHTML = readinessHtml();
   const mixEl = document.getElementById('home-mix');
-  if (mixEl) mixEl.innerHTML = mixCardHtml();
+  if (mixEl) mixEl.innerHTML = mixCardHtml() + (typeof reelsCardHtml === 'function' ? reelsCardHtml() : '');
   const pr = document.getElementById('mot-progress');
   if (pr) pr.innerHTML = `
       <div class="mot-card">
@@ -4676,6 +4676,7 @@ function trackLabelHebrew(track) {
   }
   if (track === 'mixed') return 'בדיקת רמה';
   if (track === 'mix') return 'אימון חכם';
+  if (track === 'reels') return 'רילס';
   if (track === 'exam') return 'הבוס: סימולציה';
   return track || '';
 }
@@ -11729,5 +11730,732 @@ async function handleChangePassword() {
   });
 })();
 </script>
+<!-- ===== מצב רילס: תרגול בגלילה, כרטיס אחרי כרטיס, עם גילי ===== -->
+<style id="reels-css">
+  .reels { position: fixed; inset: 0; z-index: 2800; background: #0B0C16; display: flex; justify-content: center; color: #fff; font-family: var(--body); }
+  .reels.hidden { display: none; }
+  .reels * { box-sizing: border-box; }
+  .rl-phone { --c1:#1E2A8A; --c2:#3D5AFE; --c3:#8B5CF6; position: relative; width: 100%; max-width: 440px; height: 100%; overflow: hidden; background: var(--c1); transition: background-color .8s ease; isolation: isolate; }
+  @media (min-width: 560px) { .reels { align-items: center; padding: 20px; } .rl-phone { max-height: 900px; border-radius: 36px; box-shadow: 0 0 0 10px #000, 0 30px 80px rgba(0,0,0,.6); } }
+  .rl-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .rl-blob { position: absolute; width: 520px; height: 520px; border-radius: 50%; filter: blur(70px); opacity: .75; transition: background-color .8s ease; }
+  .rl-blob.a { background: var(--c2); top: -160px; right: -180px; animation: rl-drift-a 16s ease-in-out infinite alternate; }
+  .rl-blob.b { background: var(--c3); bottom: -200px; left: -200px; animation: rl-drift-b 19s ease-in-out infinite alternate; }
+  @keyframes rl-drift-a { to { transform: translate(-140px, 260px) scale(1.15); } }
+  @keyframes rl-drift-b { to { transform: translate(160px, -280px) scale(.9); } }
+  .rl-floaters span { position: absolute; bottom: -60px; font: 700 30px var(--display); color: #fff; animation: rl-rise linear infinite; }
+  @keyframes rl-rise { to { transform: translateY(-1100px) rotate(40deg); } }
+  .rl-top { position: absolute; inset: 0 0 auto 0; z-index: 5; padding: 12px 14px 0; display: flex; flex-direction: column; gap: 10px; }
+  .rl-bar { height: 4px; border-radius: 4px; background: rgba(255,255,255,.22); overflow: hidden; }
+  .rl-bar i { display: block; height: 100%; width: 0; background: #fff; border-radius: 4px; transition: width .6s linear; margin-inline-start: auto; }
+  .rl-row { display: flex; align-items: center; gap: 8px; }
+  .rl-x { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(0,0,0,.28); display: grid; place-items: center; cursor: pointer; color: #fff; padding: 0; }
+  .rl-sp { flex: 1; }
+  .rl-mode { font: 700 16px var(--display); }
+  .rl-combo { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 12px; border-radius: 999px; background: var(--orange); font: 700 15px var(--display); color: #fff; }
+  .rl-combo[hidden] { display: none; }
+  .rl-feed { position: absolute; inset: 0; z-index: 2; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; }
+  .rl-feed::-webkit-scrollbar { display: none; }
+  .rl-card { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; padding: 96px 22px 210px 80px; display: flex; flex-direction: column; justify-content: safe center; gap: 16px; position: relative; overflow: hidden; }
+  .rl-tag { align-self: flex-start; font: 600 13px var(--body); border-radius: 999px; padding: 5px 12px; background: rgba(255,255,255,.18); color: #fff; }
+  .rl-q { font: 700 clamp(40px, 12vw, 60px)/1.1 var(--display); text-align: center; text-shadow: 0 4px 0 rgba(0,0,0,.18); overflow-wrap: anywhere; }
+  .rl-q.long { font-size: clamp(26px, 7.5vw, 36px); }
+  .rl-q small { display: block; font: 500 17px var(--body); color: rgba(255,255,255,.82); margin-bottom: 10px; text-shadow: none; }
+  .rl-q .hm { color: inherit; }
+  .rl-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .rl-opts.wide { grid-template-columns: 1fr; }
+  .rl-opt { min-height: 66px; border: 0; border-radius: 20px; background: #fff; box-shadow: 0 5px 0 rgba(0,0,0,.22); font: 700 26px var(--display); color: var(--ink); cursor: pointer; padding: 6px 10px; transition: transform .08s; }
+  .rl-opts.wide .rl-opt { font-size: 19px; min-height: 54px; }
+  .rl-opt:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,.22); }
+  .rl-opt.ok { background: var(--mint); color: #fff; box-shadow: 0 5px 0 var(--mint-d); animation: rl-pop .35s cubic-bezier(.34,1.7,.64,1); }
+  .rl-opt.ok .hm, .rl-opt.ok * { color: #fff; }
+  .rl-opt.no { background: var(--orange-l); color: var(--orange-d); animation: rl-shake .35s; }
+  .rl-opt:disabled { cursor: default; }
+  @keyframes rl-pop { 50% { transform: scale(1.08); } }
+  @keyframes rl-shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+  .rl-line { min-height: 24px; text-align: center; font-size: 16px; font-weight: 500; }
+  .rl-swipe { color: rgba(255,255,255,.92); text-align: center; font-size: 15px; animation: rl-nudge 1.4s ease-in-out infinite; }
+  @keyframes rl-nudge { 50% { transform: translateY(-6px); } }
+  .rl-bubble { background: #fff; color: var(--ink); border-radius: 20px; padding: 14px 16px; font-size: 16px; line-height: 1.5; text-align: center; box-shadow: 0 6px 0 rgba(0,0,0,.18); }
+  .rl-bubble b.m { font: 700 clamp(20px, 6vw, 26px) var(--display); direction: ltr; unicode-bidi: isolate; display: inline-block; white-space: nowrap; }
+  .rl-yn { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rl-breath { align-self: center; width: 170px; height: 170px; border-radius: 50%; background: rgba(255,255,255,.22); box-shadow: 0 0 0 14px rgba(255,255,255,.08); display: grid; place-items: center; font: 700 22px var(--display); animation: rl-breathe 8s ease-in-out infinite; }
+  @keyframes rl-breathe { 0%, 100% { transform: scale(.72); } 50% { transform: scale(1.05); } }
+  .rl-count { text-align: center; font: 600 16px var(--body); }
+  .rl-card h2 { margin: 0; font: 700 34px/1.1 var(--display); color: #fff; }
+  .rl-plan { display: flex; flex-direction: column; gap: 10px; }
+  .rl-plan div { background: rgba(255,255,255,.16); border-radius: 16px; padding: 12px 14px; }
+  .rl-plan b { display: block; font: 700 19px var(--display); } .rl-plan span { font-size: 14px; color: rgba(255,255,255,.88); }
+  .rl-end { text-align: center; align-items: center; }
+  .rl-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+  .rl-stats div { background: rgba(255,255,255,.16); border-radius: 16px; padding: 12px 6px; }
+  .rl-stats b { display: block; font: 700 26px var(--display); } .rl-stats span { font-size: 13px; color: rgba(255,255,255,.85); }
+  .rl-btn { width: 100%; min-height: 56px; border: 0; border-radius: 18px; font: 700 18px var(--body); cursor: pointer; padding: 0 22px; }
+  .rl-btn.p { background: #fff; color: var(--ink); box-shadow: 0 5px 0 rgba(0,0,0,.25); }
+  .rl-btn.s { background: rgba(255,255,255,.16); color: #fff; }
+  .rl-flag { position: absolute; top: 96px; right: 24px; background: rgba(0,0,0,.3); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+  .rl-act { position: absolute; z-index: 6; left: 14px; bottom: 230px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  .rl-act button, .rl-act .rl-stat { width: 52px; border: 0; background: none; color: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font: 600 12px var(--body); padding: 0; }
+  .rl-act .ic { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.28); display: grid; place-items: center; transition: transform .1s; }
+  .rl-act button:active .ic { transform: scale(.9); }
+  .rl-act button:disabled { opacity: .45; cursor: default; }
+  .rl-act .rl-stat .ic { background: var(--sun); color: var(--ink); font: 700 16px var(--display); }
+  .rl-hint { background: #fff; color: var(--ink); border-radius: 18px; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 5px 0 rgba(0,0,0,.18); animation: rl-hint-in .35s cubic-bezier(.34,1.4,.64,1); font-size: 15px; line-height: 1.7; }
+  @keyframes rl-hint-in { from { opacity: 0; transform: translateY(-8px) scale(.97); } }
+  .rl-hint .hb-row { display: flex; align-items: center; gap: 6px; }
+  .rl-hint .hb-row b { font: 700 15px var(--display); margin-inline-end: auto; }
+  .rl-hint .hb-row button { min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: #F5F7FF; color: var(--ink2); font: 600 13px var(--body); cursor: pointer; }
+  .rl-hint .hb-row button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .rl-hint svg { display: block; width: auto; max-width: 100%; height: auto; max-height: 120px; margin: 0 auto; }
+  .rl-hint .pic-cap { text-align: center; color: var(--ink2); font-size: 13px; line-height: 1.4; }
+  .rl-card.has-hint .rl-q { font-size: clamp(32px, 9vw, 44px); } .rl-card.has-hint .rl-q small { display: none; }
+  .rl-ex-scrim { position: absolute; inset: 0; z-index: 9; background: rgba(11,12,22,.5); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .rl-ex-scrim.on { opacity: 1; pointer-events: auto; }
+  .rl-ex { position: absolute; z-index: 10; left: 0; right: 0; bottom: 0; max-height: 86%; overflow-y: auto; background: #FFF1DE; color: var(--ink); border-radius: 26px 26px 0 0; padding: 20px 20px 22px; transform: translateY(105%); transition: transform .38s cubic-bezier(.2,.9,.25,1); display: flex; flex-direction: column; gap: 14px; }
+  .rl-ex.on { transform: none; }
+  .rl-ex-head { display: flex; align-items: center; gap: 12px; }
+  .rl-ex-head .gface { width: 56px; height: 56px; flex: none; }
+  .rl-ex-head b { display: block; font: 700 22px var(--display); } .rl-ex-head small { color: var(--ink2); font-size: 14px; }
+  .rl-ex-ans { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+  .rl-ex-ans span { background: #fff; border-radius: 12px; padding: 4px 14px; font: 700 24px var(--display); box-shadow: 0 0 0 1px #F0D9B8; }
+  .rl-ex-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .rl-ex-steps li { display: flex; gap: 10px; align-items: flex-start; background: #fff; border-radius: 14px; padding: 10px 12px; font-size: 16px; line-height: 1.55; opacity: 0; animation: rl-step-in .35s ease-out forwards; }
+  .rl-ex-steps li > span { flex: none; width: 26px; height: 26px; border-radius: 50%; background: #E8ECFF; color: var(--blue-d); display: grid; place-items: center; font: 700 14px var(--display); }
+  @keyframes rl-step-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .rl-ex-go { min-height: 56px; border: 0; border-radius: 18px; background: var(--blue); color: #fff; font: 700 19px var(--body); box-shadow: 0 5px 0 var(--blue-d); cursor: pointer; }
+  .rl-cap { position: absolute; z-index: 6; right: 18px; left: 150px; bottom: 24px; }
+  .rl-cap b { display: block; font: 700 16px var(--display); }
+  .rl-cap span { font-size: 14px; color: rgba(255,255,255,.85); }
+  .rl-dock { position: absolute; z-index: 7; left: 6px; bottom: 10px; display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 2px; pointer-events: none; }
+  .rl-gili { width: 112px; height: 190px; flex: none; display: flex; align-items: flex-end; justify-content: center; }
+  .rl-gili img, .rl-party .big img { max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: 50% 100%; filter: drop-shadow(0 10px 14px rgba(0,0,0,.3)); }
+  .rl-gili img { animation: rl-g-in .35s cubic-bezier(.34,1.6,.64,1) both; }
+  @keyframes rl-g-in { from { transform: scale(.85) translateY(10px); opacity: .4; } }
+  .g-floss img { animation: rl-g-dance .5s ease-in-out infinite !important; }
+  .g-cheer img { animation: rl-g-jump .45s cubic-bezier(.3,.7,.4,1) 3 !important; }
+  .g-wave img { animation: rl-g-rock .7s ease-in-out 2 !important; }
+  .g-nod img { animation: rl-g-nod .5s ease-in-out 2 !important; }
+  .g-think img { animation: rl-g-tilt 1.6s ease-in-out infinite !important; }
+  .g-proud img { animation: rl-g-grow .6s ease-in-out 2 !important; }
+  .g-shake img { animation: rl-g-shake .4s ease-in-out 2 !important; }
+  @keyframes rl-g-dance { 0%,100% { transform: rotate(-6deg); } 25% { transform: translateY(-10px); } 50% { transform: rotate(6deg); } 75% { transform: translateY(-10px); } }
+  @keyframes rl-g-jump { 50% { transform: translateY(-22px) scaleY(1.04); } }
+  @keyframes rl-g-rock { 50% { transform: rotate(-5deg); } }
+  @keyframes rl-g-nod { 50% { transform: translateY(5px) scaleY(.97); } }
+  @keyframes rl-g-tilt { 50% { transform: rotate(-3deg); } }
+  @keyframes rl-g-grow { 50% { transform: scale(1.08); } }
+  @keyframes rl-g-shake { 25%,75% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .rl-say { max-width: 200px; background: #fff; color: var(--ink); border-radius: 16px 16px 4px 16px; padding: 9px 13px; font-size: 15px; line-height: 1.35; font-weight: 600; margin-bottom: 120px;
+    opacity: 0; transform: translateY(6px) scale(.96); transform-origin: bottom right; transition: opacity .2s, transform .25s cubic-bezier(.34,1.5,.64,1); box-shadow: 0 6px 0 rgba(0,0,0,.18); }
+  .rl-say.on { opacity: 1; transform: none; }
+  .rl-party { position: absolute; inset: 0; z-index: 8; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; opacity: 0; }
+  .rl-party.on { animation: rl-party-in 2.6s ease both; background: rgba(11,12,22,.45); }
+  @keyframes rl-party-in { 0% { opacity: 0; } 10%, 82% { opacity: 1; } 100% { opacity: 0; } }
+  .rl-party .big { width: 230px; height: 300px; display: flex; align-items: flex-end; justify-content: center; animation: rl-big-in .5s cubic-bezier(.34,1.6,.64,1); }
+  @keyframes rl-big-in { from { transform: scale(.3) translateY(120px); } }
+  .rl-party-t { font: 700 34px var(--display); text-shadow: 0 4px 0 rgba(0,0,0,.25); }
+  .rl-party i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 3px; animation: rl-fall 2.2s cubic-bezier(.3,.6,.6,1) both; }
+  @keyframes rl-fall { to { transform: translateY(980px) rotate(540deg); } }
+  .rl-toast { position: absolute; z-index: 11; top: 96px; left: 50%; transform: translate(-50%, -20px); opacity: 0; background: #fff; color: var(--ink); border-radius: 999px; padding: 8px 16px; font-weight: 600; transition: .25s; pointer-events: none; white-space: nowrap; }
+  .rl-toast.on { opacity: 1; transform: translate(-50%, 0); }
+  @media (max-height: 760px) {
+    .rl-card { padding-top: 90px; padding-bottom: 186px; gap: 12px; }
+    .rl-q { font-size: clamp(34px, 10vw, 48px); } .rl-q small { margin-bottom: 4px; font-size: 15px; }
+    .rl-opt { min-height: 56px; font-size: 22px; border-radius: 16px; } .rl-opts { gap: 10px; }
+    .rl-act { bottom: 196px; gap: 10px; } .rl-act .ic { width: 44px; height: 44px; }
+    .rl-gili { width: 92px; height: 158px; } .rl-say { margin-bottom: 96px; }
+    .rl-hint svg { max-height: 90px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .rl-blob, .rl-floaters span, .rl-breath, .rl-dock *, .rl-party .big, .rl-party i, .rl-swipe { animation: none !important; } .rl-ex-steps li { animation: none; opacity: 1; } }
+  /* כרטיס הכניסה במסך הבית */
+  .reels-card { position: relative; overflow: hidden; display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 14px 16px; border-radius: var(--r-lg);
+    background: linear-gradient(120deg, #2B1A8A, #3D5AFE 55%, #8B5CF6); color: #fff; box-shadow: 0 6px 0 #1E1466; }
+  .reels-card .rc-face { flex: none; width: 58px; height: 58px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,255,255,.85); overflow: hidden; }
+  .reels-card .rc-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .reels-card .rc-txt b { font: 700 1.15em var(--display); } .reels-card .rc-txt small { opacity: .9; }
+  .reels-card .rc-go { flex: none; min-height: 48px; padding: 0 18px; border: 0; border-radius: 14px; background: #fff; color: var(--ink); font: 700 1em var(--body); box-shadow: 0 4px 0 rgba(0,0,0,.25); cursor: pointer; }
+  .reels-card .rc-go:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+</style>
+<script>
+const Reels = (() => {
+  const ROUND_MS = 3 * 60 * 1000;               // סבב: 3 דקות, ואז כרטיס סיום
+  const BASIC_OPS = ['addition', 'subtraction', 'multiplication', 'division'];
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
+  const L = t => `<bdi dir="ltr">${t}</bdi>`;
+  const sgn = n => n < 0 ? `−${-n}` : String(n);
+  let root, feed, st, current, idleT, sayT, progT, io, mo;
+
+  // ---------- צלילים (Web Audio, בלי קבצים) ----------
+  const SFX = { ctx: null, on: true, shift: 1 };
+  try { SFX.on = localStorage.getItem('reelsSound') !== 'off'; } catch (e) {}
+  function audio() {
+    if (!SFX.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; SFX.ctx = new AC(); }
+    if (SFX.ctx.state === 'suspended') SFX.ctx.resume();
+    return SFX.ctx;
+  }
+  function note(f, t, dur, type = 'triangle', vol = .16, slideTo) {
+    const c = SFX.ctx, o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + t;
+    f *= SFX.shift; if (slideTo) slideTo *= SFX.shift;
+    o.type = type; o.frequency.setValueAtTime(f, t0);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + .015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + dur + .05);
+  }
+  function thump(t, vol = .35) {
+    const c = SFX.ctx, o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + t;
+    o.type = 'sine'; o.frequency.setValueAtTime(150, t0); o.frequency.exponentialRampToValueAtTime(45, t0 + .14);
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + .16);
+    o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + .2);
+  }
+  function wobble(f, t, dur, vol = .12) {
+    const c = SFX.ctx, o = c.createOscillator(), lfo = c.createOscillator(), lg = c.createGain(), g = c.createGain(), t0 = c.currentTime + t;
+    o.type = 'sine'; o.frequency.setValueAtTime(f * SFX.shift, t0); o.frequency.exponentialRampToValueAtTime(f * SFX.shift * .8, t0 + dur);
+    lfo.frequency.value = 7; lg.gain.value = 9; lfo.connect(lg).connect(o.frequency);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + .03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(c.destination); o.start(t0); lfo.start(t0); o.stop(t0 + dur + .05); lfo.stop(t0 + dur + .05);
+  }
+  const N = { C4: 261.6, D4: 293.7, E4: 329.6, F4: 349.2, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, G5: 784, A5: 880, C6: 1046.5 };
+  const VARIANTS = {
+    correct: [
+      () => { note(N.C5, 0, .12); note(N.G5, .09, .22); },
+      () => { [N.C5, N.E5, N.G5].forEach(f => note(f, 0, .35, 'sine', .08)); note(N.C6, .06, .3, 'triangle', .07); },
+      () => { [N.G5, N.C6, N.E5 * 2, N.G5 * 2].forEach((f, i) => note(f, i * .045, .12, 'sine', .07)); },
+      () => { note(987.8, 0, .07, 'square', .06); note(1318.5, .07, .28, 'square', .06); },
+      () => note(420, 0, .14, 'sine', .14, 1200),
+      () => { [N.C5, N.D5, N.E5, N.G5, N.C6].forEach((f, i) => note(f, i * .05, .1, 'triangle', .1)); },
+      () => { note(N.E5, 0, .1); note(N.E5, .11, .1); note(N.C6, .22, .3); },
+    ],
+    oops: [
+      () => note(N.E4, 0, .28, 'sine', .12, N.C4),
+      () => wobble(330, 0, .45),
+      () => { note(N.D4, 0, .14, 'triangle', .1); note(N.C4 * .94, .13, .26, 'triangle', .1); },
+      () => note(196, 0, .2, 'sine', .14),
+      () => { note(N.A4, 0, .1, 'sine', .08); note(N.F4, .1, .22, 'sine', .08, N.E4); },
+    ],
+    sad: [
+      () => { note(N.G4, 0, .3, 'sine', .13); note(N.F4, .28, .3, 'sine', .13); note(N.E4, .56, .7, 'sine', .13, 300); },
+      () => { [N.A4, N.C5, N.E5].forEach(f => note(f * .5, 0, .9, 'sine', .07)); note(N.E4, .1, .7, 'triangle', .05, N.D4); },
+      () => note(N.G4, 0, 1, 'sine', .12, N.C4),
+    ],
+  };
+  const lastVar = {};
+  function playVariant(kind) { const list = VARIANTS[kind]; let i; do { i = Math.floor(Math.random() * list.length); } while (list.length > 1 && i === lastVar[kind]); lastVar[kind] = i; list[i](); }
+  const SOUNDS = {
+    correct: () => { SFX.shift = Math.pow(2, Math.min(st.streak, 7) / 12); playVariant('correct'); SFX.shift = 1; },
+    dance: () => { SFX.shift = Math.pow(2, Math.min(st.streak, 7) / 12); [N.C5, N.E5, N.G5, N.C6].forEach((f, i) => note(f, i * .08, .16)); SFX.shift = 1; },
+    party: () => { [N.G4, N.C5, N.E5, N.G5, N.E5, N.G5, N.A5, N.G5, N.E5, N.C5, N.D5, N.E5, N.C6].forEach((f, i) => note(f, i * .12, .14, 'square', .07)); for (let i = 0; i < 8; i++) thump(i * .24); },
+    level: () => { [N.C5, N.E5, N.G5].forEach((f, i) => note(f, i * .1, .14)); note(N.C6, .32, .4, 'triangle', .18); },
+    oops: () => playVariant('oops'),
+    sad: () => playVariant('sad'),
+    swoosh: () => note(260, 0, .22, 'sine', .08, 980),
+    boing: () => note(220, 0, .35, 'triangle', .14, 520),
+  };
+  function play(name) { if (!SFX.on || !audio() || !SOUNDS[name]) return; try { SOUNDS[name](); } catch (e) {} }
+  function drawSoundIcon() {
+    const ic = root.querySelector('[data-snd-ic]'), b = root.querySelector('[data-act="sound"]');
+    ic.innerHTML = SFX.on ? '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>' : '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/>';
+    b.setAttribute('aria-pressed', String(!SFX.on)); b.setAttribute('aria-label', SFX.on ? 'השתקת צלילים' : 'הפעלת צלילים');
+  }
+  function toggleSound() { SFX.on = !SFX.on; try { localStorage.setItem('reelsSound', SFX.on ? 'on' : 'off'); } catch (e) {} drawSoundIcon(); if (SFX.on) play('correct'); }
+
+  // ---------- גילי: תנוחה לכל רגע, נבחרת באקראי מכמה אפשרויות ----------
+  const POSES = { happy: ['shy'], wave: ['wink', 'pointdown', 'telescope'], dance: ['cheer', 'cartwheel', 'guitar'], cheer: ['cheer', 'balance', 'run'],
+    encourage: ['point', 'pointdown'], think: ['book', 'lean', 'confused'], proud: ['wink', 'books2'], oops: ['giggle', 'confused'] };
+  const GESTURE = { cheer: 'cheer', dance: 'floss', wave: 'wave', encourage: 'nod', think: 'think', proud: 'proud', oops: 'shake', happy: '' };
+  const poseImg = mood => `<img alt="" decoding="async" src="assets/gili/poses/${pick(POSES[mood] || POSES.happy)}.webp">`;
+  function say(mood, text, ms = 2600) {
+    const g = root.querySelector('.rl-gili'), s = root.querySelector('.rl-say');
+    g.className = 'rl-gili'; void g.offsetWidth;
+    g.innerHTML = poseImg(mood);
+    if (GESTURE[mood]) g.classList.add('g-' + GESTURE[mood]);
+    s.textContent = text || ''; s.classList.toggle('on', !!text);
+    clearTimeout(sayT);
+    sayT = setTimeout(() => { s.classList.remove('on'); if (mood !== 'think') { g.className = 'rl-gili'; g.innerHTML = poseImg('happy'); } }, ms);
+  }
+  function toast(t) { const el = root.querySelector('.rl-toast'); el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 1600); }
+
+  // ---------- בחירת שאלות: מהמסלולים של התלמיד, ברמה שלו ----------
+  const visible = t => !(typeof HIDDEN_TOPICS !== 'undefined' && HIDDEN_TOPICS[t]);
+  function pool() {
+    const p = mixPool().filter(t => BASICS_TRACKS[t] && visible(t));
+    const station = journeyNextTrack();
+    if (station && BASICS_TRACKS[station] && visible(station) && !p.includes(station)) p.push(station);
+    return p.length ? p : ['addition'];
+  }
+  const maxLv = t => Math.min(9, basicsProgress[t] || 0);
+  const lvOf = t => (st.lv[t] = st.lv[t] ?? maxLv(t));
+  // מוסיף מסיחים לשאלה בלי אפשרויות, ומקצר ל-4 אפשרויות לכל היותר
+  function optionsFor(p) {
+    const ans = String(p.answer);
+    let opts = Array.isArray(p.options) && p.options.length >= 2 ? p.options.map(String) : null;
+    if (!opts) {
+      if (!basicsTypable(p)) return null;
+      const n = Number(p.answer), set = new Set([ans]);
+      [n + 1, n - 1, n + 10, n - 10, n + 2, n * 2].forEach(v => { if (set.size < 4 && (v >= 0 || n < 0) && Number.isFinite(v)) set.add(String(v)); });
+      opts = [...set];
+    }
+    if (!opts.includes(ans)) opts.push(ans);
+    const others = shuffle(opts.filter(o => o !== ans)).slice(0, 3);
+    return shuffle([ans, ...others]);
+  }
+  function makeQ(track, sheet) {
+    for (let i = 0; i < 6; i++) {
+      const p = mixProblem(track, Math.max(0, Math.min(9, sheet)));
+      if (!p) continue;
+      const opts = optionsFor(p);
+      if (!opts) continue;
+      return { p, track, sheet: p._sheet, opts };
+    }
+    return null;
+  }
+  // ~50% התחנה במסע, ~30% חזרה (החלשים קודם), ~20% טעויות שמחכות
+  function chooseTrack() {
+    const r = Math.random(), P = pool(), station = journeyNextTrack();
+    const q = retryQueue();
+    if (r >= .8 && q.length) { const idx = q.findIndex(x => BASICS_TRACKS[x.track] && visible(x.track)); if (idx >= 0) { const it = q.splice(idx, 1)[0]; return { track: it.track, sheet: it.sheet, source: 'queue' }; } }
+    const review = P.filter(t => t !== station);
+    if ((r >= .5 || !station || !P.includes(station)) && review.length) {
+      const w = review.map(t => 110 - trackMastery(t));
+      let x = Math.random() * w.reduce((a, b) => a + b, 0), t = review[0];
+      for (let i = 0; i < review.length; i++) { x -= w[i]; if (x <= 0) { t = review[i]; break; } }
+      return { track: t, source: 'review' };
+    }
+    return { track: station && P.includes(station) ? station : P[0], source: 'station' };
+  }
+  const tname = t => trackTitle(t);
+  const lvLabel = (t, s) => `שלב ${sheetLabelFor(t, s)}`;
+  function reasonFor(c, q) {
+    if (c.source === 'queue') return `מהתור שלך · טעית בזה לאחרונה`;
+    if (c.source === 'review') return `חזרה · ${tname(q.track)}: ${trackMastery(q.track)}% הצלחה`;
+    return `התחנה שלך במסע · ${tname(q.track)} · ${lvLabel(q.track, q.sheet)}`;
+  }
+  function questionHtml(p) {
+    const eq = p.displayQ || `${p.a} ${p.op} ${p.b}`, plain = plainText(eq);
+    const isEq = !p.questionLabel && /x/.test(plain) && /=/.test(plain);
+    const label = p.questionLabel || (isEq ? 'פתרו את המשוואה:' : 'כמה זה?');
+    const line = supSq((p.questionLabel || isEq) ? eq : `${eq} = ?`);
+    return { html: `<small>${escapeHtml(label)}</small><bdi dir="ltr">${line}</bdi>`, long: plain.length > 14 };
+  }
+
+  // ---------- רמזים (ציור או מילים) לארבע פעולות החשבון ----------
+  function basicParts(q) {
+    const p = q.p, op = String(p.op || '').replace('-', '−').replace('*', '×').replace('/', '÷');
+    if (typeof p.a !== 'number' || typeof p.b !== 'number' || !['+', '−', '×', '÷'].includes(op)) return null;
+    return { a: p.a, b: p.b, op };
+  }
+  const dot = (x, y, r, c) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`;
+  function picMul(a, b) {
+    const big = a * b > 120, rows = big ? Math.min(a, 6) : a, cols = b;
+    if (!rows || !cols) return '';
+    const cell = Math.min(26, Math.floor(300 / Math.max(cols, 1)), Math.floor(200 / Math.max(rows, 1))), r = cell * .36, W = cols * cell + 20, H = rows * cell + 20;
+    let g = '';
+    for (let i = 0; i < rows; i++) {
+      g += `<rect x="6" y="${10 + i * cell - 2}" width="${cols * cell + 8}" height="${cell}" rx="${cell / 2}" fill="${i % 2 ? '#E8ECFF' : '#F1EAFF'}"/>`;
+      for (let j = 0; j < cols; j++) g += dot(10 + j * cell + cell / 2, 10 + i * cell + cell / 2 - 2, r, i % 2 ? '#3D5AFE' : '#8B5CF6');
+    }
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${a} שורות של ${b} נקודות">${g}</svg>
+      <div class="pic-cap">${big ? `מראים ${rows} שורות מתוך ${a}. ` : ''}${L(a)} שורות, ובכל שורה ${L(b)} נקודות. כמה נקודות יש בסך הכול?</div>`;
+  }
+  function picAdd(a, b) {
+    const part = (n, x0, c) => { let g = '', x = x0; const t = Math.floor(n / 10), o = n % 10;
+      for (let i = 0; i < t; i++) { g += `<rect x="${x}" y="14" width="12" height="100" rx="4" fill="${c}"/>`; for (let k = 1; k < 10; k++) g += `<path d="M${x} ${14 + k * 10}h12" stroke="#fff" stroke-width="1.5"/>`; x += 16; }
+      x += 6; for (let i = 0; i < o; i++) g += `<rect x="${x + (i % 3) * 13}" y="${70 + Math.floor(i / 3) * 13 - 26}" width="10" height="10" rx="3" fill="${c}"/>`;
+      return { g, w: x + 42 - x0 }; };
+    const A = part(a, 10, '#3D5AFE'), B = part(b, 10 + A.w + 30, '#FF6B3D'), W = 10 + A.w + 30 + B.w + 10;
+    return `<svg viewBox="0 0 ${W} 130" role="img" aria-label="${a} ועוד ${b}">${A.g}<text x="${10 + A.w + 10}" y="74" font-size="26" font-weight="700" fill="#1B1B2F">+</text>${B.g}</svg>
+      <div class="pic-cap">מקל = 10, ריבוע = 1. מחברים קודם את המקלות, אחר כך את הריבועים.</div>`;
+  }
+  function picDiv(a, b) {
+    const pw = 300 / b, rounds = Math.max(0, Math.min(2, Math.floor(a / b) - 1));
+    let g = '';
+    for (let i = 0; i < b; i++) { const cx = 10 + pw * i + pw / 2; g += `<ellipse cx="${cx}" cy="96" rx="${pw / 2 - 6}" ry="14" fill="#E4E7F2"/>`;
+      for (let k = 0; k < rounds; k++) g += dot(cx - pw * .18 + k * pw * .36, 82, Math.min(6, pw * .14), '#14B88A'); }
+    return `<svg viewBox="0 0 310 120" role="img" aria-label="${a} מחולק ל-${b}">${g}<text x="155" y="30" text-anchor="middle" font-size="16" fill="#5B6080">${rounds ? `חילקנו ${rounds} סבבים. נשארו עוד ${a - b * rounds}…` : `מתחילים לחלק ${a} עוגיות…`}</text></svg>
+      <div class="pic-cap">${L(b)} צלחות, ${L(a)} עוגיות. מחלקים אחת-אחת לכל צלחת עד שנגמר. כמה בכל צלחת?</div>`;
+  }
+  function picSub(a, b) {
+    if (a <= 20) { // מספרים קטנים: עיגולים, ומה שמורידים מסומן ב-X
+      let g = '';
+      for (let i = 0; i < a; i++) { const x = 18 + (i % 10) * 28, y = 22 + Math.floor(i / 10) * 30, off = i >= a - b;
+        g += dot(x, y, 10, off ? '#C7CCE3' : '#3D5AFE') + (off ? `<path d="M${x - 7} ${y - 7}l14 14M${x + 7} ${y - 7}l-14 14" stroke="#C23F17" stroke-width="2.6" stroke-linecap="round"/>` : ''); }
+      return `<svg viewBox="0 0 296 ${a > 10 ? 74 : 44}" role="img" aria-label="${a} פחות ${b}">${g}</svg><div class="pic-cap">${L(a)} עיגולים. מוחקים ${L(b)}. כמה נשארו כחולים?</div>`;
+    }
+    const t = Math.floor(a / 10), o = a % 10, bt = Math.floor(b / 10), bo = b % 10; let g = '', x = 10;
+    for (let i = 0; i < t; i++) { const off = i >= t - bt; g += `<rect x="${x}" y="14" width="12" height="100" rx="4" fill="${off ? '#C7CCE3' : '#3D5AFE'}"/>`; if (off) g += `<path d="M${x - 3} 110 L${x + 15} 18" stroke="#C23F17" stroke-width="3"/>`; x += 16; }
+    x += 8; for (let i = 0; i < o; i++) { const off = i >= o - Math.min(bo, o); g += `<rect x="${x + (i % 3) * 13}" y="${44 + Math.floor(i / 3) * 13}" width="10" height="10" rx="3" fill="${off ? '#C7CCE3' : '#3D5AFE'}"/>`; }
+    return `<svg viewBox="0 0 ${x + 50} 130" role="img" aria-label="${a} פחות ${b}">${g}</svg><div class="pic-cap">${L(a)} במקלות וריבועים. מוחקים ${L(bt)} מקלות${bo ? ` ו-${L(bo)} ריבועים` : ''}${bo > o ? ' (צריך לפרק מקל לריבועים)' : ''}. כמה נשאר?</div>`;
+  }
+  function hintFor(q, mode) {
+    const bp = basicParts(q);
+    if (bp && mode === 'pic') {
+      const { a, b, op } = bp;
+      if (op === '×' && a <= 12 && b <= 12 && a * b > 0) return picMul(a, b);
+      if (op === '÷' && b > 0 && b <= 10 && a > 0) return picDiv(a, b);
+      if (op === '−' && a < 100 && a > 0) return picSub(a, b);
+      if (op === '+' && a < 100 && b < 100 && a >= 0) return picAdd(a, b);
+    }
+    if (bp) {
+      const { a, b, op } = bp;
+      if (op === '×') return `כפל הוא חיבור חוזר: ${L(a)} פעמים ${L(b)}.${b > 1 ? `<br>אם יודעים כמה זה ${L(`${a} × ${b - 1}`)}, מוסיפים עוד ${L(a)}.` : ''}`;
+      if (op === '+') return `מפרקים כל מספר לעשרות ואחדות, ומחברים עשרות עם עשרות ואחדות עם אחדות.`;
+      if (op === '−') return `מורידים קודם את העשרות, ואז את האחדות.`;
+      return `חילוק שואל: איזה מספר כפול ${L(b)} נותן ${L(a)}?`;
+    }
+    const steps = stepsFor(q);
+    return steps ? steps[0] : '';
+  }
+  const hasPic = q => { const bp = basicParts(q); return !!bp && /<svg/.test(hintFor(q, 'pic')); };
+  function renderHint(el) {
+    const q = el._q, box = el.querySelector('.rl-hint'); if (!q || !box) return;
+    const pic = hasPic(q), mode = pic ? (el._hintMode || 'pic') : 'words';
+    box.innerHTML = `<div class="hb-row"><b>רמז</b>${pic ? `<button type="button" aria-pressed="${mode === 'pic'}" data-m="pic">ציור</button><button type="button" aria-pressed="${mode === 'words'}" data-m="words">מילים</button>` : ''}</div>
+      <div>${hintFor(q, mode)}</div>`;
+    box.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { el._hintMode = b.dataset.m; renderHint(el); });
+  }
+  function actHint() {
+    const el = current; if (!el || !el._q || el.dataset.done) return;
+    let box = el.querySelector('.rl-hint');
+    if (box) { if (hasPic(el._q)) { el._hintMode = el._hintMode === 'pic' ? 'words' : 'pic'; renderHint(el); } return; }
+    box = document.createElement('div'); box.className = 'rl-hint';
+    (el.querySelector('.rl-q') || el.querySelector('.rl-bubble')).insertAdjacentElement('afterend', box);
+    el.classList.add('has-hint'); el._hinted = true;
+    renderHint(el); clearTimeout(idleT);
+    say('think', pick(['בואו נצייר את זה', 'הנה רמז קטן', 'בואו נחשוב יחד']), 2400);
+  }
+
+  // ---------- הסבר אחרי טעות שנייה: הצעדים של האפליקציה ----------
+  function stepsFor(q) {
+    let s = null;
+    try { s = BASICS_STEPS[q.track] ? BASICS_STEPS[q.track](q.p) : null; } catch (e) { s = null; }
+    return Array.isArray(s) && s.length ? s : null;
+  }
+  const ansHtml = q => renderOptionDisplay(q.p.answer);
+  function showExplain(q) {
+    const steps = stepsFor(q) || [`התשובה הנכונה היא ${ansHtml(q)}. נחזור לתרגיל כזה עוד מעט.`];
+    root.querySelector('[data-ex-ans]').innerHTML = ansHtml(q);
+    root.querySelector('[data-ex-q]').innerHTML = `<bdi dir="ltr">${supSq(q.p.displayQ || `${q.p.a} ${q.p.op} ${q.p.b}`)}</bdi>`;
+    root.querySelector('[data-ex-steps]').innerHTML = steps.map((s, i) => `<li style="animation-delay:${.15 + i * .25}s"><span>${i + 1}</span><div>${s}</div></li>`).join('');
+    root.querySelector('.rl-ex-scrim').classList.add('on'); root.querySelector('.rl-ex').classList.add('on');
+    clearTimeout(idleT);
+    setTimeout(() => root.querySelector('.rl-ex-go').focus({ preventScroll: true }), 350);
+  }
+  function closeExplain(next) {
+    root.querySelector('.rl-ex-scrim').classList.remove('on'); root.querySelector('.rl-ex').classList.remove('on');
+    if (next) setTimeout(() => feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' }), 250);
+  }
+  const exOpen = () => root.querySelector('.rl-ex').classList.contains('on');
+
+  // ---------- תשובות ----------
+  function autoNext(el) { clearTimeout(el._auto); el._auto = setTimeout(() => { if (current === el && !exOpen()) feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' }); }, 350); }
+  function finishCard(el) {
+    el.dataset.done = '1'; root.querySelectorAll('.rl-act .needq').forEach(b => b.disabled = true);
+    const sw = el.querySelector('.rl-swipe'); if (sw) sw.textContent = 'גוללים למעלה ↑';
+  }
+  function choose(el, q, b) {
+    if (el.dataset.done) return;
+    if (b.dataset.v === String(q.p.answer)) {
+      b.classList.add('ok'); el.querySelectorAll('.rl-opt').forEach(x => x.disabled = true);
+      el.querySelector('.rl-line').textContent = el._tries ? 'יפה, בניסיון השני!' : pick(['בול!', 'מעולה!', 'איזה ראש!']);
+      answer(el, true, !el._tries, q, b.dataset.v); autoNext(el);
+    } else if (!el._tries) {
+      el._tries = 1; el._first = b.dataset.v; b.classList.add('no'); b.disabled = true; play('oops');
+      el.querySelector('.rl-line').textContent = 'כמעט. עוד ניסיון אחד';
+      say('encourage', pick(['כמעט! עוד ניסיון', 'קרוב מאוד, נסו שוב', 'אני איתך, עוד פעם']));
+    } else {
+      b.classList.add('no');
+      el.querySelectorAll('.rl-opt').forEach(x => { x.disabled = true; if (x.dataset.v === String(q.p.answer)) x.classList.add('ok'); });
+      answer(el, false, false, q, b.dataset.v);
+      setTimeout(() => showExplain(q), 650);
+    }
+  }
+  // שומר כל תשובה כמו בדף רגיל: נקודות, הצלחה במסלול, ותור הטעויות
+  function record(el, q, ok, firstTry, chosen) {
+    const tier = Math.floor((q.sheet || 0) / 2) + 1;
+    const res = motOnAnswer({ correct: ok, missed: !firstTry && ok, hintLevel: el._hinted ? 1 : 0, hintChecked: false, tier });
+    trackResult(q.track, ok && firstTry);
+    if (!ok) retryPush(q.track, q.sheet);
+    st.log.push({ track: q.track, sheetIdx: q.sheet, question: (q.p.questionLabel ? q.p.questionLabel + ' ' : '') + (q.p.displayQ || `${q.p.a} ${q.p.op} ${q.p.b}`),
+      chosen, correct: ok, expected: q.p.answer, timeMs: Date.now() - (el._t0 || Date.now()), xp: res.gained, solvedAlone: ok && firstTry && !el._hinted,
+      ...(el._tries ? { firstTry: el._first } : {}), ...(el._hinted ? { hintsUsed: 1 } : {}) });
+    st.saved = false;
+  }
+  function answer(el, ok, firstTry, q, chosen, silent) {
+    finishCard(el);
+    st.answered++; if (ok) st.correct++;
+    if (q.p) record(el, q, ok, firstTry, chosen);
+    const t = q.track;
+    if (ok && !firstTry) {
+      st.streak = 0; st.hist[t] = 0; st.stars += 1;
+      play('correct'); if (!silent) say('cheer', pick(['הצלחת בניסיון השני!', 'יפה שלא ויתרת!', 'זהו, תפסת את זה!']), 1800);
+    } else if (ok) {
+      st.streak++; st.stars += st.streak >= 3 ? 2 : 1;
+      const h = st.hist[t] = (st.hist[t] || 0) + 1;
+      if (h % 3 === 0 && lvOf(t) < maxLv(t)) { st.lv[t]++; play('level'); toast(`עולים שלב ב${tname(t)}`); if (!silent) say('proud', `${lvLabel(t, st.lv[t])} ב${tname(t)}! אתם תותחים`); }
+      else if (!silent) {
+        if (st.streak > 0 && st.streak % 5 === 0) { party(`${st.streak} ברצף!`); say('dance', 'ריקוד ניצחון!', 2600); }
+        else { const mood = pick(['dance', 'cheer']); play(mood === 'dance' ? 'dance' : 'correct'); say(mood, pick(['יש!', 'בול!', 'וואו!', 'גאון!', 'כל הכבוד!']), 1800); }
+      }
+    } else {
+      st.streak = 0; st.hist[t] = 0;
+      st.lv[t] = Math.max(0, lvOf(t) - 1);
+      st.comeback.push({ track: t, sheet: Math.max(0, (q.sheet || 0) - 1), at: st.cards + 3, why: 'miss' });
+      play('sad');
+      if (!silent) say('encourage', pick(['לא נורא! בואו נראה איך פותרים', 'טעויות זה חלק מהלמידה', 'הנה ההסבר, נחזור לזה עוד מעט']), 3000);
+    }
+    root.querySelector('[data-stars]').textContent = st.stars;
+    const c = root.querySelector('.rl-combo'); c.hidden = st.streak < 2; c.querySelector('b').textContent = st.streak;
+  }
+  // דילוג: הכרטיס עזב את המסך בלי תשובה → השלב במסלול יורד, והשאלה תחזור בגרסה קלה יותר
+  function skipped(el) {
+    if (el.dataset.done || el._noq || el._skipped || !el._q) return;
+    el._skipped = true; st.skips++; st.streak = 0; play('swoosh');
+    const q = el._q, t = q.track;
+    st.hist[t] = 0; st.lv[t] = Math.max(0, lvOf(t) - 1);
+    st.comeback.push({ track: t, sheet: Math.max(0, (q.sheet || 0) - 1), at: st.cards + 3, why: 'skip' });
+    el.insertAdjacentHTML('afterbegin', '<span class="rl-flag">דילגת</span>');
+    say('wave', pick(['אין בעיה, נחזור לזה בגרסה קלה יותר', 'דילגנו. אני זוכרת את זה בשבילכם', 'בסדר גמור, ממשיכים!']), 2800);
+    root.querySelector('.rl-combo').hidden = true;
+  }
+
+  // ---------- כרטיסים ----------
+  function card(cls, scene, cap) { const el = document.createElement('section'); el.className = 'rl-card' + (cls ? ' ' + cls : ''); el._scene = scene; el._cap = cap; return el; }
+  function quickCard(q, variant, cap) {
+    const el = card(variant === 'retry' ? 'retry' : '', variant === 'retry' ? 'retry' : 'q', cap || `${tname(q.track)} · ${lvLabel(q.track, q.sheet)}`);
+    el._q = q;
+    const tag = variant === 'retry' ? 'חזרה חכמה · עם מספרים חדשים' : variant === 'comeback' ? 'חוזרים לזה, בגרסה קלה יותר' : variant === 'queue' ? 'מהתור שלך' : `${tname(q.track)} · ${lvLabel(q.track, q.sheet)}`;
+    const qh = questionHtml(q.p), wide = q.opts.some(o => o.length > 9 || /[֐-׿]/.test(o));
+    el.innerHTML = `<span class="rl-tag">${escapeHtml(tag)}</span>
+      <div class="rl-q${qh.long ? ' long' : ''}">${qh.html}</div>
+      <div class="rl-opts${wide ? ' wide' : ''}">${q.opts.map(o => `<button class="rl-opt" type="button" data-v="${escapeAttr(o)}">${renderOptionDisplay(o)}</button>`).join('')}</div>
+      <div class="rl-line" aria-live="polite"></div><div class="rl-swipe">לא בטוחים? מחליקים למעלה כדי לדלג ↑</div>`;
+    el.querySelectorAll('.rl-opt').forEach(b => b.onclick = () => choose(el, q, b));
+    return el;
+  }
+  // "גילי טעתה?": התלמיד בודק פתרון של גילי
+  function giliCard() {
+    const basics = pool().filter(t => BASIC_OPS.includes(t));
+    if (!basics.length) return null;
+    const t = pick(basics), q = makeQ(t, lvOf(t));
+    if (!q || !basicParts(q)) return null;
+    const ans = Number(q.p.answer), right = Math.random() < .45;
+    const said = right ? ans : Math.max(0, ans + pick([1, -1, 10, 2, -2].filter(d => ans + d >= 0 && d !== 0)));
+    const el = card('', 'gili', 'גילי טעתה? · בודקים את הפתרון שלה');
+    el._q = q;
+    const ex = `${q.p.a} ${q.p.op} ${q.p.b}`;
+    el.innerHTML = `<span class="rl-tag">גילי טעתה?</span>
+      <div class="rl-bubble">גילי פתרה: <b class="m">${ex} = ${said}</b><br>היא צדקה?</div>
+      <div class="rl-yn"><button class="rl-opt" type="button" data-v="1">צדקה ✓</button><button class="rl-opt" type="button" data-v="0">טעתה ✗</button></div>
+      <div class="rl-line" aria-live="polite"></div><div class="rl-swipe">מחליקים למעלה כדי לדלג ↑</div>`;
+    el._enter = () => say('proud', 'פתרתי לבד! תבדקו אותי', 3000);
+    el.querySelectorAll('.rl-opt').forEach(btn => btn.onclick = () => {
+      if (el.dataset.done) return;
+      const ok = (btn.dataset.v === '1') === right;
+      el.querySelectorAll('.rl-opt').forEach(x => x.disabled = true);
+      if (ok) {
+        btn.classList.add('ok');
+        el.querySelector('.rl-line').innerHTML = right ? `נכון, ${L(`${ex} = ${ans}`)}` : `טעיתי. ${L(`${ex} = ${ans}`)}`;
+        if (!right) { play('boing'); say('oops', 'אופס, תפסת אותי! צדקת'); answer(el, true, true, q, String(ans), true); }
+        else answer(el, true, true, q, String(ans));
+        autoNext(el);
+      } else { btn.classList.add('no'); answer(el, false, false, q, String(said)); setTimeout(() => showExplain(q), 650); }
+    });
+    return el;
+  }
+  function breakCard() {
+    const el = card('', 'break', 'הפסקת מוח · 15 שניות'); el._noq = true;
+    el.innerHTML = `<span class="rl-tag">הפסקת מוח · 15 שניות</span>
+      <div class="rl-breath">נושמים</div><div class="rl-count" aria-live="polite">שואפים כשהעיגול גדל, נושפים כשהוא קטן</div><div class="rl-swipe">ממשיכים למעלה כשמוכנים ↑</div>`;
+    el._enter = () => {
+      say('wave', 'הפסקה קטנה. נושמים איתי', 3200);
+      let s = 15; const c = el.querySelector('.rl-count');
+      clearInterval(el._iv); el._iv = setInterval(() => { s--; c.textContent = s > 0 ? `עוד ${s} שניות` : 'מוכנים? ממשיכים!'; if (s <= 0) clearInterval(el._iv); }, 1000);
+    };
+    return el;
+  }
+  function introCard() {
+    const name = escapeHtml(studentName || '');
+    const el = card('intro', 'q', `הסבב של ${name} היום`); el._noq = true;
+    const station = journeyNextTrack(), P = pool();
+    const weak = P.filter(t => t !== station).sort((a, b) => trackMastery(a) - trackMastery(b))[0];
+    const nq = retryQueue().length;
+    el.innerHTML = `<span class="rl-tag">הסבב שלך היום</span>
+      <h2>היי ${name}!</h2>
+      <div class="rl-plan">
+        ${station && P.includes(station) ? `<div><b>${escapeHtml(tname(station))}</b><span>התחנה שלך במסע · ${lvLabel(station, maxLv(station))}</span></div>` : ''}
+        ${weak ? `<div><b>חזרה על ${escapeHtml(tname(weak))}</b><span>${trackMastery(weak)}% הצלחה בתשובות האחרונות</span></div>` : ''}
+        ${nq ? `<div><b>${nq} ${nq === 1 ? 'טעות מחכה' : 'טעויות מחכות'}</b><span>יחזרו עם מספרים חדשים</span></div>` : ''}
+      </div>
+      <div class="rl-swipe">מחליקים למעלה כדי להתחיל ↑</div>`;
+    el._enter = () => say('wave', `היי ${studentName || ''}! הכנתי לך סבב`, 2800);
+    return el;
+  }
+  function endCard() {
+    const el = card('rl-end', 'end', 'סוף הסבב'); el._noq = true; el._end = true;
+    el._enter = () => {
+      save();
+      const pct = st.answered ? Math.round(100 * st.correct / st.answered) : 0;
+      el.querySelector('.rl-stats').innerHTML = `<div><b>${st.answered}</b><span>שאלות</span></div><div><b>${pct}%</b><span>הצלחה</span></div><div><b>${st.stars}</b><span>כוכבים</span></div>`;
+      say('dance', 'סיימנו! איזה סבב!', 4000); party('סיימת!');
+    };
+    el.innerHTML = `<div style="height:110px"></div>
+      <h2>סיימת את הסבב!</h2>
+      <p style="margin:0;color:rgba(255,255,255,.88);font-size:17px">התשובות נשמרו בהיסטוריה, וההורים והמורה יראו אותן.</p>
+      <div class="rl-stats"></div>
+      <button class="rl-btn p" type="button" data-act="close">חזרה למסך הבית</button>
+      <button class="rl-btn s" type="button" data-act="again">עוד סבב</button>`;
+    el.querySelector('[data-act="close"]').onclick = close;
+    el.querySelector('[data-act="again"]').onclick = () => {
+      st.ended = false; st.started = Date.now(); st.log = []; st.saved = true; st.answered = 0; st.correct = 0; el._end = false;
+      addCard(); feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' }); say('cheer', 'יאללה, עוד סבב!');
+    };
+    return el;
+  }
+
+  // ---------- הזרימה ----------
+  const PATTERN = ['q', 'q', 'gili', 'q', 'q', 'q', 'break', 'q', 'q', 'gili', 'q', 'q', 'q'];
+  function addCard() {
+    if (st.ended) return;
+    if (st.cards > 0 && Date.now() - st.started >= ROUND_MS) { st.ended = true; feed.appendChild(endCard()); return; }
+    st.cards++;
+    let el = null;
+    if (st.cards === 1) el = introCard();
+    for (let guard = 0; !el && guard < 8; guard++) {
+      const due = st.comeback.find(c => st.cards >= c.at);
+      if (due) {
+        st.comeback.splice(st.comeback.indexOf(due), 1);
+        const q = makeQ(due.track, due.sheet);
+        if (q) el = quickCard(q, due.why === 'miss' ? 'retry' : 'comeback', due.why === 'miss' ? `חזרה חכמה · ${tname(q.track)}, מספרים חדשים` : `חוזרים ל${tname(q.track)} · גרסה קלה יותר`);
+        continue;
+      }
+      const t = PATTERN[st.pat++ % PATTERN.length];
+      if (t === 'gili') el = giliCard();
+      else if (t === 'break') el = st.cards > 4 ? breakCard() : null;
+      else {
+        const c = chooseTrack(), q = makeQ(c.track, c.sheet != null ? c.sheet : lvOf(c.track));
+        if (q) el = quickCard(q, c.source === 'queue' ? 'queue' : '', reasonFor(c, q));
+      }
+    }
+    if (!el) { st.ended = true; el = endCard(); }
+    feed.appendChild(el);
+  }
+  const SCENES = { q: ['#1E2A8A', '#3D5AFE', '#8B5CF6'], retry: ['#6B3A00', '#C27C0E', '#FF6B3D'], gili: ['#073F37', '#0F8F6E', '#3D5AFE'],
+    break: ['#2A1660', '#5B3FC4', '#14B88A'], end: ['#064A3B', '#14B88A', '#FFC93C'] };
+  function setScene(el) {
+    const c = SCENES[el._scene] || SCENES.q, s = root.querySelector('.rl-phone').style;
+    s.setProperty('--c1', c[0]); s.setProperty('--c2', c[1]); s.setProperty('--c3', c[2]);
+    root.querySelector('[data-cap]').textContent = el._cap || '';
+    const isQ = !el._noq; root.querySelectorAll('.rl-act .needq').forEach(b => b.disabled = !isQ || !!el.dataset.done);
+  }
+  function party(text) {
+    play('party');
+    const o = root.querySelector('.rl-party');
+    o.innerHTML = `<div class="big g-floss">${poseImg('dance')}</div><div class="rl-party-t">${text}</div>` +
+      Array.from({ length: 26 }, (_, i) => `<i style="left:${R(2, 98)}%;background:${['#FFC93C', '#3D5AFE', '#14B88A', '#F2559B', '#FF6B3D'][i % 5]};animation-delay:${R(0, 30) / 100}s;transform:rotate(${R(0, 90)}deg)"></i>`).join('');
+    o.classList.remove('on'); void o.offsetWidth; o.classList.add('on');
+    clearTimeout(o._t); o._t = setTimeout(() => o.classList.remove('on'), 2600);
+  }
+  // שמירה בהיסטוריה (כמו דף): רק אם נענו שאלות שעוד לא נשמרו
+  function save() {
+    if (st.saved || !st.log.length) return;
+    st.saved = true;
+    const keep = basicsSessionLog;
+    try { basicsSessionLog = st.log.slice(); autoSaveSession('reels', 'reels', 'רילס'); } catch (e) { console.warn('reels save failed', e); }
+    finally { basicsSessionLog = keep; }
+  }
+
+  function build() {
+    root = document.createElement('div'); root.id = 'reels-view'; root.className = 'reels hidden';
+    root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'רילס: תרגול בגלילה');
+    const sy = ['+', '−', '×', '÷', '=', '%', '½', '7', '3', '9', 'x', '²'];
+    root.innerHTML = `<div class="rl-phone">
+      <div class="rl-bg" aria-hidden="true"><div class="rl-blob a"></div><div class="rl-blob b"></div><div class="rl-floaters">${Array.from({ length: 22 }, (_, i) => `<span style="left:${R(0, 96)}%;font-size:${R(18, 46)}px;animation-duration:${R(14, 30)}s;animation-delay:-${R(0, 30)}s;opacity:${R(8, 22) / 100}">${sy[i % sy.length]}</span>`).join('')}</div></div>
+      <div class="rl-top">
+        <div class="rl-bar" aria-hidden="true"><i data-prog></i></div>
+        <div class="rl-row">
+          <button class="rl-x" type="button" data-act="sound" aria-pressed="false"><svg data-snd-ic width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg></button>
+          <button class="rl-x" type="button" data-act="close" aria-label="יציאה מהרילס"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+          <span class="rl-sp"></span><span class="rl-mode">רילס</span><span class="rl-sp"></span>
+          <span class="rl-combo" hidden><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="currentColor"/></svg><b>0</b></span>
+        </div>
+      </div>
+      <div class="rl-feed"></div>
+      <div class="rl-act">
+        <span class="rl-stat"><span class="ic"><b data-stars>0</b></span>כוכבים</span>
+        <button type="button" class="needq" data-act="hint"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span>רמז</button>
+        <button type="button" data-act="next"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>הבא</button>
+      </div>
+      <div class="rl-cap"><b>@המורה גילי</b><span data-cap></span></div>
+      <div class="rl-dock" aria-live="polite"><div class="rl-gili"></div><div class="rl-say"></div></div>
+      <div class="rl-party" aria-hidden="true"></div>
+      <div class="rl-ex-scrim"></div>
+      <div class="rl-ex" role="dialog" aria-modal="true" aria-label="הסבר">
+        <div class="rl-ex-head"><span class="gface">${gili('encourage')}</span><div><b>כמעט. ככה פותרים:</b><small>התרגיל: <span data-ex-q></span></small></div></div>
+        <div class="rl-ex-ans">התשובה הנכונה: <span data-ex-ans></span></div>
+        <ol class="rl-ex-steps" data-ex-steps></ol>
+        <button type="button" class="rl-ex-go">הבנתי</button>
+      </div>
+      <div class="rl-toast"></div>
+    </div>`;
+    document.body.appendChild(root);
+    feed = root.querySelector('.rl-feed');
+    root.querySelector('[data-act="sound"]').onclick = toggleSound;
+    root.querySelector('.rl-top [data-act="close"]').onclick = close;
+    root.querySelector('[data-act="hint"]').onclick = actHint;
+    root.querySelector('[data-act="next"]').onclick = () => feed.scrollBy({ top: feed.clientHeight, behavior: 'smooth' });
+    root.querySelector('.rl-ex-go').onclick = () => closeExplain(true);
+    root.addEventListener('pointerdown', () => audio(), { passive: true });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && root && !root.classList.contains('hidden')) { if (exOpen()) closeExplain(true); else close(); } });
+  }
+  function open() {
+    if (!root) build();
+    st = { lv: {}, hist: {}, streak: 0, stars: 0, answered: 0, correct: 0, skips: 0, comeback: [], started: Date.now(), cards: 0, pat: 0, ended: false, log: [], saved: true };
+    current = null; feed.innerHTML = '';
+    root.querySelector('[data-stars]').textContent = '0'; root.querySelector('.rl-combo').hidden = true;
+    closeExplain(false);
+    drawSoundIcon();
+    root.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    if (io) io.disconnect(); if (mo) mo.disconnect();
+    io = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting || e.target === current) return;
+      const el = e.target, prev = current, kids = [...feed.children];
+      current = el; el._t0 = Date.now();
+      if (prev && kids.indexOf(prev) < kids.indexOf(el)) skipped(prev);
+      setScene(el);
+      if (el._enter) el._enter();
+      if (el === feed.lastElementChild && !el._end) addCard();
+      clearTimeout(idleT);
+      if (!el._noq) idleT = setTimeout(() => { if (!el.dataset.done && current === el) say('think', 'חושבים? זה בסדר. אפשר גם לדלג למעלה', 4000); }, 12000);
+    }), { root: feed, threshold: .6 });
+    mo = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => io.observe(n))));
+    mo.observe(feed, { childList: true });
+    clearInterval(progT);
+    progT = setInterval(() => { root.querySelector('[data-prog]').style.width = Math.min(100, 100 * (Date.now() - st.started) / ROUND_MS) + '%'; }, 500);
+    root.querySelector('.rl-gili').innerHTML = poseImg('happy');
+    addCard();
+    root.querySelector('.rl-top [data-act="close"]').focus({ preventScroll: true });
+  }
+  function close() {
+    if (!root) return;
+    save();
+    clearInterval(progT); clearTimeout(idleT); clearTimeout(sayT);
+    feed.querySelectorAll('.rl-card').forEach(c => clearInterval(c._iv));
+    if (io) io.disconnect(); if (mo) mo.disconnect();
+    root.classList.add('hidden'); document.body.style.overflow = '';
+    feed.innerHTML = '';
+    try { updateMotUI(); } catch (e) {}
+  }
+  return { open, close };
+})();
+function reelsCardHtml() {
+  return `<div class="reels-card">
+      <span class="rc-face" aria-hidden="true">${gili('cheer')}</span>
+      <span class="rc-txt"><b>רילס עם גילי</b><small>תרגול בגלילה, שאלה אחרי שאלה. 3 דקות.</small></span>
+      <button type="button" class="rc-go" onclick="Reels.open()">גוללים</button>
+    </div>`;
+}
+</script>
+
 </body>
 </html>
