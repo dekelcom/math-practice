@@ -2885,6 +2885,13 @@ function buildMixProblems() {
     for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) { t = pool[i]; break; } }
     add(mixProblem(t, Math.min(9, basicsProgress[t] || 0)));
   }
+  // מסלול עם מעט תרגילים שונים (למשל שבר בשלב 1) לא ממלא סבב שלם: משלימים מהמסלולים שהתחילו ומארבע הפעולות,
+  // אחרת הסבב נגמר באמצע (basicsProblems[basicsCurrent] ריק) והאימון נתקע
+  const fill = pool.concat(['addition', 'subtraction', 'multiplication', 'division']);
+  for (let guard = 0; out.length < MIX_SIZE && guard < 400; guard++) {
+    const t = fill[guard % fill.length], p = mixProblem(t, Math.min(9, basicsProgress[t] || 0));
+    if (p && !add(p) && guard > 200) out.push(p);
+  }
   // הטעויות מפוזרות בסבב ולא כולן בהתחלה
   for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
   return out.slice(0, MIX_SIZE);
