@@ -2687,17 +2687,33 @@ const comboMult = c => Math.min(3, 1 + Math.floor((Math.max(1, c) - 1) / 3));
 // רצף ימים "חי": אם לא תרגלו היום וגם לא אתמול – הרצף נשבר
 const motShownStreak = m => m && (m.lastDay === dayKey() || m.lastDay === yesterdayKey()) ? (m.streakDays || 0) : 0;
 const motKey = () => 'motivation:' + ((typeof studentUid !== 'undefined' && studentUid) || 'local');
-function motTouchDay() { if (!mot.day || mot.day.date !== dayKey()) mot.day = { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} }; }
+// Firebase לא שומר אובייקטים ומערכים ריקים (claimed: {}, retry: []) ומחזיר מערכים לפעמים כאובייקט.
+// בלי ההשלמה הזו, אחרי טעינה מהחשבון mot.day.claimed חסר, והתשובה הראשונה "נתקעת" אחרי בדיקה.
+function motNormalize(m) {
+  const base = motNew(), arr = v => Array.isArray(v) ? v : (v && typeof v === 'object' ? Object.values(v) : []);
+  m = Object.assign(base, m && typeof m === 'object' ? m : {});
+  if (!m.badges || typeof m.badges !== 'object') m.badges = {};
+  m.retry = arr(m.retry);
+  if (!m.tracks || typeof m.tracks !== 'object') m.tracks = {};
+  Object.keys(m.tracks).forEach(t => { m.tracks[t] = arr(m.tracks[t]); });
+  m.day = Object.assign({ date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} }, m.day && typeof m.day === 'object' ? m.day : {});
+  if (!m.day.claimed || typeof m.day.claimed !== 'object') m.day.claimed = {};
+  return m;
+}
+function motTouchDay() {
+  if (!mot.day || mot.day.date !== dayKey()) mot.day = { date: dayKey(), answered: 0, bestCombo: 0, sheets: 0, claimed: {} };
+  if (!mot.day.claimed || typeof mot.day.claimed !== 'object') mot.day.claimed = {};
+}
 function motLoad() {
   mot = motNew();
-  try { const o = JSON.parse(localStorage.getItem(motKey())); if (o) mot = Object.assign(motNew(), o); } catch (e) {}
+  try { const o = JSON.parse(localStorage.getItem(motKey())); if (o) mot = motNormalize(o); } catch (e) {}
   motTouchDay(); updateMotUI();
 }
 async function motLoadRemote() {
   if (typeof firebaseDb === 'undefined' || !firebaseDb || !studentUid) return;
   try {
     const r = (await firebaseDb.ref('users/' + studentUid + '/motivation').once('value')).val();
-    if (r && (r.xp || 0) > (mot.xp || 0)) { mot = Object.assign(motNew(), r); motTouchDay(); motSaveLocal(); }
+    if (r && (r.xp || 0) > (mot.xp || 0)) { mot = motNormalize(r); motTouchDay(); motSaveLocal(); }
   } catch (e) {}
   updateMotUI();
 }
@@ -2806,7 +2822,7 @@ function updateMotUI() {
   if (av) { av.style.setProperty('--xp-deg', Math.round(frac * 360) + 'deg'); av.querySelector('.lvl-badge').textContent = lvl; av.title = `שלב ${lvl} · עוד ${need - have} נקודות לשלב הבא`; }
   const q = document.getElementById('home-quests');
   if (q) q.innerHTML = MOT_QUESTS.map(x => {
-    const v = Math.min(x.need, mot.day[x.key] || 0), done = !!mot.day.claimed[x.id];
+    const v = Math.min(x.need, mot.day[x.key] || 0), done = !!(mot.day.claimed || {})[x.id];
     return `<div class="quest${done ? ' done' : ''}">
         <span class="quest-ring" style="${ringStyle(v / x.need, x.color)}"><span>${done ? '✓' : `${v}/${x.need}`}</span></span>
         <span class="quest-txt"><b>${x.name}</b><small>פרס: ${x.reward} מטבעות</small></span>
