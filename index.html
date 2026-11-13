@@ -1252,7 +1252,17 @@
     position: absolute; background: rgba(255,255,255,.16); color: white; border-radius: 12px;
     padding: 5px 11px; font-family: var(--display); font-weight: 700; font-size: .95em; direction: ltr; white-space: nowrap;
   }
-  .auth-hero-body { display: flex; align-items: center; gap: 16px; }
+  .auth-hero-body { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; padding-inline-end: 118px; min-height: 116px; }
+  .auth-gili ~ .auth-hero-body .auth-hero-title { font-size: 1.45em; }
+  /* המורה גילי מציצה מעל כרטיס ההתחברות ומצביעה עליו */
+  .auth-gili {
+    position: absolute; z-index: 0; left: 6px; bottom: -150px; height: 400px; width: auto;
+    filter: drop-shadow(0 10px 14px rgba(20, 20, 60, .3)); transform-origin: 50% 100%;
+    animation: gili-in .7s cubic-bezier(.34, 1.4, .64, 1) both, gili-sway 4s 1s ease-in-out infinite;
+  }
+  @keyframes gili-in { from { transform: translateY(70px); opacity: 0; } }
+  @keyframes gili-sway { 50% { transform: rotate(-1.5deg) translateY(-3px); } }
+  @media (prefers-reduced-motion: reduce) { .auth-gili { animation: none; } }
   .auth-mascot {
     flex: none; width: 92px; height: 92px; border-radius: 50%; background: white;
     display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 var(--blue-d);
@@ -2104,11 +2114,11 @@ try {
 <div id="auth-container" class="container">
   <div class="auth-hero" aria-hidden="true">
     <span class="hero-chip" style="top:14px; right:8%; --r:-6deg; animation-delay:0s">x + 3 = 7</span>
-    <span class="hero-chip" style="top:20px; left:10%; --r:5deg; animation-delay:-1.8s">½ + ¼</span>
-    <span class="hero-chip" style="top:70px; right:34%; --r:3deg; animation-delay:-3.5s">a² + b² = c²</span>
-    <span class="hero-chip" style="top:84px; left:6%; --r:-4deg; animation-delay:-5.2s">7 × 8</span>
+    <span class="hero-chip" style="top:22px; right:40%; --r:5deg; animation-delay:-1.8s">½ + ¼</span>
+    <span class="hero-chip" style="top:70px; right:20%; --r:3deg; animation-delay:-3.5s">a² + b² = c²</span>
+    <img class="auth-gili" src="assets/gili/pointdown.webp" alt="" width="327" height="760" decoding="async">
     <div class="auth-hero-body">
-      <span class="auth-mascot"></span>
+      <span class="auth-mascot hidden"></span>
       <div>
         <div class="auth-hero-title">מתרגלים חשבון ומתמטיקה</div>
         <div class="auth-hero-sub">שלב אחרי שלב, בשיטת Kumon</div>
