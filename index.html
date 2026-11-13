@@ -936,6 +936,13 @@
 
   /* מסך סיכום סוף שלב */
   .review-table-wrap { margin: 16px 0; overflow-x: auto; }
+  .review-details { margin: 14px 0; }
+  .review-details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px;
+    border-radius: 14px; background: white; box-shadow: var(--ring); font-weight: 700; color: var(--blue-d); }
+  .review-details > summary::-webkit-details-marker { display: none; }
+  .review-details > summary::after { content: ''; width: 9px; height: 9px; border: solid currentColor; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translateY(-3px); transition: transform .2s; }
+  .review-details[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+  .review-details[open] > summary { box-shadow: 0 0 0 2px var(--blue-l); }
   .review-table {
     width: 100%; border-collapse: collapse; font-size: 0.95em;
     background: white; border: none; box-shadow: var(--ring); border-radius: var(--r-md); overflow: hidden;
@@ -9225,7 +9232,7 @@ function renderSheetReview() {
     ? (basicsSheetPassed ? '🎯 סבב מעולה!' : 'סיימת סבב. הטעויות יחזרו בסבב הבא, עם מספרים חדשים.')
     : basicsSheetPassed
     ? (basicsSheetUnlocked
-        ? (basicsSheetIndex < 9 ? '🎉 שלט בשלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
+        ? (basicsSheetIndex < 9 ? '🎉 עברת את השלב! נפתח השלב הבא.' : '🏆 סיימת את כל המסלול! כל הכבוד.')
         : '✓ עברת. אפשר להמשיך לשלב הבא או לתרגל שוב.')
     : 'עוד לא. צריך 9 נכון מתוך 10 כדי להתקדם - נסה שוב.';
   const videoBtn = basicsSheetPassed || basicsMixed ? '' :
@@ -9262,7 +9269,7 @@ function renderSheetReview() {
     ? `<div class="unlock-badge">🔓 נפתח שלב ${sheetLabelFor(basicsTrack, basicsSheetIndex + 1)}</div>` : '';
   container.innerHTML = `
     <div class="basics-result ${cls}">
-      ${giliBoard(basicsSheetPassed ? `כל הכבוד${studentName ? `,<br>${escapeHtml(studentName)}` : ''}!` : `${studentName ? `${escapeHtml(studentName)},<br>` : ''}עוד קצת ומצליחים!`)}
+      ${giliBoard((fn => basicsSheetPassed ? `כל הכבוד${fn ? `,<br>${escapeHtml(fn)}` : ''}!` : `${fn ? `${escapeHtml(fn)},<br>` : ''}עוד קצת ומצליחים!`)(String(studentName || '').trim().split(/\s+/)[0]))}
       ${headline}
       <span class="score">${basicsCorrect} / ${BASICS_SHEET_SIZE}</span>
       <div class="review-pct" id="review-pct">${pct}%</div>
@@ -9275,14 +9282,17 @@ function renderSheetReview() {
     </div>
     ${basicsFreshBadges.length ? `<div class="review-badges"><h4 class="mot-sub">תג חדש!</h4>${badgesHtml(basicsFreshBadges, true)}</div>` : ''}
     <div class="submission-banner sent">✓ נשמר בהיסטוריה</div>
-    <div class="review-table-wrap">
-      <table class="review-table">
-        <thead>
-          <tr><th>#</th><th>שאלה</th><th>מה עניתי</th><th>נכון</th><th></th></tr>
-        </thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>
+    <details class="review-details">
+      <summary>השאלות והתשובות שלי${basicsCorrect < BASICS_SHEET_SIZE ? ` · ${BASICS_SHEET_SIZE - basicsCorrect} לבדיקה` : ''}</summary>
+      <div class="review-table-wrap">
+        <table class="review-table">
+          <thead>
+            <tr><th>#</th><th>שאלה</th><th>מה עניתי</th><th>נכון</th><th></th></tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>
+    </details>
     ${videoBtn}
     <div class="review-actions">
       ${basicsMixed ? `<button class="btn btn-primary" onclick="startMixSession()">עוד סבב</button>
